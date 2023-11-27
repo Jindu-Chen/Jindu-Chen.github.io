@@ -27,8 +27,8 @@
 <meta property="og:site_name" content="Jindu-Chen">
 <meta property="og:description" content="主要介绍GCC+Make开发环境下, 使用arm-none-eabi-工具链进行编译链接, 可选的编译\链接选项, 及其意义解释">
 <meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2023-11-26T01:40:58.000Z">
-<meta property="article:modified_time" content="2023-11-27T01:40:58.000Z">
+<meta property="article:published_time" content="2023-11-26T00:00:00.000Z">
+<meta property="article:modified_time" content="2023-11-27T00:00:00.000Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="gcc">
 <meta property="article:tag" content="链接">
@@ -193,14 +193,14 @@
               </span>
               <span class="post-meta-item-text">Posted on</span>
 
-              <time title="Created: 2023-11-26 01:40:58" itemprop="dateCreated datePublished" datetime="2023-11-26T01:40:58+00:00">2023-11-26</time>
+              <time title="Created: 2023-11-26 00:00:00" itemprop="dateCreated datePublished" datetime="2023-11-26T00:00:00+00:00">2023-11-26</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-11-27 01:40:58" itemprop="dateModified" datetime="2023-11-27T01:40:58+00:00">2023-11-27</time>
+                <time title="Modified: 2023-11-27 00:00:00" itemprop="dateModified" datetime="2023-11-27T00:00:00+00:00">2023-11-27</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -228,38 +228,29 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="GCC编译选项CFLAGS参数及说明"><a href="#GCC编译选项CFLAGS参数及说明" class="headerlink" title="GCC编译选项CFLAGS参数及说明"></a>GCC编译选项CFLAGS参数及说明</h1><br>
-
-<ul>
-<li><strong><code>-ffunction-sections</code></strong> : 告知编译器将每个函数放置在单独的小节中。在链接过程中只保留实际使用到的函数，未用到的函数将不会被链接，大大缩减生成可执行文件的大小</li>
-</ul>
-<br>
-
-<ul>
+        <h1 id="GCC编译选项CFLAGS参数及说明"><a href="#GCC编译选项CFLAGS参数及说明" class="headerlink" title="GCC编译选项CFLAGS参数及说明"></a>GCC编译选项CFLAGS参数及说明</h1><ul>
+<li><p><strong><code>-ffunction-sections</code></strong> : 告知编译器将每个函数放置在单独的小节中。在链接过程中只保留实际使用到的函数，未用到的函数将不会被链接，大大缩减生成可执行文件的大小</p>
+</li>
 <li><p><strong><code>-fdata-sections</code></strong> : 告知编译器将全局和静态变量放置在单独的小节中。与-ffunction-sections类似</p>
-<br>
 </li>
 <li><p><strong><code>--specs=rdimon.specs</code></strong> : </p>
-<br>
 </li>
 <li><p><strong><code>-std=gnu99 -mabi=aapcs</code></strong> : 指定使用C语言的GNU 99标准，-mabi&#x3D;aapcs指定使用ARM架构的AAPCS（ARM Architecture Procedure Call Standard）ABI。</p>
-<br></li>
+</li>
 </ul>
-<h1 id="GCC链接选项LDFLAGS参数及说明"><a href="#GCC链接选项LDFLAGS参数及说明" class="headerlink" title="GCC链接选项LDFLAGS参数及说明"></a>GCC链接选项LDFLAGS参数及说明</h1><br>
-
-<ul>
+<h1 id="GCC链接选项LDFLAGS参数及说明"><a href="#GCC链接选项LDFLAGS参数及说明" class="headerlink" title="GCC链接选项LDFLAGS参数及说明"></a>GCC链接选项LDFLAGS参数及说明</h1><ul>
 <li><p><strong><code>--specs=nosys.specs</code></strong> : 禁用标准库的系统调用，在嵌入式程序中应用。</p>
 <blockquote>
-<p>当编译时提示：<code>undefined reference to _sbrk&#39; 或 undefined reference to _write&#39;d</code> 等等时，可以加上此条选项<br><br></p>
+<p>当编译时提示：<code>undefined reference to _sbrk&#39; 或 undefined reference to _write&#39;d</code> 等等时，可以加上此条选项</p>
 </blockquote>
 </li>
 <li><p><strong><code>--specs=nano.specs</code></strong> : 不使用C语言标准库，改用微库，大大减小可执行文件大小。效果类似于应用newlib</p>
 <blockquote>
-<p>注意：使用微库后，不支持浮点数格式化标准输出<br><br></p>
+<p>注意：使用微库后，不支持浮点数格式化标准输出</p>
 </blockquote>
 </li>
 <li><p><strong><code>-Wl,--gc-sections</code></strong> : 告知链接器删除未使用的代码和数据段</p>
-<br></li>
+</li>
 </ul>
 <h1 id="编译纠错修改"><a href="#编译纠错修改" class="headerlink" title="编译纠错修改"></a>编译纠错修改</h1><ul>
 <li><p>当编译提示:<code>- undefined reference to _init</code>，类似时，检查是否添加了编译选项<code>--nostdlib</code>，不链接标准库，却又没指定库，导致的编译错误</p>
@@ -372,13 +363,13 @@
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-count">4</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-count">6</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
