@@ -1,5 +1,10 @@
 ---
-title: first message
-date: 2023-11-24 12:13:10
+title: first title
+date: 2023-11-27 01:40:58
 tags:
+- [gcc]
+categories:
+- [make]
+- [arm]
+description: This is a example blog post.
 ---
