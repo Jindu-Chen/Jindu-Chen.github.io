@@ -20,17 +20,20 @@
     var CONFIG = {"hostname":"jindu-chen.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="This is a example blog post.">
+  <meta name="description" content="主要介绍GCC+Make开发环境下, 使用arm-none-eabi-工具链进行编译链接, 可选的编译\链接选项, 及其意义解释">
 <meta property="og:type" content="article">
 <meta property="og:title" content="常用编译&#x2F;链接选项解释">
 <meta property="og:url" content="https://jindu-chen.github.io/2023/11/26/%E7%BC%96%E8%AF%91%E9%93%BE%E6%8E%A5%E9%80%89%E9%A1%B9%E6%84%8F%E4%B9%89%E8%A7%A3%E9%87%8A/index.html">
 <meta property="og:site_name" content="Jindu-Chen">
-<meta property="og:description" content="This is a example blog post.">
+<meta property="og:description" content="主要介绍GCC+Make开发环境下, 使用arm-none-eabi-工具链进行编译链接, 可选的编译\链接选项, 及其意义解释">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2023-11-26T01:40:58.000Z">
 <meta property="article:modified_time" content="2023-11-27T01:40:58.000Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="gcc">
+<meta property="article:tag" content="链接">
+<meta property="article:tag" content="编译">
+<meta property="article:tag" content="make">
 <meta name="twitter:card" content="summary">
 
 <link rel="canonical" href="https://jindu-chen.github.io/2023/11/26/%E7%BC%96%E8%AF%91%E9%93%BE%E6%8E%A5%E9%80%89%E9%A1%B9%E6%84%8F%E4%B9%89%E8%A7%A3%E9%87%8A/">
@@ -205,16 +208,16 @@
               </span>
               <span class="post-meta-item-text">In</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/arm/" itemprop="url" rel="index"><span itemprop="name">arm</span></a>
+                  <a href="/categories/C%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index"><span itemprop="name">C语言</span></a>
                 </span>
                   , 
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/make/" itemprop="url" rel="index"><span itemprop="name">make</span></a>
+                  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">嵌入式</span></a>
                 </span>
             </span>
 
           
-            <div class="post-description">This is a example blog post.</div>
+            <div class="post-description">主要介绍GCC+Make开发环境下, 使用arm-none-eabi-工具链进行编译链接, 可选的编译\链接选项, 及其意义解释</div>
 
         </div>
       </header>
@@ -225,7 +228,47 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        
+        <h1 id="GCC编译选项CFLAGS参数及说明"><a href="#GCC编译选项CFLAGS参数及说明" class="headerlink" title="GCC编译选项CFLAGS参数及说明"></a>GCC编译选项CFLAGS参数及说明</h1><br>
+
+<ul>
+<li><strong><code>-ffunction-sections</code></strong> : 告知编译器将每个函数放置在单独的小节中。在链接过程中只保留实际使用到的函数，未用到的函数将不会被链接，大大缩减生成可执行文件的大小</li>
+</ul>
+<br>
+
+<ul>
+<li><p><strong><code>-fdata-sections</code></strong> : 告知编译器将全局和静态变量放置在单独的小节中。与-ffunction-sections类似</p>
+<br>
+</li>
+<li><p><strong><code>--specs=rdimon.specs</code></strong> : </p>
+<br>
+</li>
+<li><p><strong><code>-std=gnu99 -mabi=aapcs</code></strong> : 指定使用C语言的GNU 99标准，-mabi&#x3D;aapcs指定使用ARM架构的AAPCS（ARM Architecture Procedure Call Standard）ABI。</p>
+<br></li>
+</ul>
+<h1 id="GCC链接选项LDFLAGS参数及说明"><a href="#GCC链接选项LDFLAGS参数及说明" class="headerlink" title="GCC链接选项LDFLAGS参数及说明"></a>GCC链接选项LDFLAGS参数及说明</h1><br>
+
+<ul>
+<li><p><strong><code>--specs=nosys.specs</code></strong> : 禁用标准库的系统调用，在嵌入式程序中应用。</p>
+<blockquote>
+<p>当编译时提示：<code>undefined reference to _sbrk&#39; 或 undefined reference to _write&#39;d</code> 等等时，可以加上此条选项<br><br></p>
+</blockquote>
+</li>
+<li><p><strong><code>--specs=nano.specs</code></strong> : 不使用C语言标准库，改用微库，大大减小可执行文件大小。效果类似于应用newlib</p>
+<blockquote>
+<p>注意：使用微库后，不支持浮点数格式化标准输出<br><br></p>
+</blockquote>
+</li>
+<li><p><strong><code>-Wl,--gc-sections</code></strong> : 告知链接器删除未使用的代码和数据段</p>
+<br></li>
+</ul>
+<h1 id="编译纠错修改"><a href="#编译纠错修改" class="headerlink" title="编译纠错修改"></a>编译纠错修改</h1><ul>
+<li><p>当编译提示:<code>- undefined reference to _init</code>，类似时，检查是否添加了编译选项<code>--nostdlib</code>，不链接标准库，却又没指定库，导致的编译错误</p>
+</li>
+<li><p>提示<code>- exit.c:(.text.exit+0x2c): undefined reference to _exit</code>，考虑在.ld链接文件的.text段的末尾加上<code>_exit = .;</code></p>
+</li>
+</ul>
+<h1 id="Makefile应用实例"><a href="#Makefile应用实例" class="headerlink" title="Makefile应用实例"></a>Makefile应用实例</h1><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"># 指定交叉编译工具链的 编译器、连接器、库管理器、</span><br><span class="line">CROSS_COMPILE=arm-none-eabi-</span><br><span class="line">CC=$(CROSS_COMPILE)gcc</span><br><span class="line">LD=$(CROSS_COMPILE)ld</span><br><span class="line">AR=$(CROSS_COMPILE)ar</span><br><span class="line">AS=$(CROSS_COMPILE)as</span><br><span class="line">OC=$(CROSS_COMPILE)objcopy</span><br><span class="line">OD=$(CROSS_COMPILE)objdump</span><br><span class="line">SZ=$(CROSS_COMPILE)size</span><br><span class="line"></span><br><span class="line"># 指定目标硬件的架构和浮点运算单元   -mfpu=fpv4-sp-d16 -mfloat-abi=hard </span><br><span class="line"># O0:禁用优化，O1：基本优化，O2, O3, Os</span><br><span class="line"># g0:禁用调试信息, g1, g2, g3, g</span><br><span class="line">MCU = -mcpu=cortex-m4 -mthumb \</span><br><span class="line">	-ffunction-sections \</span><br><span class="line">	-fdata-sections \</span><br><span class="line">	-Os -ggdb</span><br><span class="line"></span><br><span class="line"># 定义编译C源文件的编译选项：禁用共享变量、函数和数据分段、优化级别、调试信息级别、开启所有警告、目标架构、预定义宏</span><br><span class="line">CFLAGS= -c -fno-common \</span><br><span class="line">	--specs=rdimon.specs \</span><br><span class="line">	-std=gnu99 -mabi=aapcs \</span><br><span class="line">	-Wall \</span><br><span class="line">	$(MCU) \</span><br><span class="line">	$(C_DEFS)</span><br><span class="line"></span><br><span class="line"># 定义链接器脚本、链接选项、目标文件格式转换选项、反汇编等等</span><br><span class="line">LDSCRIPT=n32l40x_flash.ld</span><br><span class="line">LDFLAGS = -Wl,--gc-sections --data-sections -mabi=aapcs $(MCU) -T$(LDSCRIPT) \</span><br><span class="line">	--specs=nosys.specs \</span><br><span class="line">	--specs=nano.specs \</span><br><span class="line">	-x assembler-with-cpp -Wa,-mimplicit-it=thumb</span><br><span class="line">OCFLAGS	= -Obinary</span><br><span class="line">ODFLAGS	= -S</span><br></pre></td></tr></table></figure>
+
     </div>
 
     
@@ -235,6 +278,9 @@
       <footer class="post-footer">
           <div class="post-tags">
               <a href="/tags/gcc/" rel="tag"># gcc</a>
+              <a href="/tags/%E9%93%BE%E6%8E%A5/" rel="tag"># 链接</a>
+              <a href="/tags/%E7%BC%96%E8%AF%91/" rel="tag"># 编译</a>
+              <a href="/tags/make/" rel="tag"># make</a>
           </div>
 
         
@@ -244,8 +290,8 @@
     <div class="post-nav">
       <div class="post-nav-item"></div>
       <div class="post-nav-item">
-    <a href="/2023/11/27/hello-world/" rel="next" title="first title">
-      first title <i class="fa fa-chevron-right"></i>
+    <a href="/2023/11/27/%E5%9B%BD%E6%B0%91%E6%8A%80%E6%9C%AFGCC%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" rel="next" title="国民技术N32L406之GCC环境搭建">
+      国民技术N32L406之GCC环境搭建 <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -305,6 +351,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#GCC%E7%BC%96%E8%AF%91%E9%80%89%E9%A1%B9CFLAGS%E5%8F%82%E6%95%B0%E5%8F%8A%E8%AF%B4%E6%98%8E"><span class="nav-number">1.</span> <span class="nav-text">GCC编译选项CFLAGS参数及说明</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#GCC%E9%93%BE%E6%8E%A5%E9%80%89%E9%A1%B9LDFLAGS%E5%8F%82%E6%95%B0%E5%8F%8A%E8%AF%B4%E6%98%8E"><span class="nav-number">2.</span> <span class="nav-text">GCC链接选项LDFLAGS参数及说明</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BC%96%E8%AF%91%E7%BA%A0%E9%94%99%E4%BF%AE%E6%94%B9"><span class="nav-number">3.</span> <span class="nav-text">编译纠错修改</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Makefile%E5%BA%94%E7%94%A8%E5%AE%9E%E4%BE%8B"><span class="nav-number">4.</span> <span class="nav-text">Makefile应用实例</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -318,20 +365,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">3</span>
+          <span class="site-state-item-count">4</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-count">5</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-count">7</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
