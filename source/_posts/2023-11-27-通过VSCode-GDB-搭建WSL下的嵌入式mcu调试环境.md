@@ -8,6 +8,7 @@ tags:
 - [J-Link]
 categories:
 - [嵌入式]
+- [环境搭建]
 - [WSL]
 description: 简述在windows中，使用VSCode登陆WSL，实现在WSL环境下通过GDB + J-Link的GDB调试方法
 ---
