@@ -4,64 +4,69 @@ date: 2023-11-24 12:16:43
 type: "about" 
 ---
 
----
-title: About
-date: 2021-09-01
----
-
 ## About Me
 
-![Profile Picture](/path/to/profile-picture.jpg)
-
-I am a passionate blogger and software developer. I love creating beautiful and functional websites using various technologies. In my spare time, I enjoy exploring new programming languages and frameworks.
+Chen Jindu
+Phone: 18898517377
+Email: chenjindu@126.com
+Position: Embedded Software Engineer
 
 ## Résumé
 
 <details>
   <summary>English Résumé</summary>
 
-  Here, you can include the content of your English résumé using Markdown syntax.
 
-  ### Education
+## Educational Experience
+- Shenzhen University
+  - Mechanical Design, Manufacturing and Automation Bachelor in Electromechanical and Control Engineering
+  - 2018.09-2022.06
 
-  - Bachelor's Degree in Computer Science
-  - University Name, Year
+## Personal Skills
+- Proficient in using MCU such as ST and National technology for driving and application development
+- Mastery of SPI, IIC, UART peripherals
+- Proficient in C language programming, familiar with C++ and assembly language
+- Proficient in real-time operating system development, familiar with rt-thread and other RTOS kernel implementations
+- Familiar with embedded Linux system and development process, device driver framework, and embedded Linux application programming
+- Skilled in layered software design, modular design, and business component writing
+- Proficient in using multimeter, oscilloscope, logic analyzer, and other test tools
+- Proficient in Keil, Git, and other development tools
+- Good English reading ability (CET-6)
+## Work Experience
+- Shenzhen Times Easy Technology Co., LTD
+  - Position: Embedded Software Engineer, Electronic Development Department
+  - Duration: 2022.05 - Present
+  - Responsibilities:
+    - General business module code writing and maintenance
+    - Write and maintain the driver code of domestic 32-bit chip general peripheral
+    - Independently completed the software design of new product projects
+    - Docking, maintenance of the company's existing projects, and iterative development
+    - Involved in the functional code design of electronic consumer products
+    - Prepared and improved the company's embedded business development specification documents
+## Project Experience
+- Neck Massager (2022.06-2022.11)
 
-  ### Work Experience
+  - Description: Flagship consumer electronics product with various functional modules
+  - Achievements: Completed the software design and several iterations of development and mass production
+- Neck Massager (2022.10-2023.03)
 
-  - Software Developer
-  - Company Name, Year-Present
+  - Description: Product using domestic 32-bit MCU with multiple functions
+  - Achievements: Actively explored the needs and efficiently completed business logic development
+- Electronic Moxibustion Therapy Instrument (2022.12-Present)
 
-  ### Skills
+  - Description: Class II electronic medical device with built-in screen touch control and multi-channel temperature control
+  - Responsibilities: Private protocol development, communication with the host, and participation in the design and development of embedded Linux system and Qt interface
 
-  - HTML
-  - CSS
-  - JavaScript
-  - ...
+## Additional Information
+- Love technology, like to accept challenges, with a strong self-drive
+- Strong learning ability, can quickly get familiar with business code logic and have independent development ability
 
 </details>
 
 <details>
   <summary>中文简历</summary>
 
-  这里，你可以使用 Markdown 语法包含中文简历的内容。
 
-  ### 教育背景
-
-  - 计算机科学学士学位
-  - 大学名称，年份
-
-  ### 工作经验
-
-  - 软件开发工程师
-  - 公司名称，年份至今
-
-  ### 技能
-
-  - HTML
-  - CSS
-  - JavaScript
-  - ...
 
 </details>
 
