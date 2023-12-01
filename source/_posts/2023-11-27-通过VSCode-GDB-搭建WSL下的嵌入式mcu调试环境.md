@@ -1,6 +1,6 @@
 ---
 title: 通过VSCode + GDB 搭建WSL下的嵌入式mcu调试环境
-date: 2023-11-27 07:56:46
+date: 2023-11-28 12:00:00
 tags:
 - [WSL]
 - [VSCode]
