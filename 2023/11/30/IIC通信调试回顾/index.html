@@ -20,13 +20,15 @@
     var CONFIG = {"hostname":"jindu-chen.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta property="og:type" content="article">
+  <meta name="description" content="讲述嵌入式MCU开发中的IIC通信调试开发流程，以及所遇问题、解决方法。">
+<meta property="og:type" content="article">
 <meta property="og:title" content="IIC通信调试回顾">
 <meta property="og:url" content="https://jindu-chen.github.io/2023/11/30/IIC%E9%80%9A%E4%BF%A1%E8%B0%83%E8%AF%95%E5%9B%9E%E9%A1%BE/index.html">
 <meta property="og:site_name" content="Jindu-Chen">
+<meta property="og:description" content="讲述嵌入式MCU开发中的IIC通信调试开发流程，以及所遇问题、解决方法。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2023-11-30T02:00:16.000Z">
-<meta property="article:modified_time" content="2023-11-30T02:00:16.518Z">
+<meta property="article:modified_time" content="2023-12-01T08:48:42.118Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -190,8 +192,25 @@
 
               <time title="Created: 2023-11-30 02:00:16" itemprop="dateCreated datePublished" datetime="2023-11-30T02:00:16+00:00">2023-11-30</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2023-12-01 08:48:42" itemprop="dateModified" datetime="2023-12-01T08:48:42+00:00">2023-12-01</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/MCU/" itemprop="url" rel="index"><span itemprop="name">MCU</span></a>
+                </span>
+            </span>
 
           
+            <div class="post-description">讲述嵌入式MCU开发中的IIC通信调试开发流程，以及所遇问题、解决方法。</div>
 
         </div>
       </header>
@@ -202,7 +221,11 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        
+        <h1 id="概要"><a href="#概要" class="headerlink" title="概要"></a>概要</h1><ul>
+<li>不同的IIC模块，其通信读写时序存在区别，需要读芯片手册</li>
+<li></li>
+</ul>
+<h1 id="普通IO软件模拟IIC"><a href="#普通IO软件模拟IIC" class="headerlink" title="普通IO软件模拟IIC"></a>普通IO软件模拟IIC</h1><h1 id="调试方法、步骤"><a href="#调试方法、步骤" class="headerlink" title="调试方法、步骤"></a>调试方法、步骤</h1><h1 id="调试问题回顾"><a href="#调试问题回顾" class="headerlink" title="调试问题回顾"></a>调试问题回顾</h1>
     </div>
 
     
@@ -279,6 +302,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A6%82%E8%A6%81"><span class="nav-number">1.</span> <span class="nav-text">概要</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%99%AE%E9%80%9AIO%E8%BD%AF%E4%BB%B6%E6%A8%A1%E6%8B%9FIIC"><span class="nav-number">2.</span> <span class="nav-text">普通IO软件模拟IIC</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%B0%83%E8%AF%95%E6%96%B9%E6%B3%95%E3%80%81%E6%AD%A5%E9%AA%A4"><span class="nav-number">3.</span> <span class="nav-text">调试方法、步骤</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%B0%83%E8%AF%95%E9%97%AE%E9%A2%98%E5%9B%9E%E9%A1%BE"><span class="nav-number">4.</span> <span class="nav-text">调试问题回顾</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
