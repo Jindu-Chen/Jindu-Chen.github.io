@@ -1,0 +1,648 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search>
+  <entry>
+    <title>WSL配置执行windows下载脚本</title>
+    <url>/2023/11/27/WSL%E9%85%8D%E7%BD%AE%E6%89%A7%E8%A1%8Cwindows%E4%B8%8B%E8%BD%BD%E8%84%9A%E6%9C%AC/</url>
+    <content><![CDATA[]]></content>
+  </entry>
+  <entry>
+    <title>国民技术N32L406之GCC环境搭建</title>
+    <url>/2023/11/27/%E5%9B%BD%E6%B0%91%E6%8A%80%E6%9C%AFGCC%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/</url>
+    <content><![CDATA[]]></content>
+      <categories>
+        <category>arm</category>
+        <category>环境搭建</category>
+        <category>gcc</category>
+      </categories>
+      <tags>
+        <tag>n32</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>常用编译/链接选项解释</title>
+    <url>/2023/11/22/%E7%BC%96%E8%AF%91%E9%93%BE%E6%8E%A5%E9%80%89%E9%A1%B9%E6%84%8F%E4%B9%89%E8%A7%A3%E9%87%8A/</url>
+    <content><![CDATA[<h1 id="GCC编译选项CFLAGS参数及说明"><a href="#GCC编译选项CFLAGS参数及说明" class="headerlink" title="GCC编译选项CFLAGS参数及说明"></a>GCC编译选项CFLAGS参数及说明</h1><ul>
+<li><p><strong><code>-ffunction-sections</code></strong> : 告知编译器将每个函数放置在单独的小节中。在链接过程中只保留实际使用到的函数，未用到的函数将不会被链接，大大缩减生成可执行文件的大小</p>
+</li>
+<li><p><strong><code>-fdata-sections</code></strong> : 告知编译器将全局和静态变量放置在单独的小节中。与-ffunction-sections类似</p>
+</li>
+<li><p><strong><code>--specs=rdimon.specs</code></strong> : </p>
+</li>
+<li><p><strong><code>-std=gnu99 -mabi=aapcs</code></strong> : 指定使用C语言的GNU 99标准，-mabi&#x3D;aapcs指定使用ARM架构的AAPCS（ARM Architecture Procedure Call Standard）ABI。</p>
+</li>
+</ul>
+<h1 id="GCC链接选项LDFLAGS参数及说明"><a href="#GCC链接选项LDFLAGS参数及说明" class="headerlink" title="GCC链接选项LDFLAGS参数及说明"></a>GCC链接选项LDFLAGS参数及说明</h1><ul>
+<li><p><strong><code>--specs=nosys.specs</code></strong> : 禁用标准库的系统调用，在嵌入式程序中应用。</p>
+<blockquote>
+<p>当编译时提示：<code>undefined reference to _sbrk&#39; 或 undefined reference to _write&#39;d</code> 等等时，可以加上此条选项</p>
+</blockquote>
+</li>
+<li><p><strong><code>--specs=nano.specs</code></strong> : 不使用C语言标准库，改用微库，大大减小可执行文件大小。效果类似于应用newlib</p>
+<blockquote>
+<p>注意：使用微库后，不支持浮点数格式化标准输出</p>
+</blockquote>
+</li>
+<li><p><strong><code>-Wl,--gc-sections</code></strong> : 告知链接器删除未使用的代码和数据段</p>
+</li>
+</ul>
+<h1 id="编译纠错修改"><a href="#编译纠错修改" class="headerlink" title="编译纠错修改"></a>编译纠错修改</h1><ul>
+<li><p>当编译提示:<code>- undefined reference to _init</code>，类似时，检查是否添加了编译选项<code>--nostdlib</code>，不链接标准库，却又没指定库，导致的编译错误</p>
+</li>
+<li><p>提示<code>- exit.c:(.text.exit+0x2c): undefined reference to _exit</code>，考虑在.ld链接文件的.text段的末尾加上<code>_exit = .;</code></p>
+</li>
+</ul>
+<h1 id="Makefile应用实例"><a href="#Makefile应用实例" class="headerlink" title="Makefile应用实例"></a>Makefile应用实例</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 指定交叉编译工具链的 编译器、连接器、库管理器、</span><br><span class="line">CROSS_COMPILE=arm-none-eabi-</span><br><span class="line">CC=$(CROSS_COMPILE)gcc</span><br><span class="line">LD=$(CROSS_COMPILE)ld</span><br><span class="line">AR=$(CROSS_COMPILE)ar</span><br><span class="line">AS=$(CROSS_COMPILE)as</span><br><span class="line">OC=$(CROSS_COMPILE)objcopy</span><br><span class="line">OD=$(CROSS_COMPILE)objdump</span><br><span class="line">SZ=$(CROSS_COMPILE)size</span><br><span class="line"></span><br><span class="line"># 指定目标硬件的架构和浮点运算单元   -mfpu=fpv4-sp-d16 -mfloat-abi=hard </span><br><span class="line"># O0:禁用优化，O1：基本优化，O2, O3, Os</span><br><span class="line"># g0:禁用调试信息, g1, g2, g3, g</span><br><span class="line">MCU = -mcpu=cortex-m4 -mthumb \</span><br><span class="line">	-ffunction-sections \</span><br><span class="line">	-fdata-sections \</span><br><span class="line">	-Os -ggdb</span><br><span class="line"></span><br><span class="line"># 定义编译C源文件的编译选项：禁用共享变量、函数和数据分段、优化级别、调试信息级别、开启所有警告、目标架构、预定义宏</span><br><span class="line">CFLAGS= -c -fno-common \</span><br><span class="line">	--specs=rdimon.specs \</span><br><span class="line">	-std=gnu99 -mabi=aapcs \</span><br><span class="line">	-Wall \</span><br><span class="line">	$(MCU) \</span><br><span class="line">	$(C_DEFS)</span><br><span class="line"></span><br><span class="line"># 定义链接器脚本、链接选项、目标文件格式转换选项、反汇编等等</span><br><span class="line">LDSCRIPT=n32l40x_flash.ld</span><br><span class="line">LDFLAGS = -Wl,--gc-sections --data-sections -mabi=aapcs $(MCU) -T$(LDSCRIPT) \</span><br><span class="line">	--specs=nosys.specs \</span><br><span class="line">	--specs=nano.specs \</span><br><span class="line">	-x assembler-with-cpp -Wa,-mimplicit-it=thumb</span><br><span class="line">OCFLAGS	= -Obinary</span><br><span class="line">ODFLAGS	= -S</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>C语言</category>
+        <category>嵌入式</category>
+      </categories>
+      <tags>
+        <tag>gcc</tag>
+        <tag>链接</tag>
+        <tag>编译</tag>
+        <tag>make</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>通过VSCode + GDB 搭建WSL下的嵌入式mcu调试环境</title>
+    <url>/2023/12/04/%E9%80%9A%E8%BF%87VSCode-GDB-%E6%90%AD%E5%BB%BAWSL%E4%B8%8B%E7%9A%84%E5%B5%8C%E5%85%A5%E5%BC%8Fmcu%E8%B0%83%E8%AF%95%E7%8E%AF%E5%A2%83/</url>
+    <content><![CDATA[<h1 id="软件环境准备"><a href="#软件环境准备" class="headerlink" title="软件环境准备"></a>软件环境准备</h1><ul>
+<li>Windows下J-Link软件安装</li>
+<li>WSL</li>
+<li>VSCode<ul>
+<li>插件安装：C&#x2F;C++, WSL,</li>
+</ul>
+</li>
+</ul>
+<h1 id="操作步骤"><a href="#操作步骤" class="headerlink" title="操作步骤"></a>操作步骤</h1><ol>
+<li>将ARM仿真器与目标嵌入式设备连线</li>
+<li>在windows下J-Link的安装目录下，找到JLinkGDBServer.exe，点击打开，选择目标调试嵌入式设备</li>
+</ol>
+<p><img src="/../pictures/2023-12-04%20J-Link.png" alt="GDB Server config"><br><br><br><img src="/../pictures/2023-12-04%20j-link%20GDB.png" alt="J-Link GDB Server"></p>
+<ol start="3">
+<li>在Windows下使用VSCode登陆WSL，打开源码所在工程文件夹，作为VSCode工作区</li>
+<li>点击”Run and Debug”，选择GDB（C）调试，并提示需要配置launch.json文件，配置完成即可开始调试</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">#launch.json文件</span><br><span class="line">&#123;</span><br><span class="line">    // Use IntelliSense to learn about possible attributes.</span><br><span class="line">    // Hover to view descriptions of existing attributes.</span><br><span class="line">    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387</span><br><span class="line">    &quot;version&quot;: &quot;0.2.0&quot;,</span><br><span class="line">    &quot;configurations&quot;: [</span><br><span class="line">        &#123;</span><br><span class="line">            &quot;name&quot;: &quot;Debug with J-Link&quot;,</span><br><span class="line">            &quot;type&quot;: &quot;cppdbg&quot;,</span><br><span class="line">            &quot;request&quot;: &quot;launch&quot;,</span><br><span class="line">            &quot;program&quot;: &quot;$&#123;workspaceFolder&#125;/build/app.elf&quot;,  // .elf文件路径</span><br><span class="line">            &quot;miDebuggerPath&quot;: &quot;/home/chenjd/harmony/gcc-arm-none-eabi-9-2019-q4-major/bin/arm-none-eabi-gdb&quot;,   // WSL下的arm-none-eabi-gdb工具链路径</span><br><span class="line">            &quot;miDebuggerServerAddress&quot;: &quot;localhost:2331&quot;,        // J-Link端口，通常为2331</span><br><span class="line">            &quot;cwd&quot;: &quot;$&#123;workspaceFolder&#125;&quot;,</span><br><span class="line">            &quot;MIMode&quot;: &quot;gdb&quot;</span><br><span class="line">        &#125;,</span><br><span class="line">    ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="补充说明"><a href="#补充说明" class="headerlink" title="补充说明"></a>补充说明</h1>]]></content>
+      <categories>
+        <category>嵌入式</category>
+        <category>环境搭建</category>
+        <category>WSL</category>
+      </categories>
+      <tags>
+        <tag>WSL</tag>
+        <tag>VSCode</tag>
+        <tag>GDB</tag>
+        <tag>J-Link</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>IAP/OTA流程概述</title>
+    <url>/2023/11/28/IAP-OTA%E6%B5%81%E7%A8%8B%E6%A6%82%E8%BF%B0/</url>
+    <content><![CDATA[]]></content>
+      <categories>
+        <category>MCU</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>PID算法</title>
+    <url>/2023/12/05/PID%E7%AE%97%E6%B3%95/</url>
+    <content><![CDATA[]]></content>
+      <categories>
+        <category>无刷电机</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>Linux U-Boot移植概述-基于I-MX6ULL</title>
+    <url>/2023/11/28/Linux-U-Boot%E7%A7%BB%E6%A4%8D%E6%A6%82%E8%BF%B0-%E5%9F%BA%E4%BA%8EI-MX6ULL/</url>
+    <content><![CDATA[]]></content>
+      <categories>
+        <category>Linux</category>
+        <category>I.MX6ULL</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>Linux内核移植概述--基于I.MX6ULL</title>
+    <url>/2023/11/28/Linux%E5%86%85%E6%A0%B8%E7%A7%BB%E6%A4%8D%E6%A6%82%E8%BF%B0-%E5%9F%BA%E4%BA%8EI-MX6ULL/</url>
+    <content><![CDATA[]]></content>
+      <categories>
+        <category>Linux</category>
+        <category>I.MX6ULL</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>Linux知识小贴士</title>
+    <url>/2023/11/28/Linux%E7%9F%A5%E8%AF%86%E5%B0%8F%E8%B4%B4%E5%A3%AB/</url>
+    <content><![CDATA[<ul>
+<li>远程端口流量通过SSH映射到本地<br>ssh -L 4000:localhost:4000 <a href="mailto:&#x6a;&#x64;&#95;&#99;&#104;&#x65;&#110;&#64;&#49;&#57;&#50;&#46;&#49;&#54;&#x38;&#x2e;&#x31;&#49;&#x32;&#46;&#x32;&#52;&#48;">&#x6a;&#x64;&#95;&#99;&#104;&#x65;&#110;&#64;&#49;&#57;&#50;&#46;&#49;&#54;&#x38;&#x2e;&#x31;&#49;&#x32;&#46;&#x32;&#52;&#48;</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>Linux</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>LiteOS中断管理之SysTick</title>
+    <url>/2023/11/29/LiteOS%E4%B8%AD%E6%96%AD%E7%AE%A1%E7%90%86%E4%B9%8BSysTick/</url>
+    <content><![CDATA[<p>通常用户对LiteOS的初始化调用如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">main():</span><br><span class="line">    LOS_KernelInit();       // 内核初始化</span><br><span class="line">    LiteOS_Task_sample();   // 用户业务代码，创建初始任务等</span><br><span class="line">    LOS_Start();            // 开启调度</span><br></pre></td></tr></table></figure>
+
+<h1 id="LiteOS的中断函数映射管理"><a href="#LiteOS的中断函数映射管理" class="headerlink" title="LiteOS的中断函数映射管理"></a>LiteOS的中断函数映射管理</h1><h2 id="LiteOS中断映射表初始化"><a href="#LiteOS中断映射表初始化" class="headerlink" title="LiteOS中断映射表初始化"></a>LiteOS中断映射表初始化</h2><ul>
+<li>函数调用顺序：<code>LOS_KernelInit() -&gt; ArchInit() -&gt; HalHwiInit()</code></li>
+</ul>
+<p>如下代码<code>SCB-&gt;VTOR = (UINT32)(UINTPTR)hwiForm;</code>将中断向量映射基地址设为自定义变量地址</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># arch/arm/cortex-m4/iar/los_interrupt.c &gt; HalHwiInit()</span><br><span class="line"></span><br><span class="line">#if (LOSCFG_USE_SYSTEM_DEFINED_INTERRUPT == 1)</span><br><span class="line">    UINT32 index;</span><br><span class="line">    HWI_PROC_FUNC *hwiForm = (HWI_PROC_FUNC *)ArchGetHwiFrom();</span><br><span class="line">    hwiForm[0] = 0;             /* [0] Top of Stack */</span><br><span class="line">    hwiForm[1] = (HWI_PROC_FUNC)Reset_Handler; /* [1] reset */</span><br><span class="line">    for (index = 2; index &lt; OS_VECTOR_CNT; index++) &#123; /* 2: The starting position of the interrupt */</span><br><span class="line">        hwiForm[index] = (HWI_PROC_FUNC)HalHwiDefaultHandler;</span><br><span class="line">    &#125;</span><br><span class="line">    /* Exception handler register */</span><br><span class="line">    hwiForm[NonMaskableInt_IRQn + OS_SYS_VECTOR_CNT]   = (HWI_PROC_FUNC)HalExcNMI;</span><br><span class="line">    hwiForm[HARDFAULT_IRQN + OS_SYS_VECTOR_CNT]        = (HWI_PROC_FUNC)HalExcHardFault;</span><br><span class="line">    hwiForm[MemoryManagement_IRQn + OS_SYS_VECTOR_CNT] = (HWI_PROC_FUNC)HalExcMemFault;</span><br><span class="line">    hwiForm[BusFault_IRQn + OS_SYS_VECTOR_CNT]         = (HWI_PROC_FUNC)HalExcBusFault;</span><br><span class="line">    hwiForm[UsageFault_IRQn + OS_SYS_VECTOR_CNT]       = (HWI_PROC_FUNC)HalExcUsageFault;</span><br><span class="line">    hwiForm[SVCall_IRQn + OS_SYS_VECTOR_CNT]           = (HWI_PROC_FUNC)HalExcSvcCall;</span><br><span class="line">    hwiForm[PendSV_IRQn + OS_SYS_VECTOR_CNT]           = (HWI_PROC_FUNC)HalPendSV;</span><br><span class="line">    hwiForm[SysTick_IRQn + OS_SYS_VECTOR_CNT]          = (HWI_PROC_FUNC)SysTick_Handler;</span><br><span class="line"></span><br><span class="line">    /* Interrupt vector table location */</span><br><span class="line">    SCB-&gt;VTOR = (UINT32)(UINTPTR)hwiForm;</span><br><span class="line">#endif</span><br></pre></td></tr></table></figure>
+
+<h1 id="配置SysTick中断服务函数"><a href="#配置SysTick中断服务函数" class="headerlink" title="配置SysTick中断服务函数"></a>配置SysTick中断服务函数</h1><ul>
+<li>函数调用顺序：<code>LOS_KernelInit() -&gt; OsTickTimerInit() -&gt; OsTickTimerInit() -&gt; g_sysTickTimer-&gt;init(OsTickHandler) -&gt; SysTickStart(OsTickHandler)</code></li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># kernel/src/los_tick.c</span><br><span class="line">LITE_OS_SEC_TEXT VOID OsTickHandler(VOID)</span><br><span class="line">&#123;</span><br><span class="line">#if (LOSCFG_BASE_CORE_TICK_WTIMER == 0)</span><br><span class="line">    OsUpdateSysTimeBase();</span><br><span class="line">#endif</span><br><span class="line"></span><br><span class="line">    LOS_SchedTickHandler();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># arch/arm/cortex-m4/gcc/los_timer.c</span><br><span class="line">STATIC UINT32 SysTickStart(HWI_PROC_FUNC handler)</span><br><span class="line">&#123;</span><br><span class="line">    UINT32 ret;</span><br><span class="line">    ArchTickTimer *tick = &amp;g_archTickTimer;</span><br><span class="line"></span><br><span class="line">    tick-&gt;freq = OS_SYS_CLOCK;</span><br><span class="line"></span><br><span class="line">#if (LOSCFG_USE_SYSTEM_DEFINED_INTERRUPT == 1)</span><br><span class="line">#if (LOSCFG_PLATFORM_HWI_WITH_ARG == 1)</span><br><span class="line">    OsSetVector(tick-&gt;irqNum, handler, NULL);</span><br><span class="line">#else</span><br><span class="line">    OsSetVector(tick-&gt;irqNum, handler);     // 设置SysTick的中断向量</span><br><span class="line">#endif</span><br><span class="line">#endif</span><br><span class="line"></span><br><span class="line">    ret = SysTick_Config(LOSCFG_BASE_CORE_TICK_RESPONSE_MAX);   // 在此处配置的SysTick中断无效，后续开启调度时会reload</span><br><span class="line">    if (ret == 1) &#123;</span><br><span class="line">        return LOS_ERRNO_TICK_PER_SEC_TOO_SMALL;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    return LOS_OK;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># arch/arm/common/los_common_interrupt.c</span><br><span class="line">VOID OsSetVector(UINT32 num, HWI_PROC_FUNC vector)</span><br><span class="line">&#123;</span><br><span class="line">    if ((num + OS_SYS_VECTOR_CNT) &lt; OS_VECTOR_CNT) &#123;</span><br><span class="line">        g_hwiForm[num + OS_SYS_VECTOR_CNT] = HalInterrupt;</span><br><span class="line">        g_hwiHandlerForm[num + OS_SYS_VECTOR_CNT] = vector;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h1 id="初始化SysTick时基"><a href="#初始化SysTick时基" class="headerlink" title="初始化SysTick时基"></a>初始化SysTick时基</h1><ul>
+<li>函数调用顺序：<code>LOS_Start() -&gt; ArchStartSchedule() -&gt; OsSchedStart() -&gt; OsSchedSetNextExpireTime() -&gt; OsTickTimerReload() -&gt; SysTickReload()</code></li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># arch/arm/cortex-m4/gcc/los_timer.c</span><br><span class="line"># 调用此函数，传入的值实际上是</span><br><span class="line">STATIC UINT64 SysTickReload(UINT64 nextResponseTime)</span><br><span class="line">&#123;</span><br><span class="line">    if (nextResponseTime &gt; g_archTickTimer.periodMax) &#123;</span><br><span class="line">        nextResponseTime = g_archTickTimer.periodMax;</span><br><span class="line">    &#125;</span><br><span class="line">    SysTick-&gt;CTRL &amp;= ~SysTick_CTRL_ENABLE_Msk;</span><br><span class="line">    SysTick-&gt;LOAD = (UINT32)(nextResponseTime - 1UL); /* set reload register */</span><br><span class="line">    SysTick-&gt;VAL = 0UL; /* Load the SysTick Counter Value */</span><br><span class="line">    NVIC_ClearPendingIRQ(SysTick_IRQn);</span><br><span class="line">    SysTick-&gt;CTRL |= SysTick_CTRL_ENABLE_Msk;</span><br><span class="line">    return nextResponseTime;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="初始化调用逻辑总结"><a href="#初始化调用逻辑总结" class="headerlink" title="初始化调用逻辑总结"></a>初始化调用逻辑总结</h1><ol>
+<li>在<code>arch/arm/cortex-m4/iar/los_interrupt.c &gt; HalHwiInit()</code>中执行中断向量表初始化<blockquote>
+<p>但在此处初始化的SysTick_Handler向量是弱函数，并且其在后面会被替换</p>
+</blockquote>
+</li>
+<li>在<code>LOS_KernelInit() -&gt; OsTickTimerInit() -&gt; OsTickTimerInit()</code>重设SysTick中断服务函数</li>
+<li>在<code>LOS_Start() -&gt; ArchStartSchedule() -&gt; OsSchedStart()</code>中调用 重置SysTick中断时基为<code>系统时钟/调度间隔Tick值 （如：时钟源 / 1000 = 1ms时基）</code></li>
+<li>最后开启系统调度</li>
+</ol>
+<h1 id="勘误"><a href="#勘误" class="headerlink" title="勘误"></a>勘误</h1><ul>
+<li>初读代码，凭个人理解，还有很多细节并没看，后续补充</li>
+</ul>
+]]></content>
+      <categories>
+        <category>MCU</category>
+        <category>LiteOS</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>MCU开发小贴士</title>
+    <url>/2023/11/28/MCU%E5%BC%80%E5%8F%91%E5%B0%8F%E8%B4%B4%E5%A3%AB/</url>
+    <content><![CDATA[]]></content>
+      <categories>
+        <category>MCU</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>RT-Thread启动流程简述</title>
+    <url>/2023/11/28/RT-Thread%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B%E7%AE%80%E8%BF%B0/</url>
+    <content><![CDATA[]]></content>
+  </entry>
+  <entry>
+    <title>STM32启动流程概述</title>
+    <url>/2023/11/28/STM32%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B%E6%A6%82%E8%BF%B0/</url>
+    <content><![CDATA[<h1 id="Keil环境下的启动文件分析"><a href="#Keil环境下的启动文件分析" class="headerlink" title="Keil环境下的启动文件分析"></a>Keil环境下的启动文件分析</h1><h2 id="初始化栈顶指针"><a href="#初始化栈顶指针" class="headerlink" title="初始化栈顶指针"></a>初始化栈顶指针</h2><ul>
+<li>内核从0x0800 0000读取栈顶地址，并将该地址存入MSP中。<blockquote>
+<p>栈顶地址的值为0x2000 xxxx，工程所生成bin文件的前四个字节即为栈顶地址。<br>从0x2000 0000到0x2000 xxxx即为程序所运行的范围，该段内存分布为：RW段、ZI段：其中RW段为可读写的非0数据段，ZI段包括了0数据段、堆区、栈区。</p>
+</blockquote>
+</li>
+<li>从0x08000004取出复位中断函数<code>Reset_Handler</code>地址，装载至PC指针，跳转执行</li>
+</ul>
+<h2 id="复位中断"><a href="#复位中断" class="headerlink" title="复位中断"></a>复位中断</h2><p><strong>Keil环境代码如下：</strong></p>
+<ul>
+<li>先进行系统时钟初始化<blockquote>
+<p>SystemInit()函数定义在system_xxx.c中，主要为初始化系统时钟RCC、重定位中断向量表</p>
+</blockquote>
+</li>
+<li>跳转至_main()</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">; Reset handler</span><br><span class="line">Reset_Handler   PROC</span><br><span class="line">                EXPORT  Reset_Handler             [WEAK]  </span><br><span class="line">                IMPORT  __main</span><br><span class="line">                IMPORT  SystemInit</span><br><span class="line">                LDR     R0, =SystemInit   </span><br><span class="line">                BLX     R0               </span><br><span class="line">                LDR     R0, =__main</span><br><span class="line">                BX      R0    </span><br><span class="line">                ENDP</span><br></pre></td></tr></table></figure>
+
+<h2 id="main-函数"><a href="#main-函数" class="headerlink" title="_main()函数"></a>_main()函数</h2><ul>
+<li><p>__scatterload<br>  将初始化的可读写数据段拷贝从Flash拷贝到SRAM，<br>  初始化清零未初始化数据段</p>
+</li>
+<li><p>__rt_entry<br>  负责初始化堆栈，完成库函数的初始化，<br>  最后跳转至main()函数</p>
+</li>
+</ul>
+<h1 id="GCC编译环境下的启动文件分析"><a href="#GCC编译环境下的启动文件分析" class="headerlink" title="GCC编译环境下的启动文件分析"></a>GCC编译环境下的启动文件分析</h1><p><strong>程序跳转至复位中断后，执行以下操作：</strong></p>
+<ul>
+<li>将初始化的可读写数据段拷贝从Flash拷贝到SRAM</li>
+<li>初始化清零未初始化数据段</li>
+<li>调用系统时钟初始化函数（SystemInit）</li>
+<li>调用静态构造函数（__libc_init_array） ——参考自CHATGPT<ul>
+<li>调用所有静态构造函数-&gt;调用.preinit_array段中的所有函数指针-&gt;调用.init段中的_init函数-&gt;调用.init_array段中的所有函数指针-&gt;确保在程序执行主函数 main 之前，所有需要初始化的内容都已经完成。</li>
+<li>其在链接脚本中有体现：  <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">.preinit_array     :</span><br><span class="line">&#123;</span><br><span class="line">  PROVIDE_HIDDEN (__preinit_array_start = .);</span><br><span class="line">  KEEP (*(.preinit_array*))</span><br><span class="line">  PROVIDE_HIDDEN (__preinit_array_end = .);</span><br><span class="line">&#125; &gt;FLASH</span><br><span class="line">.init_array :</span><br><span class="line">&#123;</span><br><span class="line">  PROVIDE_HIDDEN (__init_array_start = .);</span><br><span class="line">  KEEP (*(SORT(.init_array.*)))</span><br><span class="line">  KEEP (*(.init_array*))</span><br><span class="line">  PROVIDE_HIDDEN (__init_array_end = .);</span><br><span class="line">&#125; &gt;FLASH</span><br></pre></td></tr></table></figure></li>
+<li>链接脚本中，可将用户函数指定链接到相应的init段，从而实现在main前的函数自动初始化？</li>
+</ul>
+</li>
+<li>进入用户函数(main)<br></li>
+</ul>
+<p><strong>复位中断代码如下所示，注意：其中所用变量_sidata、_edata等等须 搭配链接脚本内容 共同参阅</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">Reset_Handler:  </span><br><span class="line">  movs  r1, #0              /* 将寄存器r1清零，作为数据段复制的偏移量 */</span><br><span class="line">  b  LoopCopyDataInit       /* 无条件跳转到LoopCopyDataInit标签处 */</span><br><span class="line"></span><br><span class="line">CopyDataInit:</span><br><span class="line">  ldr  r3, =_sidata         /* 将_sidata的地址加载到寄存器r3，表示初始化数据段的起始地址 */</span><br><span class="line">  ldr  r3, [r3, r1]         /* 从初始化数据段中取出一个32位数据，存储在寄存器r3中。 */</span><br><span class="line">  str  r3, [r0, r1]         /* 将寄存器r3中的数据存储到数据段当前位置。 */</span><br><span class="line">  adds  r1, r1, #4         /* 增加偏移量，移动到下一个32位数据的位置。 */</span><br><span class="line">    </span><br><span class="line">LoopCopyDataInit:</span><br><span class="line">  ldr  r0, =_sdata         /* 将_sdata的地址加载到寄存器r0，表示数据段的起始地址。*/</span><br><span class="line">  ldr  r3, =_edata         /* 将_edata的地址加载到寄存器r3，表示数据段的结束地址。 */</span><br><span class="line">  adds  r2, r0, r1         /* 计算数据段当前位置的地址，存储在寄存器r2中。*/</span><br><span class="line">  cmp  r2, r3         /* 比较当前位置与数据段结束地址的大小关系 */</span><br><span class="line">  bcc  CopyDataInit         /* 如果当前位置小于结束地址，则跳转到CopyDataInit标签处 */</span><br><span class="line">  </span><br><span class="line">  /*清零未初始化数据段（bss segment）*/</span><br><span class="line">  ldr  r2, =_sbss         /* 将_sbss的地址加载到寄存器r2，表示未初始化数据段的起始地址 */</span><br><span class="line">  b  LoopFillZerobss         /* 无条件跳转到LoopFillZerobss标签处 */</span><br><span class="line">FillZerobss:</span><br><span class="line">  movs  r3, #0      /* 将寄存器r3清零，作为未初始化数据段的填充值 */</span><br><span class="line">  str  r3, [r2], #4      /* 将寄存器r3中的数据存储到当前位置，并将当前位置向后移动4个字节 */</span><br><span class="line">    </span><br><span class="line">LoopFillZerobss:         </span><br><span class="line">  ldr  r3, = _ebss        /* 将_ebss的地址加载到寄存器r3，表示未初始化数据段的结束地址 */</span><br><span class="line">  cmp  r2, r3         /* 比较当前位置与结束地址的大小关系 */</span><br><span class="line">  bcc  FillZerobss         /* 如果当前位置小于结束地址，则跳转到FillZerobss标签处 */</span><br><span class="line"></span><br><span class="line">  bl  SystemInit            /* 调用系统时钟初始化函数 */</span><br><span class="line">  bl __libc_init_array         /* 调用静态构造函数 */</span><br><span class="line">  bl  main            /* 应用程序的入口函数 */</span><br><span class="line">  bx  lr            /* 通过bx lr指令返回到调用者（通常是启动代码的入口处） */</span><br><span class="line">.size  Reset_Handler, .-Reset_Handler</span><br></pre></td></tr></table></figure>
+
+
+]]></content>
+      <categories>
+        <category>嵌入式</category>
+        <category>MCU</category>
+      </categories>
+      <tags>
+        <tag>STM32</tag>
+        <tag>MCU</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>WSL小贴士</title>
+    <url>/2023/11/28/WSL%E5%B0%8F%E8%B4%B4%E5%A3%AB/</url>
+    <content><![CDATA[<ul>
+<li>WSL下通过命令执行Windows下的bat脚本</li>
+</ul>
+<blockquote>
+<p>应用：</p>
+</blockquote>
+]]></content>
+      <categories>
+        <category>WSL</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>国民技术N32芯片移植RT-Thread-Nano记录</title>
+    <url>/2023/11/28/%E5%9B%BD%E6%B0%91%E6%8A%80%E6%9C%AFN32%E8%8A%AF%E7%89%87%E7%A7%BB%E6%A4%8DRT-Thread-Nano%E8%AE%B0%E5%BD%95/</url>
+    <content><![CDATA[]]></content>
+  </entry>
+  <entry>
+    <title>嵌入式MCU开发问题记录</title>
+    <url>/2023/11/28/%E5%B5%8C%E5%85%A5%E5%BC%8FMCU%E5%BC%80%E5%8F%91%E9%97%AE%E9%A2%98%E8%AE%B0%E5%BD%95/</url>
+    <content><![CDATA[<ul>
+<li>J-Link仿真器正常，但点击烧录就工作异常<blockquote>
+<p>1、MCU及元件上电工作，J-Link供电不足 – 插上电源<br>2、芯片在读写保护状态，需要用特定软件解除读保护后，才可烧录</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="硬件调试"><a href="#硬件调试" class="headerlink" title="硬件调试"></a>硬件调试</h2><ul>
+<li>不同批次、相同原理的板子调试时，出现异常<br>  烧录相同程序，如果结果不一，则首先排查硬件问题 – 板厂的模块芯片有无贴错、元件贴错等</li>
+</ul>
+]]></content>
+      <categories>
+        <category>MCU</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>嵌入式MCU自动初始化</title>
+    <url>/2023/12/06/%E5%B5%8C%E5%85%A5%E5%BC%8FMCU%E8%87%AA%E5%8A%A8%E5%88%9D%E5%A7%8B%E5%8C%96/</url>
+    <content><![CDATA[<h1 id="Keil环境下的自动初始化"><a href="#Keil环境下的自动初始化" class="headerlink" title="Keil环境下的自动初始化"></a>Keil环境下的自动初始化</h1><h1 id="GCC环境下的自动初始化"><a href="#GCC环境下的自动初始化" class="headerlink" title="GCC环境下的自动初始化"></a>GCC环境下的自动初始化</h1><h1 id="其它的初始化实例"><a href="#其它的初始化实例" class="headerlink" title="其它的初始化实例"></a>其它的初始化实例</h1>]]></content>
+  </entry>
+  <entry>
+    <title>嵌入式Qt环境搭建概述</title>
+    <url>/2023/11/28/%E5%B5%8C%E5%85%A5%E5%BC%8FQt%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E6%A6%82%E8%BF%B0/</url>
+    <content><![CDATA[<p>1、下载安装通用交叉编译器<br>2、获取和编译tslib<br>    嵌入式Qt要支持触摸插件则需要编译tslib<br>3、编译ARM平台Qt5.12.9源码<br>4、移植Qt库到文件系统<br>5、在ubuntu上搭建 ARM平台的Qt开发环境</p>
+<p>总结：<br>1、需要下载交叉编译器并安装、使能相应的环境变量<br>2、在ubuntu上交叉编译tslib库和ARM Qt库源码后，将编译生成的库文件移植到嵌入式平台文件系统中<br>3、在ubuntu下编写Qt应用程序，并使用交叉工具链编译，然后拷贝到嵌入式平台上运行即可</p>
+]]></content>
+      <categories>
+        <category>环境搭建</category>
+        <category>Linux</category>
+      </categories>
+      <tags>
+        <tag>Qt</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>心得：读LiteOS之标准化接口</title>
+    <url>/2023/11/28/%E5%BF%83%E5%BE%97%EF%BC%9A%E8%AF%BBLiteOS%E4%B9%8B%E6%A0%87%E5%87%86%E5%8C%96%E6%8E%A5%E5%8F%A3/</url>
+    <content><![CDATA[]]></content>
+  </entry>
+  <entry>
+    <title>无刷电机调试方法简述</title>
+    <url>/2023/11/28/%E6%97%A0%E5%88%B7%E7%94%B5%E6%9C%BA%E8%B0%83%E8%AF%95%E6%96%B9%E6%B3%95%E7%AE%80%E8%BF%B0/</url>
+    <content><![CDATA[]]></content>
+      <categories>
+        <category>无刷电机</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>编译原理之我见</title>
+    <url>/2023/12/01/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E4%B9%8B%E6%88%91%E8%A7%81/</url>
+    <content><![CDATA[<h1 id="构建C工程中的一些疑惑解答"><a href="#构建C工程中的一些疑惑解答" class="headerlink" title="构建C工程中的一些疑惑解答"></a>构建C工程中的一些疑惑解答</h1><ul>
+<li>#include “.c”文件 可行吗？</li>
+<li>GNU C是个啥？其编译跟ARM CC有哪些方面的区别？</li>
+<li>链接脚本与汇编源文件、C源文件的联系</li>
+</ul>
+<h1 id="C编译过程"><a href="#C编译过程" class="headerlink" title="C编译过程"></a>C编译过程</h1><p>编译器的主要工作流程如下：</p>
+<blockquote>
+<p>源程序(source code)→预处理器(preprocessor)→编译器(compiler)→汇编程序(assembler)→目标程序(object code)→连接器(链接器，Linker)→可执行程序(executables)</p>
+</blockquote>
+<ul>
+<li>配置</li>
+<li>确定标准库和头文件位置</li>
+<li>确定依赖关系</li>
+<li>头文件预编译</li>
+<li>预处理</li>
+<li>编译</li>
+<li>链接</li>
+<li>安装</li>
+</ul>
+]]></content>
+      <categories>
+        <category>嵌入式</category>
+      </categories>
+      <tags>
+        <tag>C语言</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>OpenHarmony-V4.0体验--基于Hi3861</title>
+    <url>/2023/11/29/OpenHarmony-V4-0%E4%BD%93%E9%AA%8C-%E5%9F%BA%E4%BA%8EHi3861/</url>
+    <content><![CDATA[]]></content>
+  </entry>
+  <entry>
+    <title>鸿蒙LiteOS浅析——内核启动流程</title>
+    <url>/2023/11/28/%E9%B8%BF%E8%92%99LiteOS%E5%B7%A5%E7%A8%8B%E6%BA%90%E7%A0%81%E6%B5%85%E6%9E%90/</url>
+    <content><![CDATA[<h1 id="系统上电初始化"><a href="#系统上电初始化" class="headerlink" title="系统上电初始化"></a>系统上电初始化</h1><ul>
+<li>操作系统工程初始化流程在用户main()函数之后<code>显示初始化</code>，因此main()前的执行流程参考STM32裸机<a href="/2023/11/28/STM32%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B%E6%A6%82%E8%BF%B0">启动流程</a>即可。</li>
+</ul>
+<h1 id="操作系统内核初始化"><a href="#操作系统内核初始化" class="headerlink" title="操作系统内核初始化"></a>操作系统内核初始化</h1><p>LiteOS组件裁剪依赖于target_config.h文件，配置target_config.h中宏定义参数即可</p>
+<h2 id="LOS-KernelInit"><a href="#LOS-KernelInit" class="headerlink" title="LOS_KernelInit()"></a>LOS_KernelInit()</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">OsBackTraceInit();      // 错误回溯功能</span><br><span class="line">OsMemSystemInit();      // 内存池</span><br><span class="line">OsTickTimerInit();</span><br><span class="line">OsTaskInit();</span><br><span class="line">OsSemInit();</span><br><span class="line">OsMuxInit();</span><br><span class="line">OsQueueInit();</span><br><span class="line">OsSwtmrInit();</span><br><span class="line">OsIdleTaskCreate();</span><br><span class="line">......</span><br></pre></td></tr></table></figure>
+
+
+
+
+<h1 id="系统调度启动"><a href="#系统调度启动" class="headerlink" title="系统调度启动"></a>系统调度启动</h1><h2 id="LOS-Start"><a href="#LOS-Start" class="headerlink" title="LOS_Start()"></a>LOS_Start()</h2><h1 id="一些API说明"><a href="#一些API说明" class="headerlink" title="一些API说明"></a>一些API说明</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">LOS_TaskCreate()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+]]></content>
+      <categories>
+        <category>嵌入式</category>
+        <category>LiteOS</category>
+        <category>RTOS</category>
+        <category>鸿蒙</category>
+      </categories>
+      <tags>
+        <tag>RTOS</tag>
+        <tag>LiteOS</tag>
+        <tag>鸿蒙</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>git使用小贴士</title>
+    <url>/2023/11/29/git%E4%BD%BF%E7%94%A8%E5%B0%8F%E8%B4%B4%E5%A3%AB/</url>
+    <content><![CDATA[<h2 id="基础"><a href="#基础" class="headerlink" title="基础"></a>基础</h2><ul>
+<li><h2 id="本地git配置-修改用户名-全局-当前项目"><a href="#本地git配置-修改用户名-全局-当前项目" class="headerlink" title="本地git配置  - 修改用户名(全局&#x2F;当前项目)"></a>本地git配置<br>  - 修改用户名(全局&#x2F;当前项目)</h2></li>
+<li><p>本地仓库多平台推送（推送gitlab、github）</p>
+</li>
+<li><p>.gitignore忽略规则</p>
+<ul>
+<li><p>在git项目根目录下创建.gitignore文件，然后添加需要忽略跟踪的文件选项</p>
+</li>
+<li><p>此前已经被跟踪的文件，添加.gitignore无效</p>
+<blockquote>
+<p>执行<code>git rm --cached /path/to/remove</code>取消跟踪，然后提交推送</p>
+</blockquote>
+</li>
+<li><p>强行跟踪被.gitignore忽略的某个指定文件<br>  <code>git add -f /path/to/add</code>或者 在.gitignore文件后添加<code>!path/to/track</code>(<code>!</code>表示覆盖前面的忽略规则)<br>  如：<code>git add -f hello.bin</code> or 添加<code>!hello.bin</code></p>
+</li>
+</ul>
+</li>
+</ul>
+<p><strong>附上一个自用的.gitignore文件：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">.vscode</span><br><span class="line">.history</span><br><span class="line">build</span><br><span class="line">Listings</span><br><span class="line">Objects</span><br><span class="line"></span><br><span class="line"># Listing Files</span><br><span class="line">*.i</span><br><span class="line">*.lst</span><br><span class="line">*.map</span><br><span class="line"></span><br><span class="line"># Object Files</span><br><span class="line">*.axf</span><br><span class="line">*.b[0-2][0-9]</span><br><span class="line">*.b3[0-1]</span><br><span class="line">*.bak</span><br><span class="line">*.build_log.htm</span><br><span class="line">*.crf</span><br><span class="line">*.d</span><br><span class="line">*.dep</span><br><span class="line">*.elf</span><br><span class="line">*.htm</span><br><span class="line">*.iex</span><br><span class="line">*.lnp</span><br><span class="line">*.o</span><br><span class="line">*.obj</span><br><span class="line">*.sbr</span><br><span class="line"></span><br><span class="line"># Firmware Files</span><br><span class="line">*.bin</span><br><span class="line">*.h86</span><br><span class="line">*.hex</span><br><span class="line"></span><br><span class="line"># Debugger Files</span><br><span class="line">.ini</span><br></pre></td></tr></table></figure>
+<h2 id="子模块"><a href="#子模块" class="headerlink" title="子模块"></a>子模块</h2><ul>
+<li><p>删除项目内已有的子模块配置，将其转化为本项目内容</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">cd ./path/to/submodule</span><br><span class="line">rm -rf .git</span><br><span class="line"></span><br><span class="line"># at project root directory</span><br><span class="line">git rm --cached ./path/to/submodule</span><br><span class="line">git add --all</span><br><span class="line">git commit -m &quot;xxx&quot;</span><br><span class="line">git push</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>克隆包含子模块的仓库后，子模块的拉取<br>  <code>git submodule update --init --recursive</code></p>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>git</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>心得：LiteOS初体验</title>
+    <url>/2023/11/29/%E5%BF%83%E5%BE%97%EF%BC%9ALiteOS%E5%88%9D%E4%BD%93%E9%AA%8C/</url>
+    <content><![CDATA[<h1 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h1><h1 id="开发简述"><a href="#开发简述" class="headerlink" title="开发简述"></a>开发简述</h1><h1 id="槽点"><a href="#槽点" class="headerlink" title="槽点"></a>槽点</h1><ul>
+<li>shell交互-uart-dma中断服务函数的配置</li>
+</ul>
+<h1 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h1>]]></content>
+      <categories>
+        <category>LiteOS</category>
+        <category>心得</category>
+      </categories>
+      <tags>
+        <tag>LiteOS</tag>
+        <tag>OpenHarmony</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>IIC通信调试回顾</title>
+    <url>/2023/11/30/IIC%E9%80%9A%E4%BF%A1%E8%B0%83%E8%AF%95%E5%9B%9E%E9%A1%BE/</url>
+    <content><![CDATA[<h1 id="概要"><a href="#概要" class="headerlink" title="概要"></a>概要</h1><ul>
+<li>不同的IIC模块，其通信读写时序存在区别，须细读芯片手册</li>
+<li></li>
+</ul>
+<h1 id="普通IO软件模拟IIC"><a href="#普通IO软件模拟IIC" class="headerlink" title="普通IO软件模拟IIC"></a>普通IO软件模拟IIC</h1><h1 id="调试方法、步骤"><a href="#调试方法、步骤" class="headerlink" title="调试方法、步骤"></a>调试方法、步骤</h1><ul>
+<li>示波器和逻辑分析仪的使用</li>
+</ul>
+<h1 id="调试问题回顾"><a href="#调试问题回顾" class="headerlink" title="调试问题回顾"></a>调试问题回顾</h1>]]></content>
+      <categories>
+        <category>MCU</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>浅淡三相无刷电机驱动原理</title>
+    <url>/2023/12/01/%E6%B5%85%E6%B7%A1%E4%B8%89%E7%9B%B8%E6%97%A0%E5%88%B7%E7%94%B5%E6%9C%BA%E9%A9%B1%E5%8A%A8%E5%8E%9F%E7%90%86/</url>
+    <content><![CDATA[<h1 id="何为三相无刷电机？"><a href="#何为三相无刷电机？" class="headerlink" title="何为三相无刷电机？"></a>何为三相无刷电机？</h1><h1 id="如何让三相无刷电机动起来？"><a href="#如何让三相无刷电机动起来？" class="headerlink" title="如何让三相无刷电机动起来？"></a>如何让三相无刷电机动起来？</h1><h1 id="无刷电机驱动原理分析"><a href="#无刷电机驱动原理分析" class="headerlink" title="无刷电机驱动原理分析"></a>无刷电机驱动原理分析</h1><h2 id="FOC算法浅析"><a href="#FOC算法浅析" class="headerlink" title="FOC算法浅析"></a>FOC算法浅析</h2><h2 id="PID算法"><a href="#PID算法" class="headerlink" title="PID算法"></a>PID算法</h2><h1 id="无刷电机驱动设计及分析"><a href="#无刷电机驱动设计及分析" class="headerlink" title="无刷电机驱动设计及分析"></a>无刷电机驱动设计及分析</h1><h1 id="个人对无刷电机理解的一些困惑"><a href="#个人对无刷电机理解的一些困惑" class="headerlink" title="个人对无刷电机理解的一些困惑"></a>个人对无刷电机理解的一些困惑</h1>]]></content>
+      <categories>
+        <category>无刷电机</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>C语言知识点记录</title>
+    <url>/2023/12/04/C%E8%AF%AD%E8%A8%80%E7%9F%A5%E8%AF%86%E7%82%B9%E8%AE%B0%E5%BD%95/</url>
+    <content><![CDATA[<ul>
+<li>段的详解<ul>
+<li>常规的段：代码段、数据段、BSS段、堆、栈</li>
+<li>init段、符号表段、重定位段、调试信息段、通过attribute指定的段<br>可通过编程将指定的函数链接到指定的段，如init段，实现在main前的初始化，等一系列自定义操作</li>
+<li>链接器在链接过程中会自动生成特殊的符号，用于代表各段的首尾地址<br>如：段名init_array，那么相应的会有<code>__init_array_start</code>或者<code>__start_init_array</code>表示该段的首地址，<code>__init_array_end</code>或<code>__stop_init_array</code>表示该段的末尾地址，不同编译器的表示方式有区别</li>
+</ul>
+</li>
+</ul>
+<h2 id="预处理"><a href="#预处理" class="headerlink" title="预处理"></a>预处理</h2><ul>
+<li>重复宏定义？<br>宏定义的本质是替换，如果同一个宏名定义了两个不同的量，则在编译时可能会替换两次，最终输出的为最后一次宏定义处理的值</li>
+</ul>
+<h2 id="关键字"><a href="#关键字" class="headerlink" title="关键字"></a>关键字</h2><ul>
+<li>__attribute__ 关键字<ul>
+<li>__attribute__((weak))</li>
+<li>__attribute__((constructor))</li>
+<li>__attribute__((__used__)) 告知编译器：即使修饰的对象在编译过程中没有被引用，也要保留</li>
+<li>__attribute__((__section__(“my_section”))) 表示将修饰的对象放在名为<code>my_section</code>的段中<br>在C文件中编程，一般可以通过特殊的符号来获取attribute声明的段的首末地址，其由链接器在链接过程中自动定义<br><br>  示例1：  <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">#define  __used  __attribute__((__used__))</span><br><span class="line"></span><br><span class="line">typedef void (*initcall_t)(void);</span><br><span class="line"></span><br><span class="line">#define __define_initcall(fn) \</span><br><span class="line">    static const initcall_t __initcall_##fn##id __used \</span><br><span class="line">    __attribute__((__section__(&quot;initcall_system_init&quot;))) = fn; </span><br><span class="line"></span><br><span class="line">#define INIT_SYSTEM_EXPORT(fn)      __define_initcall(fn)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+  应用示例2：定义系列 赋值为函数指针的静态常量，将其声明到指定的段中  <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">extern char __start_my_section[];</span><br><span class="line">extern char __stop_my_section[];</span><br><span class="line"></span><br><span class="line">char *start = __start_my_section;</span><br><span class="line">char *end = __stop_my_section;</span><br><span class="line"></span><br><span class="line">typedef void (*func_ptr)(void);</span><br><span class="line"></span><br><span class="line">for (func_ptr *f = (func_ptr *)__start_my_section; f &lt; (func_ptr *)__stop_my_section; ++f) &#123;</span><br><span class="line">    (*f)();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+</ul>
+<h2 id="变量"><a href="#变量" class="headerlink" title="变量"></a>变量</h2><ul>
+<li>静态局部变量，能被外界所访问吗？<blockquote>
+<p>将其地址传递出去即可，因为静态变量的地址在编译时已经确定，其生存在整个程序运行期间</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="函数"><a href="#函数" class="headerlink" title="函数"></a>函数</h2><ul>
+<li>switch case<blockquote>
+<p>当在case语句内定义变量时，需要在case语句内 加花括号限定变量的作用域，否则编译会报错</p>
+</blockquote>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>C语言</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>GitLab CI-CD</title>
+    <url>/2023/12/04/GitLab-CI-CD/</url>
+    <content><![CDATA[]]></content>
+  </entry>
+  <entry>
+    <title>嵌入式软件架构设计</title>
+    <url>/2023/12/04/%E5%B5%8C%E5%85%A5%E5%BC%8F%E8%BD%AF%E4%BB%B6%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/</url>
+    <content><![CDATA[<h2 id="程序设计原则"><a href="#程序设计原则" class="headerlink" title="程序设计原则"></a>程序设计原则</h2><ul>
+<li><p>层级之间的调用和信息上报</p>
+<ul>
+<li>下层提供直接接口调用，提供注册回调函数，禁止调用上层接口</li>
+</ul>
+</li>
+<li><p>设计模式的应用</p>
+<ul>
+<li>状态机</li>
+<li>命令模式<br> 事件与匹配函数执行的数组集</li>
+</ul>
+</li>
+</ul>
+<h2 id="裸机开发"><a href="#裸机开发" class="headerlink" title="裸机开发"></a>裸机开发</h2><ul>
+<li><p>模块间通信</p>
+<ul>
+<li>实时性要求不高的情况下，可以应用 类消息队列 的方式，尽量使用避免跨文件的全局变量</li>
+<li>高实时性要求下，可以采用 订阅-发布模式</li>
+</ul>
+</li>
+<li><p>软件定时器的使用</p>
+<ul>
+<li>以Systick为全局时基</li>
+</ul>
+</li>
+</ul>
+<h2 id="RTOS开发"><a href="#RTOS开发" class="headerlink" title="RTOS开发"></a>RTOS开发</h2><h3 id="代码业务设计"><a href="#代码业务设计" class="headerlink" title="代码业务设计"></a>代码业务设计</h3><ul>
+<li><p>消息队列的应用</p>
+<ul>
+<li>阻塞式消息队列</li>
+</ul>
+</li>
+<li><p>事件的应用</p>
+</li>
+</ul>
+<h3 id="多线程设计注意点"><a href="#多线程设计注意点" class="headerlink" title="多线程设计注意点"></a>多线程设计注意点</h3><ul>
+<li>临界区问题</li>
+<li>高实时性要求场合</li>
+<li></li>
+</ul>
+]]></content>
+      <categories>
+        <category>MCU</category>
+        <category>RTOS</category>
+      </categories>
+      <tags>
+        <tag>设计模式</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>汇编语言基础</title>
+    <url>/2023/12/05/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E5%9F%BA%E7%A1%80/</url>
+    <content><![CDATA[<h2 id="汇编语法"><a href="#汇编语法" class="headerlink" title="汇编语法"></a>汇编语法</h2><h2 id="伪操作"><a href="#伪操作" class="headerlink" title="伪操作"></a>伪操作</h2><h2 id="注意点"><a href="#注意点" class="headerlink" title="注意点"></a>注意点</h2><ul>
+<li>指令、伪指令、伪操作、寄存器名可以全部大写，也可以全部小写，不能大小写混用</li>
+<li></li>
+</ul>
+<h2 id="一些疑问解答补充说明"><a href="#一些疑问解答补充说明" class="headerlink" title="一些疑问解答补充说明"></a>一些疑问解答补充说明</h2><ul>
+<li>GCC和ARM CC编译环境下对汇编语法的要求有何区别？</li>
+<li>如何在.c文件中编写汇编函数？</li>
+<li>如何在.s文件中编写可被.c调用的 汇编函数？</li>
+<li>.s文件可以包含.h文件吗</li>
+<li>.s和.c文件可以互相引用对方声明的全局变量吗？</li>
+</ul>
+]]></content>
+      <categories>
+        <category>汇编</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>设计模式--适配器模式</title>
+    <url>/2023/12/04/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E9%80%82%E9%85%8D%E5%99%A8%E6%A8%A1%E5%BC%8F/</url>
+    <content><![CDATA[]]></content>
+      <categories>
+        <category>C语言</category>
+        <category>设计模式</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>ld链接脚本学习</title>
+    <url>/2023/12/05/ld%E9%93%BE%E6%8E%A5%E8%84%9A%E6%9C%AC%E5%AD%A6%E4%B9%A0/</url>
+    <content><![CDATA[<h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>链接脚本的主要作用：描述如何将输入文件(.o目标文件)中的段 映射到 输出文件(.bin&#x2F;.hex&#x2F;…)中的段，并控制输出文件的内存布局(地址分配)。</p>
+<pre><code>注意：输入文件的段和输出文件的段是独立的，汇编源文件和C源文件中声明的段是输入段，在链接文件中.text: &#123; xxx&#125;的text是输出的段
+</code></pre>
+<h3 id="符号"><a href="#符号" class="headerlink" title="符号"></a>符号</h3><ul>
+<li>ENTRY</li>
+<li>MEMORY</li>
+<li>SECTIONS</li>
+<li>KEEP</li>
+<li>LOADADDR</li>
+<li>PROVIDE</li>
+<li>PROVIDE_HIDDEN</li>
+</ul>
+<h2 id="语句、片段示例解释"><a href="#语句、片段示例解释" class="headerlink" title="语句、片段示例解释"></a>语句、片段示例解释</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">SECTIONS</span><br><span class="line">&#123;</span><br><span class="line">. = 0x10000;</span><br><span class="line">.text : &#123; *(.text) &#125;</span><br><span class="line">. = 0x8000000;</span><br><span class="line">.data : &#123; *(.data) &#125;</span><br><span class="line">.bss : &#123; *(.bss) &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">._user_heap_stack :</span><br><span class="line">&#123;</span><br><span class="line">    . = ALIGN(4);</span><br><span class="line">    PROVIDE ( end = . );</span><br><span class="line">    PROVIDE ( _end = . );</span><br><span class="line">    . = . + _Min_Heap_Size;</span><br><span class="line">    . = . + _Min_Stack_Size;</span><br><span class="line">    _estack = .;</span><br><span class="line">    . = ALIGN(4);</span><br><span class="line">&#125; &gt;RAM</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="链接脚本完整示例解释"><a href="#链接脚本完整示例解释" class="headerlink" title="链接脚本完整示例解释"></a>链接脚本完整示例解释</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">ENTRY(Reset_Handler)</span><br><span class="line"></span><br><span class="line">_Min_Heap_Size = 0x200;      /* required amount of heap  */</span><br><span class="line">_Min_Stack_Size = 0x1500; /* required amount of stack */</span><br><span class="line"></span><br><span class="line">MEMORY</span><br><span class="line">&#123;</span><br><span class="line">FLASH (rx)      : ORIGIN = 0x8000000, LENGTH = 128K</span><br><span class="line">RAM (xrw)      : ORIGIN = 0x20000000, LENGTH = 32K</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">SECTIONS</span><br><span class="line">&#123;</span><br><span class="line">  .isr_vector :</span><br><span class="line">  &#123;</span><br><span class="line">    . = ALIGN(4);</span><br><span class="line">    KEEP(*(.isr_vector)) /* Startup code */</span><br><span class="line">    . = ALIGN(4);</span><br><span class="line">  &#125; &gt;FLASH</span><br><span class="line"></span><br><span class="line">  .text :</span><br><span class="line">  &#123;</span><br><span class="line">    . = ALIGN(4);</span><br><span class="line">    *(.text)           /* .text sections (code) */</span><br><span class="line">    *(.text*)          /* .text* sections (code) */</span><br><span class="line">    *(.glue_7)         /* glue arm to thumb code */</span><br><span class="line">    *(.glue_7t)        /* glue thumb to arm code */</span><br><span class="line">    *(.eh_frame)</span><br><span class="line"></span><br><span class="line">    KEEP (*(.init))</span><br><span class="line">    KEEP (*(.fini))</span><br><span class="line">	</span><br><span class="line">	. = ALIGN(4);</span><br><span class="line">	__fsymtab_start = .;</span><br><span class="line">	KEEP(*(FSymTab))</span><br><span class="line">	__fsymtab_end = .;</span><br><span class="line"></span><br><span class="line">	. = ALIGN(4);</span><br><span class="line">	__vsymtab_start = .;</span><br><span class="line">	KEEP(*(VSymTab))</span><br><span class="line">	__vsymtab_end = .;</span><br><span class="line"></span><br><span class="line">	. = ALIGN(4);</span><br><span class="line">	__rt_init_start = .;</span><br><span class="line">	KEEP(*(SORT(.rti_fn*)))</span><br><span class="line">	__rt_init_end = .;</span><br><span class="line"></span><br><span class="line">    . = ALIGN(4);</span><br><span class="line">    _etext = .;        /* define a global symbols at end of code */</span><br><span class="line">    _exit = .;</span><br><span class="line">  &#125; &gt;FLASH</span><br><span class="line"></span><br><span class="line">  .rodata :</span><br><span class="line">  &#123;</span><br><span class="line">    . = ALIGN(4);</span><br><span class="line">    *(.rodata)         /* .rodata sections (constants, strings, etc.) */</span><br><span class="line">    *(.rodata*)        /* .rodata* sections (constants, strings, etc.) */</span><br><span class="line">    . = ALIGN(4);</span><br><span class="line"></span><br><span class="line">  _shell_command_start = .;</span><br><span class="line">  KEEP (*(shellCommand))</span><br><span class="line">  _shell_command_end = .;</span><br><span class="line">  &#125; &gt;FLASH</span><br><span class="line"></span><br><span class="line">  .ARM.extab   : &#123; *(.ARM.extab* .gnu.linkonce.armextab.*) &#125; &gt;FLASH</span><br><span class="line">  .ARM : &#123;</span><br><span class="line">    __exidx_start = .;</span><br><span class="line">    *(.ARM.exidx*)</span><br><span class="line">    __exidx_end = .;</span><br><span class="line">  &#125; &gt;FLASH</span><br><span class="line"></span><br><span class="line">  .preinit_array     :</span><br><span class="line">  &#123;</span><br><span class="line">    PROVIDE_HIDDEN (__preinit_array_start = .);</span><br><span class="line">    KEEP (*(.preinit_array*))</span><br><span class="line">    PROVIDE_HIDDEN (__preinit_array_end = .);</span><br><span class="line">  &#125; &gt;FLASH</span><br><span class="line">  .init_array :</span><br><span class="line">  &#123;</span><br><span class="line">    PROVIDE_HIDDEN (__init_array_start = .);</span><br><span class="line">    KEEP (*(SORT(.init_array.*)))</span><br><span class="line">    KEEP (*(.init_array*))</span><br><span class="line">    PROVIDE_HIDDEN (__init_array_end = .);</span><br><span class="line">  &#125; &gt;FLASH</span><br><span class="line">  .fini_array :</span><br><span class="line">  &#123;</span><br><span class="line">    PROVIDE_HIDDEN (__fini_array_start = .);</span><br><span class="line">    KEEP (*(SORT(.fini_array.*)))</span><br><span class="line">    KEEP (*(.fini_array*))</span><br><span class="line">    PROVIDE_HIDDEN (__fini_array_end = .);</span><br><span class="line">  &#125; &gt;FLASH</span><br><span class="line"></span><br><span class="line">  _sidata = LOADADDR(.data);</span><br><span class="line"></span><br><span class="line">  .data : </span><br><span class="line">  &#123;</span><br><span class="line">    . = ALIGN(4);</span><br><span class="line">    _sdata = .;        /* create a global symbol at data start */</span><br><span class="line">    *(.data)           /* .data sections */</span><br><span class="line">    *(.data*)          /* .data* sections */</span><br><span class="line"></span><br><span class="line">    . = ALIGN(4);</span><br><span class="line">    _edata = .;        /* define a global symbol at data end */</span><br><span class="line">  &#125; &gt;RAM AT&gt; FLASH</span><br><span class="line">  </span><br><span class="line">  . = ALIGN(4);</span><br><span class="line">  .bss :</span><br><span class="line">  &#123;</span><br><span class="line">    /* This is used by the startup in order to initialize the .bss secion */</span><br><span class="line">    _sbss = .;         /* define a global symbol at bss start */</span><br><span class="line">    __bss_start__ = _sbss;</span><br><span class="line">    *(.bss)</span><br><span class="line">    *(.bss*)</span><br><span class="line">    *(COMMON)</span><br><span class="line"></span><br><span class="line">    . = ALIGN(4);</span><br><span class="line">    _ebss = .;         /* define a global symbol at bss end */</span><br><span class="line">    __bss_end__ = _ebss;</span><br><span class="line">  &#125; &gt;RAM</span><br><span class="line"></span><br><span class="line">  /* User_heap_stack section, used to check that there is enough RAM left */</span><br><span class="line">  ._user_heap_stack :</span><br><span class="line">  &#123;</span><br><span class="line">    . = ALIGN(4);</span><br><span class="line">    PROVIDE ( end = . );</span><br><span class="line">    PROVIDE ( _end = . );</span><br><span class="line">    . = . + _Min_Heap_Size;</span><br><span class="line">    . = . + _Min_Stack_Size;</span><br><span class="line">    _estack = .;</span><br><span class="line">    . = ALIGN(4);</span><br><span class="line">  &#125; &gt;RAM</span><br><span class="line"></span><br><span class="line">  /* Remove information from the standard libraries */</span><br><span class="line">  /DISCARD/ :</span><br><span class="line">  &#123;</span><br><span class="line">    libc.a ( * )</span><br><span class="line">    libm.a ( * )</span><br><span class="line">    libgcc.a ( * )</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  .ARM.attributes 0 : &#123; *(.ARM.attributes) &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+]]></content>
+  </entry>
+  <entry>
+    <title>ARM架构及相关概念</title>
+    <url>/2023/12/04/ARM%E6%9E%B6%E6%9E%84%E5%8F%8A%E7%9B%B8%E5%85%B3%E6%A6%82%E5%BF%B5/</url>
+    <content><![CDATA[<h2 id="内存分布"><a href="#内存分布" class="headerlink" title="内存分布"></a>内存分布</h2><h2 id="哈佛架构与冯诺依曼架构"><a href="#哈佛架构与冯诺依曼架构" class="headerlink" title="哈佛架构与冯诺依曼架构"></a>哈佛架构与冯诺依曼架构</h2><h2 id="CPU寄存器"><a href="#CPU寄存器" class="headerlink" title="CPU寄存器"></a>CPU寄存器</h2>]]></content>
+  </entry>
+  <entry>
+    <title>Makefile相关学习笔记</title>
+    <url>/2023/12/06/Makefile%E7%9B%B8%E5%85%B3%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</url>
+    <content><![CDATA[<h2 id="基础学习"><a href="#基础学习" class="headerlink" title="基础学习"></a>基础学习</h2><h3 id="符号"><a href="#符号" class="headerlink" title="符号"></a>符号</h3><ul>
+<li>符号<code>$</code></li>
+<li>符号<code>@</code></li>
+<li>符号<code>&lt;</code></li>
+</ul>
+<h3 id="Makefile格式"><a href="#Makefile格式" class="headerlink" title="Makefile格式"></a>Makefile格式</h3><h3 id="规则模式与语法"><a href="#规则模式与语法" class="headerlink" title="规则模式与语法"></a>规则模式与语法</h3><ul>
+<li><p>模式规则</p>
+</li>
+<li><p>常用函数</p>
+</li>
+</ul>
+<h2 id="实际应用"><a href="#实际应用" class="headerlink" title="实际应用"></a>实际应用</h2><ul>
+<li><p>在Makefile中，是如何将每个需要编译生成.o目标文件与.c源文件关联起来的</p>
+  <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># addprefix用于在每个元素前面添加一个前缀：(OUTPUT_DIR)/</span><br><span class="line"># (C_SOURCES:.c=.o)将C源文件的后缀.c替换为.o，使得C_SOURCES中的每个.c都对应相应的.o文件</span><br><span class="line">C_OBJECTS = $(addprefix $(OUTPUT_DIR)/, $(C_SOURCES:.c=.o))</span><br><span class="line"></span><br><span class="line">$(OUTPUT_DIR)/%.o: %.c              # 模式规则，要生成.o文件，则要找到对应的.c</span><br><span class="line">    mkdir -p $(dir $@)              # 如果目录不存在，则创建；(dir@)表示目标文件$@的目录部分</span><br><span class="line">    $(CC) $(INCLUDE) $(CFLAGS) -MMD -c $&lt; -o $@</span><br></pre></td></tr></table></figure>
+  <br></li>
+<li><p>.&#x2F;configure命令<br>  configure脚本由autoconf工具生成，在make命令之前先执行配置；执行此命令，配置编译器、库、工具等参数，并根据此参数生成一个Makefile</p>
+  <br>
+  </li>
+<li><p>编译、包含依赖文件，避免重复编译、提高效率<br>  在编译命令中加入<code>-MMD</code>选项，告诉编译器生成依赖关系文件<br>  在Makefile里的目标文件编译规则命令之后，加入<code>-include $(wildcard $(OUTPUT_DIR)/*/*.d)</code></p>
+</li>
+</ul>
+]]></content>
+      <tags>
+        <tag>make</tag>
+      </tags>
+  </entry>
+</search>
