@@ -28,7 +28,7 @@
 <meta property="og:description" content="介绍STM32的从Flash启动流程，分别从Keil和GCC下的.s启动文件进行分析：从0x8000000到用户main()之间的初始化执行过程。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2023-11-28T12:00:00.000Z">
-<meta property="article:modified_time" content="2023-11-29T11:51:32.260Z">
+<meta property="article:modified_time" content="2023-12-06T02:37:54.724Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="STM32">
 <meta property="article:tag" content="MCU">
@@ -198,7 +198,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-11-29 11:51:32" itemprop="dateModified" datetime="2023-11-29T11:51:32+00:00">2023-11-29</time>
+                <time title="Modified: 2023-12-06 02:37:54" itemprop="dateModified" datetime="2023-12-06T02:37:54+00:00">2023-12-06</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -254,9 +254,11 @@
 <li>将初始化的可读写数据段拷贝从Flash拷贝到SRAM</li>
 <li>初始化清零未初始化数据段</li>
 <li>调用系统时钟初始化函数（SystemInit）</li>
-<li>调用静态构造函数（__libc_init_array） ——参考自CHATGPT<blockquote>
-<p>调用所有静态构造函数，确保在程序执行主函数 main 之前，所有需要初始化的内容都已经完成<br>编译器会将所有的静态构造函数的指针收集到一个特定的数组中，然后在程序启动时通过调用 __libc_init_array 来依次执行这些构造函数</p>
-</blockquote>
+<li>调用静态构造函数（__libc_init_array） ——参考自CHATGPT<ul>
+<li>调用所有静态构造函数-&gt;调用.preinit_array段中的所有函数指针-&gt;调用.init段中的_init函数-&gt;调用.init_array段中的所有函数指针-&gt;确保在程序执行主函数 main 之前，所有需要初始化的内容都已经完成。</li>
+<li>其在链接脚本中有体现：  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">.preinit_array     :</span><br><span class="line">&#123;</span><br><span class="line">  PROVIDE_HIDDEN (__preinit_array_start = .);</span><br><span class="line">  KEEP (*(.preinit_array*))</span><br><span class="line">  PROVIDE_HIDDEN (__preinit_array_end = .);</span><br><span class="line">&#125; &gt;FLASH</span><br><span class="line">.init_array :</span><br><span class="line">&#123;</span><br><span class="line">  PROVIDE_HIDDEN (__init_array_start = .);</span><br><span class="line">  KEEP (*(SORT(.init_array.*)))</span><br><span class="line">  KEEP (*(.init_array*))</span><br><span class="line">  PROVIDE_HIDDEN (__init_array_end = .);</span><br><span class="line">&#125; &gt;FLASH</span><br></pre></td></tr></table></figure></li>
+<li>链接脚本中，可将用户函数指定链接到相应的init段，从而实现在main前的函数自动初始化？</li>
+</ul>
 </li>
 <li>进入用户函数(main)<br></li>
 </ul>
@@ -362,7 +364,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">31</span>
+          <span class="site-state-item-count">34</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>

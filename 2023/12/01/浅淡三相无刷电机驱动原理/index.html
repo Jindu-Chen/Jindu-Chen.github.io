@@ -28,7 +28,7 @@
 <meta property="og:description" content="记录对三相无刷电机驱动的个人理解">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2023-12-01T09:06:10.000Z">
-<meta property="article:modified_time" content="2023-12-01T09:47:20.144Z">
+<meta property="article:modified_time" content="2023-12-06T01:47:16.442Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -189,10 +189,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2023-12-01 09:06:10 / Modified: 09:47:20" itemprop="dateCreated datePublished" datetime="2023-12-01T09:06:10+00:00">2023-12-01</time>
+              <time title="Created: 2023-12-01 09:06:10" itemprop="dateCreated datePublished" datetime="2023-12-01T09:06:10+00:00">2023-12-01</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2023-12-06 01:47:16" itemprop="dateModified" datetime="2023-12-06T01:47:16+00:00">2023-12-06</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -215,7 +221,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="何为三相无刷电机？"><a href="#何为三相无刷电机？" class="headerlink" title="何为三相无刷电机？"></a>何为三相无刷电机？</h1><h1 id="如何让三相无刷电机动起来？"><a href="#如何让三相无刷电机动起来？" class="headerlink" title="如何让三相无刷电机动起来？"></a>如何让三相无刷电机动起来？</h1><h1 id="无刷电机驱动设计及分析"><a href="#无刷电机驱动设计及分析" class="headerlink" title="无刷电机驱动设计及分析"></a>无刷电机驱动设计及分析</h1><h1 id="个人对无刷电机理解的一些困惑"><a href="#个人对无刷电机理解的一些困惑" class="headerlink" title="个人对无刷电机理解的一些困惑"></a>个人对无刷电机理解的一些困惑</h1>
+        <h1 id="何为三相无刷电机？"><a href="#何为三相无刷电机？" class="headerlink" title="何为三相无刷电机？"></a>何为三相无刷电机？</h1><h1 id="如何让三相无刷电机动起来？"><a href="#如何让三相无刷电机动起来？" class="headerlink" title="如何让三相无刷电机动起来？"></a>如何让三相无刷电机动起来？</h1><h1 id="无刷电机驱动原理分析"><a href="#无刷电机驱动原理分析" class="headerlink" title="无刷电机驱动原理分析"></a>无刷电机驱动原理分析</h1><h2 id="FOC算法浅析"><a href="#FOC算法浅析" class="headerlink" title="FOC算法浅析"></a>FOC算法浅析</h2><h2 id="PID算法"><a href="#PID算法" class="headerlink" title="PID算法"></a>PID算法</h2><h1 id="无刷电机驱动设计及分析"><a href="#无刷电机驱动设计及分析" class="headerlink" title="无刷电机驱动设计及分析"></a>无刷电机驱动设计及分析</h1><h1 id="个人对无刷电机理解的一些困惑"><a href="#个人对无刷电机理解的一些困惑" class="headerlink" title="个人对无刷电机理解的一些困惑"></a>个人对无刷电机理解的一些困惑</h1>
     </div>
 
     
@@ -295,7 +301,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BD%95%E4%B8%BA%E4%B8%89%E7%9B%B8%E6%97%A0%E5%88%B7%E7%94%B5%E6%9C%BA%EF%BC%9F"><span class="nav-number">1.</span> <span class="nav-text">何为三相无刷电机？</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E8%AE%A9%E4%B8%89%E7%9B%B8%E6%97%A0%E5%88%B7%E7%94%B5%E6%9C%BA%E5%8A%A8%E8%B5%B7%E6%9D%A5%EF%BC%9F"><span class="nav-number">2.</span> <span class="nav-text">如何让三相无刷电机动起来？</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%97%A0%E5%88%B7%E7%94%B5%E6%9C%BA%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1%E5%8F%8A%E5%88%86%E6%9E%90"><span class="nav-number">3.</span> <span class="nav-text">无刷电机驱动设计及分析</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%AA%E4%BA%BA%E5%AF%B9%E6%97%A0%E5%88%B7%E7%94%B5%E6%9C%BA%E7%90%86%E8%A7%A3%E7%9A%84%E4%B8%80%E4%BA%9B%E5%9B%B0%E6%83%91"><span class="nav-number">4.</span> <span class="nav-text">个人对无刷电机理解的一些困惑</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BD%95%E4%B8%BA%E4%B8%89%E7%9B%B8%E6%97%A0%E5%88%B7%E7%94%B5%E6%9C%BA%EF%BC%9F"><span class="nav-number">1.</span> <span class="nav-text">何为三相无刷电机？</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E8%AE%A9%E4%B8%89%E7%9B%B8%E6%97%A0%E5%88%B7%E7%94%B5%E6%9C%BA%E5%8A%A8%E8%B5%B7%E6%9D%A5%EF%BC%9F"><span class="nav-number">2.</span> <span class="nav-text">如何让三相无刷电机动起来？</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%97%A0%E5%88%B7%E7%94%B5%E6%9C%BA%E9%A9%B1%E5%8A%A8%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90"><span class="nav-number">3.</span> <span class="nav-text">无刷电机驱动原理分析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#FOC%E7%AE%97%E6%B3%95%E6%B5%85%E6%9E%90"><span class="nav-number">3.1.</span> <span class="nav-text">FOC算法浅析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#PID%E7%AE%97%E6%B3%95"><span class="nav-number">3.2.</span> <span class="nav-text">PID算法</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%97%A0%E5%88%B7%E7%94%B5%E6%9C%BA%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1%E5%8F%8A%E5%88%86%E6%9E%90"><span class="nav-number">4.</span> <span class="nav-text">无刷电机驱动设计及分析</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%AA%E4%BA%BA%E5%AF%B9%E6%97%A0%E5%88%B7%E7%94%B5%E6%9C%BA%E7%90%86%E8%A7%A3%E7%9A%84%E4%B8%80%E4%BA%9B%E5%9B%B0%E6%83%91"><span class="nav-number">5.</span> <span class="nav-text">个人对无刷电机理解的一些困惑</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -309,7 +315,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">31</span>
+          <span class="site-state-item-count">34</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
