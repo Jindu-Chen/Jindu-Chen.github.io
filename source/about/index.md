@@ -6,10 +6,10 @@ type: "about"
 
 ## About Me
 
-Chen Jindu
-Phone: 18898517377
-Email: chenjindu@126.com
-Position: Embedded Software Engineer
+**Chen Jindu**
+**Phone**: 18898517377
+**Email**: chenjindu@126.com
+**Position**: Embedded Software Engineer
 
 ## Résumé
 
@@ -69,13 +69,5 @@ Position: Embedded Software Engineer
 
 
 </details>
-
-## Contact Me
-
-- **Email:** example@example.com
-- **Twitter:** [@mytwitterhandle](https://twitter.com/mytwitterhandle)
-- **GitHub:** [github.com/mygithub](https://github.com/mygithub)
-
-
 
 
