@@ -129,7 +129,7 @@
     <title>Linux知识小贴士</title>
     <url>/2023/11/28/Linux%E7%9F%A5%E8%AF%86%E5%B0%8F%E8%B4%B4%E5%A3%AB/</url>
     <content><![CDATA[<ul>
-<li>远程端口流量通过SSH映射到本地<br>ssh -L 4000:localhost:4000 <a href="mailto:&#106;&#x64;&#x5f;&#99;&#104;&#101;&#x6e;&#x40;&#x31;&#57;&#x32;&#46;&#49;&#54;&#x38;&#x2e;&#49;&#49;&#50;&#x2e;&#x32;&#x34;&#x30;">&#106;&#x64;&#x5f;&#99;&#104;&#101;&#x6e;&#x40;&#x31;&#57;&#x32;&#46;&#49;&#54;&#x38;&#x2e;&#49;&#49;&#50;&#x2e;&#x32;&#x34;&#x30;</a></li>
+<li>远程端口流量通过SSH映射到本地<br>ssh -L 4000:localhost:4000 <a href="mailto:&#x6a;&#100;&#95;&#x63;&#104;&#x65;&#110;&#x40;&#x31;&#57;&#x32;&#46;&#49;&#x36;&#56;&#x2e;&#x31;&#49;&#50;&#46;&#x32;&#52;&#x30;">&#x6a;&#100;&#95;&#x63;&#104;&#x65;&#110;&#x40;&#x31;&#57;&#x32;&#46;&#49;&#x36;&#56;&#x2e;&#x31;&#49;&#50;&#46;&#x32;&#52;&#x30;</a></li>
 </ul>
 ]]></content>
       <categories>
@@ -289,6 +289,11 @@
     <content><![CDATA[<h1 id="Keil环境下的自动初始化"><a href="#Keil环境下的自动初始化" class="headerlink" title="Keil环境下的自动初始化"></a>Keil环境下的自动初始化</h1><h1 id="GCC环境下的自动初始化"><a href="#GCC环境下的自动初始化" class="headerlink" title="GCC环境下的自动初始化"></a>GCC环境下的自动初始化</h1><h1 id="其它的初始化实例"><a href="#其它的初始化实例" class="headerlink" title="其它的初始化实例"></a>其它的初始化实例</h1>]]></content>
   </entry>
   <entry>
+    <title>心得：读LiteOS之标准化接口</title>
+    <url>/2023/11/28/%E5%BF%83%E5%BE%97%EF%BC%9A%E8%AF%BBLiteOS%E4%B9%8B%E6%A0%87%E5%87%86%E5%8C%96%E6%8E%A5%E5%8F%A3/</url>
+    <content><![CDATA[]]></content>
+  </entry>
+  <entry>
     <title>嵌入式Qt环境搭建概述</title>
     <url>/2023/11/28/%E5%B5%8C%E5%85%A5%E5%BC%8FQt%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E6%A6%82%E8%BF%B0/</url>
     <content><![CDATA[<p>1、下载安装通用交叉编译器<br>2、获取和编译tslib<br>    嵌入式Qt要支持触摸插件则需要编译tslib<br>3、编译ARM平台Qt5.12.9源码<br>4、移植Qt库到文件系统<br>5、在ubuntu上搭建 ARM平台的Qt开发环境</p>
@@ -301,11 +306,6 @@
       <tags>
         <tag>Qt</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>心得：读LiteOS之标准化接口</title>
-    <url>/2023/11/28/%E5%BF%83%E5%BE%97%EF%BC%9A%E8%AF%BBLiteOS%E4%B9%8B%E6%A0%87%E5%87%86%E5%8C%96%E6%8E%A5%E5%8F%A3/</url>
-    <content><![CDATA[]]></content>
   </entry>
   <entry>
     <title>无刷电机调试方法简述</title>
@@ -379,6 +379,22 @@
     <content><![CDATA[]]></content>
   </entry>
   <entry>
+    <title>心得：LiteOS初体验</title>
+    <url>/2023/11/29/%E5%BF%83%E5%BE%97%EF%BC%9ALiteOS%E5%88%9D%E4%BD%93%E9%AA%8C/</url>
+    <content><![CDATA[<h1 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h1><h1 id="开发简述"><a href="#开发简述" class="headerlink" title="开发简述"></a>开发简述</h1><h1 id="槽点"><a href="#槽点" class="headerlink" title="槽点"></a>槽点</h1><ul>
+<li>shell交互-uart-dma中断服务函数的配置</li>
+</ul>
+<h1 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h1>]]></content>
+      <categories>
+        <category>LiteOS</category>
+        <category>心得</category>
+      </categories>
+      <tags>
+        <tag>LiteOS</tag>
+        <tag>OpenHarmony</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>git使用小贴士</title>
     <url>/2023/11/29/git%E4%BD%BF%E7%94%A8%E5%B0%8F%E8%B4%B4%E5%A3%AB/</url>
     <content><![CDATA[<h2 id="基础"><a href="#基础" class="headerlink" title="基础"></a>基础</h2><ul>
@@ -414,30 +430,6 @@
       </categories>
   </entry>
   <entry>
-    <title>心得：LiteOS初体验</title>
-    <url>/2023/11/29/%E5%BF%83%E5%BE%97%EF%BC%9ALiteOS%E5%88%9D%E4%BD%93%E9%AA%8C/</url>
-    <content><![CDATA[<h1 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h1><h1 id="开发简述"><a href="#开发简述" class="headerlink" title="开发简述"></a>开发简述</h1><h1 id="槽点"><a href="#槽点" class="headerlink" title="槽点"></a>槽点</h1><ul>
-<li>shell交互-uart-dma中断服务函数的配置</li>
-</ul>
-<h1 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h1>]]></content>
-      <categories>
-        <category>LiteOS</category>
-        <category>心得</category>
-      </categories>
-      <tags>
-        <tag>LiteOS</tag>
-        <tag>OpenHarmony</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>浅淡三相无刷电机驱动原理</title>
-    <url>/2023/12/01/%E6%B5%85%E6%B7%A1%E4%B8%89%E7%9B%B8%E6%97%A0%E5%88%B7%E7%94%B5%E6%9C%BA%E9%A9%B1%E5%8A%A8%E5%8E%9F%E7%90%86/</url>
-    <content><![CDATA[<h1 id="何为三相无刷电机？"><a href="#何为三相无刷电机？" class="headerlink" title="何为三相无刷电机？"></a>何为三相无刷电机？</h1><h1 id="如何让三相无刷电机动起来？"><a href="#如何让三相无刷电机动起来？" class="headerlink" title="如何让三相无刷电机动起来？"></a>如何让三相无刷电机动起来？</h1><h1 id="无刷电机驱动原理分析"><a href="#无刷电机驱动原理分析" class="headerlink" title="无刷电机驱动原理分析"></a>无刷电机驱动原理分析</h1><h2 id="FOC算法浅析"><a href="#FOC算法浅析" class="headerlink" title="FOC算法浅析"></a>FOC算法浅析</h2><h2 id="PID算法"><a href="#PID算法" class="headerlink" title="PID算法"></a>PID算法</h2><h1 id="无刷电机驱动设计及分析"><a href="#无刷电机驱动设计及分析" class="headerlink" title="无刷电机驱动设计及分析"></a>无刷电机驱动设计及分析</h1><h1 id="个人对无刷电机理解的一些困惑"><a href="#个人对无刷电机理解的一些困惑" class="headerlink" title="个人对无刷电机理解的一些困惑"></a>个人对无刷电机理解的一些困惑</h1>]]></content>
-      <categories>
-        <category>无刷电机</category>
-      </categories>
-  </entry>
-  <entry>
     <title>IIC通信调试回顾</title>
     <url>/2023/11/30/IIC%E9%80%9A%E4%BF%A1%E8%B0%83%E8%AF%95%E5%9B%9E%E9%A1%BE/</url>
     <content><![CDATA[<h1 id="概要"><a href="#概要" class="headerlink" title="概要"></a>概要</h1><ul>
@@ -450,6 +442,14 @@
 <h1 id="调试问题回顾"><a href="#调试问题回顾" class="headerlink" title="调试问题回顾"></a>调试问题回顾</h1>]]></content>
       <categories>
         <category>MCU</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>浅淡三相无刷电机驱动原理</title>
+    <url>/2023/12/01/%E6%B5%85%E6%B7%A1%E4%B8%89%E7%9B%B8%E6%97%A0%E5%88%B7%E7%94%B5%E6%9C%BA%E9%A9%B1%E5%8A%A8%E5%8E%9F%E7%90%86/</url>
+    <content><![CDATA[<h1 id="何为三相无刷电机？"><a href="#何为三相无刷电机？" class="headerlink" title="何为三相无刷电机？"></a>何为三相无刷电机？</h1><h1 id="如何让三相无刷电机动起来？"><a href="#如何让三相无刷电机动起来？" class="headerlink" title="如何让三相无刷电机动起来？"></a>如何让三相无刷电机动起来？</h1><h1 id="无刷电机驱动原理分析"><a href="#无刷电机驱动原理分析" class="headerlink" title="无刷电机驱动原理分析"></a>无刷电机驱动原理分析</h1><h2 id="FOC算法浅析"><a href="#FOC算法浅析" class="headerlink" title="FOC算法浅析"></a>FOC算法浅析</h2><h2 id="PID算法"><a href="#PID算法" class="headerlink" title="PID算法"></a>PID算法</h2><h1 id="无刷电机驱动设计及分析"><a href="#无刷电机驱动设计及分析" class="headerlink" title="无刷电机驱动设计及分析"></a>无刷电机驱动设计及分析</h1><h1 id="个人对无刷电机理解的一些困惑"><a href="#个人对无刷电机理解的一些困惑" class="headerlink" title="个人对无刷电机理解的一些困惑"></a>个人对无刷电机理解的一些困惑</h1>]]></content>
+      <categories>
+        <category>无刷电机</category>
       </categories>
   </entry>
   <entry>
