@@ -245,7 +245,10 @@
 <li>符号<code>$@</code><br>目标的集合</li>
 <li>符号<code>$&lt;</code><br>依赖文件集合中的第一个文件；通常依赖文件是以(“%”)定义的，所以其表示为符合模式的一系列文件</li>
 </ul>
-<h3 id="Makefile格式"><a href="#Makefile格式" class="headerlink" title="Makefile格式"></a>Makefile格式</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">目标....： 依赖文件集合...</span><br><span class="line">    命令1</span><br><span class="line">    命令2</span><br><span class="line">    ......</span><br></pre></td></tr></table></figure>
+<h3 id="Makefile格式"><a href="#Makefile格式" class="headerlink" title="Makefile格式"></a>Makefile格式</h3><ol>
+<li>直接输入命令make，系统会默认以第一条规则的目标为最终目标; 也可以指定生成目标，比如make main、make clean</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">目标....： 依赖文件集合...</span><br><span class="line">    命令1</span><br><span class="line">    命令2</span><br><span class="line">    ......</span><br></pre></td></tr></table></figure>
 
 <h3 id="规则模式与语法"><a href="#规则模式与语法" class="headerlink" title="规则模式与语法"></a>规则模式与语法</h3><ul>
 <li><p>模式规则</p>
