@@ -45,10 +45,12 @@
 <li><p><strong><code>-Wl,--gc-sections</code></strong> : 告知链接器删除未使用的代码和数据段</p>
 </li>
 </ul>
-<h1 id="编译纠错修改"><a href="#编译纠错修改" class="headerlink" title="编译纠错修改"></a>编译纠错修改</h1><ul>
+<h1 id="编译纠错修改以及一些注意点"><a href="#编译纠错修改以及一些注意点" class="headerlink" title="编译纠错修改以及一些注意点"></a>编译纠错修改以及一些注意点</h1><ul>
 <li><p>当编译提示:<code>- undefined reference to _init</code>，类似时，检查是否添加了编译选项<code>--nostdlib</code>，不链接标准库，却又没指定库，导致的编译错误</p>
 </li>
 <li><p>提示<code>- exit.c:(.text.exit+0x2c): undefined reference to _exit</code>，考虑在.ld链接文件的.text段的末尾加上<code>_exit = .;</code></p>
+</li>
+<li><p>开启两级优化时, 需要注意C程序中汇编函数的调用可能会被优化掉, 可以考虑加上__attribute__ ((used))</p>
 </li>
 </ul>
 <h1 id="Makefile应用实例"><a href="#Makefile应用实例" class="headerlink" title="Makefile应用实例"></a>Makefile应用实例</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 指定交叉编译工具链的 编译器、连接器、库管理器、</span><br><span class="line">CROSS_COMPILE=arm-none-eabi-</span><br><span class="line">CC=$(CROSS_COMPILE)gcc</span><br><span class="line">LD=$(CROSS_COMPILE)ld</span><br><span class="line">AR=$(CROSS_COMPILE)ar</span><br><span class="line">AS=$(CROSS_COMPILE)as</span><br><span class="line">OC=$(CROSS_COMPILE)objcopy</span><br><span class="line">OD=$(CROSS_COMPILE)objdump</span><br><span class="line">SZ=$(CROSS_COMPILE)size</span><br><span class="line"></span><br><span class="line"># 指定目标硬件的架构和浮点运算单元   -mfpu=fpv4-sp-d16 -mfloat-abi=hard </span><br><span class="line"># O0:禁用优化，O1：基本优化，O2, O3, Os</span><br><span class="line"># g0:禁用调试信息, g1, g2, g3, g</span><br><span class="line">MCU = -mcpu=cortex-m4 -mthumb \</span><br><span class="line">	-ffunction-sections \</span><br><span class="line">	-fdata-sections \</span><br><span class="line">	-Os -ggdb</span><br><span class="line"></span><br><span class="line"># 定义编译C源文件的编译选项：禁用共享变量、函数和数据分段、优化级别、调试信息级别、开启所有警告、目标架构、预定义宏</span><br><span class="line">CFLAGS= -c -fno-common \</span><br><span class="line">	--specs=rdimon.specs \</span><br><span class="line">	-std=gnu99 -mabi=aapcs \</span><br><span class="line">	-Wall \</span><br><span class="line">	$(MCU) \</span><br><span class="line">	$(C_DEFS)</span><br><span class="line"></span><br><span class="line"># 定义链接器脚本、链接选项、目标文件格式转换选项、反汇编等等</span><br><span class="line">LDSCRIPT=n32l40x_flash.ld</span><br><span class="line">LDFLAGS = -Wl,--gc-sections --data-sections -mabi=aapcs $(MCU) -T$(LDSCRIPT) \</span><br><span class="line">	--specs=nosys.specs \</span><br><span class="line">	--specs=nano.specs \</span><br><span class="line">	-x assembler-with-cpp -Wa,-mimplicit-it=thumb</span><br><span class="line">OCFLAGS	= -Obinary</span><br><span class="line">ODFLAGS	= -S</span><br></pre></td></tr></table></figure>
@@ -129,7 +131,10 @@
     <title>Linux知识小贴士</title>
     <url>/2023/11/28/Linux%E7%9F%A5%E8%AF%86%E5%B0%8F%E8%B4%B4%E5%A3%AB/</url>
     <content><![CDATA[<ul>
-<li>远程端口流量通过SSH映射到本地<br>ssh -L 4000:localhost:4000 <a href="mailto:&#106;&#x64;&#95;&#x63;&#x68;&#x65;&#x6e;&#x40;&#49;&#57;&#x32;&#46;&#x31;&#54;&#56;&#x2e;&#49;&#49;&#x32;&#x2e;&#50;&#x34;&#48;">&#106;&#x64;&#95;&#x63;&#x68;&#x65;&#x6e;&#x40;&#49;&#57;&#x32;&#46;&#x31;&#54;&#56;&#x2e;&#49;&#49;&#x32;&#x2e;&#50;&#x34;&#48;</a></li>
+<li><p>远程端口流量通过SSH映射到本地<br>ssh -L 4000:localhost:4000 <a href="mailto:&#x6a;&#x64;&#x5f;&#99;&#104;&#101;&#110;&#64;&#x31;&#57;&#x32;&#x2e;&#x31;&#54;&#56;&#46;&#x31;&#49;&#x32;&#x2e;&#50;&#x34;&#48;">&#x6a;&#x64;&#x5f;&#99;&#104;&#101;&#110;&#64;&#x31;&#57;&#x32;&#x2e;&#x31;&#54;&#56;&#46;&#x31;&#49;&#x32;&#x2e;&#50;&#x34;&#48;</a></p>
+</li>
+<li><p>Linux给根目录扩容</p>
+</li>
 </ul>
 ]]></content>
       <categories>
@@ -270,11 +275,17 @@
     <title>嵌入式MCU开发问题记录</title>
     <url>/2023/11/28/%E5%B5%8C%E5%85%A5%E5%BC%8FMCU%E5%BC%80%E5%8F%91%E9%97%AE%E9%A2%98%E8%AE%B0%E5%BD%95/</url>
     <content><![CDATA[<ul>
-<li>J-Link仿真器正常，但点击烧录就工作异常<blockquote>
-<p>1、MCU及元件上电工作，J-Link供电不足 – 插上电源<br>2、芯片在读写保护状态，需要用特定软件解除读保护后，才可烧录</p>
-</blockquote>
+<li>J-Link仿真器正常，但点击烧录就工作异常<ul>
+<li>MCU及元件上电工作，J-Link供电不足 – 插上电源</li>
+<li>芯片在读写保护状态，需要用特定软件解除读保护后，才可烧录</li>
+</ul>
 </li>
 </ul>
+<hr>
+<ul>
+<li><h2 id="移植letter-shell组件和LiteOS-开机上电立即打印了letter-shell版本信息-但其后的打印信息阻塞延时了几秒钟-在这期间内-shell完全没任何反应-现象分析-系统时基是从延时后才开始累计-说明在此前Systick没有跑起来-一上电就能输出信息-问题解决步骤-在上电正常输出日志处-和延时处添加日志打印-不断往中间逼近-查找是哪个函数导致的阻塞延时-通过日志逼近打印-发现是上电初始化时与充电ic的iic通信导致的阻塞延时-并且iic没有通信成功-iic与SGM41528初始化时序时败-阻塞占用了接近2s的时间-接下来需要排查为何移植LiteOS的-iic通信初始化-超时失败-通过比较排查-已知-iic通信在刚上电时通信失败-但上电一段时间后-通信正常-但与移植LiteOS前相比-iic的初始化调用逻辑并没有改变-接下来需要排查为什么刚上电时的iic初始化失败"><a href="#移植letter-shell组件和LiteOS-开机上电立即打印了letter-shell版本信息-但其后的打印信息阻塞延时了几秒钟-在这期间内-shell完全没任何反应-现象分析-系统时基是从延时后才开始累计-说明在此前Systick没有跑起来-一上电就能输出信息-问题解决步骤-在上电正常输出日志处-和延时处添加日志打印-不断往中间逼近-查找是哪个函数导致的阻塞延时-通过日志逼近打印-发现是上电初始化时与充电ic的iic通信导致的阻塞延时-并且iic没有通信成功-iic与SGM41528初始化时序时败-阻塞占用了接近2s的时间-接下来需要排查为何移植LiteOS的-iic通信初始化-超时失败-通过比较排查-已知-iic通信在刚上电时通信失败-但上电一段时间后-通信正常-但与移植LiteOS前相比-iic的初始化调用逻辑并没有改变-接下来需要排查为什么刚上电时的iic初始化失败" class="headerlink" title="移植letter_shell组件和LiteOS, 开机上电立即打印了letter_shell版本信息, 但其后的打印信息阻塞延时了几秒钟, 在这期间内, shell完全没任何反应- 现象分析:  - 系统时基是从延时后才开始累计, 说明在此前Systick没有跑起来  - 一上电就能输出信息- 问题解决步骤:  - 在上电正常输出日志处, 和延时处添加日志打印,不断往中间逼近,查找是哪个函数导致的阻塞延时  - 通过日志逼近打印,发现是上电初始化时与充电ic的iic通信导致的阻塞延时,并且iic没有通信成功  - iic与SGM41528初始化时序时败,阻塞占用了接近2s的时间,接下来需要排查为何移植LiteOS的 iic通信初始化 超时失败  - 通过比较排查,已知: iic通信在刚上电时通信失败,但上电一段时间后,通信正常; 但与移植LiteOS前相比,iic的初始化调用逻辑并没有改变, 接下来需要排查为什么刚上电时的iic初始化失败"></a>移植letter_shell组件和LiteOS, 开机上电立即打印了letter_shell版本信息, 但其后的打印信息阻塞延时了几秒钟, 在这期间内, shell完全没任何反应<br>- 现象分析:<br>  - 系统时基是从延时后才开始累计, 说明在此前Systick没有跑起来<br>  - 一上电就能输出信息<br>- 问题解决步骤:<br>  - 在上电正常输出日志处, 和延时处添加日志打印,不断往中间逼近,查找是哪个函数导致的阻塞延时<br>  - 通过日志逼近打印,发现是上电初始化时与充电ic的iic通信导致的阻塞延时,并且iic没有通信成功<br>  - iic与SGM41528初始化时序时败,阻塞占用了接近2s的时间,接下来需要排查为何移植LiteOS的 iic通信初始化 超时失败<br>  - 通过比较排查,已知: iic通信在刚上电时通信失败,但上电一段时间后,通信正常; 但与移植LiteOS前相比,iic的初始化调用逻辑并没有改变, 接下来需要排查为什么刚上电时的iic初始化失败</h2></li>
+</ul>
+<hr>
 <h2 id="硬件调试"><a href="#硬件调试" class="headerlink" title="硬件调试"></a>硬件调试</h2><ul>
 <li>不同批次、相同原理的板子调试时，出现异常<br>  烧录相同程序，如果结果不一，则首先排查硬件问题 – 板厂的模块芯片有无贴错、元件贴错等</li>
 </ul>
@@ -417,7 +428,15 @@
     <title>心得：LiteOS初体验</title>
     <url>/2023/11/29/%E5%BF%83%E5%BE%97%EF%BC%9ALiteOS%E5%88%9D%E4%BD%93%E9%AA%8C/</url>
     <content><![CDATA[<h1 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h1><h1 id="开发简述"><a href="#开发简述" class="headerlink" title="开发简述"></a>开发简述</h1><h1 id="槽点"><a href="#槽点" class="headerlink" title="槽点"></a>槽点</h1><ul>
-<li>shell交互-uart-dma中断服务函数的配置</li>
+<li><p>shell交互-uart-dma中断服务函数的配置</p>
+</li>
+<li><p>鸡肋的软件定时器,只能在初始化时定好时间周期,后续不可更改</p>
+</li>
+<li><p>空闲任务函数<br>  查看LiteOS之原版api，是存在创建空闲任务钩子函数的，但最新版代码已经删除，代码如下：<br>由以下代码可知，空闲任务作用仅为回收结束任务资源，以及可选的电源管理。</p>
+<ul>
+<li>个人操作：增设<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">LITE_OS_SEC_TEXT VOID OsIdleTask(VOID)</span><br><span class="line">&#123;</span><br><span class="line">    while (1) &#123;</span><br><span class="line">        OsRecycleFinishedTask();</span><br><span class="line"></span><br><span class="line">        if (PmEnter != NULL) &#123;</span><br><span class="line">            PmEnter();</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            (VOID)ArchEnterSleep();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">LITE_OS_SEC_TEXT_INIT UINT32 OsIdleTaskCreate(VOID)</span><br><span class="line">&#123;</span><br><span class="line">    UINT32 retVal;</span><br><span class="line">    TSK_INIT_PARAM_S taskInitParam;</span><br><span class="line">    // Ignore the return code when matching CSEC rule 6.6(4).</span><br><span class="line">    (VOID)memset_s((VOID *)(&amp;taskInitParam), sizeof(TSK_INIT_PARAM_S), 0, sizeof(TSK_INIT_PARAM_S));</span><br><span class="line">    taskInitParam.pfnTaskEntry = (TSK_ENTRY_FUNC)OsIdleTask;</span><br><span class="line">    taskInitParam.uwStackSize = LOSCFG_BASE_CORE_TSK_IDLE_STACK_SIZE;</span><br><span class="line">    taskInitParam.pcName = &quot;IdleCore000&quot;;</span><br><span class="line">    taskInitParam.usTaskPrio = OS_TASK_PRIORITY_LOWEST;</span><br><span class="line">    retVal = LOS_TaskCreateOnly(&amp;g_idleTaskID, &amp;taskInitParam);</span><br><span class="line">    if (retVal != LOS_OK) &#123;</span><br><span class="line">        return retVal;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    OsSchedSetIdleTaskSchedParam(OS_TCB_FROM_TID(g_idleTaskID));</span><br><span class="line">    return LOS_OK;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
 </ul>
 <h1 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h1>]]></content>
       <categories>
@@ -462,7 +481,7 @@
 <li>__attribute__ 关键字<ul>
 <li>__attribute__((weak))</li>
 <li>__attribute__((constructor))</li>
-<li>__attribute__((__used__)) 告知编译器：即使修饰的对象在编译过程中没有被引用，也要保留</li>
+<li>__attribute__((__used__)) 告知编译器：即使修饰的对象在编译过程中没有被引用，也要保留<br>建议在C源文件中的汇编函数前加上,以避免高优化等级时其被优化掉 </li>
 <li>__attribute__((__section__(“my_section”))) 表示将修饰的对象放在名为<code>my_section</code>的段中<br>在C文件中编程，一般可以通过特殊的符号来获取attribute声明的段的首末地址，其由链接器在链接过程中自动定义<br><br>  示例1：  <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">#define  __used  __attribute__((__used__))</span><br><span class="line"></span><br><span class="line">typedef void (*initcall_t)(void);</span><br><span class="line"></span><br><span class="line">#define __define_initcall(fn) \</span><br><span class="line">    static const initcall_t __initcall_##fn##id __used \</span><br><span class="line">    __attribute__((__section__(&quot;initcall_system_init&quot;))) = fn; </span><br><span class="line"></span><br><span class="line">#define INIT_SYSTEM_EXPORT(fn)      __define_initcall(fn)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
   应用示例2：定义系列 赋值为函数指针的静态常量，将其声明到指定的段中  <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">extern char __start_my_section[];</span><br><span class="line">extern char __stop_my_section[];</span><br><span class="line"></span><br><span class="line">char *start = __start_my_section;</span><br><span class="line">char *end = __stop_my_section;</span><br><span class="line"></span><br><span class="line">typedef void (*func_ptr)(void);</span><br><span class="line"></span><br><span class="line">for (func_ptr *f = (func_ptr *)__start_my_section; f &lt; (func_ptr *)__stop_my_section; ++f) &#123;</span><br><span class="line">    (*f)();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
 </ul>
