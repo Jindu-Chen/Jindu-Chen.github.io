@@ -283,7 +283,24 @@
 </ul>
 <hr>
 <ul>
-<li><h2 id="移植letter-shell组件和LiteOS-开机上电立即打印了letter-shell版本信息-但其后的打印信息阻塞延时了几秒钟-在这期间内-shell完全没任何反应-现象分析-系统时基是从延时后才开始累计-说明在此前Systick没有跑起来-一上电就能输出信息-问题解决步骤-在上电正常输出日志处-和延时处添加日志打印-不断往中间逼近-查找是哪个函数导致的阻塞延时-通过日志逼近打印-发现是上电初始化时与充电ic的iic通信导致的阻塞延时-并且iic没有通信成功-iic与SGM41528初始化时序时败-阻塞占用了接近2s的时间-接下来需要排查为何移植LiteOS的-iic通信初始化-超时失败-通过比较排查-已知-iic通信在刚上电时通信失败-但上电一段时间后-通信正常-但与移植LiteOS前相比-iic的初始化调用逻辑并没有改变-接下来需要排查为什么刚上电时的iic初始化失败"><a href="#移植letter-shell组件和LiteOS-开机上电立即打印了letter-shell版本信息-但其后的打印信息阻塞延时了几秒钟-在这期间内-shell完全没任何反应-现象分析-系统时基是从延时后才开始累计-说明在此前Systick没有跑起来-一上电就能输出信息-问题解决步骤-在上电正常输出日志处-和延时处添加日志打印-不断往中间逼近-查找是哪个函数导致的阻塞延时-通过日志逼近打印-发现是上电初始化时与充电ic的iic通信导致的阻塞延时-并且iic没有通信成功-iic与SGM41528初始化时序时败-阻塞占用了接近2s的时间-接下来需要排查为何移植LiteOS的-iic通信初始化-超时失败-通过比较排查-已知-iic通信在刚上电时通信失败-但上电一段时间后-通信正常-但与移植LiteOS前相比-iic的初始化调用逻辑并没有改变-接下来需要排查为什么刚上电时的iic初始化失败" class="headerlink" title="移植letter_shell组件和LiteOS, 开机上电立即打印了letter_shell版本信息, 但其后的打印信息阻塞延时了几秒钟, 在这期间内, shell完全没任何反应- 现象分析:  - 系统时基是从延时后才开始累计, 说明在此前Systick没有跑起来  - 一上电就能输出信息- 问题解决步骤:  - 在上电正常输出日志处, 和延时处添加日志打印,不断往中间逼近,查找是哪个函数导致的阻塞延时  - 通过日志逼近打印,发现是上电初始化时与充电ic的iic通信导致的阻塞延时,并且iic没有通信成功  - iic与SGM41528初始化时序时败,阻塞占用了接近2s的时间,接下来需要排查为何移植LiteOS的 iic通信初始化 超时失败  - 通过比较排查,已知: iic通信在刚上电时通信失败,但上电一段时间后,通信正常; 但与移植LiteOS前相比,iic的初始化调用逻辑并没有改变, 接下来需要排查为什么刚上电时的iic初始化失败"></a>移植letter_shell组件和LiteOS, 开机上电立即打印了letter_shell版本信息, 但其后的打印信息阻塞延时了几秒钟, 在这期间内, shell完全没任何反应<br>- 现象分析:<br>  - 系统时基是从延时后才开始累计, 说明在此前Systick没有跑起来<br>  - 一上电就能输出信息<br>- 问题解决步骤:<br>  - 在上电正常输出日志处, 和延时处添加日志打印,不断往中间逼近,查找是哪个函数导致的阻塞延时<br>  - 通过日志逼近打印,发现是上电初始化时与充电ic的iic通信导致的阻塞延时,并且iic没有通信成功<br>  - iic与SGM41528初始化时序时败,阻塞占用了接近2s的时间,接下来需要排查为何移植LiteOS的 iic通信初始化 超时失败<br>  - 通过比较排查,已知: iic通信在刚上电时通信失败,但上电一段时间后,通信正常; 但与移植LiteOS前相比,iic的初始化调用逻辑并没有改变, 接下来需要排查为什么刚上电时的iic初始化失败</h2></li>
+<li>移植letter_shell组件和LiteOS, 开机上电立即打印了letter_shell版本信息, 但其后的打印信息阻塞延时了几秒钟, 在这期间内, shell完全没任何反应<ul>
+<li>现象分析:<ul>
+<li>系统时基是从延时后才开始累计, 说明在此前Systick没有跑起来</li>
+<li>一上电就能输出信息</li>
+</ul>
+</li>
+<li>问题解决步骤:<ul>
+<li>在上电正常输出日志处, 和延时处添加日志打印,不断往中间逼近,查找是哪个函数导致的阻塞延时</li>
+<li>通过日志逼近打印,发现是上电初始化时与充电ic的iic通信导致的阻塞延时,并且iic没有通信成功</li>
+<li>iic与SGM41528初始化时序时败,阻塞占用了接近2s的时间,接下来需要排查为何移植LiteOS的 iic通信初始化 超时失败</li>
+<li>通过比较排查,已知: iic通信在刚上电时通信失败,但上电一段时间后,通信正常; 但与移植LiteOS前相比,iic的初始化调用逻辑并没有改变, 接下来需要排查为什么刚上电时的iic初始化失败</li>
+<li>通过调试发现iic初始化时是有ACK回复的,但耗时高</li>
+<li>最后发现是iic驱动中的微秒级延时代码存在问题, 而LiteOS在初始化Systick会配置Systick-&gt;load &#x3D; 0xFFFFFF, 之后启动系统时再次配置为 SystemCoreClock&#x2F;1000, 从而使得问题暴露<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">static void n32_udelay(uint32_t us)</span><br><span class="line">&#123;</span><br><span class="line">    uint32_t ticks;</span><br><span class="line">    uint32_t told, tnow, tcnt = 0;</span><br><span class="line">    uint32_t reload = SysTick-&gt;LOAD;</span><br><span class="line"></span><br><span class="line">    // ticks = us * reload / (1000000 / DRV_TICK_PER_SECOND);</span><br><span class="line">    ticks = us * (SystemCoreClock / 1000000); //需要的节拍数</span><br><span class="line">    told = SysTick-&gt;VAL;</span><br><span class="line">    while (1)</span><br><span class="line">    &#123;</span><br><span class="line">        tnow = SysTick-&gt;VAL;</span><br><span class="line">        if (tnow != told)</span><br><span class="line">        &#123;</span><br><span class="line">            if (tnow &lt; told)</span><br><span class="line">            &#123;</span><br><span class="line">                tcnt += told - tnow;</span><br><span class="line">            &#125;</span><br><span class="line">            else</span><br><span class="line">            &#123;</span><br><span class="line">                tcnt += reload - tnow + told;</span><br><span class="line">            &#125;</span><br><span class="line">            told = tnow;</span><br><span class="line">            if (tcnt &gt;= ticks)</span><br><span class="line">            &#123;</span><br><span class="line">                break;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+其中<code>ticks = us * reload / (1000000 / DRV_TICK_PER_SECOND);</code>更新为:<code>ticks = us * (SystemCoreClock / 1000000);</code></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 <hr>
 <h2 id="硬件调试"><a href="#硬件调试" class="headerlink" title="硬件调试"></a>硬件调试</h2><ul>
