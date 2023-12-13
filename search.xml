@@ -273,7 +273,7 @@
   </entry>
   <entry>
     <title>嵌入式MCU开发问题记录</title>
-    <url>/2023/11/28/%E5%B5%8C%E5%85%A5%E5%BC%8FMCU%E5%BC%80%E5%8F%91%E9%97%AE%E9%A2%98%E8%AE%B0%E5%BD%95/</url>
+    <url>/2023/12/07/%E5%B5%8C%E5%85%A5%E5%BC%8FMCU%E5%BC%80%E5%8F%91%E9%97%AE%E9%A2%98%E8%AE%B0%E5%BD%95/</url>
     <content><![CDATA[<ul>
 <li>J-Link仿真器正常，但点击烧录就工作异常<ul>
 <li>MCU及元件上电工作，J-Link供电不足 – 插上电源</li>
