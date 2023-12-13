@@ -111,8 +111,11 @@
   </entry>
   <entry>
     <title>Linux U-Boot移植概述-基于I-MX6ULL</title>
-    <url>/2023/11/28/Linux-U-Boot%E7%A7%BB%E6%A4%8D%E6%A6%82%E8%BF%B0-%E5%9F%BA%E4%BA%8EI-MX6ULL/</url>
-    <content><![CDATA[]]></content>
+    <url>/2023/12/05/Linux-U-Boot%E7%A7%BB%E6%A4%8D%E6%A6%82%E8%BF%B0-%E5%9F%BA%E4%BA%8EI-MX6ULL/</url>
+    <content><![CDATA[<h2 id="U-Boot简介"><a href="#U-Boot简介" class="headerlink" title="U-Boot简介"></a>U-Boot简介</h2><p>是一段用于启动Linux内核的bootloader裸机程序，其主要作用是：初始化必要的外设，将Linux内核从源存储拷贝到内存中，最终启动内核</p>
+<h3 id="基于I-MX6ULL的U-Boot的一些开发概念"><a href="#基于I-MX6ULL的U-Boot的一些开发概念" class="headerlink" title="基于I.MX6ULL的U-Boot的一些开发概念"></a>基于I.MX6ULL的U-Boot的一些开发概念</h3><h3 id="U-Boot在I-MX6ULL中的启动流程简述"><a href="#U-Boot在I-MX6ULL中的启动流程简述" class="headerlink" title="U-Boot在I.MX6ULL中的启动流程简述"></a>U-Boot在I.MX6ULL中的启动流程简述</h3><h2 id="补充"><a href="#补充" class="headerlink" title="补充"></a>补充</h2><h3 id="u-boot对内核的参数传递示例"><a href="#u-boot对内核的参数传递示例" class="headerlink" title="u-boot对内核的参数传递示例"></a>u-boot对内核的参数传递示例</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">/* boot从网络启动 */</span><br><span class="line">setenv bootargs &#x27;console=ttymxc0,115200 root=/dev/nfs nfsroot=192.168.14.18:/home/chenjd/linux/nfs/rootfs,proto=tcp rw ip=192.168.14.99:192.168.14.18:192.168.14.1:255.255.255.0::eth0:off&#x27;</span><br><span class="line">setenv bootcmd &#x27;tftp 80800000 zImage; tftp 83000000 imx6ull-14x14-emmc-7-1024x600-c.dtb; bootz 80800000 - 83000000&#x27;</span><br><span class="line">saveenv</span><br><span class="line">boot</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">/* boot从emmc启动 */</span><br><span class="line">setenv bootargs &#x27;console=ttymxc0,115200 root=/dev/mmcblk1p2 rootwait rw&#x27;</span><br><span class="line">setenv bootcmd &#x27;fatload mmc 1:1 80800000 zImage; fatload mmc 1:1 83000000 imx6ull-14x14-emmc-7-1024x600-c.dtb; bootz 80800000 - 83000000&#x27;</span><br><span class="line">saveenv</span><br><span class="line">boot</span><br></pre></td></tr></table></figure>]]></content>
       <categories>
         <category>Linux</category>
         <category>I.MX6ULL</category>
@@ -256,7 +259,7 @@
     <title>WSL小贴士</title>
     <url>/2023/11/28/WSL%E5%B0%8F%E8%B4%B4%E5%A3%AB/</url>
     <content><![CDATA[<ul>
-<li>WSL下通过命令执行Windows下的bat脚本</li>
+<li>WSL下通过命令执行Windows下的bat脚本<br>  <code>wsl.exe -d Ubuntu-18.04 cmd.exe /c &quot;C:\Users\program.bat&quot;</code></li>
 </ul>
 <blockquote>
 <p>应用：</p>
@@ -365,8 +368,15 @@
   </entry>
   <entry>
     <title>无刷电机调试方法简述</title>
-    <url>/2023/11/28/%E6%97%A0%E5%88%B7%E7%94%B5%E6%9C%BA%E8%B0%83%E8%AF%95%E6%96%B9%E6%B3%95%E7%AE%80%E8%BF%B0/</url>
-    <content><![CDATA[]]></content>
+    <url>/2023/12/08/%E6%97%A0%E5%88%B7%E7%94%B5%E6%9C%BA%E8%B0%83%E8%AF%95%E6%96%B9%E6%B3%95%E7%AE%80%E8%BF%B0/</url>
+    <content><![CDATA[<h2 id="前提知识基础"><a href="#前提知识基础" class="headerlink" title="前提知识基础"></a>前提知识基础</h2><ol>
+<li>需要对PID控制算法有一定了解</li>
+<li>了解FOC算法原理即可，产品开发者无需深入了解FOC算法</li>
+<li>需要熟悉高级定时器的应用</li>
+<li>熟悉电机控制基本概念，对电机极对数、反电动势、电阻采样、DQ轴等等基本知识链需要有一定的认知</li>
+</ol>
+<h2 id="电机调试流程简述"><a href="#电机调试流程简述" class="headerlink" title="电机调试流程简述"></a>电机调试流程简述</h2><p>本文主要基于峰岹科技的两种产品进行开发简述，分别是三相ASIC和MCU。</p>
+<h3 id="基于FT8215三相ASIC-–-图形化配置开发"><a href="#基于FT8215三相ASIC-–-图形化配置开发" class="headerlink" title="基于FT8215三相ASIC – 图形化配置开发"></a>基于FT8215三相ASIC – 图形化配置开发</h3><h3 id="基于FU6815的MCU-–-Keil开发"><a href="#基于FU6815的MCU-–-Keil开发" class="headerlink" title="基于FU6815的MCU – Keil开发"></a>基于FU6815的MCU – Keil开发</h3>]]></content>
       <categories>
         <category>无刷电机</category>
       </categories>
@@ -426,12 +436,10 @@
         <category>嵌入式</category>
         <category>LiteOS</category>
         <category>RTOS</category>
-        <category>鸿蒙</category>
       </categories>
       <tags>
         <tag>RTOS</tag>
         <tag>LiteOS</tag>
-        <tag>鸿蒙</tag>
       </tags>
   </entry>
   <entry>
@@ -444,6 +452,11 @@
     <url>/2023/11/29/git%E4%BD%BF%E7%94%A8%E5%B0%8F%E8%B4%B4%E5%A3%AB/</url>
     <content><![CDATA[<h2 id="基础"><a href="#基础" class="headerlink" title="基础"></a>基础</h2><ul>
 <li><h2 id="本地git配置-修改用户名-全局-当前项目"><a href="#本地git配置-修改用户名-全局-当前项目" class="headerlink" title="本地git配置  - 修改用户名(全局&#x2F;当前项目)"></a>本地git配置<br>  - 修改用户名(全局&#x2F;当前项目)</h2></li>
+<li><p>执行git pull会覆盖本地的修改吗？</p>
+<ul>
+<li>没有冲突的情况下，远端会直接更新至本地上，但不会改变本地未提交的变动；如果本地修改已提交，则会执行一个远端分支和本地分支的合并</li>
+</ul>
+</li>
 <li><p>本地仓库多平台推送（推送gitlab、github）</p>
 </li>
 <li><p>.gitignore忽略规则</p>

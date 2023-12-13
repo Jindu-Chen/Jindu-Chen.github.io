@@ -28,7 +28,7 @@
 <meta property="og:description" content="主要介绍git的一些非典型操作">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2023-11-29T06:26:09.000Z">
-<meta property="article:modified_time" content="2023-12-05T03:53:16.257Z">
+<meta property="article:modified_time" content="2023-12-13T11:00:08.751Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -225,7 +225,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-12-05 03:53:16" itemprop="dateModified" datetime="2023-12-05T03:53:16+00:00">2023-12-05</time>
+                <time title="Modified: 2023-12-13 11:00:08" itemprop="dateModified" datetime="2023-12-13T11:00:08+00:00">2023-12-13</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -251,6 +251,11 @@
       
         <h2 id="基础"><a href="#基础" class="headerlink" title="基础"></a>基础</h2><ul>
 <li><h2 id="本地git配置-修改用户名-全局-当前项目"><a href="#本地git配置-修改用户名-全局-当前项目" class="headerlink" title="本地git配置  - 修改用户名(全局&#x2F;当前项目)"></a>本地git配置<br>  - 修改用户名(全局&#x2F;当前项目)</h2></li>
+<li><p>执行git pull会覆盖本地的修改吗？</p>
+<ul>
+<li>没有冲突的情况下，远端会直接更新至本地上，但不会改变本地未提交的变动；如果本地修改已提交，则会执行一个远端分支和本地分支的合并</li>
+</ul>
+</li>
 <li><p>本地仓库多平台推送（推送gitlab、github）</p>
 </li>
 <li><p>.gitignore忽略规则</p>
