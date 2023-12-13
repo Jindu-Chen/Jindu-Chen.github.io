@@ -109,5 +109,7 @@ search:
 ## Docs: https://hexo.io/docs/one-command-deployment
 deploy:
   type: git
-  repo: git@github.com:Jindu-Chen/Jindu-Chen.github.io.git
-  branch: gh-pages
+  repo: 
+    github: git@github.com:Jindu-Chen/Jindu-Chen.github.io.git
+    gitee: git@gitee.com:Jindu-Chen/jindu-chen.git
+  branch: master
