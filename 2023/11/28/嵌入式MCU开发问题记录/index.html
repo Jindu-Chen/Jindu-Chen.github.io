@@ -27,8 +27,8 @@
 <meta property="og:site_name" content="Jindu-Chen">
 <meta property="og:description" content="记录、总结嵌入式开发中遇到的一些小问题">
 <meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2023-11-28T11:33:09.000Z">
-<meta property="article:modified_time" content="2023-12-04T00:00:00.000Z">
+<meta property="article:published_time" content="2023-11-28T00:00:00.000Z">
+<meta property="article:modified_time" content="2023-12-13T00:00:00.000Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -218,14 +218,14 @@
               </span>
               <span class="post-meta-item-text">Posted on</span>
 
-              <time title="Created: 2023-11-28 11:33:09" itemprop="dateCreated datePublished" datetime="2023-11-28T11:33:09+00:00">2023-11-28</time>
+              <time title="Created: 2023-11-28 00:00:00" itemprop="dateCreated datePublished" datetime="2023-11-28T00:00:00+00:00">2023-11-28</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-12-04 00:00:00" itemprop="dateModified" datetime="2023-12-04T00:00:00+00:00">2023-12-04</time>
+                <time title="Modified: 2023-12-13 00:00:00" itemprop="dateModified" datetime="2023-12-13T00:00:00+00:00">2023-12-13</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -253,6 +253,22 @@
 <li>J-Link仿真器正常，但点击烧录就工作异常<ul>
 <li>MCU及元件上电工作，J-Link供电不足 – 插上电源</li>
 <li>芯片在读写保护状态，需要用特定软件解除读保护后，才可烧录</li>
+</ul>
+</li>
+</ul>
+<hr>
+<ul>
+<li>移植TIMER-PWM驱动时, 发现电机出现高频异响<ul>
+<li>原因分析:<ul>
+<li>经检查,高频异响是电机驱动输入pwm频率过高引起的</li>
+<li>而该PWM驱动默认了MCU主频是72MHz, PWM时钟分频为72分频, 以1MHz的定时器时钟来作为基准</li>
+<li>所以当该驱动移植到芯片主频为144MHz时, 使得PWM的频率为之前的两倍</li>
+</ul>
+</li>
+<li>解决:<ul>
+<li>修改该PWM驱动, 以使其更具通用性, 将时钟分频修改为变量形式 &#x3D; 系统时钟频率 &#x2F;1MHz,即可实现在不同主频芯片中的定时器基准频率为1MHz</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -313,12 +329,12 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2023/11/28/IAP-OTA%E6%B5%81%E7%A8%8B%E6%A6%82%E8%BF%B0/" rel="prev" title="IAP/OTA流程概述">
-      <i class="fa fa-chevron-left"></i> IAP/OTA流程概述
+    <a href="/2023/11/27/WSL%E9%85%8D%E7%BD%AE%E6%89%A7%E8%A1%8Cwindows%E4%B8%8B%E8%BD%BD%E8%84%9A%E6%9C%AC/" rel="prev" title="WSL配置执行windows下载脚本">
+      <i class="fa fa-chevron-left"></i> WSL配置执行windows下载脚本
     </a></div>
       <div class="post-nav-item">
-    <a href="/2023/11/28/%E5%9B%BD%E6%B0%91%E6%8A%80%E6%9C%AFN32%E8%8A%AF%E7%89%87%E7%A7%BB%E6%A4%8DRT-Thread-Nano%E8%AE%B0%E5%BD%95/" rel="next" title="国民技术N32芯片移植RT-Thread-Nano记录">
-      国民技术N32芯片移植RT-Thread-Nano记录 <i class="fa fa-chevron-right"></i>
+    <a href="/2023/11/28/MCU%E5%BC%80%E5%8F%91%E5%B0%8F%E8%B4%B4%E5%A3%AB/" rel="next" title="MCU开发小贴士">
+      MCU开发小贴士 <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
