@@ -274,6 +274,26 @@
 </ul>
 <hr>
 <ul>
+<li>应用LiteOS信号量，阻塞100tick 等待，程序却卡死在阻塞等待处，另，串口UART4中断函数异常跑飞<br>部分源代码节选如下：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">static uint32_t comm_board_sem;</span><br><span class="line"></span><br><span class="line">LOS_SemCreate(0, &amp;comm_board_sem);</span><br><span class="line"></span><br><span class="line">LOS_SemPost(comm_board_sem);        // 在串口接收空闲中断处调用</span><br><span class="line">  </span><br><span class="line">logVerbose(&quot;init&quot;);</span><br><span class="line">    result = LOS_SemPend(comm_board_sem, LOS_MS2Tick(100));</span><br><span class="line">logVerbose(&quot;init&quot;); // 未能执行到此处</span><br></pre></td></tr></table></figure>
+通过断点调试，程序卡死在如下处：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">/* ****************************************************************************</span><br><span class="line">Function    : ArchSysExit</span><br><span class="line">Description : Task exit function</span><br><span class="line">**************************************************************************** */</span><br><span class="line">LITE_OS_SEC_TEXT_MINOR VOID ArchSysExit(VOID)</span><br><span class="line">&#123;</span><br><span class="line">    (VOID)LOS_IntLock();</span><br><span class="line">    while (1) &#123;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+原因分析与解决步骤：<ol>
+<li>将该线程注释掉，系统能够正常运作，说明是此线程的设计问题</li>
+<li>考虑可能是此处的设计导致了系统线程调度出现问题，在该线程入口函数的for循环内加上断点打印，注射掉<code>LOS_SemPend(comm_board_sem, LOS_MS2Tick(100));</code>，再行调试</li>
+<li>发现程序又卡死在<code>LOS_TaskDelay()</code>中，此时精简后的线程入口函数源码如下：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">static void comm_board_rx_task(void *parameter)</span><br><span class="line"> &#123;</span><br><span class="line">     logVerbose(&quot;xxx&quot;);</span><br><span class="line">     uint8_t recv_from_rb[256];</span><br><span class="line">     int16_t recv_ret;</span><br><span class="line">     uint8_t interpret_buf[256];</span><br><span class="line">     err_enum unpack_ret = err_ok;</span><br><span class="line">     for (;;)</span><br><span class="line">     &#123;</span><br><span class="line">         logVerbose(&quot;xxx&quot;);</span><br><span class="line">         LOS_TaskDelay(100);</span><br><span class="line">         logVerbose(&quot;xxx&quot;);      // 无法执行到此处，程序卡死</span><br><span class="line">     &#125;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure></li>
+<li>此前该段入口函数在rt-thread中运行无误，在LiteOS中却无法运行，推测可能是在for循环之前定义了几个大数组，其存储位置在线程上下文即 线程栈中</li>
+<li>而系统崩掉的原因应该是线程调度时没有考虑到如此大的数据入栈出栈，从而导致出错</li>
+<li>经过排查和不断的代码注释运行，最终发现是串口的DMA收发初始化，导致程序无法运行 – 判断是uart的驱动问题</li>
+<li>再次排查此前已经验证通过的uart驱动，代码对比无误，进行常规分析：可能是LiteOS的中断注册存在问题、可能是代码的驱动存在冲突、可能中断服务函数并没正确对应注册、可能是初始化步骤存在问题</li>
+<li>经过验证，发现是UART4可能存在问题，另外发现一个奇葩现象，如果开启了UART1驱动的宏定义，UART4能够正常运行；直接现象是USART1的中断服务函数影响到了UART4的中断，但USART1中断函数从没被调用</li>
+<li>毫不相关的USART1函数，却直接导致了UART4的使用问题；</li>
+<li>突发奇想，把编译优化等级从O1改为O0，程序就能正常运行了，有可能是<strong>这部分驱动程序编写不够健壮，也可能是编译选项存在应用不当问题</strong></li>
+<li>继续缩小代码范围，发现了注释与调用某一个变量，会导致程序能运行与否，另外查看其map文件对比，只一个变量的区别 – <strong>怀疑可能是字节对齐的问题</strong></li>
+<li></li>
+</ol>
+</li>
+</ul>
+<hr>
+<ul>
 <li>从N32L406芯片的验证通过的 DMA-USART TX RX驱动到N32WB452上, 串口DMA发送没能跑起来<ul>
 <li>原因分析:<ul>
 <li>通过GDB调试发现DMA_GetCurrDataCounter()的数值一直没变,说明是DMA通道的数据没能发送出去</li>
