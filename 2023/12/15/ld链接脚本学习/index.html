@@ -23,17 +23,17 @@
   <meta name="description" content="记录链接脚本的学习内容">
 <meta property="og:type" content="article">
 <meta property="og:title" content="ld链接脚本学习">
-<meta property="og:url" content="https://jindu-chen.github.io/2023/12/05/ld%E9%93%BE%E6%8E%A5%E8%84%9A%E6%9C%AC%E5%AD%A6%E4%B9%A0/index.html">
+<meta property="og:url" content="https://jindu-chen.github.io/2023/12/15/ld%E9%93%BE%E6%8E%A5%E8%84%9A%E6%9C%AC%E5%AD%A6%E4%B9%A0/index.html">
 <meta property="og:site_name" content="Jindu-Chen">
 <meta property="og:description" content="记录链接脚本的学习内容">
 <meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2023-12-05T02:40:55.000Z">
-<meta property="article:modified_time" content="2023-12-06T09:28:03.715Z">
+<meta property="article:published_time" content="2023-12-15T00:00:00.000Z">
+<meta property="article:modified_time" content="2023-12-15T12:36:39.006Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="https://jindu-chen.github.io/2023/12/05/ld%E9%93%BE%E6%8E%A5%E8%84%9A%E6%9C%AC%E5%AD%A6%E4%B9%A0/">
+<link rel="canonical" href="https://jindu-chen.github.io/2023/12/15/ld%E9%93%BE%E6%8E%A5%E8%84%9A%E6%9C%AC%E5%AD%A6%E4%B9%A0/">
 
 
 <script id="page-configurations">
@@ -195,7 +195,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://jindu-chen.github.io/2023/12/05/ld%E9%93%BE%E6%8E%A5%E8%84%9A%E6%9C%AC%E5%AD%A6%E4%B9%A0/">
+    <link itemprop="mainEntityOfPage" href="https://jindu-chen.github.io/2023/12/15/ld%E9%93%BE%E6%8E%A5%E8%84%9A%E6%9C%AC%E5%AD%A6%E4%B9%A0/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -217,16 +217,10 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
+              
 
-              <time title="Created: 2023-12-05 02:40:55" itemprop="dateCreated datePublished" datetime="2023-12-05T02:40:55+00:00">2023-12-05</time>
+              <time title="Created: 2023-12-15 00:00:00 / Modified: 12:36:39" itemprop="dateCreated datePublished" datetime="2023-12-15T00:00:00+00:00">2023-12-15</time>
             </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-12-06 09:28:03" itemprop="dateModified" datetime="2023-12-06T09:28:03+00:00">2023-12-06</time>
-              </span>
 
           
             <div class="post-description">记录链接脚本的学习内容</div>
@@ -244,13 +238,25 @@
 <pre><code>注意：输入文件的段和输出文件的段是独立的，汇编源文件和C源文件中声明的段是输入段，在链接文件中.text: &#123; xxx&#125;的text是输出的段
 </code></pre>
 <h3 id="符号"><a href="#符号" class="headerlink" title="符号"></a>符号</h3><ul>
-<li>ENTRY</li>
-<li>MEMORY</li>
-<li>SECTIONS</li>
-<li>KEEP</li>
-<li>LOADADDR</li>
-<li>PROVIDE</li>
-<li>PROVIDE_HIDDEN</li>
+<li>ENTRY<br>将某个入口点函数指定为起始地址<br><code>ENTRY(Reset_Handler)</code>将Reset_Handler函数设为程序的入口点，链接器需要知道程序的入口点，才能正确地组织可执行文件的时序，才能正确地执行编译、链接、优化代码<br><strong>注意：在cortex-m4中，ENTRY(Reset_Handler)并没有将Reset_Handler实体链接到0x8000004地址，其地址由链接器根据实际链接</strong><br><br><strong>链接脚本规定了起始段放置的是isr_vector，而启动文件 规定了向量中第一个字是指定存放 栈顶地址，第二个字即0x8000004存放的则是Reset_Handler的地址</strong><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">SECTIONS</span><br><span class="line">&#123;</span><br><span class="line">  .isr_vector :</span><br><span class="line">  &#123;</span><br><span class="line">    . = ALIGN(4);</span><br><span class="line">    KEEP(*(.isr_vector))</span><br><span class="line">    . = ALIGN(4);</span><br><span class="line">  &#125; &gt;FLASH</span><br><span class="line"></span><br><span class="line">  .text :</span><br><span class="line">  &#123;</span><br><span class="line">  _stext = .;</span><br><span class="line">  . = ALIGN(4);</span><br><span class="line">  *(.text)           /* .text sections (code) */</span><br><span class="line">  xxx&#125;&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<hr>
+<ul>
+<li>MEMORY<br>用于描述目标设备的内存布局，如：定义Flash和RAM的起始地址和大小</li>
+</ul>
+<hr>
+<ul>
+<li>SECTIONS<br>用于定义输出文件中各个段的布局，如：指定<code>.text</code>段和<code>.data</code>段的位置</li>
+</ul>
+<hr>
+<ul>
+<li>KEEP<br>用于防止链接器丢弃未被引用的段和符号</li>
+</ul>
+<hr>
+<ul>
+<li>LOADADDR<br>用于指定段的加载地址<br></li>
+<li>PROVIDE<br>用于在链接时提供一个符号，如果符号未被定义，则使用其提供的值<br>如：<code>PROVIDE ( end = . );</code><br></li>
+<li>PROVIDE_HIDDEN<br>作用类似于PROVIDE，但提供的符号不会被其它模块看到<br>如：<code>PROVIDE_HIDDEN (__fini_array_start = .);</code></li>
 </ul>
 <h2 id="语句、片段示例解释"><a href="#语句、片段示例解释" class="headerlink" title="语句、片段示例解释"></a>语句、片段示例解释</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">SECTIONS</span><br><span class="line">&#123;</span><br><span class="line">. = 0x10000;</span><br><span class="line">.text : &#123; *(.text) &#125;</span><br><span class="line">. = 0x8000000;</span><br><span class="line">.data : &#123; *(.data) &#125;</span><br><span class="line">.bss : &#123; *(.bss) &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
@@ -275,13 +281,10 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2023/12/05/Linux-U-Boot%E7%A7%BB%E6%A4%8D%E6%A6%82%E8%BF%B0-%E5%9F%BA%E4%BA%8EI-MX6ULL/" rel="prev" title="Linux U-Boot移植概述-基于I-MX6ULL">
-      <i class="fa fa-chevron-left"></i> Linux U-Boot移植概述-基于I-MX6ULL
+    <a href="/2023/12/08/%E6%97%A0%E5%88%B7%E7%94%B5%E6%9C%BA%E8%B0%83%E8%AF%95%E6%96%B9%E6%B3%95%E7%AE%80%E8%BF%B0/" rel="prev" title="无刷电机调试方法简述">
+      <i class="fa fa-chevron-left"></i> 无刷电机调试方法简述
     </a></div>
-      <div class="post-nav-item">
-    <a href="/2023/12/06/%E5%B5%8C%E5%85%A5%E5%BC%8FMCU%E8%87%AA%E5%8A%A8%E5%88%9D%E5%A7%8B%E5%8C%96/" rel="next" title="嵌入式MCU自动初始化">
-      嵌入式MCU自动初始化 <i class="fa fa-chevron-right"></i>
-    </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     

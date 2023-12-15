@@ -21,17 +21,25 @@
   <entry>
     <title>常用编译/链接选项解释</title>
     <url>/2023/11/22/%E7%BC%96%E8%AF%91%E9%93%BE%E6%8E%A5%E9%80%89%E9%A1%B9%E6%84%8F%E4%B9%89%E8%A7%A3%E9%87%8A/</url>
-    <content><![CDATA[<h1 id="GCC编译选项CFLAGS参数及说明"><a href="#GCC编译选项CFLAGS参数及说明" class="headerlink" title="GCC编译选项CFLAGS参数及说明"></a>GCC编译选项CFLAGS参数及说明</h1><ul>
+    <content><![CDATA[<h2 id="编译纠错修改以及一些注意点"><a href="#编译纠错修改以及一些注意点" class="headerlink" title="编译纠错修改以及一些注意点"></a>编译纠错修改以及一些注意点</h2><ul>
+<li><p>当编译提示:<code>- undefined reference to _init</code>，类似时，检查是否添加了编译选项<code>--nostdlib</code>，不链接标准库，却又没指定库，导致的编译错误</p>
+</li>
+<li><p>提示<code>- exit.c:(.text.exit+0x2c): undefined reference to _exit</code>，考虑在.ld链接文件的.text段的末尾加上<code>_exit = .;</code></p>
+</li>
+<li><p>开启两级优化时, 需要注意C程序中汇编函数的调用可能会被优化掉, 可以考虑加上__attribute__ ((used))</p>
+</li>
+<li><p>需要注意编译等级的选择，可能会影响到程序的运行，代码编写时需要严谨</p>
+</li>
+</ul>
+<h2 id="GCC编译选项CFLAGS参数及说明"><a href="#GCC编译选项CFLAGS参数及说明" class="headerlink" title="GCC编译选项CFLAGS参数及说明"></a>GCC编译选项CFLAGS参数及说明</h2><ul>
 <li><p><strong><code>-ffunction-sections</code></strong> : 告知编译器将每个函数放置在单独的小节中。在链接过程中只保留实际使用到的函数，未用到的函数将不会被链接，大大缩减生成可执行文件的大小</p>
 </li>
 <li><p><strong><code>-fdata-sections</code></strong> : 告知编译器将全局和静态变量放置在单独的小节中。与-ffunction-sections类似</p>
 </li>
-<li><p><strong><code>--specs=rdimon.specs</code></strong> : </p>
-</li>
 <li><p><strong><code>-std=gnu99 -mabi=aapcs</code></strong> : 指定使用C语言的GNU 99标准，-mabi&#x3D;aapcs指定使用ARM架构的AAPCS（ARM Architecture Procedure Call Standard）ABI。</p>
 </li>
 </ul>
-<h1 id="GCC链接选项LDFLAGS参数及说明"><a href="#GCC链接选项LDFLAGS参数及说明" class="headerlink" title="GCC链接选项LDFLAGS参数及说明"></a>GCC链接选项LDFLAGS参数及说明</h1><ul>
+<h2 id="GCC链接选项LDFLAGS参数及说明"><a href="#GCC链接选项LDFLAGS参数及说明" class="headerlink" title="GCC链接选项LDFLAGS参数及说明"></a>GCC链接选项LDFLAGS参数及说明</h2><ul>
 <li><p><strong><code>--specs=nosys.specs</code></strong> : 禁用标准库的系统调用，在嵌入式程序中应用。</p>
 <blockquote>
 <p>当编译时提示：<code>undefined reference to _sbrk&#39; 或 undefined reference to _write&#39;d</code> 等等时，可以加上此条选项</p>
@@ -44,16 +52,10 @@
 </li>
 <li><p><strong><code>-Wl,--gc-sections</code></strong> : 告知链接器删除未使用的代码和数据段</p>
 </li>
-</ul>
-<h1 id="编译纠错修改以及一些注意点"><a href="#编译纠错修改以及一些注意点" class="headerlink" title="编译纠错修改以及一些注意点"></a>编译纠错修改以及一些注意点</h1><ul>
-<li><p>当编译提示:<code>- undefined reference to _init</code>，类似时，检查是否添加了编译选项<code>--nostdlib</code>，不链接标准库，却又没指定库，导致的编译错误</p>
-</li>
-<li><p>提示<code>- exit.c:(.text.exit+0x2c): undefined reference to _exit</code>，考虑在.ld链接文件的.text段的末尾加上<code>_exit = .;</code></p>
-</li>
-<li><p>开启两级优化时, 需要注意C程序中汇编函数的调用可能会被优化掉, 可以考虑加上__attribute__ ((used))</p>
+<li><p><strong><code>--specs=rdimon.specs</code></strong> : 不了解，在嵌入式MCU中加与不加都一样</p>
 </li>
 </ul>
-<h1 id="Makefile应用实例"><a href="#Makefile应用实例" class="headerlink" title="Makefile应用实例"></a>Makefile应用实例</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 指定交叉编译工具链的 编译器、连接器、库管理器、</span><br><span class="line">CROSS_COMPILE=arm-none-eabi-</span><br><span class="line">CC=$(CROSS_COMPILE)gcc</span><br><span class="line">LD=$(CROSS_COMPILE)ld</span><br><span class="line">AR=$(CROSS_COMPILE)ar</span><br><span class="line">AS=$(CROSS_COMPILE)as</span><br><span class="line">OC=$(CROSS_COMPILE)objcopy</span><br><span class="line">OD=$(CROSS_COMPILE)objdump</span><br><span class="line">SZ=$(CROSS_COMPILE)size</span><br><span class="line"></span><br><span class="line"># 指定目标硬件的架构和浮点运算单元   -mfpu=fpv4-sp-d16 -mfloat-abi=hard </span><br><span class="line"># O0:禁用优化，O1：基本优化，O2, O3, Os</span><br><span class="line"># g0:禁用调试信息, g1, g2, g3, g</span><br><span class="line">MCU = -mcpu=cortex-m4 -mthumb \</span><br><span class="line">	-ffunction-sections \</span><br><span class="line">	-fdata-sections \</span><br><span class="line">	-Os -ggdb</span><br><span class="line"></span><br><span class="line"># 定义编译C源文件的编译选项：禁用共享变量、函数和数据分段、优化级别、调试信息级别、开启所有警告、目标架构、预定义宏</span><br><span class="line">CFLAGS= -c -fno-common \</span><br><span class="line">	--specs=rdimon.specs \</span><br><span class="line">	-std=gnu99 -mabi=aapcs \</span><br><span class="line">	-Wall \</span><br><span class="line">	$(MCU) \</span><br><span class="line">	$(C_DEFS)</span><br><span class="line"></span><br><span class="line"># 定义链接器脚本、链接选项、目标文件格式转换选项、反汇编等等</span><br><span class="line">LDSCRIPT=n32l40x_flash.ld</span><br><span class="line">LDFLAGS = -Wl,--gc-sections --data-sections -mabi=aapcs $(MCU) -T$(LDSCRIPT) \</span><br><span class="line">	--specs=nosys.specs \</span><br><span class="line">	--specs=nano.specs \</span><br><span class="line">	-x assembler-with-cpp -Wa,-mimplicit-it=thumb</span><br><span class="line">OCFLAGS	= -Obinary</span><br><span class="line">ODFLAGS	= -S</span><br></pre></td></tr></table></figure>
+<h2 id="Makefile应用实例"><a href="#Makefile应用实例" class="headerlink" title="Makefile应用实例"></a>Makefile应用实例</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 指定交叉编译工具链的 编译器、连接器、库管理器、</span><br><span class="line">CROSS_COMPILE=arm-none-eabi-</span><br><span class="line">CC=$(CROSS_COMPILE)gcc</span><br><span class="line">LD=$(CROSS_COMPILE)ld</span><br><span class="line">AR=$(CROSS_COMPILE)ar</span><br><span class="line">AS=$(CROSS_COMPILE)as</span><br><span class="line">OC=$(CROSS_COMPILE)objcopy</span><br><span class="line">OD=$(CROSS_COMPILE)objdump</span><br><span class="line">SZ=$(CROSS_COMPILE)size</span><br><span class="line"></span><br><span class="line"># 指定目标硬件的架构和浮点运算单元   -mfpu=fpv4-sp-d16 -mfloat-abi=hard </span><br><span class="line"># O0:禁用优化，O1：基本优化，O2, O3, Os</span><br><span class="line"># g0:禁用调试信息, g1, g2, g3, g</span><br><span class="line">MCU = -mcpu=cortex-m4 -mthumb \</span><br><span class="line">	-ffunction-sections \</span><br><span class="line">	-fdata-sections \</span><br><span class="line">	-Os -ggdb</span><br><span class="line"></span><br><span class="line"># 定义编译C源文件的编译选项：禁用共享变量、函数和数据分段、优化级别、调试信息级别、开启所有警告、目标架构、预定义宏</span><br><span class="line">CFLAGS= -c -fno-common \</span><br><span class="line">	--specs=rdimon.specs \</span><br><span class="line">	-std=gnu99 -mabi=aapcs \</span><br><span class="line">	-Wall \</span><br><span class="line">	$(MCU) \</span><br><span class="line">	$(C_DEFS)</span><br><span class="line"></span><br><span class="line"># 定义链接器脚本、链接选项、目标文件格式转换选项、反汇编等等</span><br><span class="line">LDSCRIPT=n32l40x_flash.ld</span><br><span class="line">LDFLAGS = -Wl,--gc-sections --data-sections -mabi=aapcs $(MCU) -T$(LDSCRIPT) \</span><br><span class="line">	--specs=nosys.specs \</span><br><span class="line">	--specs=nano.specs \</span><br><span class="line">	-x assembler-with-cpp -Wa,-mimplicit-it=thumb</span><br><span class="line">OCFLAGS	= -Obinary</span><br><span class="line">ODFLAGS	= -S</span><br></pre></td></tr></table></figure>
 ]]></content>
       <categories>
         <category>C语言</category>
@@ -414,12 +416,30 @@
   <entry>
     <title>编译原理之我见</title>
     <url>/2023/12/01/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E4%B9%8B%E6%88%91%E8%A7%81/</url>
-    <content><![CDATA[<h1 id="构建C工程中的一些疑惑解答"><a href="#构建C工程中的一些疑惑解答" class="headerlink" title="构建C工程中的一些疑惑解答"></a>构建C工程中的一些疑惑解答</h1><ul>
+    <content><![CDATA[<h2 id="构建C工程中的一些疑惑解答"><a href="#构建C工程中的一些疑惑解答" class="headerlink" title="构建C工程中的一些疑惑解答"></a>构建C工程中的一些疑惑解答</h2><ul>
 <li>#include “.c”文件 可行吗？</li>
 <li>GNU C是个啥？其编译跟ARM CC有哪些方面的区别？</li>
 <li>链接脚本与汇编源文件、C源文件的联系</li>
 </ul>
-<h1 id="C编译过程"><a href="#C编译过程" class="headerlink" title="C编译过程"></a>C编译过程</h1><p>编译器的主要工作流程如下：</p>
+<hr>
+<ul>
+<li>四字节对齐：要求数据的存放起始地址必须是4的倍数<br>作用：<br>1、数据结构按照4字节对齐，使得处理器更有效访问，32位系统可以一次读完一个4字节长度变量<br>2、某些硬件要求数据需要在特定的边界上对齐，否则可能出现异常<br>  如STM32，Flash的写入、DMA访问、结构体成员、线程栈PSP都需要考虑字节对齐<br>3、结构体本身没有4字节对齐，进行特定的跳转读取，可能导致异常</li>
+</ul>
+<hr>
+<h2 id="C程序开发注意点"><a href="#C程序开发注意点" class="headerlink" title="C程序开发注意点"></a>C程序开发注意点</h2><h3 id="修改编译优化级别"><a href="#修改编译优化级别" class="headerlink" title="修改编译优化级别"></a>修改编译优化级别</h3><ul>
+<li>改变编译等级可能会导致程序运行出错<ul>
+<li>提高优化级别时出错，可考虑以下：<blockquote>
+<p>程序中没有放置正确的内存屏障，优化导致的乱序执行可能有问题<br>  部分代码设计需要严谨考虑时序性<br>  可能会忽略了链接脚本中指定的四字节对齐</p>
+</blockquote>
+</li>
+<li>降低优化级别时出错：<blockquote>
+<p>线程的堆栈可能偏小，导致栈溢出</p>
+</blockquote>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="C编译过程"><a href="#C编译过程" class="headerlink" title="C编译过程"></a>C编译过程</h2><p>编译器的主要工作流程如下：</p>
 <blockquote>
 <p>源程序(source code)→预处理器(preprocessor)→编译器(compiler)→汇编程序(assembler)→目标程序(object code)→连接器(链接器，Linker)→可执行程序(executables)</p>
 </blockquote>
@@ -692,18 +712,30 @@
   </entry>
   <entry>
     <title>ld链接脚本学习</title>
-    <url>/2023/12/05/ld%E9%93%BE%E6%8E%A5%E8%84%9A%E6%9C%AC%E5%AD%A6%E4%B9%A0/</url>
+    <url>/2023/12/15/ld%E9%93%BE%E6%8E%A5%E8%84%9A%E6%9C%AC%E5%AD%A6%E4%B9%A0/</url>
     <content><![CDATA[<h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>链接脚本的主要作用：描述如何将输入文件(.o目标文件)中的段 映射到 输出文件(.bin&#x2F;.hex&#x2F;…)中的段，并控制输出文件的内存布局(地址分配)。</p>
 <pre><code>注意：输入文件的段和输出文件的段是独立的，汇编源文件和C源文件中声明的段是输入段，在链接文件中.text: &#123; xxx&#125;的text是输出的段
 </code></pre>
 <h3 id="符号"><a href="#符号" class="headerlink" title="符号"></a>符号</h3><ul>
-<li>ENTRY</li>
-<li>MEMORY</li>
-<li>SECTIONS</li>
-<li>KEEP</li>
-<li>LOADADDR</li>
-<li>PROVIDE</li>
-<li>PROVIDE_HIDDEN</li>
+<li>ENTRY<br>将某个入口点函数指定为起始地址<br><code>ENTRY(Reset_Handler)</code>将Reset_Handler函数设为程序的入口点，链接器需要知道程序的入口点，才能正确地组织可执行文件的时序，才能正确地执行编译、链接、优化代码<br><strong>注意：在cortex-m4中，ENTRY(Reset_Handler)并没有将Reset_Handler实体链接到0x8000004地址，其地址由链接器根据实际链接</strong><br><br><strong>链接脚本规定了起始段放置的是isr_vector，而启动文件 规定了向量中第一个字是指定存放 栈顶地址，第二个字即0x8000004存放的则是Reset_Handler的地址</strong><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">SECTIONS</span><br><span class="line">&#123;</span><br><span class="line">  .isr_vector :</span><br><span class="line">  &#123;</span><br><span class="line">    . = ALIGN(4);</span><br><span class="line">    KEEP(*(.isr_vector))</span><br><span class="line">    . = ALIGN(4);</span><br><span class="line">  &#125; &gt;FLASH</span><br><span class="line"></span><br><span class="line">  .text :</span><br><span class="line">  &#123;</span><br><span class="line">  _stext = .;</span><br><span class="line">  . = ALIGN(4);</span><br><span class="line">  *(.text)           /* .text sections (code) */</span><br><span class="line">  xxx&#125;&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<hr>
+<ul>
+<li>MEMORY<br>用于描述目标设备的内存布局，如：定义Flash和RAM的起始地址和大小</li>
+</ul>
+<hr>
+<ul>
+<li>SECTIONS<br>用于定义输出文件中各个段的布局，如：指定<code>.text</code>段和<code>.data</code>段的位置</li>
+</ul>
+<hr>
+<ul>
+<li>KEEP<br>用于防止链接器丢弃未被引用的段和符号</li>
+</ul>
+<hr>
+<ul>
+<li>LOADADDR<br>用于指定段的加载地址<br></li>
+<li>PROVIDE<br>用于在链接时提供一个符号，如果符号未被定义，则使用其提供的值<br>如：<code>PROVIDE ( end = . );</code><br></li>
+<li>PROVIDE_HIDDEN<br>作用类似于PROVIDE，但提供的符号不会被其它模块看到<br>如：<code>PROVIDE_HIDDEN (__fini_array_start = .);</code></li>
 </ul>
 <h2 id="语句、片段示例解释"><a href="#语句、片段示例解释" class="headerlink" title="语句、片段示例解释"></a>语句、片段示例解释</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">SECTIONS</span><br><span class="line">&#123;</span><br><span class="line">. = 0x10000;</span><br><span class="line">.text : &#123; *(.text) &#125;</span><br><span class="line">. = 0x8000000;</span><br><span class="line">.data : &#123; *(.data) &#125;</span><br><span class="line">.bss : &#123; *(.bss) &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 

@@ -256,17 +256,25 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="GCC编译选项CFLAGS参数及说明"><a href="#GCC编译选项CFLAGS参数及说明" class="headerlink" title="GCC编译选项CFLAGS参数及说明"></a>GCC编译选项CFLAGS参数及说明</h1><ul>
+        <h2 id="编译纠错修改以及一些注意点"><a href="#编译纠错修改以及一些注意点" class="headerlink" title="编译纠错修改以及一些注意点"></a>编译纠错修改以及一些注意点</h2><ul>
+<li><p>当编译提示:<code>- undefined reference to _init</code>，类似时，检查是否添加了编译选项<code>--nostdlib</code>，不链接标准库，却又没指定库，导致的编译错误</p>
+</li>
+<li><p>提示<code>- exit.c:(.text.exit+0x2c): undefined reference to _exit</code>，考虑在.ld链接文件的.text段的末尾加上<code>_exit = .;</code></p>
+</li>
+<li><p>开启两级优化时, 需要注意C程序中汇编函数的调用可能会被优化掉, 可以考虑加上__attribute__ ((used))</p>
+</li>
+<li><p>需要注意编译等级的选择，可能会影响到程序的运行，代码编写时需要严谨</p>
+</li>
+</ul>
+<h2 id="GCC编译选项CFLAGS参数及说明"><a href="#GCC编译选项CFLAGS参数及说明" class="headerlink" title="GCC编译选项CFLAGS参数及说明"></a>GCC编译选项CFLAGS参数及说明</h2><ul>
 <li><p><strong><code>-ffunction-sections</code></strong> : 告知编译器将每个函数放置在单独的小节中。在链接过程中只保留实际使用到的函数，未用到的函数将不会被链接，大大缩减生成可执行文件的大小</p>
 </li>
 <li><p><strong><code>-fdata-sections</code></strong> : 告知编译器将全局和静态变量放置在单独的小节中。与-ffunction-sections类似</p>
 </li>
-<li><p><strong><code>--specs=rdimon.specs</code></strong> : </p>
-</li>
 <li><p><strong><code>-std=gnu99 -mabi=aapcs</code></strong> : 指定使用C语言的GNU 99标准，-mabi&#x3D;aapcs指定使用ARM架构的AAPCS（ARM Architecture Procedure Call Standard）ABI。</p>
 </li>
 </ul>
-<h1 id="GCC链接选项LDFLAGS参数及说明"><a href="#GCC链接选项LDFLAGS参数及说明" class="headerlink" title="GCC链接选项LDFLAGS参数及说明"></a>GCC链接选项LDFLAGS参数及说明</h1><ul>
+<h2 id="GCC链接选项LDFLAGS参数及说明"><a href="#GCC链接选项LDFLAGS参数及说明" class="headerlink" title="GCC链接选项LDFLAGS参数及说明"></a>GCC链接选项LDFLAGS参数及说明</h2><ul>
 <li><p><strong><code>--specs=nosys.specs</code></strong> : 禁用标准库的系统调用，在嵌入式程序中应用。</p>
 <blockquote>
 <p>当编译时提示：<code>undefined reference to _sbrk&#39; 或 undefined reference to _write&#39;d</code> 等等时，可以加上此条选项</p>
@@ -279,16 +287,10 @@
 </li>
 <li><p><strong><code>-Wl,--gc-sections</code></strong> : 告知链接器删除未使用的代码和数据段</p>
 </li>
-</ul>
-<h1 id="编译纠错修改以及一些注意点"><a href="#编译纠错修改以及一些注意点" class="headerlink" title="编译纠错修改以及一些注意点"></a>编译纠错修改以及一些注意点</h1><ul>
-<li><p>当编译提示:<code>- undefined reference to _init</code>，类似时，检查是否添加了编译选项<code>--nostdlib</code>，不链接标准库，却又没指定库，导致的编译错误</p>
-</li>
-<li><p>提示<code>- exit.c:(.text.exit+0x2c): undefined reference to _exit</code>，考虑在.ld链接文件的.text段的末尾加上<code>_exit = .;</code></p>
-</li>
-<li><p>开启两级优化时, 需要注意C程序中汇编函数的调用可能会被优化掉, 可以考虑加上__attribute__ ((used))</p>
+<li><p><strong><code>--specs=rdimon.specs</code></strong> : 不了解，在嵌入式MCU中加与不加都一样</p>
 </li>
 </ul>
-<h1 id="Makefile应用实例"><a href="#Makefile应用实例" class="headerlink" title="Makefile应用实例"></a>Makefile应用实例</h1><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"># 指定交叉编译工具链的 编译器、连接器、库管理器、</span><br><span class="line">CROSS_COMPILE=arm-none-eabi-</span><br><span class="line">CC=$(CROSS_COMPILE)gcc</span><br><span class="line">LD=$(CROSS_COMPILE)ld</span><br><span class="line">AR=$(CROSS_COMPILE)ar</span><br><span class="line">AS=$(CROSS_COMPILE)as</span><br><span class="line">OC=$(CROSS_COMPILE)objcopy</span><br><span class="line">OD=$(CROSS_COMPILE)objdump</span><br><span class="line">SZ=$(CROSS_COMPILE)size</span><br><span class="line"></span><br><span class="line"># 指定目标硬件的架构和浮点运算单元   -mfpu=fpv4-sp-d16 -mfloat-abi=hard </span><br><span class="line"># O0:禁用优化，O1：基本优化，O2, O3, Os</span><br><span class="line"># g0:禁用调试信息, g1, g2, g3, g</span><br><span class="line">MCU = -mcpu=cortex-m4 -mthumb \</span><br><span class="line">	-ffunction-sections \</span><br><span class="line">	-fdata-sections \</span><br><span class="line">	-Os -ggdb</span><br><span class="line"></span><br><span class="line"># 定义编译C源文件的编译选项：禁用共享变量、函数和数据分段、优化级别、调试信息级别、开启所有警告、目标架构、预定义宏</span><br><span class="line">CFLAGS= -c -fno-common \</span><br><span class="line">	--specs=rdimon.specs \</span><br><span class="line">	-std=gnu99 -mabi=aapcs \</span><br><span class="line">	-Wall \</span><br><span class="line">	$(MCU) \</span><br><span class="line">	$(C_DEFS)</span><br><span class="line"></span><br><span class="line"># 定义链接器脚本、链接选项、目标文件格式转换选项、反汇编等等</span><br><span class="line">LDSCRIPT=n32l40x_flash.ld</span><br><span class="line">LDFLAGS = -Wl,--gc-sections --data-sections -mabi=aapcs $(MCU) -T$(LDSCRIPT) \</span><br><span class="line">	--specs=nosys.specs \</span><br><span class="line">	--specs=nano.specs \</span><br><span class="line">	-x assembler-with-cpp -Wa,-mimplicit-it=thumb</span><br><span class="line">OCFLAGS	= -Obinary</span><br><span class="line">ODFLAGS	= -S</span><br></pre></td></tr></table></figure>
+<h2 id="Makefile应用实例"><a href="#Makefile应用实例" class="headerlink" title="Makefile应用实例"></a>Makefile应用实例</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"># 指定交叉编译工具链的 编译器、连接器、库管理器、</span><br><span class="line">CROSS_COMPILE=arm-none-eabi-</span><br><span class="line">CC=$(CROSS_COMPILE)gcc</span><br><span class="line">LD=$(CROSS_COMPILE)ld</span><br><span class="line">AR=$(CROSS_COMPILE)ar</span><br><span class="line">AS=$(CROSS_COMPILE)as</span><br><span class="line">OC=$(CROSS_COMPILE)objcopy</span><br><span class="line">OD=$(CROSS_COMPILE)objdump</span><br><span class="line">SZ=$(CROSS_COMPILE)size</span><br><span class="line"></span><br><span class="line"># 指定目标硬件的架构和浮点运算单元   -mfpu=fpv4-sp-d16 -mfloat-abi=hard </span><br><span class="line"># O0:禁用优化，O1：基本优化，O2, O3, Os</span><br><span class="line"># g0:禁用调试信息, g1, g2, g3, g</span><br><span class="line">MCU = -mcpu=cortex-m4 -mthumb \</span><br><span class="line">	-ffunction-sections \</span><br><span class="line">	-fdata-sections \</span><br><span class="line">	-Os -ggdb</span><br><span class="line"></span><br><span class="line"># 定义编译C源文件的编译选项：禁用共享变量、函数和数据分段、优化级别、调试信息级别、开启所有警告、目标架构、预定义宏</span><br><span class="line">CFLAGS= -c -fno-common \</span><br><span class="line">	--specs=rdimon.specs \</span><br><span class="line">	-std=gnu99 -mabi=aapcs \</span><br><span class="line">	-Wall \</span><br><span class="line">	$(MCU) \</span><br><span class="line">	$(C_DEFS)</span><br><span class="line"></span><br><span class="line"># 定义链接器脚本、链接选项、目标文件格式转换选项、反汇编等等</span><br><span class="line">LDSCRIPT=n32l40x_flash.ld</span><br><span class="line">LDFLAGS = -Wl,--gc-sections --data-sections -mabi=aapcs $(MCU) -T$(LDSCRIPT) \</span><br><span class="line">	--specs=nosys.specs \</span><br><span class="line">	--specs=nano.specs \</span><br><span class="line">	-x assembler-with-cpp -Wa,-mimplicit-it=thumb</span><br><span class="line">OCFLAGS	= -Obinary</span><br><span class="line">ODFLAGS	= -S</span><br></pre></td></tr></table></figure>
 
     </div>
 
@@ -372,7 +374,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#GCC%E7%BC%96%E8%AF%91%E9%80%89%E9%A1%B9CFLAGS%E5%8F%82%E6%95%B0%E5%8F%8A%E8%AF%B4%E6%98%8E"><span class="nav-number">1.</span> <span class="nav-text">GCC编译选项CFLAGS参数及说明</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#GCC%E9%93%BE%E6%8E%A5%E9%80%89%E9%A1%B9LDFLAGS%E5%8F%82%E6%95%B0%E5%8F%8A%E8%AF%B4%E6%98%8E"><span class="nav-number">2.</span> <span class="nav-text">GCC链接选项LDFLAGS参数及说明</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BC%96%E8%AF%91%E7%BA%A0%E9%94%99%E4%BF%AE%E6%94%B9%E4%BB%A5%E5%8F%8A%E4%B8%80%E4%BA%9B%E6%B3%A8%E6%84%8F%E7%82%B9"><span class="nav-number">3.</span> <span class="nav-text">编译纠错修改以及一些注意点</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Makefile%E5%BA%94%E7%94%A8%E5%AE%9E%E4%BE%8B"><span class="nav-number">4.</span> <span class="nav-text">Makefile应用实例</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BC%96%E8%AF%91%E7%BA%A0%E9%94%99%E4%BF%AE%E6%94%B9%E4%BB%A5%E5%8F%8A%E4%B8%80%E4%BA%9B%E6%B3%A8%E6%84%8F%E7%82%B9"><span class="nav-number">1.</span> <span class="nav-text">编译纠错修改以及一些注意点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#GCC%E7%BC%96%E8%AF%91%E9%80%89%E9%A1%B9CFLAGS%E5%8F%82%E6%95%B0%E5%8F%8A%E8%AF%B4%E6%98%8E"><span class="nav-number">2.</span> <span class="nav-text">GCC编译选项CFLAGS参数及说明</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#GCC%E9%93%BE%E6%8E%A5%E9%80%89%E9%A1%B9LDFLAGS%E5%8F%82%E6%95%B0%E5%8F%8A%E8%AF%B4%E6%98%8E"><span class="nav-number">3.</span> <span class="nav-text">GCC链接选项LDFLAGS参数及说明</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Makefile%E5%BA%94%E7%94%A8%E5%AE%9E%E4%BE%8B"><span class="nav-number">4.</span> <span class="nav-text">Makefile应用实例</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
