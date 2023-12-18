@@ -324,6 +324,18 @@
 </ul>
 <hr>
 <ul>
+<li>应用LiteOS的定时器，出现bug：在软件定时器回调函数中给一个句柄写入消息，其中涉及到阻塞1s申请互斥量操作，但却一直无法写入<ul>
+<li>原因分析：<ul>
+<li>首先检查日志，发现每次回调函数能被正常执行，但写入操作一直失败。其中为延时获取互斥量失败，但实际上没有延时</li>
+<li>怀疑可能是软件定时器本身就设计不支持阻塞接口操作，所以直接返回；可能是软件设计不当导致的互斥量一直被其它任务所占用</li>
+<li>排查缩小范围</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<hr>
+<ul>
 <li>应用LiteOS信号量，阻塞100tick 等待，程序却卡死在阻塞等待处，另，串口UART4中断函数异常跑飞<br>部分源代码节选如下：<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">static uint32_t comm_board_sem;</span><br><span class="line"></span><br><span class="line">LOS_SemCreate(0, &amp;comm_board_sem);</span><br><span class="line"></span><br><span class="line">LOS_SemPost(comm_board_sem);        // 在串口接收空闲中断处调用</span><br><span class="line">  </span><br><span class="line">logVerbose(&quot;init&quot;);</span><br><span class="line">    result = LOS_SemPend(comm_board_sem, LOS_MS2Tick(100));</span><br><span class="line">logVerbose(&quot;init&quot;); // 未能执行到此处</span><br></pre></td></tr></table></figure>
 通过断点调试，程序卡死在如下处：<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">/* ****************************************************************************</span><br><span class="line">Function    : ArchSysExit</span><br><span class="line">Description : Task exit function</span><br><span class="line">**************************************************************************** */</span><br><span class="line">LITE_OS_SEC_TEXT_MINOR VOID ArchSysExit(VOID)</span><br><span class="line">&#123;</span><br><span class="line">    (VOID)LOS_IntLock();</span><br><span class="line">    while (1) &#123;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 原因分析与解决步骤：<ol>
@@ -437,7 +449,13 @@
 <li>四字节对齐：要求数据的存放起始地址必须是4的倍数<br>作用：<br>1、数据结构按照4字节对齐，使得处理器更有效访问，32位系统可以一次读完一个4字节长度变量<br>2、某些硬件要求数据需要在特定的边界上对齐，否则可能出现异常<br>  如STM32，Flash的写入、DMA访问、结构体成员、线程栈PSP都需要考虑字节对齐<br>3、结构体本身没有4字节对齐，进行特定的跳转读取，可能导致异常</li>
 </ul>
 <hr>
-<h2 id="C程序开发注意点"><a href="#C程序开发注意点" class="headerlink" title="C程序开发注意点"></a>C程序开发注意点</h2><h3 id="修改编译优化级别"><a href="#修改编译优化级别" class="headerlink" title="修改编译优化级别"></a>修改编译优化级别</h3><ul>
+<h2 id="C程序开发注意点"><a href="#C程序开发注意点" class="headerlink" title="C程序开发注意点"></a>C程序开发注意点</h2><h3 id="头文件包含"><a href="#头文件包含" class="headerlink" title="头文件包含"></a>头文件包含</h3><ul>
+<li>避免冗余的头文件包含，只有当用到时才添加其头文件</li>
+<li>头文件在预处理阶段会被复制到源文件中，过多包含不必要头文件会使得编译时间增加</li>
+<li>头文件中定义了相同变量、函数等，可能会引起不必要的冲突；或会使得链接器产出些潜在的错误链接问题</li>
+<li>尽量不要在头文件中包含头文件</li>
+</ul>
+<h3 id="修改编译优化级别"><a href="#修改编译优化级别" class="headerlink" title="修改编译优化级别"></a>修改编译优化级别</h3><ul>
 <li>改变编译等级可能会导致程序运行出错<ul>
 <li>提高优化级别时出错，可考虑以下：<blockquote>
 <p>程序中没有放置正确的内存屏障，优化导致的乱序执行可能有问题<br>  部分代码设计需要严谨考虑时序性<br>  可能会忽略了链接脚本中指定的四字节对齐</p>
@@ -644,7 +662,13 @@
   <entry>
     <title>嵌入式软件架构设计</title>
     <url>/2023/12/04/%E5%B5%8C%E5%85%A5%E5%BC%8F%E8%BD%AF%E4%BB%B6%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/</url>
-    <content><![CDATA[<h2 id="程序设计原则"><a href="#程序设计原则" class="headerlink" title="程序设计原则"></a>程序设计原则</h2><ul>
+    <content><![CDATA[<h2 id="嵌入式MCU开发-裸机-RTOS的优缺点"><a href="#嵌入式MCU开发-裸机-RTOS的优缺点" class="headerlink" title="嵌入式MCU开发-裸机&#x2F;RTOS的优缺点"></a>嵌入式MCU开发-裸机&#x2F;RTOS的优缺点</h2><h2 id="裸机程序的特性如下："><a href="#裸机程序的特性如下：" class="headerlink" title="  裸机程序的特性如下："></a>  裸机程序的特性如下：</h2><p>  RTOS的特性如下：</p>
+<ul>
+<li>对于单核MCU来说，RTOS虽不是真正的并行执行，只是宏观上达到多程序并行的效果</li>
+<li>RTOS能较好地实现模块的分离和隔离，降低耦合，每个任务都有自己的任务栈，这对于业务开发、移植、维护较为友好</li>
+<li>实时性比裸机要强，任务间通信，如事件、消息队列、信号等API阻塞 + Systick调度中断，可以使得任务执行 的实时性大大提高，而不是裸机程序的轮询执行</li>
+</ul>
+<h2 id="程序设计原则"><a href="#程序设计原则" class="headerlink" title="程序设计原则"></a>程序设计原则</h2><ul>
 <li><p>层级之间的调用和信息上报</p>
 <ul>
 <li>下层提供直接接口调用，提供注册回调函数，禁止调用上层接口</li>
@@ -725,18 +749,37 @@
     <title>ld链接脚本学习</title>
     <url>/2023/12/15/ld%E9%93%BE%E6%8E%A5%E8%84%9A%E6%9C%AC%E5%AD%A6%E4%B9%A0/</url>
     <content><![CDATA[<h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>链接脚本的主要作用：描述如何将输入文件(.o目标文件)中的段 映射到 输出文件(.bin&#x2F;.hex&#x2F;…)中的段，并控制输出文件的内存布局(地址分配)。</p>
-<pre><code>注意：输入文件的段和输出文件的段是独立的，汇编源文件和C源文件中声明的段是输入段，在链接文件中.text: &#123; xxx&#125;的text是输出的段
+<pre><code>注意：输入文件的段和输出文件的段是独立的，主要分为`.text`, `.data`, `.bss`, `heap`, `stack`段
+
+输入文件的段是链接器从输入文件中读取的内容，输出文件的段是链接器将输入文件的段链接到一起后生成的内容。
 </code></pre>
-<h3 id="符号"><a href="#符号" class="headerlink" title="符号"></a>符号</h3><ul>
-<li>ENTRY<br>将某个入口点函数指定为起始地址<br><code>ENTRY(Reset_Handler)</code>将Reset_Handler函数设为程序的入口点，链接器需要知道程序的入口点，才能正确地组织可执行文件的时序，才能正确地执行编译、链接、优化代码<br><strong>注意：在cortex-m4中，ENTRY(Reset_Handler)并没有将Reset_Handler实体链接到0x8000004地址，其地址由链接器根据实际链接</strong><br><br><strong>链接脚本规定了起始段放置的是isr_vector，而启动文件 规定了向量中第一个字是指定存放 栈顶地址，第二个字即0x8000004存放的则是Reset_Handler的地址</strong><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">SECTIONS</span><br><span class="line">&#123;</span><br><span class="line">  .isr_vector :</span><br><span class="line">  &#123;</span><br><span class="line">    . = ALIGN(4);</span><br><span class="line">    KEEP(*(.isr_vector))</span><br><span class="line">    . = ALIGN(4);</span><br><span class="line">  &#125; &gt;FLASH</span><br><span class="line"></span><br><span class="line">  .text :</span><br><span class="line">  &#123;</span><br><span class="line">  _stext = .;</span><br><span class="line">  . = ALIGN(4);</span><br><span class="line">  *(.text)           /* .text sections (code) */</span><br><span class="line">  xxx&#125;&#125;</span><br></pre></td></tr></table></figure></li>
+<p>链接脚本用于指导链接器如何将输入文件的段链接到一起，其主要由<strong>MEMORY</strong>和<strong>SECTIONS</strong>块组成</p>
+<ul>
+<li><code>SECTIONS</code>是必须的</li>
+<li><code>MEMORY</code>可选的，如果没有，链接器则认为所有输入文件都位于同一个内存区域，并且从0x0开始</li>
+</ul>
+<h2 id="块"><a href="#块" class="headerlink" title="块"></a>块</h2><ul>
+<li><strong>MEMORY</strong><br>为链接器提供系统内存的布局信息，并确定内存区域的访问权限。链接器根据MEMORY的信息，将编译生成的.o目标文件中的代码、数据、符号等分配到不同的内存区域。<br>示例代码如下：<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">MEMORY</span><br><span class="line">&#123;</span><br><span class="line">FLASH (rx)      : ORIGIN = 0x8000000, LENGTH = 128K</span><br><span class="line">RAM (xrw)      : ORIGIN = 0x20000000, LENGTH = 32K</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+代码描述了两个内存区域：<br>  标号为<code>FLASH</code>的内存区域权限为：可读只执行，起始地址为0x8000000，长度为128K；<br>  标号为<code>RAM</code>的内存区域权限为：可读可写可执行，起始地址为0x20000000，长度为32K。<br><br><strong>而后，链接脚本可声明将指定的代码放到对应的memory区域——以下链接脚本代码将<code>.text</code>段存放到标号为<code>RAM</code>的内存区域，将<code>.data</code>段存放到标号为<code>FLASH</code>的内存区域</strong><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">SECTIONS</span><br><span class="line">&#123;</span><br><span class="line">  .text &gt;RAM</span><br><span class="line">  .data &gt;FLASH</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
 </ul>
 <hr>
 <ul>
-<li>MEMORY<br>用于描述目标设备的内存布局，如：定义Flash和RAM的起始地址和大小</li>
+<li><strong>SECTIONS</strong><br>用于定义目标文件中各个段，包括名称、存储位置、对齐方式、内容，并且可以确定其访问权限。<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">SECTIONS</span><br><span class="line">&#123;</span><br><span class="line">  // 将可执行代码段（.text 段）存放到 RAM 区域，对齐到 4 字节边界</span><br><span class="line">  .text &gt;RAM : ALIGN(4)</span><br><span class="line"></span><br><span class="line">  // 将全局变量段（.data 段）存放到 FLASH 区域，对齐到 4 字节边界</span><br><span class="line">  .data &gt;FLASH : ALIGN(4)</span><br><span class="line"></span><br><span class="line">  // 将堆（heap）段存放到 RAM 区域，对齐到 8 字节边界</span><br><span class="line">  .heap &gt;RAM : ALIGN(8)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+另，<strong>链接脚本中的内存存放顺序是从上到下</strong></li>
+</ul>
+<hr>
+<h2 id="命令"><a href="#命令" class="headerlink" title="命令"></a>命令</h2><ul>
+<li><strong>ENTRY</strong><br>将某个入口点函数指定为起始地址，如果没有指定<code>ENTRY</code>，链接器会默认使用第一个可执行section作为程序入口点<br><code>ENTRY(Reset_Handler)</code>将Reset_Handler函数设为程序的入口点，链接器需要知道程序的入口点，才能正确地组织可执行文件的时序，才能正确地执行编译、链接、优化代码<br><strong>注意：在cortex-m4中，ENTRY(Reset_Handler)并没有将Reset_Handler实体链接到0x8000004地址，其地址由链接器根据实际链接</strong><br><br><strong>链接脚本规定了起始段放置的是isr_vector，而启动文件 规定了向量中第一个字是指定存放 栈顶地址，第二个字即0x8000004存放的则是Reset_Handler的地址</strong><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">SECTIONS</span><br><span class="line">&#123;</span><br><span class="line">  .isr_vector :</span><br><span class="line">  &#123;</span><br><span class="line">    . = ALIGN(4);</span><br><span class="line">    KEEP(*(.isr_vector))</span><br><span class="line">    . = ALIGN(4);</span><br><span class="line">  &#125; &gt;FLASH</span><br><span class="line"></span><br><span class="line">  .text :</span><br><span class="line">  &#123;</span><br><span class="line">  _stext = .;</span><br><span class="line">  . = ALIGN(4);</span><br><span class="line">  *(.text)           /* .text sections (code) */</span><br><span class="line">  xxx&#125;&#125;</span><br></pre></td></tr></table></figure></li>
 </ul>
 <hr>
 <ul>
-<li>SECTIONS<br>用于定义输出文件中各个段的布局，如：指定<code>.text</code>段和<code>.data</code>段的位置</li>
+<li><strong>&#x2F;DISCARD&#x2F;</strong><br>用于指定链接器应丢弃的section<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">/DISCARD/ :</span><br><span class="line">&#123;</span><br><span class="line">  libc.a ( * )</span><br><span class="line">  libm.a ( * )</span><br><span class="line">  libgcc.a ( * )</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+上述代码，指示链接器将C标准库、数学库、GCC库中的section丢弃，在生成的可执行文件中不需要保留这些段。<br><strong>如果有调用到以下函数，则需要保留：</strong><ul>
+<li>libm.a 包含了用于实现数学函数的符号和数据，例如 sin()、cos()、sqrt() 等</li>
+<li>libgcc.a 包含了用于实现 GCC 扩展的符号和数据，例如 __builtin_add()、__builtin_div() 等</li>
+<li>libc.a 是 C 标准库的库文件，包含了许多实现 C 标准库函数的符号和数据，诸如 printf()、scanf()、malloc()、free() 等常用函数。如果使用了微库，也可以去掉该section</li>
+</ul>
+</li>
 </ul>
 <hr>
 <ul>

@@ -274,6 +274,18 @@
 </ul>
 <hr>
 <ul>
+<li>应用LiteOS的定时器，出现bug：在软件定时器回调函数中给一个句柄写入消息，其中涉及到阻塞1s申请互斥量操作，但却一直无法写入<ul>
+<li>原因分析：<ul>
+<li>首先检查日志，发现每次回调函数能被正常执行，但写入操作一直失败。其中为延时获取互斥量失败，但实际上没有延时</li>
+<li>怀疑可能是软件定时器本身就设计不支持阻塞接口操作，所以直接返回；可能是软件设计不当导致的互斥量一直被其它任务所占用</li>
+<li>排查缩小范围</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<hr>
+<ul>
 <li>应用LiteOS信号量，阻塞100tick 等待，程序却卡死在阻塞等待处，另，串口UART4中断函数异常跑飞<br>部分源代码节选如下：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">static uint32_t comm_board_sem;</span><br><span class="line"></span><br><span class="line">LOS_SemCreate(0, &amp;comm_board_sem);</span><br><span class="line"></span><br><span class="line">LOS_SemPost(comm_board_sem);        // 在串口接收空闲中断处调用</span><br><span class="line">  </span><br><span class="line">logVerbose(&quot;init&quot;);</span><br><span class="line">    result = LOS_SemPend(comm_board_sem, LOS_MS2Tick(100));</span><br><span class="line">logVerbose(&quot;init&quot;); // 未能执行到此处</span><br></pre></td></tr></table></figure>
 通过断点调试，程序卡死在如下处：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">/* ****************************************************************************</span><br><span class="line">Function    : ArchSysExit</span><br><span class="line">Description : Task exit function</span><br><span class="line">**************************************************************************** */</span><br><span class="line">LITE_OS_SEC_TEXT_MINOR VOID ArchSysExit(VOID)</span><br><span class="line">&#123;</span><br><span class="line">    (VOID)LOS_IntLock();</span><br><span class="line">    while (1) &#123;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 原因分析与解决步骤：<ol>

@@ -253,7 +253,13 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h2 id="程序设计原则"><a href="#程序设计原则" class="headerlink" title="程序设计原则"></a>程序设计原则</h2><ul>
+        <h2 id="嵌入式MCU开发-裸机-RTOS的优缺点"><a href="#嵌入式MCU开发-裸机-RTOS的优缺点" class="headerlink" title="嵌入式MCU开发-裸机&#x2F;RTOS的优缺点"></a>嵌入式MCU开发-裸机&#x2F;RTOS的优缺点</h2><h2 id="裸机程序的特性如下："><a href="#裸机程序的特性如下：" class="headerlink" title="  裸机程序的特性如下："></a>  裸机程序的特性如下：</h2><p>  RTOS的特性如下：</p>
+<ul>
+<li>对于单核MCU来说，RTOS虽不是真正的并行执行，只是宏观上达到多程序并行的效果</li>
+<li>RTOS能较好地实现模块的分离和隔离，降低耦合，每个任务都有自己的任务栈，这对于业务开发、移植、维护较为友好</li>
+<li>实时性比裸机要强，任务间通信，如事件、消息队列、信号等API阻塞 + Systick调度中断，可以使得任务执行 的实时性大大提高，而不是裸机程序的轮询执行</li>
+</ul>
+<h2 id="程序设计原则"><a href="#程序设计原则" class="headerlink" title="程序设计原则"></a>程序设计原则</h2><ul>
 <li><p>层级之间的调用和信息上报</p>
 <ul>
 <li>下层提供直接接口调用，提供注册回调函数，禁止调用上层接口</li>
@@ -376,7 +382,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1%E5%8E%9F%E5%88%99"><span class="nav-number">1.</span> <span class="nav-text">程序设计原则</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A3%B8%E6%9C%BA%E5%BC%80%E5%8F%91"><span class="nav-number">2.</span> <span class="nav-text">裸机开发</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#RTOS%E5%BC%80%E5%8F%91"><span class="nav-number">3.</span> <span class="nav-text">RTOS开发</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E4%B8%9A%E5%8A%A1%E8%AE%BE%E8%AE%A1"><span class="nav-number">3.1.</span> <span class="nav-text">代码业务设计</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%9A%E7%BA%BF%E7%A8%8B%E8%AE%BE%E8%AE%A1%E6%B3%A8%E6%84%8F%E7%82%B9"><span class="nav-number">3.2.</span> <span class="nav-text">多线程设计注意点</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B5%8C%E5%85%A5%E5%BC%8FMCU%E5%BC%80%E5%8F%91-%E8%A3%B8%E6%9C%BA-RTOS%E7%9A%84%E4%BC%98%E7%BC%BA%E7%82%B9"><span class="nav-number">1.</span> <span class="nav-text">嵌入式MCU开发-裸机&#x2F;RTOS的优缺点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A3%B8%E6%9C%BA%E7%A8%8B%E5%BA%8F%E7%9A%84%E7%89%B9%E6%80%A7%E5%A6%82%E4%B8%8B%EF%BC%9A"><span class="nav-number">2.</span> <span class="nav-text">  裸机程序的特性如下：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1%E5%8E%9F%E5%88%99"><span class="nav-number">3.</span> <span class="nav-text">程序设计原则</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A3%B8%E6%9C%BA%E5%BC%80%E5%8F%91"><span class="nav-number">4.</span> <span class="nav-text">裸机开发</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#RTOS%E5%BC%80%E5%8F%91"><span class="nav-number">5.</span> <span class="nav-text">RTOS开发</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E4%B8%9A%E5%8A%A1%E8%AE%BE%E8%AE%A1"><span class="nav-number">5.1.</span> <span class="nav-text">代码业务设计</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%9A%E7%BA%BF%E7%A8%8B%E8%AE%BE%E8%AE%A1%E6%B3%A8%E6%84%8F%E7%82%B9"><span class="nav-number">5.2.</span> <span class="nav-text">多线程设计注意点</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
