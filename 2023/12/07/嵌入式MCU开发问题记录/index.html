@@ -20,15 +20,15 @@
     var CONFIG = {"hostname":"jindu-chen.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="记录、总结嵌入式开发中遇到的一些小问题">
+  <meta name="description" content="记录、总结嵌入式开发中遇到的一些小问题，包括但不限于问题的记录、原因分析以及解决思路等。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="嵌入式MCU开发问题记录">
 <meta property="og:url" content="https://jindu-chen.github.io/2023/12/07/%E5%B5%8C%E5%85%A5%E5%BC%8FMCU%E5%BC%80%E5%8F%91%E9%97%AE%E9%A2%98%E8%AE%B0%E5%BD%95/index.html">
 <meta property="og:site_name" content="Jindu-Chen">
-<meta property="og:description" content="记录、总结嵌入式开发中遇到的一些小问题">
+<meta property="og:description" content="记录、总结嵌入式开发中遇到的一些小问题，包括但不限于问题的记录、原因分析以及解决思路等。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2023-12-07T00:00:00.000Z">
-<meta property="article:modified_time" content="2023-12-13T00:00:00.000Z">
+<meta property="article:modified_time" content="2023-12-19T00:00:00.000Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -225,7 +225,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-12-13 00:00:00" itemprop="dateModified" datetime="2023-12-13T00:00:00+00:00">2023-12-13</time>
+                <time title="Modified: 2023-12-19 00:00:00" itemprop="dateModified" datetime="2023-12-19T00:00:00+00:00">2023-12-19</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -238,7 +238,7 @@
             </span>
 
           
-            <div class="post-description">记录、总结嵌入式开发中遇到的一些小问题</div>
+            <div class="post-description">记录、总结嵌入式开发中遇到的一些小问题，包括但不限于问题的记录、原因分析以及解决思路等。</div>
 
         </div>
       </header>
@@ -250,6 +250,28 @@
 
       
         <ul>
+<li>添加了bootloader的LiteOS应用程序没能跑起来<ul>
+<li>原因分析：<ul>
+<li>首先检查bootloader和app的链接脚本是否有误，确认bootloader跳转地址为0x8004000，而app链接脚本的FLASH起始地址为0x8004000无误</li>
+<li>确认app中断向量SCB-&gt;VTOR配置正确</li>
+<li>使用此前的bootloader + LiteOS APP、 gcc环境下的bootloader + 重构前的rt-thread App分别观察现象；发现gcc bootloader + rt-thread App能够正常运行，说明问题出现在LiteOS的应用程序上</li>
+<li><strong>可能是中断向量仍然未配置好、可能是程序实际并未以0x8004000为起始地址链接、可能是App程序中关于IAP部分程序没配置好地址、可能是LiteOS自定义的中断向量没有8字节对齐、可能是App部分大小超过FLASH限制</strong></li>
+<li>另外，不排除bootloader中有读取擦除指定地址数据的操作，当App程序过大越界可能会被擦除部分数据</li>
+<li>不排除bootloader与app的系统时钟初始化可能存在不一致问题</li>
+<li>另外发现，<code>Reset_handler</code>函数的hex文件地址解析 比 在map文件中的地址加1.</li>
+<li>在检查链接脚本时，发现如下代码：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">_estack = 0x20024000;    /* end of RAM */</span><br><span class="line">_sstack = 0x20000000;    /* start of RAM */</span><br></pre></td></tr></table></figure>
+突发奇想，将栈顶指针<code>_estack = 0x20024000;</code>删减掉，加到如下链接脚本处，发现bootloader可以正常跳转运行了<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">._user_heap_stack :</span><br><span class="line">&#123;</span><br><span class="line">  . = ALIGN(4);</span><br><span class="line">  PROVIDE ( end = . );</span><br><span class="line">  PROVIDE ( _end = . );</span><br><span class="line">  . = . + _Min_Heap_Size;</span><br><span class="line">  . = . + _Min_Stack_Size;</span><br><span class="line">  _estack = .;</span><br><span class="line">  . = ALIGN(4);</span><br><span class="line">&#125; &gt;RAM</span><br></pre></td></tr></table></figure>
+问题最终分析：</li>
+<li>app的栈顶指针指向芯片的最大RAM地址，在无bootloader时，程序能够正常运行；加上了bootloader后，存在问题</li>
+<li>此两者区别是：一个是由链接器自动计算堆栈的大小，一个是自己指定栈顶地址</li>
+<li>进一步分析：</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<hr>
+<ul>
 <li>J-Link仿真器正常，但点击烧录就工作异常<ul>
 <li>MCU及元件上电工作，J-Link供电不足 – 插上电源</li>
 <li>芯片在读写保护状态，需要用特定软件解除读保护后，才可烧录</li>
