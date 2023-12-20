@@ -725,7 +725,20 @@
   <entry>
     <title>汇编语言基础</title>
     <url>/2023/12/05/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E5%9F%BA%E7%A1%80/</url>
-    <content><![CDATA[<h2 id="汇编语法"><a href="#汇编语法" class="headerlink" title="汇编语法"></a>汇编语法</h2><h2 id="伪操作"><a href="#伪操作" class="headerlink" title="伪操作"></a>伪操作</h2><h2 id="注意点"><a href="#注意点" class="headerlink" title="注意点"></a>注意点</h2><ul>
+    <content><![CDATA[<h2 id="汇编语法"><a href="#汇编语法" class="headerlink" title="汇编语法"></a>汇编语法</h2><p><code>label：instruction @ comment</code></p>
+<ul>
+<li>label是标号，表示地址。可以通过标号得到指令的地址，任何以“：”结尾的标识符都会被识别为一个标号</li>
+<li>instruction 即指令，也就是汇编指令或伪指令</li>
+<li>@符号，表示后面的是注释</li>
+</ul>
+<p>示例：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">add:</span><br><span class="line">    MOVS R0, #0X12 @设置 R0=0X12</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="伪操作"><a href="#伪操作" class="headerlink" title="伪操作"></a>伪操作</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">.word       用于将立即数直接存储到内存中</span><br><span class="line">.weak       弱定义，可以被其他同名符号覆盖</span><br><span class="line">.thumb_set  在 Thumb 指令集中设置符号地址</span><br><span class="line">.byte       定义单字节数据，比如.byte 0x12。</span><br><span class="line">.short      定义双字节数据，比如.short 0x1234。</span><br><span class="line">.long       定义一个 4 字节数据，比如.long 0x12345678。</span><br><span class="line">.equ        赋值语句，格式为：.equ 变量名，表达式，比如.equ num, 0x12，表示 num=0x12。</span><br><span class="line">.align      数据字节对齐，比如：.align 4 表示 4 字节对齐。</span><br><span class="line">.end        表示源文件结束。</span><br><span class="line">.global     定义一个全局符号，格式为：.global symbol，比如：.global _start。</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="注意点"><a href="#注意点" class="headerlink" title="注意点"></a>注意点</h2><ul>
 <li>指令、伪指令、伪操作、寄存器名可以全部大写，也可以全部小写，不能大小写混用</li>
 <li></li>
 </ul>
@@ -814,7 +827,8 @@
   <entry>
     <title>ARM架构及相关概念</title>
     <url>/2023/12/04/ARM%E6%9E%B6%E6%9E%84%E5%8F%8A%E7%9B%B8%E5%85%B3%E6%A6%82%E5%BF%B5/</url>
-    <content><![CDATA[<h2 id="内存分布"><a href="#内存分布" class="headerlink" title="内存分布"></a>内存分布</h2><h2 id="哈佛架构与冯诺依曼架构"><a href="#哈佛架构与冯诺依曼架构" class="headerlink" title="哈佛架构与冯诺依曼架构"></a>哈佛架构与冯诺依曼架构</h2><h2 id="CPU寄存器"><a href="#CPU寄存器" class="headerlink" title="CPU寄存器"></a>CPU寄存器</h2><h4 id="glue-7、glue-7t-和-eh-frame"><a href="#glue-7、glue-7t-和-eh-frame" class="headerlink" title="glue_7、glue_7t 和 eh_frame"></a>glue_7、glue_7t 和 eh_frame</h4><ul>
+    <content><![CDATA[<h2 id="ARM指令集"><a href="#ARM指令集" class="headerlink" title="ARM指令集"></a>ARM指令集</h2><h3 id="Thumb指令集"><a href="#Thumb指令集" class="headerlink" title="Thumb指令集"></a>Thumb指令集</h3><p>其是ARM指令集的一个子集，16位的代码宽度</p>
+<h2 id="哈佛架构与冯诺依曼架构"><a href="#哈佛架构与冯诺依曼架构" class="headerlink" title="哈佛架构与冯诺依曼架构"></a>哈佛架构与冯诺依曼架构</h2><h2 id="CPU寄存器"><a href="#CPU寄存器" class="headerlink" title="CPU寄存器"></a>CPU寄存器</h2><h4 id="glue-7、glue-7t-和-eh-frame"><a href="#glue-7、glue-7t-和-eh-frame" class="headerlink" title="glue_7、glue_7t 和 eh_frame"></a>glue_7、glue_7t 和 eh_frame</h4><ul>
 <li><p>glue_7 和 glue_7t 是 ARM 架构中用于将 ARM 代码和 Thumb 代码粘合在一起的代码。</p>
 </li>
 <li><p>ARM 架构支持两种指令集：ARM 指令集和 Thumb 指令集。ARM 指令集是 32 位指令集，而 Thumb 指令集是 16 位指令集。为了兼容两种指令集，ARM 架构中引入了一种称为 Thumb 嵌入 的机制。</p>

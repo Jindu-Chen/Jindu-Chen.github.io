@@ -28,7 +28,7 @@
 <meta property="og:description" content="ARM汇编语言语法、一些常用指令">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2023-12-05T00:00:00.000Z">
-<meta property="article:modified_time" content="2023-12-12T02:35:50.077Z">
+<meta property="article:modified_time" content="2023-12-20T11:39:26.683Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -225,7 +225,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-12-12 02:35:50" itemprop="dateModified" datetime="2023-12-12T02:35:50+00:00">2023-12-12</time>
+                <time title="Modified: 2023-12-20 11:39:26" itemprop="dateModified" datetime="2023-12-20T11:39:26+00:00">2023-12-20</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -249,7 +249,20 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h2 id="汇编语法"><a href="#汇编语法" class="headerlink" title="汇编语法"></a>汇编语法</h2><h2 id="伪操作"><a href="#伪操作" class="headerlink" title="伪操作"></a>伪操作</h2><h2 id="注意点"><a href="#注意点" class="headerlink" title="注意点"></a>注意点</h2><ul>
+        <h2 id="汇编语法"><a href="#汇编语法" class="headerlink" title="汇编语法"></a>汇编语法</h2><p><code>label：instruction @ comment</code></p>
+<ul>
+<li>label是标号，表示地址。可以通过标号得到指令的地址，任何以“：”结尾的标识符都会被识别为一个标号</li>
+<li>instruction 即指令，也就是汇编指令或伪指令</li>
+<li>@符号，表示后面的是注释</li>
+</ul>
+<p>示例：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">add:</span><br><span class="line">    MOVS R0, #0X12 @设置 R0=0X12</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="伪操作"><a href="#伪操作" class="headerlink" title="伪操作"></a>伪操作</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">.word       用于将立即数直接存储到内存中</span><br><span class="line">.weak       弱定义，可以被其他同名符号覆盖</span><br><span class="line">.thumb_set  在 Thumb 指令集中设置符号地址</span><br><span class="line">.byte       定义单字节数据，比如.byte 0x12。</span><br><span class="line">.short      定义双字节数据，比如.short 0x1234。</span><br><span class="line">.long       定义一个 4 字节数据，比如.long 0x12345678。</span><br><span class="line">.equ        赋值语句，格式为：.equ 变量名，表达式，比如.equ num, 0x12，表示 num=0x12。</span><br><span class="line">.align      数据字节对齐，比如：.align 4 表示 4 字节对齐。</span><br><span class="line">.end        表示源文件结束。</span><br><span class="line">.global     定义一个全局符号，格式为：.global symbol，比如：.global _start。</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="注意点"><a href="#注意点" class="headerlink" title="注意点"></a>注意点</h2><ul>
 <li>指令、伪指令、伪操作、寄存器名可以全部大写，也可以全部小写，不能大小写混用</li>
 <li></li>
 </ul>
