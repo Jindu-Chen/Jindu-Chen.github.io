@@ -214,7 +214,10 @@
   <entry>
     <title>MCU开发小贴士</title>
     <url>/2023/11/28/MCU%E5%BC%80%E5%8F%91%E5%B0%8F%E8%B4%B4%E5%A3%AB/</url>
-    <content><![CDATA[]]></content>
+    <content><![CDATA[<ul>
+<li>全局开关中断操作  <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">__disable_irq();    // 将 PRIMASK 寄存器的值设置为 1，禁止所有中断</span><br><span class="line">__enable_irq();     // 将 PRIMASK 寄存器的值设置为 0，开启所有中断</span><br><span class="line">__set_PRIMASK(1);   // PRIMASK 值为 1 ，所有可屏蔽中断的优先级为 1，表示所有可屏蔽中断均不能被中断处理程序处理，只能由 NMI 处理程序处理</span><br><span class="line">__set_PRIMASK(0);</span><br><span class="line"></span><br><span class="line">// 在 Cortex-M 架构中，FAULTMASK 寄存器控制所有异常的优先级</span><br><span class="line">__set_FAULTMASK(1);  // FAULTMASK 寄存器的值为 1 时，所有异常的优先级为 1，表示所有异常均不能被中断处理程序处理，只能由 NMI 处理程序处理</span><br><span class="line">__set_FAULTMASK(0);</span><br><span class="line"></span><br><span class="line">CPSID F        //关异常，FAULTMASK=1</span><br><span class="line">CPSIE F        //开异常，FAULTMASK=0</span><br></pre></td></tr></table></figure></li>
+</ul>
+]]></content>
       <categories>
         <category>MCU</category>
       </categories>
@@ -440,7 +443,8 @@
 <li>尽量不要在头文件中包含头文件</li>
 </ul>
 <h3 id="修改编译优化级别"><a href="#修改编译优化级别" class="headerlink" title="修改编译优化级别"></a>修改编译优化级别</h3><ul>
-<li>改变编译等级可能会导致程序运行出错<ul>
+<li><p>改变编译等级可能会导致程序运行出错</p>
+<ul>
 <li>提高优化级别时出错，可考虑以下：<blockquote>
 <p>程序中没有放置正确的内存屏障，优化导致的乱序执行可能有问题<br>  部分代码设计需要严谨考虑时序性<br>  可能会忽略了链接脚本中指定的四字节对齐</p>
 </blockquote>
@@ -450,6 +454,8 @@
 </blockquote>
 </li>
 </ul>
+</li>
+<li><p>修改编译等级后导致运行出错的问题排查思路</p>
 </li>
 </ul>
 <h2 id="C编译过程"><a href="#C编译过程" class="headerlink" title="C编译过程"></a>C编译过程</h2><p>编译器的主要工作流程如下：</p>
@@ -553,17 +559,32 @@
   <entry>
     <title>心得：LiteOS初体验</title>
     <url>/2023/11/29/%E5%BF%83%E5%BE%97%EF%BC%9ALiteOS%E5%88%9D%E4%BD%93%E9%AA%8C/</url>
-    <content><![CDATA[<h1 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h1><h1 id="开发简述"><a href="#开发简述" class="headerlink" title="开发简述"></a>开发简述</h1><h1 id="槽点"><a href="#槽点" class="headerlink" title="槽点"></a>槽点</h1><ul>
-<li><p>shell交互-uart-dma中断服务函数的配置</p>
+    <content><![CDATA[<h3 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h3><h3 id="开发简述"><a href="#开发简述" class="headerlink" title="开发简述"></a>开发简述</h3><h3 id="槽点"><a href="#槽点" class="headerlink" title="槽点"></a>槽点</h3><h4 id="shell交互-uart-dma中断服务函数的配置"><a href="#shell交互-uart-dma中断服务函数的配置" class="headerlink" title="shell交互-uart-dma中断服务函数的配置"></a>shell交互-uart-dma中断服务函数的配置</h4><ul>
+<li>芯片上电执行<code>LOS_KernelInit()</code>，其中会重新定义中断向量，但在这个过程之前和之后都会有日志打印</li>
+<li>如果日志打印是用uart + DMA完成的，其中需要注册中断服务函数。</li>
+<li>但是uart的初始化打开应该在系统初始化前执行，但中断服务函数要在系统初始化后才能注册。给编程带来不便</li>
+</ul>
+<h4 id="软件定时器的使用"><a href="#软件定时器的使用" class="headerlink" title="软件定时器的使用"></a>软件定时器的使用</h4><ul>
+<li><p>鸡肋的软件定时器，只能在初始化时定好时间周期，后续不可更改。</p>
 </li>
-<li><p>鸡肋的软件定时器,只能在初始化时定好时间周期,后续不可更改</p>
+<li><p>其提供的API过少，只有初始化、开始、结束的有限几个接口。用户无法获取当前定时器剩余tick，无法重新设置定时周期，无法在使用过程中更改定时器的 单次或者周期定时等属性</p>
 </li>
-<li><p>空闲任务函数<br>  查看LiteOS之原版api，是存在创建空闲任务钩子函数的，但最新版代码已经删除，代码如下：<br>由以下代码可知，空闲任务作用仅为回收结束任务资源，以及可选的电源管理。</p>
+<li><p>该软件定时器中，不支持申请互斥量</p>
 <ul>
-<li>个人操作：增设<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">LITE_OS_SEC_TEXT VOID OsIdleTask(VOID)</span><br><span class="line">&#123;</span><br><span class="line">    while (1) &#123;</span><br><span class="line">        OsRecycleFinishedTask();</span><br><span class="line"></span><br><span class="line">        if (PmEnter != NULL) &#123;</span><br><span class="line">            PmEnter();</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            (VOID)ArchEnterSleep();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">LITE_OS_SEC_TEXT_INIT UINT32 OsIdleTaskCreate(VOID)</span><br><span class="line">&#123;</span><br><span class="line">    UINT32 retVal;</span><br><span class="line">    TSK_INIT_PARAM_S taskInitParam;</span><br><span class="line">    // Ignore the return code when matching CSEC rule 6.6(4).</span><br><span class="line">    (VOID)memset_s((VOID *)(&amp;taskInitParam), sizeof(TSK_INIT_PARAM_S), 0, sizeof(TSK_INIT_PARAM_S));</span><br><span class="line">    taskInitParam.pfnTaskEntry = (TSK_ENTRY_FUNC)OsIdleTask;</span><br><span class="line">    taskInitParam.uwStackSize = LOSCFG_BASE_CORE_TSK_IDLE_STACK_SIZE;</span><br><span class="line">    taskInitParam.pcName = &quot;IdleCore000&quot;;</span><br><span class="line">    taskInitParam.usTaskPrio = OS_TASK_PRIORITY_LOWEST;</span><br><span class="line">    retVal = LOS_TaskCreateOnly(&amp;g_idleTaskID, &amp;taskInitParam);</span><br><span class="line">    if (retVal != LOS_OK) &#123;</span><br><span class="line">        return retVal;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    OsSchedSetIdleTaskSchedParam(OS_TCB_FROM_TID(g_idleTaskID));</span><br><span class="line">    return LOS_OK;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure></li>
+<li>在写私有消息队列过程中，涉及临界区操作，需要申请互斥量，但在定时器的回调函数中申请互斥量会直接返回错误。</li>
 </ul>
 </li>
+<li><p>定时器任务创建源码如下:<br>  如下所示：其中系统在创建定时器线程时会或上<code>OS_TASK_FLAG_SYSTEM_TASK</code>这个标志，然后在申请互斥量、信号量、事件时，都会检查当前是否运行在定时器任务中，如果为真，则直接返回错误</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">LITE_OS_SEC_TEXT_INIT UINT32 OsSwtmrTaskCreate(VOID)</span><br><span class="line">&#123;</span><br><span class="line">    UINT32 ret;</span><br><span class="line">    TSK_INIT_PARAM_S swtmrTask;</span><br><span class="line"></span><br><span class="line">    // Ignore the return code when matching CSEC rule 6.6(4).</span><br><span class="line">    (VOID)memset_s(&amp;swtmrTask, sizeof(TSK_INIT_PARAM_S), 0, sizeof(TSK_INIT_PARAM_S));</span><br><span class="line"></span><br><span class="line">    swtmrTask.pfnTaskEntry    = (TSK_ENTRY_FUNC)OsSwtmrTask;</span><br><span class="line">    swtmrTask.uwStackSize     = LOSCFG_BASE_CORE_TSK_SWTMR_STACK_SIZE;</span><br><span class="line">    swtmrTask.pcName          = &quot;Swt_Task&quot;;</span><br><span class="line">    swtmrTask.usTaskPrio      = 0;</span><br><span class="line">    ret = LOS_TaskCreate(&amp;g_swtmrTaskID, &amp;swtmrTask);</span><br><span class="line">    if (ret == LOS_OK) &#123;</span><br><span class="line">        OS_TCB_FROM_TID(g_swtmrTaskID)-&gt;taskStatus |= OS_TASK_FLAG_SYSTEM_TASK;</span><br><span class="line">    &#125;</span><br><span class="line">    return ret;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>互斥量操作时，会进行以下检查：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">STATIC_INLINE UINT32 OsMuxValidCheck(LosMuxCB *muxPended)</span><br><span class="line">&#123;</span><br><span class="line">    if (muxPended-&gt;muxStat == OS_MUX_UNUSED) &#123;</span><br><span class="line">        return LOS_ERRNO_MUX_INVALID;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    if (OS_INT_ACTIVE) &#123;</span><br><span class="line">        return LOS_ERRNO_MUX_IN_INTERR;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    if (g_losTaskLock) &#123;</span><br><span class="line">        PRINT_ERR(&quot;!!!LOS_ERRNO_MUX_PEND_IN_LOCK!!!\n&quot;);</span><br><span class="line">        return LOS_ERRNO_MUX_PEND_IN_LOCK;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    if (g_losTask.runTask-&gt;taskStatus &amp; OS_TASK_FLAG_SYSTEM_TASK) &#123;</span><br><span class="line">        return LOS_ERRNO_MUX_PEND_IN_SYSTEM_TASK;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    return LOS_OK;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
 </ul>
+<h4 id="空闲任务函数"><a href="#空闲任务函数" class="headerlink" title="空闲任务函数"></a>空闲任务函数</h4><pre><code>查看LiteOS之原版api，是存在创建空闲任务钩子函数的，但最新版代码已经删除，代码如下：
+</code></pre>
+<p>由以下代码可知，空闲任务作用仅为回收结束任务资源，以及可选的电源管理。<br>    - 个人操作：增设一个专门的低优先级任务来执行一些空闲操作</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">LITE_OS_SEC_TEXT VOID OsIdleTask(VOID)</span><br><span class="line">&#123;</span><br><span class="line">    while (1) &#123;</span><br><span class="line">        OsRecycleFinishedTask();</span><br><span class="line"></span><br><span class="line">        if (PmEnter != NULL) &#123;</span><br><span class="line">            PmEnter();</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            (VOID)ArchEnterSleep();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">LITE_OS_SEC_TEXT_INIT UINT32 OsIdleTaskCreate(VOID)</span><br><span class="line">&#123;</span><br><span class="line">    UINT32 retVal;</span><br><span class="line">    TSK_INIT_PARAM_S taskInitParam;</span><br><span class="line">    // Ignore the return code when matching CSEC rule 6.6(4).</span><br><span class="line">    (VOID)memset_s((VOID *)(&amp;taskInitParam), sizeof(TSK_INIT_PARAM_S), 0, sizeof(TSK_INIT_PARAM_S));</span><br><span class="line">    taskInitParam.pfnTaskEntry = (TSK_ENTRY_FUNC)OsIdleTask;</span><br><span class="line">    taskInitParam.uwStackSize = LOSCFG_BASE_CORE_TSK_IDLE_STACK_SIZE;</span><br><span class="line">    taskInitParam.pcName = &quot;IdleCore000&quot;;</span><br><span class="line">    taskInitParam.usTaskPrio = OS_TASK_PRIORITY_LOWEST;</span><br><span class="line">    retVal = LOS_TaskCreateOnly(&amp;g_idleTaskID, &amp;taskInitParam);</span><br><span class="line">    if (retVal != LOS_OK) &#123;</span><br><span class="line">        return retVal;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    OsSchedSetIdleTaskSchedParam(OS_TCB_FROM_TID(g_idleTaskID));</span><br><span class="line">    return LOS_OK;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
 <h1 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h1>]]></content>
       <categories>
         <category>LiteOS</category>
@@ -730,7 +751,7 @@
       </categories>
   </entry>
   <entry>
-    <title>ld链接脚本学习</title>
+    <title>ld链接脚本学习总结</title>
     <url>/2023/12/15/ld%E9%93%BE%E6%8E%A5%E8%84%9A%E6%9C%AC%E5%AD%A6%E4%B9%A0/</url>
     <content><![CDATA[<h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>链接脚本的主要作用：描述如何将输入文件(.o目标文件)中的段 映射到 输出文件(.bin&#x2F;.hex&#x2F;…)中的段，并控制输出文件的内存布局(地址分配)。</p>
 <pre><code>注意：输入文件的段和输出文件的段是独立的，主要分为`.text`, `.data`, `.bss`, `heap`, `stack`段
@@ -767,7 +788,12 @@
 </ul>
 <hr>
 <ul>
-<li>KEEP<br>用于防止链接器丢弃未被引用的段和符号</li>
+<li><strong>KEEP</strong><br>用于防止链接器丢弃未被引用的段和符号<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// 强制连接器保留 .text 和 .data 两个 section 中的所有符号</span><br><span class="line">SECTIONS &#123;</span><br><span class="line">.text : &#123; KEEP(*(.text.*)) &#125;</span><br><span class="line">.data : &#123; KEEP(*(.data.*)) &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>*</code>表示任意多个字符，<code>.text.*</code>表示所有以 .text 开头的 section</li>
+<li><code>*(.text.*)</code> 表示所有以 .text 开头的 section 中的所有符号</li>
+</ul>
+</li>
 </ul>
 <hr>
 <ul>
@@ -788,7 +814,21 @@
   <entry>
     <title>ARM架构及相关概念</title>
     <url>/2023/12/04/ARM%E6%9E%B6%E6%9E%84%E5%8F%8A%E7%9B%B8%E5%85%B3%E6%A6%82%E5%BF%B5/</url>
-    <content><![CDATA[<h2 id="内存分布"><a href="#内存分布" class="headerlink" title="内存分布"></a>内存分布</h2><h2 id="哈佛架构与冯诺依曼架构"><a href="#哈佛架构与冯诺依曼架构" class="headerlink" title="哈佛架构与冯诺依曼架构"></a>哈佛架构与冯诺依曼架构</h2><h2 id="CPU寄存器"><a href="#CPU寄存器" class="headerlink" title="CPU寄存器"></a>CPU寄存器</h2>]]></content>
+    <content><![CDATA[<h2 id="内存分布"><a href="#内存分布" class="headerlink" title="内存分布"></a>内存分布</h2><h2 id="哈佛架构与冯诺依曼架构"><a href="#哈佛架构与冯诺依曼架构" class="headerlink" title="哈佛架构与冯诺依曼架构"></a>哈佛架构与冯诺依曼架构</h2><h2 id="CPU寄存器"><a href="#CPU寄存器" class="headerlink" title="CPU寄存器"></a>CPU寄存器</h2><h4 id="glue-7、glue-7t-和-eh-frame"><a href="#glue-7、glue-7t-和-eh-frame" class="headerlink" title="glue_7、glue_7t 和 eh_frame"></a>glue_7、glue_7t 和 eh_frame</h4><ul>
+<li><p>glue_7 和 glue_7t 是 ARM 架构中用于将 ARM 代码和 Thumb 代码粘合在一起的代码。</p>
+</li>
+<li><p>ARM 架构支持两种指令集：ARM 指令集和 Thumb 指令集。ARM 指令集是 32 位指令集，而 Thumb 指令集是 16 位指令集。为了兼容两种指令集，ARM 架构中引入了一种称为 Thumb 嵌入 的机制。</p>
+</li>
+<li><p>Thumb 嵌入允许 ARM 代码中嵌入 Thumb 指令，反之亦然。当 ARM 代码中嵌入 Thumb 指令时，连接器会生成 glue_7 或 glue_7t  section 来将 ARM 代码和 Thumb 代码粘合在一起。</p>
+</li>
+<li><p>eh_frame 是异常处理框架（Exception Handling Frame）的缩写。异常处理框架是用于支持异常处理的一种结构。当程序发生异常时，异常处理框架会保存程序的运行状态，并将程序转到异常处理程序。</p>
+</li>
+<li><p>异常处理框架通常包含以下信息：<br>  程序的堆栈指针（SP）<br>  程序的返回地址（LR）<br>  异常发生时的寄存器值</p>
+</li>
+<li><p>eh_frame section 包含了异常处理框架的信息。当程序发生异常时，连接器会将 eh_frame section 加载到内存中，以便异常处理程序可以访问异常处理框架的信息</p>
+</li>
+</ul>
+]]></content>
   </entry>
   <entry>
     <title>Makefile相关学习笔记</title>
