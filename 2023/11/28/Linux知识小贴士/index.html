@@ -28,7 +28,7 @@
 <meta property="og:description" content="日常使用Linux的一些操作总结">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2023-11-28T00:00:00.000Z">
-<meta property="article:modified_time" content="2023-12-21T07:10:50.336Z">
+<meta property="article:modified_time" content="2023-12-21T07:53:12.217Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -225,7 +225,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-12-21 07:10:50" itemprop="dateModified" datetime="2023-12-21T07:10:50+00:00">2023-12-21</time>
+                <time title="Modified: 2023-12-21 07:53:12" itemprop="dateModified" datetime="2023-12-21T07:53:12+00:00">2023-12-21</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -253,30 +253,52 @@
 <li>在Linux主机和Windows主机之间开启NFS服务 之 Windows10通过NFS挂载Linux目录<ul>
 <li>在Linux主机上配置NFS服务器<ul>
 <li>输入命令<code>sudo apt-get install nfs-kernel-server rpcbind</code>安装NFS服务器和PRCBIND</li>
-<li>创建共享目录：<code>sudo mkdir /home/jd_chen/nfs_share</code>，其中&#x2F;home&#x2F;jd_chen&#x2F;nfs_share为想要共享的目录</li>
+<li>创建共享目录：<code>sudo mkdir /home/jd_chen/nfs_share</code>，其中&#x2F;home&#x2F;jd_chen&#x2F;nfs_share为想要共享的目录<ul>
+<li><code>chmod -R 777 /home/jd_chen/nfs_share</code>将所有权限递归应用于目标目录的所有文件和子目录</li>
+</ul>
+</li>
 <li>配置NFS服务：<code>sudo vim /etc/exports</code><ul>
-<li>在文件中添加<code>/home/jd_chen/nfs_share *(rw,sync,no_root_squash)</code>，将目录共享给所有用户，并以读写方式访问</li>
+<li>在文件中添加<code>/home/jd_chen/nfs_share *(rw,sync,no_root_squash)</code></li>
+<li>其中*表示允许所有的网络段访问，rw表示访问者具有可读写权限，sync表示将缓存写入设备中，表示同步缓存，no_root_squash表示访问者具有root权限</li>
 </ul>
 </li>
-<li>启动NFS服务：<code>sudo service nfs-kernel-server start</code><br></li>
+<li>启动NFS服务：<code>sudo service nfs-kernel-server start</code>或者<code>systemctl start nfs-kernel-server</code><ul>
+<li><code>systemctl status nfs-kernel-server</code>验证NFS服务是否已启动</li>
+<li><code>systemctl enable nfs-kernel-server</code>配置在系统启动时自动启动NFS服务</li>
+<li><code>showmount -e</code>查看NFS共享目录</li>
 </ul>
 </li>
-<li>在Windows下配置NFS客户湍服务<ul>
-<li>打开<code>控制面板\程序\程序和功能</code>，点击<code>启用或关闭Windows功能</code>，找到<code>NFS服务</code>，勾选<code>NFS客户端</code>和<code>管理工具</code></li>
-<li>重启电脑<br></li>
 </ul>
 </li>
-<li>在Windows下挂载NFS目录 <ul>
-<li>按下<code>Win+R</code>组合键打开运行对话框</li>
-<li>输入<code>mount 192.168.112.240:/home/jd_chen/nfs_share X:</code></li>
-<li>其中192.168.112.240为Linux主机的ip地址，&#x2F;home&#x2F;jd_chen&#x2F;nfs_share为需要共享的目录，X:为映射到Windows本地的盘符</li>
 </ul>
 </li>
+</ul>
+<br>
+  - 在Windows下配置NFS客户湍服务
+    - 打开`控制面板\程序\程序和功能`，点击`启用或关闭Windows功能`，找到`NFS服务`，勾选`NFS客户端`和`管理工具`
+    - 重启电脑
+<br>
+  - 在Windows下挂载NFS目录 
+    - 按下`Win+R`组合键打开运行对话框
+    - 输入`mount 192.168.112.240:/home/jd_chen/nfs_share X:`
+    - 其中192.168.112.240为Linux主机的ip地址，/home/jd_chen/nfs_share为需要共享的目录，X:为映射到Windows本地的盘符
+  - 将命令mount改为umount即可卸载挂载，或者右键盘符->断开连接
+
+<hr>
+<ul>
+<li>在Linux主机使用挂载Linux服务器的NFS共享目录<ul>
+<li>客户端执行<code>yum install -y nfs-utils</code></li>
+<li>执行<code>mount &lt;服务器IP&gt;:&lt;share_path&gt; &lt;挂载点&gt;</code><ul>
+<li>如：<code>mount 192.168.1.1:/mnt/nfs /mnt/share</code></li>
+<li>表示将服务器 192.168.1.1 上的 &#x2F;mnt&#x2F;nfs 目录挂载到客户端 &#x2F;mnt&#x2F;share 目录</li>
+</ul>
+</li>
+<li>执行<code>df -h</code>验证NFS共享是否可用</li>
 </ul>
 </li>
 </ul>
 <hr>
-<h4 id="远程端口流量通过SSH映射到本地"><a href="#远程端口流量通过SSH映射到本地" class="headerlink" title="远程端口流量通过SSH映射到本地"></a>远程端口流量通过SSH映射到本地</h4><p>ssh -L 4000:localhost:4000 <a href="mailto:&#106;&#x64;&#95;&#x63;&#104;&#x65;&#x6e;&#x40;&#x31;&#x39;&#x32;&#46;&#49;&#x36;&#56;&#46;&#x31;&#x31;&#x32;&#46;&#50;&#52;&#48;">&#106;&#x64;&#95;&#x63;&#104;&#x65;&#x6e;&#x40;&#x31;&#x39;&#x32;&#46;&#49;&#x36;&#56;&#46;&#x31;&#x31;&#x32;&#46;&#50;&#52;&#48;</a></p>
+<h4 id="远程端口流量通过SSH映射到本地"><a href="#远程端口流量通过SSH映射到本地" class="headerlink" title="远程端口流量通过SSH映射到本地"></a>远程端口流量通过SSH映射到本地</h4><p>ssh -L 4000:localhost:4000 <a href="mailto:&#x6a;&#100;&#95;&#99;&#104;&#x65;&#110;&#x40;&#49;&#57;&#x32;&#x2e;&#x31;&#x36;&#56;&#x2e;&#49;&#49;&#x32;&#x2e;&#x32;&#52;&#48;">&#x6a;&#100;&#95;&#99;&#104;&#x65;&#110;&#x40;&#49;&#57;&#x32;&#x2e;&#x31;&#x36;&#56;&#x2e;&#49;&#49;&#x32;&#x2e;&#x32;&#52;&#48;</a></p>
 <h4 id="Linux给根目录扩容"><a href="#Linux给根目录扩容" class="headerlink" title="Linux给根目录扩容"></a>Linux给根目录扩容</h4>
     </div>
 
