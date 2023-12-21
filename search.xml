@@ -155,13 +155,35 @@
   <entry>
     <title>Linux知识小贴士</title>
     <url>/2023/11/28/Linux%E7%9F%A5%E8%AF%86%E5%B0%8F%E8%B4%B4%E5%A3%AB/</url>
-    <content><![CDATA[<ul>
-<li><p>远程端口流量通过SSH映射到本地<br>ssh -L 4000:localhost:4000 <a href="mailto:&#x6a;&#100;&#x5f;&#x63;&#x68;&#x65;&#110;&#64;&#x31;&#x39;&#50;&#46;&#49;&#x36;&#56;&#x2e;&#49;&#49;&#50;&#x2e;&#x32;&#52;&#x30;">&#x6a;&#100;&#x5f;&#x63;&#x68;&#x65;&#110;&#64;&#x31;&#x39;&#50;&#46;&#49;&#x36;&#56;&#x2e;&#49;&#49;&#50;&#x2e;&#x32;&#52;&#x30;</a></p>
+    <content><![CDATA[<h4 id="内网但非同一网段环境下开启NFS服务"><a href="#内网但非同一网段环境下开启NFS服务" class="headerlink" title="内网但非同一网段环境下开启NFS服务"></a>内网但非同一网段环境下开启NFS服务</h4><ul>
+<li>在Linux主机和Windows主机之间开启NFS服务 之 Windows10通过NFS挂载Linux目录<ul>
+<li>在Linux主机上配置NFS服务器<ul>
+<li>输入命令<code>sudo apt-get install nfs-kernel-server rpcbind</code>安装NFS服务器和PRCBIND</li>
+<li>创建共享目录：<code>sudo mkdir /home/jd_chen/nfs_share</code>，其中&#x2F;home&#x2F;jd_chen&#x2F;nfs_share为想要共享的目录</li>
+<li>配置NFS服务：<code>sudo vim /etc/exports</code><ul>
+<li>在文件中添加<code>/home/jd_chen/nfs_share *(rw,sync,no_root_squash)</code>，将目录共享给所有用户，并以读写方式访问</li>
+</ul>
 </li>
-<li><p>Linux给根目录扩容</p>
+<li>启动NFS服务：<code>sudo service nfs-kernel-server start</code><br></li>
+</ul>
+</li>
+<li>在Windows下配置NFS客户湍服务<ul>
+<li>打开<code>控制面板\程序\程序和功能</code>，点击<code>启用或关闭Windows功能</code>，找到<code>NFS服务</code>，勾选<code>NFS客户端</code>和<code>管理工具</code></li>
+<li>重启电脑<br></li>
+</ul>
+</li>
+<li>在Windows下挂载NFS目录 <ul>
+<li>按下<code>Win+R</code>组合键打开运行对话框</li>
+<li>输入<code>mount 192.168.112.240:/home/jd_chen/nfs_share X:</code></li>
+<li>其中192.168.112.240为Linux主机的ip地址，&#x2F;home&#x2F;jd_chen&#x2F;nfs_share为需要共享的目录，X:为映射到Windows本地的盘符</li>
+</ul>
 </li>
 </ul>
-]]></content>
+</li>
+</ul>
+<hr>
+<h4 id="远程端口流量通过SSH映射到本地"><a href="#远程端口流量通过SSH映射到本地" class="headerlink" title="远程端口流量通过SSH映射到本地"></a>远程端口流量通过SSH映射到本地</h4><p>ssh -L 4000:localhost:4000 <a href="mailto:&#106;&#x64;&#95;&#x63;&#104;&#x65;&#x6e;&#x40;&#x31;&#x39;&#x32;&#46;&#49;&#x36;&#56;&#46;&#x31;&#x31;&#x32;&#46;&#50;&#52;&#48;">&#106;&#x64;&#95;&#x63;&#104;&#x65;&#x6e;&#x40;&#x31;&#x39;&#x32;&#46;&#49;&#x36;&#56;&#46;&#x31;&#x31;&#x32;&#46;&#50;&#52;&#48;</a></p>
+<h4 id="Linux给根目录扩容"><a href="#Linux给根目录扩容" class="headerlink" title="Linux给根目录扩容"></a>Linux给根目录扩容</h4>]]></content>
       <categories>
         <category>Linux</category>
       </categories>
@@ -283,12 +305,19 @@
   <entry>
     <title>WSL小贴士</title>
     <url>/2023/11/28/WSL%E5%B0%8F%E8%B4%B4%E5%A3%AB/</url>
-    <content><![CDATA[<ul>
-<li>WSL下通过命令执行Windows下的bat脚本<br>  <code>wsl.exe -d Ubuntu-18.04 cmd.exe /c &quot;C:\Users\program.bat&quot;</code></li>
+    <content><![CDATA[<h4 id="在windows下访问WSL的目录"><a href="#在windows下访问WSL的目录" class="headerlink" title="在windows下访问WSL的目录"></a>在windows下访问WSL的目录</h4><ul>
+<li>在wwindows的资源管理器输入<code>\\wsl$</code>即可</li>
+<li>直接访问WSL的根路径<ul>
+<li><code>C:\Users\xxx\AppData\Local\Packages\CanonicalGroupLimited.Ubuntu18.04onWindows_79rhkp1fndgsc\LocalState\rootfs</code></li>
+<li>其中<code>xxx</code>为个人用户名</li>
+<li>如果过程中没有找到对应的文件夹，请勾选<code>资源管理器-&gt;查看-&gt;隐藏的项目</code><br></li>
 </ul>
-<blockquote>
-<p>应用：</p>
-</blockquote>
+</li>
+</ul>
+<h4 id="WSL下通过命令执行Windows下的bat脚本"><a href="#WSL下通过命令执行Windows下的bat脚本" class="headerlink" title="WSL下通过命令执行Windows下的bat脚本"></a>WSL下通过命令执行Windows下的bat脚本</h4><pre><code>`wsl.exe -d Ubuntu-18.04 cmd.exe /c &quot;C:\Users\program.bat&quot;`
+</code></pre>
+<h4 id="开启WSL的NFS服务"><a href="#开启WSL的NFS服务" class="headerlink" title="开启WSL的NFS服务"></a>开启WSL的NFS服务</h4><pre><code>实现u-boot通过nfs服务挂载WSL下的根文件系统
+</code></pre>
 ]]></content>
       <categories>
         <category>WSL</category>
