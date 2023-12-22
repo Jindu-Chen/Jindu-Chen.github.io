@@ -28,7 +28,7 @@
 <meta property="og:description" content="记录链接脚本的学习内容，主要为链接脚本的要素简述、常用语法说明、常见片段的意义解析、示例代码的讲述及应用">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2023-12-15T00:00:00.000Z">
-<meta property="article:modified_time" content="2023-12-20T10:22:43.862Z">
+<meta property="article:modified_time" content="2023-12-22T09:31:17.981Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -225,7 +225,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-12-20 10:22:43" itemprop="dateModified" datetime="2023-12-20T10:22:43+00:00">2023-12-20</time>
+                <time title="Modified: 2023-12-22 09:31:17" itemprop="dateModified" datetime="2023-12-22T09:31:17+00:00">2023-12-22</time>
               </span>
 
           
@@ -288,9 +288,9 @@
 <li>PROVIDE<br>用于在链接时提供一个符号，如果符号未被定义，则使用其提供的值<br>如：<code>PROVIDE ( end = . );</code><br></li>
 <li>PROVIDE_HIDDEN<br>作用类似于PROVIDE，但提供的符号不会被其它模块看到<br>如：<code>PROVIDE_HIDDEN (__fini_array_start = .);</code></li>
 </ul>
-<h2 id="语句、片段示例解释"><a href="#语句、片段示例解释" class="headerlink" title="语句、片段示例解释"></a>语句、片段示例解释</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">SECTIONS</span><br><span class="line">&#123;</span><br><span class="line">. = 0x10000;</span><br><span class="line">.text : &#123; *(.text) &#125;</span><br><span class="line">. = 0x8000000;</span><br><span class="line">.data : &#123; *(.data) &#125;</span><br><span class="line">.bss : &#123; *(.bss) &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="语句、片段示例解释"><a href="#语句、片段示例解释" class="headerlink" title="语句、片段示例解释"></a>语句、片段示例解释</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">SECTIONS</span><br><span class="line">&#123;</span><br><span class="line">. = 0x10000;  // 将地址指针设为0x10000，表示.text段从地址0x10000开始</span><br><span class="line">.text : &#123; *(.text) &#125;  // 表示将输入文件的.text段复制到输出文件的.text段中</span><br><span class="line">. = 0x8000000;        //将地址指针设为0x8000000，表示.data段从地址0x8000000开始</span><br><span class="line">.data : &#123; *(.data) &#125;</span><br><span class="line">.bss : &#123; *(.bss) &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">._user_heap_stack :</span><br><span class="line">&#123;</span><br><span class="line">    . = ALIGN(4);</span><br><span class="line">    PROVIDE ( end = . );</span><br><span class="line">    PROVIDE ( _end = . );</span><br><span class="line">    . = . + _Min_Heap_Size;</span><br><span class="line">    . = . + _Min_Stack_Size;</span><br><span class="line">    _estack = .;</span><br><span class="line">    . = ALIGN(4);</span><br><span class="line">&#125; &gt;RAM</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">._user_heap_stack :</span><br><span class="line">&#123;</span><br><span class="line">    . = ALIGN(4);       // 将当前地址调整为4字节对齐，确保堆和栈数据的正确访问</span><br><span class="line">    PROVIDE ( end = . );</span><br><span class="line">    PROVIDE ( _end = . );</span><br><span class="line">    . = . + _Min_Heap_Size;</span><br><span class="line">    . = . + _Min_Stack_Size;</span><br><span class="line">    _estack = .;      // 设置 _estack 符号的值为当前地址</span><br><span class="line">    . = ALIGN(4);</span><br><span class="line">&#125; &gt;RAM</span><br></pre></td></tr></table></figure>
 
 
 
