@@ -220,7 +220,7 @@
 <li>嵌入式Linux开发中，配置NFS挂载根文件系统</li>
 </ul>
 <hr>
-<h4 id="远程端口流量通过SSH映射到本地"><a href="#远程端口流量通过SSH映射到本地" class="headerlink" title="远程端口流量通过SSH映射到本地"></a>远程端口流量通过SSH映射到本地</h4><p>ssh -L 4000:localhost:4000 <a href="mailto:&#106;&#100;&#95;&#x63;&#x68;&#x65;&#110;&#64;&#49;&#x39;&#x32;&#46;&#x31;&#54;&#x38;&#46;&#49;&#x31;&#x32;&#x2e;&#50;&#x34;&#x30;">&#106;&#100;&#95;&#x63;&#x68;&#x65;&#110;&#64;&#49;&#x39;&#x32;&#46;&#x31;&#54;&#x38;&#46;&#49;&#x31;&#x32;&#x2e;&#50;&#x34;&#x30;</a></p>
+<h4 id="远程端口流量通过SSH映射到本地"><a href="#远程端口流量通过SSH映射到本地" class="headerlink" title="远程端口流量通过SSH映射到本地"></a>远程端口流量通过SSH映射到本地</h4><p>ssh -L 4000:localhost:4000 <a href="mailto:&#106;&#100;&#95;&#99;&#104;&#x65;&#x6e;&#64;&#49;&#57;&#x32;&#x2e;&#49;&#54;&#x38;&#46;&#x31;&#x31;&#x32;&#x2e;&#50;&#x34;&#48;">&#106;&#100;&#95;&#99;&#104;&#x65;&#x6e;&#64;&#49;&#57;&#x32;&#x2e;&#49;&#54;&#x38;&#46;&#x31;&#x31;&#x32;&#x2e;&#50;&#x34;&#48;</a></p>
 <h4 id="Linux给根目录扩容"><a href="#Linux给根目录扩容" class="headerlink" title="Linux给根目录扩容"></a>Linux给根目录扩容</h4>]]></content>
       <categories>
         <category>Linux</category>
@@ -309,11 +309,6 @@
       </categories>
   </entry>
   <entry>
-    <title>国民技术N32芯片移植RT-Thread-Nano记录</title>
-    <url>/2023/11/28/%E5%9B%BD%E6%B0%91%E6%8A%80%E6%9C%AFN32%E8%8A%AF%E7%89%87%E7%A7%BB%E6%A4%8DRT-Thread-Nano%E8%AE%B0%E5%BD%95/</url>
-    <content><![CDATA[]]></content>
-  </entry>
-  <entry>
     <title>STM32启动流程概述</title>
     <url>/2023/11/28/STM32%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B%E6%A6%82%E8%BF%B0/</url>
     <content><![CDATA[<h1 id="Keil环境下的启动文件分析"><a href="#Keil环境下的启动文件分析" class="headerlink" title="Keil环境下的启动文件分析"></a>Keil环境下的启动文件分析</h1><h2 id="初始化栈顶指针"><a href="#初始化栈顶指针" class="headerlink" title="初始化栈顶指针"></a>初始化栈顶指针</h2><ul>
@@ -365,6 +360,11 @@
         <tag>STM32</tag>
         <tag>MCU</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>国民技术N32芯片移植RT-Thread-Nano记录</title>
+    <url>/2023/11/28/%E5%9B%BD%E6%B0%91%E6%8A%80%E6%9C%AFN32%E8%8A%AF%E7%89%87%E7%A7%BB%E6%A4%8DRT-Thread-Nano%E8%AE%B0%E5%BD%95/</url>
+    <content><![CDATA[]]></content>
   </entry>
   <entry>
     <title>嵌入式MCU开发问题记录</title>
@@ -458,7 +458,7 @@
   </entry>
   <entry>
     <title>嵌入式自动初始化</title>
-    <url>/2023/12/06/%E5%B5%8C%E5%85%A5%E5%BC%8FMCU%E8%87%AA%E5%8A%A8%E5%88%9D%E5%A7%8B%E5%8C%96/</url>
+    <url>/2023/12/22/%E5%B5%8C%E5%85%A5%E5%BC%8FMCU%E8%87%AA%E5%8A%A8%E5%88%9D%E5%A7%8B%E5%8C%96/</url>
     <content><![CDATA[<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><h3 id="普通驱动初始化方式"><a href="#普通驱动初始化方式" class="headerlink" title="普通驱动初始化方式"></a>普通驱动初始化方式</h3><ul>
 <li>常见的编写方式为 每个模块在其文件内部编写初始化函数实例，然后通过头文件导出初始化函数接口；主任务包含各模块的头文件，然后逐一调用其初始化函数</li>
 <li>这种初始化操作有以下特点<ul>
@@ -489,10 +489,10 @@
 </ul>
 <h2 id="前提知识"><a href="#前提知识" class="headerlink" title="前提知识"></a>前提知识</h2><ul>
 <li><code>__attribute__((used))</code>是一个函数属性，其告诉编译器保留函数在目标文件中，即使其没被调用</li>
-<li>&#96;&#96;</li>
+<li><code>__attribute__((section(&quot;name&quot;)))</code>属性用于将变量或函数放置在指定的段</li>
 </ul>
 <h2 id="Keil环境下的自动初始化"><a href="#Keil环境下的自动初始化" class="headerlink" title="Keil环境下的自动初始化"></a>Keil环境下的自动初始化</h2><ul>
-<li><p>Keil的 ARM CC会在</p>
+<li><p>Keil的 ARM链接器会生成用于标识段首末地址的变量，如<code>initcall0init$$Base</code>为段名<code>initcall0init</code>的首地址；<code>initcall0init$$Limit</code>表示末地址</p>
 </li>
 <li><p>段的声明会将函数指针存储在输出文件的Data段中，属性为RO只读</p>
 </li>
@@ -506,8 +506,11 @@
 </li>
 <li>以下为自动初始化的实现<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">void act_auto_initialize(void)</span><br><span class="line">&#123;</span><br><span class="line">    extern initcall_t initcall0init$$Base[];</span><br><span class="line">    extern initcall_t initcall0init$$Limit[];</span><br><span class="line">    extern initcall_t initcall1init$$Base[];</span><br><span class="line">    extern initcall_t initcall1init$$Limit[];</span><br><span class="line">    extern initcall_t initcall2init$$Base[];</span><br><span class="line">    extern initcall_t initcall2init$$Limit[];</span><br><span class="line">    extern initcall_t initcall3init$$Base[];</span><br><span class="line">    extern initcall_t initcall3init$$Limit[];</span><br><span class="line">    </span><br><span class="line">    initcall_t *fn;</span><br><span class="line">    </span><br><span class="line">    for (fn = initcall0init$$Base;</span><br><span class="line">            fn &lt; initcall0init$$Limit;</span><br><span class="line">            fn++)</span><br><span class="line">    &#123;</span><br><span class="line">        if(fn)</span><br><span class="line">            (*fn)();</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    for (fn = initcall1init$$Base;</span><br><span class="line">            fn &lt; initcall1init$$Limit;</span><br><span class="line">            fn++)</span><br><span class="line">    &#123;</span><br><span class="line">        if(fn)</span><br><span class="line">            (*fn)();</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    for (fn = initcall2init$$Base;</span><br><span class="line">            fn &lt; initcall2init$$Limit;</span><br><span class="line">            fn++)</span><br><span class="line">    &#123;</span><br><span class="line">        if(fn)</span><br><span class="line">            (*fn)();</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    for (fn = initcall3init$$Base;</span><br><span class="line">            fn &lt; initcall3init$$Limit;</span><br><span class="line">            fn++)</span><br><span class="line">    &#123;</span><br><span class="line">        if(fn)</span><br><span class="line">            (*fn)();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
 </ul>
-<h2 id="适用于GCC环境下的自动初始化"><a href="#适用于GCC环境下的自动初始化" class="headerlink" title="适用于GCC环境下的自动初始化"></a>适用于GCC环境下的自动初始化</h2><h2 id="注意项"><a href="#注意项" class="headerlink" title="注意项"></a>注意项</h2><ul>
-<li><p>函数初始化顺序</p>
+<h2 id="适用于GCC环境下的自动初始化"><a href="#适用于GCC环境下的自动初始化" class="headerlink" title="适用于GCC环境下的自动初始化"></a>适用于GCC环境下的自动初始化</h2><ul>
+<li>GCC环境下，可以采用事先定义两个静态函数的段，将需要初始化的函数指针声明到这个段的中间，通过执行两个静态函数地址之间的所有函数指针即可。</li>
+</ul>
+<h2 id="注意项"><a href="#注意项" class="headerlink" title="注意项"></a>注意项</h2><ul>
+<li><p>初始化函数声明在段中的顺序</p>
 </li>
 <li><p>编译选项之 函数分段 对初始化顺序的影响</p>
 </li>
@@ -547,6 +550,32 @@
       <categories>
         <category>无刷电机</category>
       </categories>
+  </entry>
+  <entry>
+    <title>鸿蒙LiteOS浅析——内核启动流程</title>
+    <url>/2023/11/28/%E9%B8%BF%E8%92%99LiteOS%E5%B7%A5%E7%A8%8B%E6%BA%90%E7%A0%81%E6%B5%85%E6%9E%90/</url>
+    <content><![CDATA[<h1 id="系统上电初始化"><a href="#系统上电初始化" class="headerlink" title="系统上电初始化"></a>系统上电初始化</h1><ul>
+<li>操作系统工程初始化流程在用户main()函数之后<code>显示初始化</code>，因此main()前的执行流程参考STM32裸机<a href="/2023/11/28/STM32%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B%E6%A6%82%E8%BF%B0">启动流程</a>即可。</li>
+</ul>
+<h1 id="操作系统内核初始化"><a href="#操作系统内核初始化" class="headerlink" title="操作系统内核初始化"></a>操作系统内核初始化</h1><p>LiteOS组件裁剪依赖于target_config.h文件，配置target_config.h中宏定义参数即可</p>
+<h2 id="LOS-KernelInit"><a href="#LOS-KernelInit" class="headerlink" title="LOS_KernelInit()"></a>LOS_KernelInit()</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">OsBackTraceInit();      // 错误回溯功能</span><br><span class="line">OsMemSystemInit();      // 内存池</span><br><span class="line">OsTickTimerInit();</span><br><span class="line">OsTaskInit();</span><br><span class="line">OsSemInit();</span><br><span class="line">OsMuxInit();</span><br><span class="line">OsQueueInit();</span><br><span class="line">OsSwtmrInit();</span><br><span class="line">OsIdleTaskCreate();</span><br><span class="line">......</span><br></pre></td></tr></table></figure>
+
+
+
+
+<h1 id="系统调度启动"><a href="#系统调度启动" class="headerlink" title="系统调度启动"></a>系统调度启动</h1><h2 id="LOS-Start"><a href="#LOS-Start" class="headerlink" title="LOS_Start()"></a>LOS_Start()</h2><h1 id="一些API说明"><a href="#一些API说明" class="headerlink" title="一些API说明"></a>一些API说明</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">LOS_TaskCreate()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+]]></content>
+      <categories>
+        <category>嵌入式</category>
+        <category>LiteOS</category>
+        <category>RTOS</category>
+      </categories>
+      <tags>
+        <tag>RTOS</tag>
+        <tag>LiteOS</tag>
+      </tags>
   </entry>
   <entry>
     <title>编译原理之我见</title>
@@ -603,32 +632,6 @@
       </categories>
       <tags>
         <tag>C语言</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>鸿蒙LiteOS浅析——内核启动流程</title>
-    <url>/2023/11/28/%E9%B8%BF%E8%92%99LiteOS%E5%B7%A5%E7%A8%8B%E6%BA%90%E7%A0%81%E6%B5%85%E6%9E%90/</url>
-    <content><![CDATA[<h1 id="系统上电初始化"><a href="#系统上电初始化" class="headerlink" title="系统上电初始化"></a>系统上电初始化</h1><ul>
-<li>操作系统工程初始化流程在用户main()函数之后<code>显示初始化</code>，因此main()前的执行流程参考STM32裸机<a href="/2023/11/28/STM32%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B%E6%A6%82%E8%BF%B0">启动流程</a>即可。</li>
-</ul>
-<h1 id="操作系统内核初始化"><a href="#操作系统内核初始化" class="headerlink" title="操作系统内核初始化"></a>操作系统内核初始化</h1><p>LiteOS组件裁剪依赖于target_config.h文件，配置target_config.h中宏定义参数即可</p>
-<h2 id="LOS-KernelInit"><a href="#LOS-KernelInit" class="headerlink" title="LOS_KernelInit()"></a>LOS_KernelInit()</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">OsBackTraceInit();      // 错误回溯功能</span><br><span class="line">OsMemSystemInit();      // 内存池</span><br><span class="line">OsTickTimerInit();</span><br><span class="line">OsTaskInit();</span><br><span class="line">OsSemInit();</span><br><span class="line">OsMuxInit();</span><br><span class="line">OsQueueInit();</span><br><span class="line">OsSwtmrInit();</span><br><span class="line">OsIdleTaskCreate();</span><br><span class="line">......</span><br></pre></td></tr></table></figure>
-
-
-
-
-<h1 id="系统调度启动"><a href="#系统调度启动" class="headerlink" title="系统调度启动"></a>系统调度启动</h1><h2 id="LOS-Start"><a href="#LOS-Start" class="headerlink" title="LOS_Start()"></a>LOS_Start()</h2><h1 id="一些API说明"><a href="#一些API说明" class="headerlink" title="一些API说明"></a>一些API说明</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">LOS_TaskCreate()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-
-]]></content>
-      <categories>
-        <category>嵌入式</category>
-        <category>LiteOS</category>
-        <category>RTOS</category>
-      </categories>
-      <tags>
-        <tag>RTOS</tag>
-        <tag>LiteOS</tag>
       </tags>
   </entry>
   <entry>
