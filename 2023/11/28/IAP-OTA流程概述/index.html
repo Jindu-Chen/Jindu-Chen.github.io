@@ -20,15 +20,15 @@
     var CONFIG = {"hostname":"jindu-chen.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="简要讲述MCU开发中bootloader的程序设计，并介绍IAP&#x2F;OTA的升级流程">
+  <meta name="description" content="简要讲述MCU开发中bootloader的程序设计，并介绍IAP&#x2F;OTA的重启升级流程">
 <meta property="og:type" content="article">
 <meta property="og:title" content="IAP&#x2F;OTA流程概述">
 <meta property="og:url" content="https://jindu-chen.github.io/2023/11/28/IAP-OTA%E6%B5%81%E7%A8%8B%E6%A6%82%E8%BF%B0/index.html">
 <meta property="og:site_name" content="Jindu-Chen">
-<meta property="og:description" content="简要讲述MCU开发中bootloader的程序设计，并介绍IAP&#x2F;OTA的升级流程">
+<meta property="og:description" content="简要讲述MCU开发中bootloader的程序设计，并介绍IAP&#x2F;OTA的重启升级流程">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2023-11-28T11:30:49.000Z">
-<meta property="article:modified_time" content="2023-12-22T03:39:24.398Z">
+<meta property="article:modified_time" content="2023-12-25T09:07:47.766Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -225,7 +225,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-12-22 03:39:24" itemprop="dateModified" datetime="2023-12-22T03:39:24+00:00">2023-12-22</time>
+                <time title="Modified: 2023-12-25 09:07:47" itemprop="dateModified" datetime="2023-12-25T09:07:47+00:00">2023-12-25</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -238,7 +238,7 @@
             </span>
 
           
-            <div class="post-description">简要讲述MCU开发中bootloader的程序设计，并介绍IAP/OTA的升级流程</div>
+            <div class="post-description">简要讲述MCU开发中bootloader的程序设计，并介绍IAP/OTA的重启升级流程</div>
 
         </div>
       </header>
@@ -252,7 +252,12 @@
         <h3 id="DCD配置"><a href="#DCD配置" class="headerlink" title="DCD配置"></a>DCD配置</h3><h3 id="注意点"><a href="#注意点" class="headerlink" title="注意点"></a>注意点</h3><ul>
 <li><p>内部Flash和片外Flash的擦除单位可能不一致，2K、4K字节不等</p>
 </li>
-<li><p>写Flash须考虑4字节</p>
+<li><p>写Flash须考虑4字节对齐</p>
+</li>
+<li><p>有可能导致内核复位后触发HardFault异常的原因</p>
+<ul>
+<li>跳转前未关中断；中断控制器没复位清零；中断向量表偏移未设置正确；</li>
+</ul>
 </li>
 </ul>
 
@@ -349,7 +354,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">36</span>
+          <span class="site-state-item-count">35</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
