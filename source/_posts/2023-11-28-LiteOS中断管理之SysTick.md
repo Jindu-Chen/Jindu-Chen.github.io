@@ -1,6 +1,6 @@
 ---
 title: LiteOS中断管理之SysTick
-date: 2023-11-29
+date: 2023-12-10
 tags:
 categories:
 - [LiteOS]
@@ -129,6 +129,7 @@ STATIC UINT64 SysTickReload(UINT64 nextResponseTime)
 3. 在`LOS_Start() -> ArchStartSchedule() -> OsSchedStart()`中调用 重置SysTick中断时基为`系统时钟/调度间隔Tick值 （如：时钟源 / 1000 = 1ms时基）`
 4. 最后开启系统调度
 
-# 勘误
-- 初读代码，凭个人理解，还有很多细节并没看，后续补充
+# 补充说明
+- LiteOS的内核初始化和系统启动都对Systick进行了设置，内核初始化时设置了Systick的重装载值为24位最大值，即0xFFFFFF
+- 系统启动时，重置Systick累计的节拍，并设置重装载值为 `SystemCoreClock / 1000`，其中SystemCoreClock为系统时钟源频率。
 
