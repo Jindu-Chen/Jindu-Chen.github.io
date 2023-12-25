@@ -6,6 +6,19 @@
     <content><![CDATA[]]></content>
   </entry>
   <entry>
+    <title>国民技术N32L406之GCC环境搭建</title>
+    <url>/2023/11/27/%E5%9B%BD%E6%B0%91%E6%8A%80%E6%9C%AFGCC%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/</url>
+    <content><![CDATA[]]></content>
+      <categories>
+        <category>arm</category>
+        <category>环境搭建</category>
+        <category>gcc</category>
+      </categories>
+      <tags>
+        <tag>n32</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>常用编译/链接选项解释</title>
     <url>/2023/12/15/%E7%BC%96%E8%AF%91%E9%93%BE%E6%8E%A5%E9%80%89%E9%A1%B9%E6%84%8F%E4%B9%89%E8%A7%A3%E9%87%8A/</url>
     <content><![CDATA[<h2 id="编译纠错修改以及一些注意点"><a href="#编译纠错修改以及一些注意点" class="headerlink" title="编译纠错修改以及一些注意点"></a>编译纠错修改以及一些注意点</h2><ul>
@@ -63,19 +76,6 @@
         <tag>链接</tag>
         <tag>编译</tag>
         <tag>make</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>国民技术N32L406之GCC环境搭建</title>
-    <url>/2023/11/27/%E5%9B%BD%E6%B0%91%E6%8A%80%E6%9C%AFGCC%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/</url>
-    <content><![CDATA[]]></content>
-      <categories>
-        <category>arm</category>
-        <category>环境搭建</category>
-        <category>gcc</category>
-      </categories>
-      <tags>
-        <tag>n32</tag>
       </tags>
   </entry>
   <entry>
@@ -220,7 +220,7 @@
 <li>嵌入式Linux开发中，配置NFS挂载根文件系统</li>
 </ul>
 <hr>
-<h4 id="远程端口流量通过SSH映射到本地"><a href="#远程端口流量通过SSH映射到本地" class="headerlink" title="远程端口流量通过SSH映射到本地"></a>远程端口流量通过SSH映射到本地</h4><p>ssh -L 4000:localhost:4000 <a href="mailto:&#x6a;&#x64;&#95;&#99;&#x68;&#x65;&#x6e;&#x40;&#x31;&#57;&#x32;&#x2e;&#x31;&#x36;&#x38;&#46;&#x31;&#x31;&#50;&#46;&#50;&#52;&#48;">&#x6a;&#x64;&#95;&#99;&#x68;&#x65;&#x6e;&#x40;&#x31;&#57;&#x32;&#x2e;&#x31;&#x36;&#x38;&#46;&#x31;&#x31;&#50;&#46;&#50;&#52;&#48;</a></p>
+<h4 id="远程端口流量通过SSH映射到本地"><a href="#远程端口流量通过SSH映射到本地" class="headerlink" title="远程端口流量通过SSH映射到本地"></a>远程端口流量通过SSH映射到本地</h4><p>ssh -L 4000:localhost:4000 <a href="mailto:&#x6a;&#x64;&#95;&#99;&#104;&#101;&#x6e;&#x40;&#49;&#x39;&#50;&#x2e;&#x31;&#54;&#56;&#46;&#49;&#49;&#x32;&#x2e;&#x32;&#52;&#48;">&#x6a;&#x64;&#95;&#99;&#104;&#101;&#x6e;&#x40;&#49;&#x39;&#50;&#x2e;&#x31;&#54;&#56;&#46;&#49;&#49;&#x32;&#x2e;&#x32;&#52;&#48;</a></p>
 <h4 id="Linux给根目录扩容"><a href="#Linux给根目录扩容" class="headerlink" title="Linux给根目录扩容"></a>Linux给根目录扩容</h4>]]></content>
       <categories>
         <category>Linux</category>
@@ -228,7 +228,7 @@
   </entry>
   <entry>
     <title>LiteOS中断管理之SysTick</title>
-    <url>/2023/11/29/LiteOS%E4%B8%AD%E6%96%AD%E7%AE%A1%E7%90%86%E4%B9%8BSysTick/</url>
+    <url>/2023/12/10/LiteOS%E4%B8%AD%E6%96%AD%E7%AE%A1%E7%90%86%E4%B9%8BSysTick/</url>
     <content><![CDATA[<p>通常用户对LiteOS的初始化调用如下：</p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">main():</span><br><span class="line">    LOS_KernelInit();       // 内核初始化</span><br><span class="line">    LiteOS_Task_sample();   // 用户业务代码，创建初始任务等</span><br><span class="line">    LOS_Start();            // 开启调度</span><br></pre></td></tr></table></figure>
 
@@ -262,8 +262,9 @@
 <li>在<code>LOS_Start() -&gt; ArchStartSchedule() -&gt; OsSchedStart()</code>中调用 重置SysTick中断时基为<code>系统时钟/调度间隔Tick值 （如：时钟源 / 1000 = 1ms时基）</code></li>
 <li>最后开启系统调度</li>
 </ol>
-<h1 id="勘误"><a href="#勘误" class="headerlink" title="勘误"></a>勘误</h1><ul>
-<li>初读代码，凭个人理解，还有很多细节并没看，后续补充</li>
+<h1 id="补充说明"><a href="#补充说明" class="headerlink" title="补充说明"></a>补充说明</h1><ul>
+<li>LiteOS的内核初始化和系统启动都对Systick进行了设置，内核初始化时设置了Systick的重装载值为24位最大值，即0xFFFFFF</li>
+<li>系统启动时，重置Systick累计的节拍，并设置重装载值为 <code>SystemCoreClock / 1000</code>，其中SystemCoreClock为系统时钟源频率。</li>
 </ul>
 ]]></content>
       <categories>
@@ -341,6 +342,11 @@
       </tags>
   </entry>
   <entry>
+    <title>国民技术N32芯片移植RT-Thread-Nano记录</title>
+    <url>/2023/11/28/%E5%9B%BD%E6%B0%91%E6%8A%80%E6%9C%AFN32%E8%8A%AF%E7%89%87%E7%A7%BB%E6%A4%8DRT-Thread-Nano%E8%AE%B0%E5%BD%95/</url>
+    <content><![CDATA[]]></content>
+  </entry>
+  <entry>
     <title>WSL小贴士</title>
     <url>/2023/11/28/WSL%E5%B0%8F%E8%B4%B4%E5%A3%AB/</url>
     <content><![CDATA[<h4 id="在windows下访问WSL的目录"><a href="#在windows下访问WSL的目录" class="headerlink" title="在windows下访问WSL的目录"></a>在windows下访问WSL的目录</h4><ul>
@@ -360,11 +366,6 @@
       <categories>
         <category>WSL</category>
       </categories>
-  </entry>
-  <entry>
-    <title>国民技术N32芯片移植RT-Thread-Nano记录</title>
-    <url>/2023/11/28/%E5%9B%BD%E6%B0%91%E6%8A%80%E6%9C%AFN32%E8%8A%AF%E7%89%87%E7%A7%BB%E6%A4%8DRT-Thread-Nano%E8%AE%B0%E5%BD%95/</url>
-    <content><![CDATA[]]></content>
   </entry>
   <entry>
     <title>嵌入式MCU开发问题记录</title>
@@ -457,25 +458,6 @@
       </categories>
   </entry>
   <entry>
-    <title>嵌入式Qt环境搭建概述</title>
-    <url>/2023/11/28/%E5%B5%8C%E5%85%A5%E5%BC%8FQt%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E6%A6%82%E8%BF%B0/</url>
-    <content><![CDATA[<p>1、下载安装通用交叉编译器<br>2、获取和编译tslib<br>    嵌入式Qt要支持触摸插件则需要编译tslib<br>3、编译ARM平台Qt5.12.9源码<br>4、移植Qt库到文件系统<br>5、在ubuntu上搭建 ARM平台的Qt开发环境</p>
-<p>总结：<br>1、需要下载交叉编译器并安装、使能相应的环境变量<br>2、在ubuntu上交叉编译tslib库和ARM Qt库源码后，将编译生成的库文件移植到嵌入式平台文件系统中<br>3、在ubuntu下编写Qt应用程序，并使用交叉工具链编译，然后拷贝到嵌入式平台上运行即可</p>
-]]></content>
-      <categories>
-        <category>Linux</category>
-        <category>环境搭建</category>
-      </categories>
-      <tags>
-        <tag>Qt</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>心得：读LiteOS之标准化接口</title>
-    <url>/2023/11/28/%E5%BF%83%E5%BE%97%EF%BC%9A%E8%AF%BBLiteOS%E4%B9%8B%E6%A0%87%E5%87%86%E5%8C%96%E6%8E%A5%E5%8F%A3/</url>
-    <content><![CDATA[]]></content>
-  </entry>
-  <entry>
     <title>嵌入式自动初始化</title>
     <url>/2023/12/22/%E5%B5%8C%E5%85%A5%E5%BC%8FMCU%E8%87%AA%E5%8A%A8%E5%88%9D%E5%A7%8B%E5%8C%96/</url>
     <content><![CDATA[<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><h3 id="普通驱动初始化方式"><a href="#普通驱动初始化方式" class="headerlink" title="普通驱动初始化方式"></a>普通驱动初始化方式</h3><ul>
@@ -535,6 +517,25 @@
 </li>
 </ul>
 ]]></content>
+  </entry>
+  <entry>
+    <title>嵌入式Qt环境搭建概述</title>
+    <url>/2023/11/28/%E5%B5%8C%E5%85%A5%E5%BC%8FQt%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E6%A6%82%E8%BF%B0/</url>
+    <content><![CDATA[<p>1、下载安装通用交叉编译器<br>2、获取和编译tslib<br>    嵌入式Qt要支持触摸插件则需要编译tslib<br>3、编译ARM平台Qt5.12.9源码<br>4、移植Qt库到文件系统<br>5、在ubuntu上搭建 ARM平台的Qt开发环境</p>
+<p>总结：<br>1、需要下载交叉编译器并安装、使能相应的环境变量<br>2、在ubuntu上交叉编译tslib库和ARM Qt库源码后，将编译生成的库文件移植到嵌入式平台文件系统中<br>3、在ubuntu下编写Qt应用程序，并使用交叉工具链编译，然后拷贝到嵌入式平台上运行即可</p>
+]]></content>
+      <categories>
+        <category>Linux</category>
+        <category>环境搭建</category>
+      </categories>
+      <tags>
+        <tag>Qt</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>心得：读LiteOS之标准化接口</title>
+    <url>/2023/11/28/%E5%BF%83%E5%BE%97%EF%BC%9A%E8%AF%BBLiteOS%E4%B9%8B%E6%A0%87%E5%87%86%E5%8C%96%E6%8E%A5%E5%8F%A3/</url>
+    <content><![CDATA[]]></content>
   </entry>
   <entry>
     <title>无刷电机调试方法简述</title>
@@ -734,11 +735,6 @@
       </categories>
   </entry>
   <entry>
-    <title>GitLab CI-CD</title>
-    <url>/2023/12/04/GitLab-CI-CD/</url>
-    <content><![CDATA[]]></content>
-  </entry>
-  <entry>
     <title>浅淡三相无刷电机驱动原理</title>
     <url>/2023/12/01/%E6%B5%85%E6%B7%A1%E4%B8%89%E7%9B%B8%E6%97%A0%E5%88%B7%E7%94%B5%E6%9C%BA%E9%A9%B1%E5%8A%A8%E5%8E%9F%E7%90%86/</url>
     <content><![CDATA[<h1 id="何为三相无刷电机？"><a href="#何为三相无刷电机？" class="headerlink" title="何为三相无刷电机？"></a>何为三相无刷电机？</h1><h1 id="如何让三相无刷电机动起来？"><a href="#如何让三相无刷电机动起来？" class="headerlink" title="如何让三相无刷电机动起来？"></a>如何让三相无刷电机动起来？</h1><h1 id="无刷电机驱动原理分析"><a href="#无刷电机驱动原理分析" class="headerlink" title="无刷电机驱动原理分析"></a>无刷电机驱动原理分析</h1><h2 id="FOC算法浅析"><a href="#FOC算法浅析" class="headerlink" title="FOC算法浅析"></a>FOC算法浅析</h2><h2 id="PID算法"><a href="#PID算法" class="headerlink" title="PID算法"></a>PID算法</h2><h1 id="无刷电机驱动设计及分析"><a href="#无刷电机驱动设计及分析" class="headerlink" title="无刷电机驱动设计及分析"></a>无刷电机驱动设计及分析</h1><h1 id="个人对无刷电机理解的一些困惑"><a href="#个人对无刷电机理解的一些困惑" class="headerlink" title="个人对无刷电机理解的一些困惑"></a>个人对无刷电机理解的一些困惑</h1>]]></content>
@@ -786,6 +782,11 @@
       <categories>
         <category>C语言</category>
       </categories>
+  </entry>
+  <entry>
+    <title>GitLab CI-CD</title>
+    <url>/2023/12/04/GitLab-CI-CD/</url>
+    <content><![CDATA[]]></content>
   </entry>
   <entry>
     <title>嵌入式软件架构设计</title>

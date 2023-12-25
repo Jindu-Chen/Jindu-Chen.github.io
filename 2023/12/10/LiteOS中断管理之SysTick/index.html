@@ -23,17 +23,17 @@
   <meta name="description" content="主要介绍LiteOS如何重建中断映射向量、自定义SysTick中断服务函数、初始化SysTick时基">
 <meta property="og:type" content="article">
 <meta property="og:title" content="LiteOS中断管理之SysTick">
-<meta property="og:url" content="https://jindu-chen.github.io/2023/11/29/LiteOS%E4%B8%AD%E6%96%AD%E7%AE%A1%E7%90%86%E4%B9%8BSysTick/index.html">
+<meta property="og:url" content="https://jindu-chen.github.io/2023/12/10/LiteOS%E4%B8%AD%E6%96%AD%E7%AE%A1%E7%90%86%E4%B9%8BSysTick/index.html">
 <meta property="og:site_name" content="Jindu-Chen">
 <meta property="og:description" content="主要介绍LiteOS如何重建中断映射向量、自定义SysTick中断服务函数、初始化SysTick时基">
 <meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2023-11-29T00:00:00.000Z">
-<meta property="article:modified_time" content="2023-11-29T03:57:56.147Z">
+<meta property="article:published_time" content="2023-12-10T00:00:00.000Z">
+<meta property="article:modified_time" content="2023-12-25T07:08:11.636Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="https://jindu-chen.github.io/2023/11/29/LiteOS%E4%B8%AD%E6%96%AD%E7%AE%A1%E7%90%86%E4%B9%8BSysTick/">
+<link rel="canonical" href="https://jindu-chen.github.io/2023/12/10/LiteOS%E4%B8%AD%E6%96%AD%E7%AE%A1%E7%90%86%E4%B9%8BSysTick/">
 
 
 <script id="page-configurations">
@@ -195,7 +195,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://jindu-chen.github.io/2023/11/29/LiteOS%E4%B8%AD%E6%96%AD%E7%AE%A1%E7%90%86%E4%B9%8BSysTick/">
+    <link itemprop="mainEntityOfPage" href="https://jindu-chen.github.io/2023/12/10/LiteOS%E4%B8%AD%E6%96%AD%E7%AE%A1%E7%90%86%E4%B9%8BSysTick/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -217,10 +217,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2023-11-29 00:00:00 / Modified: 03:57:56" itemprop="dateCreated datePublished" datetime="2023-11-29T00:00:00+00:00">2023-11-29</time>
+              <time title="Created: 2023-12-10 00:00:00" itemprop="dateCreated datePublished" datetime="2023-12-10T00:00:00+00:00">2023-12-10</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2023-12-25 07:08:11" itemprop="dateModified" datetime="2023-12-25T07:08:11+00:00">2023-12-25</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -280,8 +286,9 @@
 <li>在<code>LOS_Start() -&gt; ArchStartSchedule() -&gt; OsSchedStart()</code>中调用 重置SysTick中断时基为<code>系统时钟/调度间隔Tick值 （如：时钟源 / 1000 = 1ms时基）</code></li>
 <li>最后开启系统调度</li>
 </ol>
-<h1 id="勘误"><a href="#勘误" class="headerlink" title="勘误"></a>勘误</h1><ul>
-<li>初读代码，凭个人理解，还有很多细节并没看，后续补充</li>
+<h1 id="补充说明"><a href="#补充说明" class="headerlink" title="补充说明"></a>补充说明</h1><ul>
+<li>LiteOS的内核初始化和系统启动都对Systick进行了设置，内核初始化时设置了Systick的重装载值为24位最大值，即0xFFFFFF</li>
+<li>系统启动时，重置Systick累计的节拍，并设置重装载值为 <code>SystemCoreClock / 1000</code>，其中SystemCoreClock为系统时钟源频率。</li>
 </ul>
 
     </div>
@@ -298,12 +305,12 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2023/11/28/STM32%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B%E6%A6%82%E8%BF%B0/" rel="prev" title="STM32启动流程概述">
-      <i class="fa fa-chevron-left"></i> STM32启动流程概述
+    <a href="/2023/12/08/%E6%97%A0%E5%88%B7%E7%94%B5%E6%9C%BA%E8%B0%83%E8%AF%95%E6%96%B9%E6%B3%95%E7%AE%80%E8%BF%B0/" rel="prev" title="无刷电机调试方法简述">
+      <i class="fa fa-chevron-left"></i> 无刷电机调试方法简述
     </a></div>
       <div class="post-nav-item">
-    <a href="/2023/11/29/git%E4%BD%BF%E7%94%A8%E5%B0%8F%E8%B4%B4%E5%A3%AB/" rel="next" title="git使用小贴士">
-      git使用小贴士 <i class="fa fa-chevron-right"></i>
+    <a href="/2023/12/12/%E5%B5%8C%E5%85%A5%E5%BC%8FMCU%E5%BC%80%E5%8F%91%E9%97%AE%E9%A2%98%E8%AE%B0%E5%BD%95/" rel="next" title="嵌入式MCU开发问题记录">
+      嵌入式MCU开发问题记录 <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -363,7 +370,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#LiteOS%E7%9A%84%E4%B8%AD%E6%96%AD%E5%87%BD%E6%95%B0%E6%98%A0%E5%B0%84%E7%AE%A1%E7%90%86"><span class="nav-number">1.</span> <span class="nav-text">LiteOS的中断函数映射管理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#LiteOS%E4%B8%AD%E6%96%AD%E6%98%A0%E5%B0%84%E8%A1%A8%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="nav-number">1.1.</span> <span class="nav-text">LiteOS中断映射表初始化</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%85%8D%E7%BD%AESysTick%E4%B8%AD%E6%96%AD%E6%9C%8D%E5%8A%A1%E5%87%BD%E6%95%B0"><span class="nav-number">2.</span> <span class="nav-text">配置SysTick中断服务函数</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96SysTick%E6%97%B6%E5%9F%BA"><span class="nav-number">3.</span> <span class="nav-text">初始化SysTick时基</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96%E8%B0%83%E7%94%A8%E9%80%BB%E8%BE%91%E6%80%BB%E7%BB%93"><span class="nav-number">4.</span> <span class="nav-text">初始化调用逻辑总结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8B%98%E8%AF%AF"><span class="nav-number">5.</span> <span class="nav-text">勘误</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#LiteOS%E7%9A%84%E4%B8%AD%E6%96%AD%E5%87%BD%E6%95%B0%E6%98%A0%E5%B0%84%E7%AE%A1%E7%90%86"><span class="nav-number">1.</span> <span class="nav-text">LiteOS的中断函数映射管理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#LiteOS%E4%B8%AD%E6%96%AD%E6%98%A0%E5%B0%84%E8%A1%A8%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="nav-number">1.1.</span> <span class="nav-text">LiteOS中断映射表初始化</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%85%8D%E7%BD%AESysTick%E4%B8%AD%E6%96%AD%E6%9C%8D%E5%8A%A1%E5%87%BD%E6%95%B0"><span class="nav-number">2.</span> <span class="nav-text">配置SysTick中断服务函数</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96SysTick%E6%97%B6%E5%9F%BA"><span class="nav-number">3.</span> <span class="nav-text">初始化SysTick时基</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96%E8%B0%83%E7%94%A8%E9%80%BB%E8%BE%91%E6%80%BB%E7%BB%93"><span class="nav-number">4.</span> <span class="nav-text">初始化调用逻辑总结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%A1%A5%E5%85%85%E8%AF%B4%E6%98%8E"><span class="nav-number">5.</span> <span class="nav-text">补充说明</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
