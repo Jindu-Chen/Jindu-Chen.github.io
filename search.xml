@@ -151,7 +151,7 @@
   </entry>
   <entry>
     <title>Linux内核移植概述--基于I.MX6ULL</title>
-    <url>/2023/11/28/Linux%E5%86%85%E6%A0%B8%E7%A7%BB%E6%A4%8D%E6%A6%82%E8%BF%B0-%E5%9F%BA%E4%BA%8EI-MX6ULL/</url>
+    <url>/2023/12/20/Linux%E5%86%85%E6%A0%B8%E7%A7%BB%E6%A4%8D%E6%A6%82%E8%BF%B0-%E5%9F%BA%E4%BA%8EI-MX6ULL/</url>
     <content><![CDATA[<h2 id="基本知识概要"><a href="#基本知识概要" class="headerlink" title="基本知识概要"></a>基本知识概要</h2><h2 id="Linux内核移植步骤简述"><a href="#Linux内核移植步骤简述" class="headerlink" title="Linux内核移植步骤简述"></a>Linux内核移植步骤简述</h2><ul>
 <li>在Linux内核文件中，找到参考的板子配置文件——一般是半导体厂商基于其开发板的配置文件</li>
 <li>以此份配置文件为模板，编译生成对应的zImage和.dtb文件</li>
@@ -159,7 +159,48 @@
 <li>一般情况下，参考官方开发板设计的硬件，都能够正常启动</li>
 <li>根据硬件与开发板的不同，修改相应的驱动；官方Linux内核一般会提供好各种相应的驱动，我们只需要修改设备树的一些配置信息即可</li>
 </ul>
-<h2 id="Linux内核顶层Makefile详解"><a href="#Linux内核顶层Makefile详解" class="headerlink" title="Linux内核顶层Makefile详解"></a>Linux内核顶层Makefile详解</h2><h2 id="Linux内核启动流程"><a href="#Linux内核启动流程" class="headerlink" title="Linux内核启动流程"></a>Linux内核启动流程</h2><h2 id="Linux内核移植详解步骤——I-MX6ULL"><a href="#Linux内核移植详解步骤——I-MX6ULL" class="headerlink" title="Linux内核移植详解步骤——I.MX6ULL"></a>Linux内核移植详解步骤——I.MX6ULL</h2><h3 id="在Linux内核中添加私有板子配置"><a href="#在Linux内核中添加私有板子配置" class="headerlink" title="在Linux内核中添加私有板子配置"></a>在Linux内核中添加私有板子配置</h3>]]></content>
+<h2 id="Linux内核移植详解步骤——I-MX6ULL"><a href="#Linux内核移植详解步骤——I-MX6ULL" class="headerlink" title="Linux内核移植详解步骤——I.MX6ULL"></a>Linux内核移植详解步骤——I.MX6ULL</h2><h3 id="在Linux内核中添加私有板子配置"><a href="#在Linux内核中添加私有板子配置" class="headerlink" title="在Linux内核中添加私有板子配置"></a>在Linux内核中添加私有板子配置</h3><ul>
+<li>复制一份xxx_defconfig配置文件，并重命名，将其作为私有的默认配置文件<ul>
+<li>通过在工程根目录下执行<code>make xxx_defconfig</code>配置Linux内核选项</li>
+</ul>
+</li>
+<li>添加私有板子对应设备树文件<ul>
+<li>创建私有.dts文件：<code>cd arch/arm/boot/dts</code> -&gt; <code>cp imx6ull-14x14-evk.dts imx6ull-xxx-emmc.dts</code></li>
+<li>添加至编译：<code>vim arch/arm/boot/dts/Makefile</code>，在<code>dtb-$(CONFIG_SOC_IMX6ULL)</code>配置项中加入<code>imx6ull-xxx-emmc.dts</code>，使得编译设备树时，会从imx6ull-xxx-emmc.dts编译出对应的imx6ull-xxx-emmc.dtb文件</li>
+</ul>
+</li>
+<li>编译得到zImage镜像文件和imx6ull-xxx-emmc.dtb设备树文件<ul>
+<li>清理工程：<code>make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- distclean</code></li>
+<li>配置Linux内核：<code>make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- xxx_defconfig</code></li>
+<li>可选，打开图形化配置界面：<code>make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- menuconfig</code></li>
+<li>执行编译：<code>make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- all -j16</code><ul>
+<li>可选的，将上述指令添加到脚本中，进行自动化执行，避免重复的输入</li>
+</ul>
+</li>
+<li><strong>编译完成后，在<code>arch/arm/boot</code>下生成zImage，在<code>arch/arm/boot/dts</code>下生成imx6ull-xxx-emmc.dtb文件</strong></li>
+</ul>
+</li>
+</ul>
+<h3 id="内核测试"><a href="#内核测试" class="headerlink" title="内核测试"></a>内核测试</h3><ul>
+<li><p>启动板子，在u-boot命令模式中，加载所编译的zImage和.dtb文件</p>
+<ul>
+<li><code>tftp 80800000 zImage</code></li>
+<li><code>tftp 83000000 imx6ull_xxx_emmc.dtb</code></li>
+<li><code>bootz 80800000 - 83000000</code></li>
+</ul>
+</li>
+<li><p>出现以下相似内容，表示Linux内核启动成功</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">...</span><br><span class="line">Booting Linux on physical CPU 0x0</span><br><span class="line">Linux version 4.1.15 ...</span><br><span class="line">...</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h4 id="一些疑惑解答"><a href="#一些疑惑解答" class="headerlink" title="一些疑惑解答"></a>一些疑惑解答</h4><ul>
+<li>在boot加载Linux内核时，所使用到的地址80800000和83000000是怎么来的？是固定地址？<ul>
+<li>地址80800000是内核映像的起始地址，boot使用memcpy()将内核映像从存储设备加载到内存地址80800000中</li>
+<li>地址83000000是内核栈的起始地址，其是内核存储临时数据的区域，boot将内核栈初始化为地址83000000</li>
+<li>在u-boot中，此二地址可以通过配置文件修改<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># configs/&lt;board&gt;defconfig</span><br><span class="line">CONFIG_SYS_LOAD_ADDR = 0x80800000</span><br><span class="line">CONFIG_SYS_INIT_SP_ADDR = 0x83000000</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+</ul>
+<h2 id="Linux内核顶层Makefile详解"><a href="#Linux内核顶层Makefile详解" class="headerlink" title="Linux内核顶层Makefile详解"></a>Linux内核顶层Makefile详解</h2><h2 id="Linux内核启动流程"><a href="#Linux内核启动流程" class="headerlink" title="Linux内核启动流程"></a>Linux内核启动流程</h2>]]></content>
       <categories>
         <category>Linux</category>
         <category>I.MX6ULL</category>
@@ -227,26 +268,10 @@
 <li>嵌入式Linux开发中，配置NFS挂载根文件系统</li>
 </ul>
 <hr>
-<h4 id="远程端口流量通过SSH映射到本地"><a href="#远程端口流量通过SSH映射到本地" class="headerlink" title="远程端口流量通过SSH映射到本地"></a>远程端口流量通过SSH映射到本地</h4><p>ssh -L 4000:localhost:4000 <a href="mailto:&#x6a;&#100;&#95;&#x63;&#104;&#101;&#x6e;&#64;&#49;&#57;&#50;&#46;&#49;&#x36;&#56;&#x2e;&#49;&#x31;&#50;&#46;&#x32;&#52;&#48;">&#x6a;&#100;&#95;&#x63;&#104;&#101;&#x6e;&#64;&#49;&#57;&#50;&#46;&#49;&#x36;&#56;&#x2e;&#49;&#x31;&#50;&#46;&#x32;&#52;&#48;</a></p>
+<h4 id="远程端口流量通过SSH映射到本地"><a href="#远程端口流量通过SSH映射到本地" class="headerlink" title="远程端口流量通过SSH映射到本地"></a>远程端口流量通过SSH映射到本地</h4><p>ssh -L 4000:localhost:4000 <a href="mailto:&#x6a;&#x64;&#95;&#99;&#x68;&#101;&#x6e;&#64;&#x31;&#57;&#50;&#46;&#x31;&#x36;&#x38;&#46;&#x31;&#49;&#50;&#x2e;&#50;&#x34;&#48;">&#x6a;&#x64;&#95;&#99;&#x68;&#101;&#x6e;&#64;&#x31;&#57;&#50;&#46;&#x31;&#x36;&#x38;&#46;&#x31;&#49;&#50;&#x2e;&#50;&#x34;&#48;</a></p>
 <h4 id="Linux给根目录扩容"><a href="#Linux给根目录扩容" class="headerlink" title="Linux给根目录扩容"></a>Linux给根目录扩容</h4>]]></content>
       <categories>
         <category>Linux</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>PID算法</title>
-    <url>/2023/12/05/PID%E7%AE%97%E6%B3%95/</url>
-    <content><![CDATA[<h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><ul>
-<li>PID算法，即比例、积分、微分控制算法</li>
-<li>其表达式为：<code>u(t) = Kp * e(t) + Ki * ∫ e(t) dt + Kd * de(t)/dt</code><ul>
-<li>其中，u(t)为输出</li>
-<li>e(t)是偏差，即当前值与目标值的差值</li>
-</ul>
-</li>
-</ul>
-]]></content>
-      <categories>
-        <category>无刷电机</category>
       </categories>
   </entry>
   <entry>
@@ -307,6 +332,11 @@
       </categories>
   </entry>
   <entry>
+    <title>RT-Thread启动流程简述</title>
+    <url>/2023/11/28/RT-Thread%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B%E7%AE%80%E8%BF%B0/</url>
+    <content><![CDATA[]]></content>
+  </entry>
+  <entry>
     <title>STM32启动流程概述</title>
     <url>/2023/11/28/STM32%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B%E6%A6%82%E8%BF%B0/</url>
     <content><![CDATA[<h1 id="Keil环境下的启动文件分析"><a href="#Keil环境下的启动文件分析" class="headerlink" title="Keil环境下的启动文件分析"></a>Keil环境下的启动文件分析</h1><h2 id="初始化栈顶指针"><a href="#初始化栈顶指针" class="headerlink" title="初始化栈顶指针"></a>初始化栈顶指针</h2><ul>
@@ -360,11 +390,6 @@
       </tags>
   </entry>
   <entry>
-    <title>RT-Thread启动流程简述</title>
-    <url>/2023/11/28/RT-Thread%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B%E7%AE%80%E8%BF%B0/</url>
-    <content><![CDATA[]]></content>
-  </entry>
-  <entry>
     <title>WSL小贴士</title>
     <url>/2023/11/28/WSL%E5%B0%8F%E8%B4%B4%E5%A3%AB/</url>
     <content><![CDATA[<h4 id="在windows下访问WSL的目录"><a href="#在windows下访问WSL的目录" class="headerlink" title="在windows下访问WSL的目录"></a>在windows下访问WSL的目录</h4><ul>
@@ -392,7 +417,7 @@
   </entry>
   <entry>
     <title>嵌入式MCU开发问题记录</title>
-    <url>/2023/12/12/%E5%B5%8C%E5%85%A5%E5%BC%8FMCU%E5%BC%80%E5%8F%91%E9%97%AE%E9%A2%98%E8%AE%B0%E5%BD%95/</url>
+    <url>/2023/12/19/%E5%B5%8C%E5%85%A5%E5%BC%8FMCU%E5%BC%80%E5%8F%91%E9%97%AE%E9%A2%98%E8%AE%B0%E5%BD%95/</url>
     <content><![CDATA[<h3 id="添加了bootloader的LiteOS应用程序没能跑起来"><a href="#添加了bootloader的LiteOS应用程序没能跑起来" class="headerlink" title="添加了bootloader的LiteOS应用程序没能跑起来"></a>添加了bootloader的LiteOS应用程序没能跑起来</h3><ul>
 <li>原因分析：<ul>
 <li>首先检查bootloader和app的链接脚本是否有误，确认bootloader跳转地址为0x8004000，而app链接脚本的FLASH起始地址为0x8004000无误</li>
@@ -571,6 +596,32 @@
       </categories>
   </entry>
   <entry>
+    <title>鸿蒙LiteOS浅析——内核启动流程</title>
+    <url>/2023/11/28/%E9%B8%BF%E8%92%99LiteOS%E5%B7%A5%E7%A8%8B%E6%BA%90%E7%A0%81%E6%B5%85%E6%9E%90/</url>
+    <content><![CDATA[<h1 id="系统上电初始化"><a href="#系统上电初始化" class="headerlink" title="系统上电初始化"></a>系统上电初始化</h1><ul>
+<li>操作系统工程初始化流程在用户main()函数之后<code>显示初始化</code>，因此main()前的执行流程参考STM32裸机<a href="/2023/11/28/STM32%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B%E6%A6%82%E8%BF%B0">启动流程</a>即可。</li>
+</ul>
+<h1 id="操作系统内核初始化"><a href="#操作系统内核初始化" class="headerlink" title="操作系统内核初始化"></a>操作系统内核初始化</h1><p>LiteOS组件裁剪依赖于target_config.h文件，配置target_config.h中宏定义参数即可</p>
+<h2 id="LOS-KernelInit"><a href="#LOS-KernelInit" class="headerlink" title="LOS_KernelInit()"></a>LOS_KernelInit()</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">OsBackTraceInit();      // 错误回溯功能</span><br><span class="line">OsMemSystemInit();      // 内存池</span><br><span class="line">OsTickTimerInit();</span><br><span class="line">OsTaskInit();</span><br><span class="line">OsSemInit();</span><br><span class="line">OsMuxInit();</span><br><span class="line">OsQueueInit();</span><br><span class="line">OsSwtmrInit();</span><br><span class="line">OsIdleTaskCreate();</span><br><span class="line">......</span><br></pre></td></tr></table></figure>
+
+
+
+
+<h1 id="系统调度启动"><a href="#系统调度启动" class="headerlink" title="系统调度启动"></a>系统调度启动</h1><h2 id="LOS-Start"><a href="#LOS-Start" class="headerlink" title="LOS_Start()"></a>LOS_Start()</h2><h1 id="一些API说明"><a href="#一些API说明" class="headerlink" title="一些API说明"></a>一些API说明</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">LOS_TaskCreate()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+]]></content>
+      <categories>
+        <category>嵌入式</category>
+        <category>LiteOS</category>
+        <category>RTOS</category>
+      </categories>
+      <tags>
+        <tag>RTOS</tag>
+        <tag>LiteOS</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>编译原理之我见</title>
     <url>/2023/12/01/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E4%B9%8B%E6%88%91%E8%A7%81/</url>
     <content><![CDATA[<h2 id="构建C工程中的一些疑惑解答"><a href="#构建C工程中的一些疑惑解答" class="headerlink" title="构建C工程中的一些疑惑解答"></a>构建C工程中的一些疑惑解答</h2><ul>
@@ -625,32 +676,6 @@
       </categories>
       <tags>
         <tag>C语言</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>鸿蒙LiteOS浅析——内核启动流程</title>
-    <url>/2023/11/28/%E9%B8%BF%E8%92%99LiteOS%E5%B7%A5%E7%A8%8B%E6%BA%90%E7%A0%81%E6%B5%85%E6%9E%90/</url>
-    <content><![CDATA[<h1 id="系统上电初始化"><a href="#系统上电初始化" class="headerlink" title="系统上电初始化"></a>系统上电初始化</h1><ul>
-<li>操作系统工程初始化流程在用户main()函数之后<code>显示初始化</code>，因此main()前的执行流程参考STM32裸机<a href="/2023/11/28/STM32%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B%E6%A6%82%E8%BF%B0">启动流程</a>即可。</li>
-</ul>
-<h1 id="操作系统内核初始化"><a href="#操作系统内核初始化" class="headerlink" title="操作系统内核初始化"></a>操作系统内核初始化</h1><p>LiteOS组件裁剪依赖于target_config.h文件，配置target_config.h中宏定义参数即可</p>
-<h2 id="LOS-KernelInit"><a href="#LOS-KernelInit" class="headerlink" title="LOS_KernelInit()"></a>LOS_KernelInit()</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">OsBackTraceInit();      // 错误回溯功能</span><br><span class="line">OsMemSystemInit();      // 内存池</span><br><span class="line">OsTickTimerInit();</span><br><span class="line">OsTaskInit();</span><br><span class="line">OsSemInit();</span><br><span class="line">OsMuxInit();</span><br><span class="line">OsQueueInit();</span><br><span class="line">OsSwtmrInit();</span><br><span class="line">OsIdleTaskCreate();</span><br><span class="line">......</span><br></pre></td></tr></table></figure>
-
-
-
-
-<h1 id="系统调度启动"><a href="#系统调度启动" class="headerlink" title="系统调度启动"></a>系统调度启动</h1><h2 id="LOS-Start"><a href="#LOS-Start" class="headerlink" title="LOS_Start()"></a>LOS_Start()</h2><h1 id="一些API说明"><a href="#一些API说明" class="headerlink" title="一些API说明"></a>一些API说明</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">LOS_TaskCreate()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-
-]]></content>
-      <categories>
-        <category>嵌入式</category>
-        <category>LiteOS</category>
-        <category>RTOS</category>
-      </categories>
-      <tags>
-        <tag>RTOS</tag>
-        <tag>LiteOS</tag>
       </tags>
   </entry>
   <entry>
@@ -738,14 +763,6 @@
       </tags>
   </entry>
   <entry>
-    <title>浅淡三相无刷电机驱动原理</title>
-    <url>/2023/12/01/%E6%B5%85%E6%B7%A1%E4%B8%89%E7%9B%B8%E6%97%A0%E5%88%B7%E7%94%B5%E6%9C%BA%E9%A9%B1%E5%8A%A8%E5%8E%9F%E7%90%86/</url>
-    <content><![CDATA[<h1 id="何为三相无刷电机？"><a href="#何为三相无刷电机？" class="headerlink" title="何为三相无刷电机？"></a>何为三相无刷电机？</h1><h1 id="如何让三相无刷电机动起来？"><a href="#如何让三相无刷电机动起来？" class="headerlink" title="如何让三相无刷电机动起来？"></a>如何让三相无刷电机动起来？</h1><h1 id="无刷电机驱动原理分析"><a href="#无刷电机驱动原理分析" class="headerlink" title="无刷电机驱动原理分析"></a>无刷电机驱动原理分析</h1><h2 id="FOC算法浅析"><a href="#FOC算法浅析" class="headerlink" title="FOC算法浅析"></a>FOC算法浅析</h2><h2 id="PID算法"><a href="#PID算法" class="headerlink" title="PID算法"></a>PID算法</h2><h1 id="无刷电机驱动设计及分析"><a href="#无刷电机驱动设计及分析" class="headerlink" title="无刷电机驱动设计及分析"></a>无刷电机驱动设计及分析</h1><h1 id="个人对无刷电机理解的一些困惑"><a href="#个人对无刷电机理解的一些困惑" class="headerlink" title="个人对无刷电机理解的一些困惑"></a>个人对无刷电机理解的一些困惑</h1>]]></content>
-      <categories>
-        <category>无刷电机</category>
-      </categories>
-  </entry>
-  <entry>
     <title>IIC通信调试回顾</title>
     <url>/2023/11/30/IIC%E9%80%9A%E4%BF%A1%E8%B0%83%E8%AF%95%E5%9B%9E%E9%A1%BE/</url>
     <content><![CDATA[<h1 id="概要"><a href="#概要" class="headerlink" title="概要"></a>概要</h1><ul>
@@ -758,6 +775,14 @@
 <h1 id="调试问题回顾"><a href="#调试问题回顾" class="headerlink" title="调试问题回顾"></a>调试问题回顾</h1>]]></content>
       <categories>
         <category>MCU</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>浅淡三相无刷电机驱动原理</title>
+    <url>/2023/12/01/%E6%B5%85%E6%B7%A1%E4%B8%89%E7%9B%B8%E6%97%A0%E5%88%B7%E7%94%B5%E6%9C%BA%E9%A9%B1%E5%8A%A8%E5%8E%9F%E7%90%86/</url>
+    <content><![CDATA[<h1 id="何为三相无刷电机？"><a href="#何为三相无刷电机？" class="headerlink" title="何为三相无刷电机？"></a>何为三相无刷电机？</h1><h1 id="如何让三相无刷电机动起来？"><a href="#如何让三相无刷电机动起来？" class="headerlink" title="如何让三相无刷电机动起来？"></a>如何让三相无刷电机动起来？</h1><h1 id="无刷电机驱动原理分析"><a href="#无刷电机驱动原理分析" class="headerlink" title="无刷电机驱动原理分析"></a>无刷电机驱动原理分析</h1><h2 id="FOC算法浅析"><a href="#FOC算法浅析" class="headerlink" title="FOC算法浅析"></a>FOC算法浅析</h2><h2 id="PID算法"><a href="#PID算法" class="headerlink" title="PID算法"></a>PID算法</h2><h1 id="无刷电机驱动设计及分析"><a href="#无刷电机驱动设计及分析" class="headerlink" title="无刷电机驱动设计及分析"></a>无刷电机驱动设计及分析</h1><h1 id="个人对无刷电机理解的一些困惑"><a href="#个人对无刷电机理解的一些困惑" class="headerlink" title="个人对无刷电机理解的一些困惑"></a>个人对无刷电机理解的一些困惑</h1>]]></content>
+      <categories>
+        <category>无刷电机</category>
       </categories>
   </entry>
   <entry>
@@ -907,7 +932,7 @@
   </entry>
   <entry>
     <title>ld链接脚本学习总结</title>
-    <url>/2023/12/15/ld%E9%93%BE%E6%8E%A5%E8%84%9A%E6%9C%AC%E5%AD%A6%E4%B9%A0/</url>
+    <url>/2023/12/20/ld%E9%93%BE%E6%8E%A5%E8%84%9A%E6%9C%AC%E5%AD%A6%E4%B9%A0/</url>
     <content><![CDATA[<h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>链接脚本的主要作用：描述如何将输入文件(.o目标文件)中的段 映射到 输出文件(.bin&#x2F;.hex&#x2F;…)中的段，并控制输出文件的内存布局(地址分配)。</p>
 <pre><code>注意：输入文件的段和输出文件的段是独立的，主要分为`.text`, `.data`, `.bss`, `heap`, `stack`段
 
@@ -1021,8 +1046,29 @@
       </tags>
   </entry>
   <entry>
+    <title>PID算法</title>
+    <url>/2023/12/05/PID%E7%AE%97%E6%B3%95/</url>
+    <content><![CDATA[<h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><ul>
+<li>PID算法，即比例、积分、微分控制算法</li>
+<li>其表达式为：<code>u(t) = Kp * e(t) + Ki * ∫ e(t) dt + Kd * de(t)/dt</code><ul>
+<li>其中，u(t)为输出</li>
+<li>e(t)是偏差，即当前值与目标值的差值</li>
+</ul>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>无刷电机</category>
+      </categories>
+  </entry>
+  <entry>
     <title>嵌入式MCU的bootloader设计</title>
     <url>/2023/12/22/%E5%B5%8C%E5%85%A5%E5%BC%8FMCU%E7%9A%84bootloader%E8%AE%BE%E8%AE%A1/</url>
+    <content><![CDATA[]]></content>
+  </entry>
+  <entry>
+    <title>Linux gpio子系统</title>
+    <url>/2023/12/25/Linux-gpio%E5%AD%90%E7%B3%BB%E7%BB%9F/</url>
     <content><![CDATA[]]></content>
   </entry>
 </search>
