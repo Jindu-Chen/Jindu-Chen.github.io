@@ -28,7 +28,7 @@
 <meta property="og:description" content="总结个人对PID算法的理解，以及PID在实际项目开发中的应用">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2023-12-05T00:00:00.000Z">
-<meta property="article:modified_time" content="2023-12-06T09:04:57.291Z">
+<meta property="article:modified_time" content="2023-12-25T09:26:29.822Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -225,7 +225,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-12-06 09:04:57" itemprop="dateModified" datetime="2023-12-06T09:04:57+00:00">2023-12-06</time>
+                <time title="Modified: 2023-12-25 09:26:29" itemprop="dateModified" datetime="2023-12-25T09:26:29+00:00">2023-12-25</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -249,7 +249,15 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        
+        <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><ul>
+<li>PID算法，即比例、积分、微分控制算法</li>
+<li>其表达式为：<code>u(t) = Kp * e(t) + Ki * ∫ e(t) dt + Kd * de(t)/dt</code><ul>
+<li>其中，u(t)为输出</li>
+<li>e(t)是偏差，即当前值与目标值的差值</li>
+</ul>
+</li>
+</ul>
+
     </div>
 
     
@@ -264,12 +272,12 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2023/12/04/C%E8%AF%AD%E8%A8%80%E7%9F%A5%E8%AF%86%E7%82%B9%E8%AE%B0%E5%BD%95/" rel="prev" title="C语言知识点记录">
-      <i class="fa fa-chevron-left"></i> C语言知识点记录
+    <a href="/2023/12/05/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E5%9F%BA%E7%A1%80/" rel="prev" title="汇编语言基础">
+      <i class="fa fa-chevron-left"></i> 汇编语言基础
     </a></div>
       <div class="post-nav-item">
-    <a href="/2023/12/05/Makefile%E7%9B%B8%E5%85%B3%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" rel="next" title="Makefile相关学习笔记">
-      Makefile相关学习笔记 <i class="fa fa-chevron-right"></i>
+    <a href="/2023/12/05/Linux-U-Boot%E7%A7%BB%E6%A4%8D%E6%A6%82%E8%BF%B0-%E5%9F%BA%E4%BA%8EI-MX6ULL/" rel="next" title="Linux U-Boot移植概述-基于I-MX6ULL">
+      Linux U-Boot移植概述-基于I-MX6ULL <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -329,6 +337,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">概述</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -342,7 +351,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">35</span>
+          <span class="site-state-item-count">34</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>

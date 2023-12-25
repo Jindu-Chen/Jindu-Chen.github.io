@@ -1,11 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>WSL配置执行windows下载脚本</title>
-    <url>/2023/11/27/WSL%E9%85%8D%E7%BD%AE%E6%89%A7%E8%A1%8Cwindows%E4%B8%8B%E8%BD%BD%E8%84%9A%E6%9C%AC/</url>
-    <content><![CDATA[]]></content>
-  </entry>
-  <entry>
     <title>国民技术N32L406之GCC环境搭建</title>
     <url>/2023/11/27/%E5%9B%BD%E6%B0%91%E6%8A%80%E6%9C%AFGCC%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/</url>
     <content><![CDATA[]]></content>
@@ -232,21 +227,26 @@
 <li>嵌入式Linux开发中，配置NFS挂载根文件系统</li>
 </ul>
 <hr>
-<h4 id="远程端口流量通过SSH映射到本地"><a href="#远程端口流量通过SSH映射到本地" class="headerlink" title="远程端口流量通过SSH映射到本地"></a>远程端口流量通过SSH映射到本地</h4><p>ssh -L 4000:localhost:4000 <a href="mailto:&#106;&#x64;&#95;&#x63;&#104;&#x65;&#x6e;&#64;&#x31;&#x39;&#50;&#x2e;&#49;&#x36;&#56;&#x2e;&#x31;&#49;&#50;&#x2e;&#x32;&#52;&#x30;">&#106;&#x64;&#95;&#x63;&#104;&#x65;&#x6e;&#64;&#x31;&#x39;&#50;&#x2e;&#49;&#x36;&#56;&#x2e;&#x31;&#49;&#50;&#x2e;&#x32;&#52;&#x30;</a></p>
+<h4 id="远程端口流量通过SSH映射到本地"><a href="#远程端口流量通过SSH映射到本地" class="headerlink" title="远程端口流量通过SSH映射到本地"></a>远程端口流量通过SSH映射到本地</h4><p>ssh -L 4000:localhost:4000 <a href="mailto:&#x6a;&#100;&#95;&#x63;&#104;&#101;&#x6e;&#64;&#49;&#57;&#50;&#46;&#49;&#x36;&#56;&#x2e;&#49;&#x31;&#50;&#46;&#x32;&#52;&#48;">&#x6a;&#100;&#95;&#x63;&#104;&#101;&#x6e;&#64;&#49;&#57;&#50;&#46;&#49;&#x36;&#56;&#x2e;&#49;&#x31;&#50;&#46;&#x32;&#52;&#48;</a></p>
 <h4 id="Linux给根目录扩容"><a href="#Linux给根目录扩容" class="headerlink" title="Linux给根目录扩容"></a>Linux给根目录扩容</h4>]]></content>
       <categories>
         <category>Linux</category>
       </categories>
   </entry>
   <entry>
-    <title>MCU开发小贴士</title>
-    <url>/2023/11/28/MCU%E5%BC%80%E5%8F%91%E5%B0%8F%E8%B4%B4%E5%A3%AB/</url>
-    <content><![CDATA[<ul>
-<li>全局开关中断操作  <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">__disable_irq();    // 将 PRIMASK 寄存器的值设置为 1，禁止所有中断</span><br><span class="line">__enable_irq();     // 将 PRIMASK 寄存器的值设置为 0，开启所有中断</span><br><span class="line">__set_PRIMASK(1);   // PRIMASK 值为 1 ，所有可屏蔽中断的优先级为 1，表示所有可屏蔽中断均不能被中断处理程序处理，只能由 NMI 处理程序处理</span><br><span class="line">__set_PRIMASK(0);</span><br><span class="line"></span><br><span class="line">// 在 Cortex-M 架构中，FAULTMASK 寄存器控制所有异常的优先级</span><br><span class="line">__set_FAULTMASK(1);  // FAULTMASK 寄存器的值为 1 时，所有异常的优先级为 1，表示所有异常均不能被中断处理程序处理，只能由 NMI 处理程序处理</span><br><span class="line">__set_FAULTMASK(0);</span><br><span class="line"></span><br><span class="line">CPSID F        //关异常，FAULTMASK=1</span><br><span class="line">CPSIE F        //开异常，FAULTMASK=0</span><br></pre></td></tr></table></figure></li>
+    <title>PID算法</title>
+    <url>/2023/12/05/PID%E7%AE%97%E6%B3%95/</url>
+    <content><![CDATA[<h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><ul>
+<li>PID算法，即比例、积分、微分控制算法</li>
+<li>其表达式为：<code>u(t) = Kp * e(t) + Ki * ∫ e(t) dt + Kd * de(t)/dt</code><ul>
+<li>其中，u(t)为输出</li>
+<li>e(t)是偏差，即当前值与目标值的差值</li>
+</ul>
+</li>
 </ul>
 ]]></content>
       <categories>
-        <category>MCU</category>
+        <category>无刷电机</category>
       </categories>
   </entry>
   <entry>
@@ -296,9 +296,15 @@
       </categories>
   </entry>
   <entry>
-    <title>RT-Thread启动流程简述</title>
-    <url>/2023/11/28/RT-Thread%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B%E7%AE%80%E8%BF%B0/</url>
-    <content><![CDATA[]]></content>
+    <title>MCU开发小贴士</title>
+    <url>/2023/11/28/MCU%E5%BC%80%E5%8F%91%E5%B0%8F%E8%B4%B4%E5%A3%AB/</url>
+    <content><![CDATA[<ul>
+<li>全局开关中断操作  <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">__disable_irq();    // 将 PRIMASK 寄存器的值设置为 1，禁止所有中断</span><br><span class="line">__enable_irq();     // 将 PRIMASK 寄存器的值设置为 0，开启所有中断</span><br><span class="line">__set_PRIMASK(1);   // PRIMASK 值为 1 ，所有可屏蔽中断的优先级为 1，表示所有可屏蔽中断均不能被中断处理程序处理，只能由 NMI 处理程序处理</span><br><span class="line">__set_PRIMASK(0);</span><br><span class="line"></span><br><span class="line">// 在 Cortex-M 架构中，FAULTMASK 寄存器控制所有异常的优先级</span><br><span class="line">__set_FAULTMASK(1);  // FAULTMASK 寄存器的值为 1 时，所有异常的优先级为 1，表示所有异常均不能被中断处理程序处理，只能由 NMI 处理程序处理</span><br><span class="line">__set_FAULTMASK(0);</span><br><span class="line"></span><br><span class="line">CPSID F        //关异常，FAULTMASK=1</span><br><span class="line">CPSIE F        //开异常，FAULTMASK=0</span><br></pre></td></tr></table></figure></li>
+</ul>
+]]></content>
+      <categories>
+        <category>MCU</category>
+      </categories>
   </entry>
   <entry>
     <title>STM32启动流程概述</title>
@@ -352,6 +358,11 @@
         <tag>STM32</tag>
         <tag>MCU</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>RT-Thread启动流程简述</title>
+    <url>/2023/11/28/RT-Thread%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B%E7%AE%80%E8%BF%B0/</url>
+    <content><![CDATA[]]></content>
   </entry>
   <entry>
     <title>WSL小贴士</title>
@@ -727,6 +738,14 @@
       </tags>
   </entry>
   <entry>
+    <title>浅淡三相无刷电机驱动原理</title>
+    <url>/2023/12/01/%E6%B5%85%E6%B7%A1%E4%B8%89%E7%9B%B8%E6%97%A0%E5%88%B7%E7%94%B5%E6%9C%BA%E9%A9%B1%E5%8A%A8%E5%8E%9F%E7%90%86/</url>
+    <content><![CDATA[<h1 id="何为三相无刷电机？"><a href="#何为三相无刷电机？" class="headerlink" title="何为三相无刷电机？"></a>何为三相无刷电机？</h1><h1 id="如何让三相无刷电机动起来？"><a href="#如何让三相无刷电机动起来？" class="headerlink" title="如何让三相无刷电机动起来？"></a>如何让三相无刷电机动起来？</h1><h1 id="无刷电机驱动原理分析"><a href="#无刷电机驱动原理分析" class="headerlink" title="无刷电机驱动原理分析"></a>无刷电机驱动原理分析</h1><h2 id="FOC算法浅析"><a href="#FOC算法浅析" class="headerlink" title="FOC算法浅析"></a>FOC算法浅析</h2><h2 id="PID算法"><a href="#PID算法" class="headerlink" title="PID算法"></a>PID算法</h2><h1 id="无刷电机驱动设计及分析"><a href="#无刷电机驱动设计及分析" class="headerlink" title="无刷电机驱动设计及分析"></a>无刷电机驱动设计及分析</h1><h1 id="个人对无刷电机理解的一些困惑"><a href="#个人对无刷电机理解的一些困惑" class="headerlink" title="个人对无刷电机理解的一些困惑"></a>个人对无刷电机理解的一些困惑</h1>]]></content>
+      <categories>
+        <category>无刷电机</category>
+      </categories>
+  </entry>
+  <entry>
     <title>IIC通信调试回顾</title>
     <url>/2023/11/30/IIC%E9%80%9A%E4%BF%A1%E8%B0%83%E8%AF%95%E5%9B%9E%E9%A1%BE/</url>
     <content><![CDATA[<h1 id="概要"><a href="#概要" class="headerlink" title="概要"></a>概要</h1><ul>
@@ -739,14 +758,6 @@
 <h1 id="调试问题回顾"><a href="#调试问题回顾" class="headerlink" title="调试问题回顾"></a>调试问题回顾</h1>]]></content>
       <categories>
         <category>MCU</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>浅淡三相无刷电机驱动原理</title>
-    <url>/2023/12/01/%E6%B5%85%E6%B7%A1%E4%B8%89%E7%9B%B8%E6%97%A0%E5%88%B7%E7%94%B5%E6%9C%BA%E9%A9%B1%E5%8A%A8%E5%8E%9F%E7%90%86/</url>
-    <content><![CDATA[<h1 id="何为三相无刷电机？"><a href="#何为三相无刷电机？" class="headerlink" title="何为三相无刷电机？"></a>何为三相无刷电机？</h1><h1 id="如何让三相无刷电机动起来？"><a href="#如何让三相无刷电机动起来？" class="headerlink" title="如何让三相无刷电机动起来？"></a>如何让三相无刷电机动起来？</h1><h1 id="无刷电机驱动原理分析"><a href="#无刷电机驱动原理分析" class="headerlink" title="无刷电机驱动原理分析"></a>无刷电机驱动原理分析</h1><h2 id="FOC算法浅析"><a href="#FOC算法浅析" class="headerlink" title="FOC算法浅析"></a>FOC算法浅析</h2><h2 id="PID算法"><a href="#PID算法" class="headerlink" title="PID算法"></a>PID算法</h2><h1 id="无刷电机驱动设计及分析"><a href="#无刷电机驱动设计及分析" class="headerlink" title="无刷电机驱动设计及分析"></a>无刷电机驱动设计及分析</h1><h1 id="个人对无刷电机理解的一些困惑"><a href="#个人对无刷电机理解的一些困惑" class="headerlink" title="个人对无刷电机理解的一些困惑"></a>个人对无刷电机理解的一些困惑</h1>]]></content>
-      <categories>
-        <category>无刷电机</category>
       </categories>
   </entry>
   <entry>
@@ -1008,14 +1019,6 @@
       <tags>
         <tag>make</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>PID算法</title>
-    <url>/2023/12/05/PID%E7%AE%97%E6%B3%95/</url>
-    <content><![CDATA[]]></content>
-      <categories>
-        <category>无刷电机</category>
-      </categories>
   </entry>
   <entry>
     <title>嵌入式MCU的bootloader设计</title>
