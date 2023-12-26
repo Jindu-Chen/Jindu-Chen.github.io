@@ -195,7 +195,11 @@
 <h4 id="一些疑惑解答"><a href="#一些疑惑解答" class="headerlink" title="一些疑惑解答"></a>一些疑惑解答</h4><ul>
 <li>在boot加载Linux内核时，所使用到的地址80800000和83000000是怎么来的？是固定地址？<ul>
 <li>地址80800000是内核映像的起始地址，boot使用memcpy()将内核映像从存储设备加载到内存地址80800000中</li>
-<li>地址83000000是内核栈的起始地址，其是内核存储临时数据的区域，boot将内核栈初始化为地址83000000</li>
+<li>地址83000000是内核栈的起始地址，其是内核存储临时数据的区域，boot将内核栈初始化为地址83000000<ul>
+<li>设备树是ARM平台上的重要配置文件，其描述了系统资源的布局和属性；内核启动时需要访问设备树，以根据其参数初始化硬件设备</li>
+<li>83000000是ARM平台上u-boot内核栈的常用起始地址，位于内存的低端，将设备树加载在此地址 -&gt; 确保内核在访问设备树时不会发生内存访问冲突</li>
+</ul>
+</li>
 <li>在u-boot中，此二地址可以通过配置文件修改<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># configs/&lt;board&gt;defconfig</span><br><span class="line">CONFIG_SYS_LOAD_ADDR = 0x80800000</span><br><span class="line">CONFIG_SYS_INIT_SP_ADDR = 0x83000000</span><br></pre></td></tr></table></figure></li>
 </ul>
 </li>
@@ -268,7 +272,7 @@
 <li>嵌入式Linux开发中，配置NFS挂载根文件系统</li>
 </ul>
 <hr>
-<h4 id="远程端口流量通过SSH映射到本地"><a href="#远程端口流量通过SSH映射到本地" class="headerlink" title="远程端口流量通过SSH映射到本地"></a>远程端口流量通过SSH映射到本地</h4><p>ssh -L 4000:localhost:4000 <a href="mailto:&#x6a;&#x64;&#95;&#99;&#x68;&#101;&#x6e;&#64;&#x31;&#57;&#50;&#46;&#x31;&#x36;&#x38;&#46;&#x31;&#49;&#50;&#x2e;&#50;&#x34;&#48;">&#x6a;&#x64;&#95;&#99;&#x68;&#101;&#x6e;&#64;&#x31;&#57;&#50;&#46;&#x31;&#x36;&#x38;&#46;&#x31;&#49;&#50;&#x2e;&#50;&#x34;&#48;</a></p>
+<h4 id="远程端口流量通过SSH映射到本地"><a href="#远程端口流量通过SSH映射到本地" class="headerlink" title="远程端口流量通过SSH映射到本地"></a>远程端口流量通过SSH映射到本地</h4><p>ssh -L 4000:localhost:4000 <a href="mailto:&#x6a;&#100;&#95;&#99;&#x68;&#x65;&#110;&#64;&#x31;&#x39;&#x32;&#x2e;&#49;&#x36;&#56;&#x2e;&#49;&#49;&#x32;&#x2e;&#50;&#52;&#48;">&#x6a;&#100;&#95;&#99;&#x68;&#x65;&#110;&#64;&#x31;&#x39;&#x32;&#x2e;&#49;&#x36;&#56;&#x2e;&#49;&#49;&#x32;&#x2e;&#50;&#52;&#48;</a></p>
 <h4 id="Linux给根目录扩容"><a href="#Linux给根目录扩容" class="headerlink" title="Linux给根目录扩容"></a>Linux给根目录扩容</h4>]]></content>
       <categories>
         <category>Linux</category>
@@ -596,32 +600,6 @@
       </categories>
   </entry>
   <entry>
-    <title>鸿蒙LiteOS浅析——内核启动流程</title>
-    <url>/2023/11/28/%E9%B8%BF%E8%92%99LiteOS%E5%B7%A5%E7%A8%8B%E6%BA%90%E7%A0%81%E6%B5%85%E6%9E%90/</url>
-    <content><![CDATA[<h1 id="系统上电初始化"><a href="#系统上电初始化" class="headerlink" title="系统上电初始化"></a>系统上电初始化</h1><ul>
-<li>操作系统工程初始化流程在用户main()函数之后<code>显示初始化</code>，因此main()前的执行流程参考STM32裸机<a href="/2023/11/28/STM32%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B%E6%A6%82%E8%BF%B0">启动流程</a>即可。</li>
-</ul>
-<h1 id="操作系统内核初始化"><a href="#操作系统内核初始化" class="headerlink" title="操作系统内核初始化"></a>操作系统内核初始化</h1><p>LiteOS组件裁剪依赖于target_config.h文件，配置target_config.h中宏定义参数即可</p>
-<h2 id="LOS-KernelInit"><a href="#LOS-KernelInit" class="headerlink" title="LOS_KernelInit()"></a>LOS_KernelInit()</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">OsBackTraceInit();      // 错误回溯功能</span><br><span class="line">OsMemSystemInit();      // 内存池</span><br><span class="line">OsTickTimerInit();</span><br><span class="line">OsTaskInit();</span><br><span class="line">OsSemInit();</span><br><span class="line">OsMuxInit();</span><br><span class="line">OsQueueInit();</span><br><span class="line">OsSwtmrInit();</span><br><span class="line">OsIdleTaskCreate();</span><br><span class="line">......</span><br></pre></td></tr></table></figure>
-
-
-
-
-<h1 id="系统调度启动"><a href="#系统调度启动" class="headerlink" title="系统调度启动"></a>系统调度启动</h1><h2 id="LOS-Start"><a href="#LOS-Start" class="headerlink" title="LOS_Start()"></a>LOS_Start()</h2><h1 id="一些API说明"><a href="#一些API说明" class="headerlink" title="一些API说明"></a>一些API说明</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">LOS_TaskCreate()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-
-]]></content>
-      <categories>
-        <category>嵌入式</category>
-        <category>LiteOS</category>
-        <category>RTOS</category>
-      </categories>
-      <tags>
-        <tag>RTOS</tag>
-        <tag>LiteOS</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>编译原理之我见</title>
     <url>/2023/12/01/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E4%B9%8B%E6%88%91%E8%A7%81/</url>
     <content><![CDATA[<h2 id="构建C工程中的一些疑惑解答"><a href="#构建C工程中的一些疑惑解答" class="headerlink" title="构建C工程中的一些疑惑解答"></a>构建C工程中的一些疑惑解答</h2><ul>
@@ -679,9 +657,41 @@
       </tags>
   </entry>
   <entry>
-    <title>OpenHarmony-V4.0体验--基于Hi3861</title>
-    <url>/2023/11/29/OpenHarmony-V4-0%E4%BD%93%E9%AA%8C-%E5%9F%BA%E4%BA%8EHi3861/</url>
-    <content><![CDATA[]]></content>
+    <title>鸿蒙LiteOS浅析——内核启动流程</title>
+    <url>/2023/11/28/%E9%B8%BF%E8%92%99LiteOS%E5%B7%A5%E7%A8%8B%E6%BA%90%E7%A0%81%E6%B5%85%E6%9E%90/</url>
+    <content><![CDATA[<h1 id="系统上电初始化"><a href="#系统上电初始化" class="headerlink" title="系统上电初始化"></a>系统上电初始化</h1><ul>
+<li>操作系统工程初始化流程在用户main()函数之后<code>显示初始化</code>，因此main()前的执行流程参考STM32裸机<a href="/2023/11/28/STM32%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B%E6%A6%82%E8%BF%B0">启动流程</a>即可。</li>
+</ul>
+<h1 id="操作系统内核初始化"><a href="#操作系统内核初始化" class="headerlink" title="操作系统内核初始化"></a>操作系统内核初始化</h1><p>LiteOS组件裁剪依赖于target_config.h文件，配置target_config.h中宏定义参数即可</p>
+<h2 id="LOS-KernelInit"><a href="#LOS-KernelInit" class="headerlink" title="LOS_KernelInit()"></a>LOS_KernelInit()</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">OsBackTraceInit();      // 错误回溯功能</span><br><span class="line">OsMemSystemInit();      // 内存池</span><br><span class="line">OsTickTimerInit();</span><br><span class="line">OsTaskInit();</span><br><span class="line">OsSemInit();</span><br><span class="line">OsMuxInit();</span><br><span class="line">OsQueueInit();</span><br><span class="line">OsSwtmrInit();</span><br><span class="line">OsIdleTaskCreate();</span><br><span class="line">......</span><br></pre></td></tr></table></figure>
+
+
+
+
+<h1 id="系统调度启动"><a href="#系统调度启动" class="headerlink" title="系统调度启动"></a>系统调度启动</h1><h2 id="LOS-Start"><a href="#LOS-Start" class="headerlink" title="LOS_Start()"></a>LOS_Start()</h2><h1 id="一些API说明"><a href="#一些API说明" class="headerlink" title="一些API说明"></a>一些API说明</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">LOS_TaskCreate()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+]]></content>
+      <categories>
+        <category>嵌入式</category>
+        <category>LiteOS</category>
+        <category>RTOS</category>
+      </categories>
+      <tags>
+        <tag>RTOS</tag>
+        <tag>LiteOS</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>OpenHarmony-V4.0使用记录</title>
+    <url>/2023/11/29/OpenHarmony-V4-0%E5%BA%94%E7%94%A8%E8%AE%B0%E5%BD%95/</url>
+    <content><![CDATA[<h2 id="编译纠错"><a href="#编译纠错" class="headerlink" title="编译纠错"></a>编译纠错</h2><ul>
+<li>提示以下信息，  <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">../../../kernel/liteos_m/kernel/src/los_init.c:54:10: fatal error: los_exc_info.h: No such file or directory</span><br><span class="line">54 | #include &quot;los_exc_info.h&quot;</span><br><span class="line">    |          ^~~~~~~~~~~~~~~~</span><br><span class="line">compilation terminated.</span><br><span class="line">[43/265] gcc cross compiler obj/kernel/liteos_m/kal/posix/src/posix.pthread_cond.o</span><br></pre></td></tr></table></figure></li>
+</ul>
+]]></content>
+      <categories>
+        <category>LiteOS</category>
+      </categories>
   </entry>
   <entry>
     <title>git使用小贴士</title>
@@ -1068,7 +1078,11 @@
   </entry>
   <entry>
     <title>Linux gpio子系统</title>
-    <url>/2023/12/25/Linux-gpio%E5%AD%90%E7%B3%BB%E7%BB%9F/</url>
+    <url>/2023/12/19/Linux-gpio%E5%AD%90%E7%B3%BB%E7%BB%9F/</url>
     <content><![CDATA[]]></content>
+      <categories>
+        <category>Linux</category>
+        <category>I.MX6ULL</category>
+      </categories>
   </entry>
 </search>
