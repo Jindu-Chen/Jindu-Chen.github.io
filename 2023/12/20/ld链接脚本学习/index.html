@@ -22,13 +22,13 @@
 
   <meta name="description" content="记录链接脚本的学习内容，主要为链接脚本的要素简述、常用语法说明、常见片段的意义解析、示例代码的讲述及应用">
 <meta property="og:type" content="article">
-<meta property="og:title" content="ld链接脚本学习总结">
+<meta property="og:title" content="嵌入式ld链接脚本详解">
 <meta property="og:url" content="https://jindu-chen.github.io/2023/12/20/ld%E9%93%BE%E6%8E%A5%E8%84%9A%E6%9C%AC%E5%AD%A6%E4%B9%A0/index.html">
 <meta property="og:site_name" content="Jindu-Chen">
 <meta property="og:description" content="记录链接脚本的学习内容，主要为链接脚本的要素简述、常用语法说明、常见片段的意义解析、示例代码的讲述及应用">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2023-12-20T00:00:00.000Z">
-<meta property="article:modified_time" content="2023-12-25T10:22:15.970Z">
+<meta property="article:modified_time" content="2023-12-27T07:04:47.278Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -46,7 +46,7 @@
   };
 </script>
 
-  <title>ld链接脚本学习总结 | Jindu-Chen</title>
+  <title>嵌入式ld链接脚本详解 | Jindu-Chen</title>
   
 
 
@@ -208,7 +208,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          ld链接脚本学习总结
+          嵌入式ld链接脚本详解
         </h1>
 
         <div class="post-meta">
@@ -225,7 +225,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-12-25 10:22:15" itemprop="dateModified" datetime="2023-12-25T10:22:15+00:00">2023-12-25</time>
+                <time title="Modified: 2023-12-27 07:04:47" itemprop="dateModified" datetime="2023-12-27T07:04:47+00:00">2023-12-27</time>
               </span>
 
           
@@ -249,6 +249,10 @@
 <ul>
 <li><code>SECTIONS</code>是必须的</li>
 <li><code>MEMORY</code>可选的，如果没有，链接器则认为所有输入文件都位于同一个内存区域，并且从0x0开始</li>
+</ul>
+<h2 id="基本知识点补充"><a href="#基本知识点补充" class="headerlink" title="基本知识点补充"></a>基本知识点补充</h2><ul>
+<li>.ld文件是GNU链接器(ld)使用的标准链接脚本文件，可使用GNU链接器的所有功能，包括符号解析、重定位、符号表生成等</li>
+<li>.lds文件是旧式的链接脚本文件，其仅支持GNU链接器的部分功能，不推荐使用</li>
 </ul>
 <h2 id="块"><a href="#块" class="headerlink" title="块"></a>块</h2><ul>
 <li><strong>MEMORY</strong><br>为链接器提供系统内存的布局信息，并确定内存区域的访问权限。链接器根据MEMORY的信息，将编译生成的.o目标文件中的代码、数据、符号等分配到不同的内存区域。<br>示例代码如下：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">MEMORY</span><br><span class="line">&#123;</span><br><span class="line">FLASH (rx)      : ORIGIN = 0x8000000, LENGTH = 128K</span><br><span class="line">RAM (xrw)      : ORIGIN = 0x20000000, LENGTH = 32K</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
@@ -376,7 +380,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9D%97"><span class="nav-number">2.</span> <span class="nav-text">块</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%91%BD%E4%BB%A4"><span class="nav-number">3.</span> <span class="nav-text">命令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%AD%E5%8F%A5%E3%80%81%E7%89%87%E6%AE%B5%E7%A4%BA%E4%BE%8B%E8%A7%A3%E9%87%8A"><span class="nav-number">4.</span> <span class="nav-text">语句、片段示例解释</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%93%BE%E6%8E%A5%E8%84%9A%E6%9C%AC%E5%AE%8C%E6%95%B4%E7%A4%BA%E4%BE%8B%E8%A7%A3%E9%87%8A"><span class="nav-number">5.</span> <span class="nav-text">链接脚本完整示例解释</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E7%9F%A5%E8%AF%86%E7%82%B9%E8%A1%A5%E5%85%85"><span class="nav-number">2.</span> <span class="nav-text">基本知识点补充</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9D%97"><span class="nav-number">3.</span> <span class="nav-text">块</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%91%BD%E4%BB%A4"><span class="nav-number">4.</span> <span class="nav-text">命令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%AD%E5%8F%A5%E3%80%81%E7%89%87%E6%AE%B5%E7%A4%BA%E4%BE%8B%E8%A7%A3%E9%87%8A"><span class="nav-number">5.</span> <span class="nav-text">语句、片段示例解释</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%93%BE%E6%8E%A5%E8%84%9A%E6%9C%AC%E5%AE%8C%E6%95%B4%E7%A4%BA%E4%BE%8B%E8%A7%A3%E9%87%8A"><span class="nav-number">6.</span> <span class="nav-text">链接脚本完整示例解释</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
