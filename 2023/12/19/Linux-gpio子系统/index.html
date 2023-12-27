@@ -20,15 +20,15 @@
     var CONFIG = {"hostname":"jindu-chen.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="gpio子系统提供了用于设置GPIO方向、电平、速度等参数的API函数">
+  <meta name="description" content="gpio子系统对上层提供了用于设置GPIO方向、电平、速度等参数的API函数，使得开发者只需在设备树添加gpio相关信息后、使用其API函数即可简便地使用GPIO。本文从个人角度出发，讲述对gpio子系统的理解和部分源码剖析。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Linux gpio子系统">
 <meta property="og:url" content="https://jindu-chen.github.io/2023/12/19/Linux-gpio%E5%AD%90%E7%B3%BB%E7%BB%9F/index.html">
 <meta property="og:site_name" content="Jindu-Chen">
-<meta property="og:description" content="gpio子系统提供了用于设置GPIO方向、电平、速度等参数的API函数">
+<meta property="og:description" content="gpio子系统对上层提供了用于设置GPIO方向、电平、速度等参数的API函数，使得开发者只需在设备树添加gpio相关信息后、使用其API函数即可简便地使用GPIO。本文从个人角度出发，讲述对gpio子系统的理解和部分源码剖析。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2023-12-19T10:21:09.000Z">
-<meta property="article:modified_time" content="2023-12-26T10:12:35.224Z">
+<meta property="article:modified_time" content="2023-12-26T11:47:21.209Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -225,7 +225,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-12-26 10:12:35" itemprop="dateModified" datetime="2023-12-26T10:12:35+00:00">2023-12-26</time>
+                <time title="Modified: 2023-12-26 11:47:21" itemprop="dateModified" datetime="2023-12-26T11:47:21+00:00">2023-12-26</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -242,7 +242,7 @@
             </span>
 
           
-            <div class="post-description">gpio子系统提供了用于设置GPIO方向、电平、速度等参数的API函数</div>
+            <div class="post-description">gpio子系统对上层提供了用于设置GPIO方向、电平、速度等参数的API函数，使得开发者只需在设备树添加gpio相关信息后、使用其API函数即可简便地使用GPIO。本文从个人角度出发，讲述对gpio子系统的理解和部分源码剖析。</div>
 
         </div>
       </header>
@@ -253,7 +253,14 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        
+        <h2 id="gpio子系统基本概念简述"><a href="#gpio子系统基本概念简述" class="headerlink" title="gpio子系统基本概念简述"></a>gpio子系统基本概念简述</h2><ul>
+<li>首先，需要区分pinctrl和gpio子系统<ul>
+<li>pinctrl子系统是设置引脚(PIN&#x2F;PAD)的复用属性和电气属性，一个引脚如果被复用为GPIO属性，那么就需要用到gpio子系统</li>
+<li>gpio子系统，提供设置和使用GPIO的系列API，如：配置输入输出方向、设置输出电平、读取输入电平、设置输出速度、注册GPIO中断服务函数等等</li>
+</ul>
+</li>
+</ul>
+
     </div>
 
     
@@ -333,6 +340,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#gpio%E5%AD%90%E7%B3%BB%E7%BB%9F%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5%E7%AE%80%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">gpio子系统基本概念简述</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -346,7 +354,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">35</span>
+          <span class="site-state-item-count">36</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>

@@ -14,6 +14,41 @@
       </tags>
   </entry>
   <entry>
+    <title>通过VSCode + GDB 搭建WSL下的嵌入式mcu调试环境</title>
+    <url>/2023/12/04/%E9%80%9A%E8%BF%87VSCode-GDB-%E6%90%AD%E5%BB%BAWSL%E4%B8%8B%E7%9A%84%E5%B5%8C%E5%85%A5%E5%BC%8Fmcu%E8%B0%83%E8%AF%95%E7%8E%AF%E5%A2%83/</url>
+    <content><![CDATA[<h1 id="软件环境准备"><a href="#软件环境准备" class="headerlink" title="软件环境准备"></a>软件环境准备</h1><ul>
+<li>Windows下J-Link软件安装</li>
+<li>WSL</li>
+<li>VSCode<ul>
+<li>插件安装：C&#x2F;C++, WSL,</li>
+</ul>
+</li>
+</ul>
+<h1 id="操作步骤"><a href="#操作步骤" class="headerlink" title="操作步骤"></a>操作步骤</h1><ol>
+<li>将ARM仿真器与目标嵌入式设备连线</li>
+<li>在windows下J-Link的安装目录下，找到JLinkGDBServer.exe，点击打开，选择目标调试嵌入式设备</li>
+</ol>
+<p><img src="/../pictures/2023-12-04%20J-Link.png" alt="GDB Server config"><br><br><br><img src="/../pictures/2023-12-04%20j-link%20GDB.png" alt="J-Link GDB Server"></p>
+<ol start="3">
+<li>在Windows下使用VSCode登陆WSL，打开源码所在工程文件夹，作为VSCode工作区</li>
+<li>点击”Run and Debug”，选择GDB（C）调试，并提示需要配置launch.json文件，配置完成即可开始调试</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">#launch.json文件</span><br><span class="line">&#123;</span><br><span class="line">    // Use IntelliSense to learn about possible attributes.</span><br><span class="line">    // Hover to view descriptions of existing attributes.</span><br><span class="line">    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387</span><br><span class="line">    &quot;version&quot;: &quot;0.2.0&quot;,</span><br><span class="line">    &quot;configurations&quot;: [</span><br><span class="line">        &#123;</span><br><span class="line">            &quot;name&quot;: &quot;Debug with J-Link&quot;,</span><br><span class="line">            &quot;type&quot;: &quot;cppdbg&quot;,</span><br><span class="line">            &quot;request&quot;: &quot;launch&quot;,</span><br><span class="line">            &quot;program&quot;: &quot;$&#123;workspaceFolder&#125;/build/app.elf&quot;,  // .elf文件路径</span><br><span class="line">            &quot;miDebuggerPath&quot;: &quot;/home/chenjd/harmony/gcc-arm-none-eabi-9-2019-q4-major/bin/arm-none-eabi-gdb&quot;,   // WSL下的arm-none-eabi-gdb工具链路径</span><br><span class="line">            &quot;miDebuggerServerAddress&quot;: &quot;localhost:2331&quot;,        // J-Link端口，通常为2331</span><br><span class="line">            &quot;cwd&quot;: &quot;$&#123;workspaceFolder&#125;&quot;,</span><br><span class="line">            &quot;MIMode&quot;: &quot;gdb&quot;</span><br><span class="line">        &#125;,</span><br><span class="line">    ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="补充说明"><a href="#补充说明" class="headerlink" title="补充说明"></a>补充说明</h1>]]></content>
+      <categories>
+        <category>嵌入式</category>
+        <category>环境搭建</category>
+        <category>WSL</category>
+      </categories>
+      <tags>
+        <tag>WSL</tag>
+        <tag>VSCode</tag>
+        <tag>GDB</tag>
+        <tag>J-Link</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>常用编译/链接选项解释</title>
     <url>/2023/12/15/%E7%BC%96%E8%AF%91%E9%93%BE%E6%8E%A5%E9%80%89%E9%A1%B9%E6%84%8F%E4%B9%89%E8%A7%A3%E9%87%8A/</url>
     <content><![CDATA[<h2 id="编译纠错修改以及一些注意点"><a href="#编译纠错修改以及一些注意点" class="headerlink" title="编译纠错修改以及一些注意点"></a>编译纠错修改以及一些注意点</h2><ul>
@@ -63,49 +98,14 @@
 <h2 id="Makefile应用实例"><a href="#Makefile应用实例" class="headerlink" title="Makefile应用实例"></a>Makefile应用实例</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 指定交叉编译工具链的 编译器、连接器、库管理器、</span><br><span class="line">CROSS_COMPILE=arm-none-eabi-</span><br><span class="line">CC=$(CROSS_COMPILE)gcc</span><br><span class="line">LD=$(CROSS_COMPILE)ld</span><br><span class="line">AR=$(CROSS_COMPILE)ar</span><br><span class="line">AS=$(CROSS_COMPILE)as</span><br><span class="line">OC=$(CROSS_COMPILE)objcopy</span><br><span class="line">OD=$(CROSS_COMPILE)objdump</span><br><span class="line">SZ=$(CROSS_COMPILE)size</span><br><span class="line"></span><br><span class="line"># 指定目标硬件的架构和浮点运算单元   -mfpu=fpv4-sp-d16 -mfloat-abi=hard </span><br><span class="line"># O0:禁用优化，O1：基本优化，O2, O3, Os</span><br><span class="line"># g0:禁用调试信息, g1, g2, g3, g</span><br><span class="line">MCU = -mcpu=cortex-m4 -mthumb \</span><br><span class="line">	-ffunction-sections \</span><br><span class="line">	-fdata-sections \</span><br><span class="line">	-Os -ggdb</span><br><span class="line"></span><br><span class="line"># 定义编译C源文件的编译选项：禁用共享变量、函数和数据分段、优化级别、调试信息级别、开启所有警告、目标架构、预定义宏</span><br><span class="line">CFLAGS= -c -fno-common \</span><br><span class="line">	--specs=rdimon.specs \</span><br><span class="line">	-std=gnu99 -mabi=aapcs \</span><br><span class="line">	-Wall \</span><br><span class="line">	$(MCU) \</span><br><span class="line">	$(C_DEFS)</span><br><span class="line"></span><br><span class="line"># 定义链接器脚本、链接选项、目标文件格式转换选项、反汇编等等</span><br><span class="line">LDSCRIPT=n32l40x_flash.ld</span><br><span class="line">LDFLAGS = -Wl,--gc-sections --data-sections -mabi=aapcs $(MCU) -T$(LDSCRIPT) \</span><br><span class="line">	--specs=nosys.specs \</span><br><span class="line">	--specs=nano.specs \</span><br><span class="line">	-x assembler-with-cpp -Wa,-mimplicit-it=thumb</span><br><span class="line">OCFLAGS	= -Obinary</span><br><span class="line">ODFLAGS	= -S</span><br></pre></td></tr></table></figure>
 ]]></content>
       <categories>
-        <category>C语言</category>
         <category>嵌入式</category>
+        <category>C语言</category>
       </categories>
       <tags>
         <tag>gcc</tag>
         <tag>链接</tag>
         <tag>编译</tag>
         <tag>make</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>通过VSCode + GDB 搭建WSL下的嵌入式mcu调试环境</title>
-    <url>/2023/12/04/%E9%80%9A%E8%BF%87VSCode-GDB-%E6%90%AD%E5%BB%BAWSL%E4%B8%8B%E7%9A%84%E5%B5%8C%E5%85%A5%E5%BC%8Fmcu%E8%B0%83%E8%AF%95%E7%8E%AF%E5%A2%83/</url>
-    <content><![CDATA[<h1 id="软件环境准备"><a href="#软件环境准备" class="headerlink" title="软件环境准备"></a>软件环境准备</h1><ul>
-<li>Windows下J-Link软件安装</li>
-<li>WSL</li>
-<li>VSCode<ul>
-<li>插件安装：C&#x2F;C++, WSL,</li>
-</ul>
-</li>
-</ul>
-<h1 id="操作步骤"><a href="#操作步骤" class="headerlink" title="操作步骤"></a>操作步骤</h1><ol>
-<li>将ARM仿真器与目标嵌入式设备连线</li>
-<li>在windows下J-Link的安装目录下，找到JLinkGDBServer.exe，点击打开，选择目标调试嵌入式设备</li>
-</ol>
-<p><img src="/../pictures/2023-12-04%20J-Link.png" alt="GDB Server config"><br><br><br><img src="/../pictures/2023-12-04%20j-link%20GDB.png" alt="J-Link GDB Server"></p>
-<ol start="3">
-<li>在Windows下使用VSCode登陆WSL，打开源码所在工程文件夹，作为VSCode工作区</li>
-<li>点击”Run and Debug”，选择GDB（C）调试，并提示需要配置launch.json文件，配置完成即可开始调试</li>
-</ol>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">#launch.json文件</span><br><span class="line">&#123;</span><br><span class="line">    // Use IntelliSense to learn about possible attributes.</span><br><span class="line">    // Hover to view descriptions of existing attributes.</span><br><span class="line">    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387</span><br><span class="line">    &quot;version&quot;: &quot;0.2.0&quot;,</span><br><span class="line">    &quot;configurations&quot;: [</span><br><span class="line">        &#123;</span><br><span class="line">            &quot;name&quot;: &quot;Debug with J-Link&quot;,</span><br><span class="line">            &quot;type&quot;: &quot;cppdbg&quot;,</span><br><span class="line">            &quot;request&quot;: &quot;launch&quot;,</span><br><span class="line">            &quot;program&quot;: &quot;$&#123;workspaceFolder&#125;/build/app.elf&quot;,  // .elf文件路径</span><br><span class="line">            &quot;miDebuggerPath&quot;: &quot;/home/chenjd/harmony/gcc-arm-none-eabi-9-2019-q4-major/bin/arm-none-eabi-gdb&quot;,   // WSL下的arm-none-eabi-gdb工具链路径</span><br><span class="line">            &quot;miDebuggerServerAddress&quot;: &quot;localhost:2331&quot;,        // J-Link端口，通常为2331</span><br><span class="line">            &quot;cwd&quot;: &quot;$&#123;workspaceFolder&#125;&quot;,</span><br><span class="line">            &quot;MIMode&quot;: &quot;gdb&quot;</span><br><span class="line">        &#125;,</span><br><span class="line">    ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h1 id="补充说明"><a href="#补充说明" class="headerlink" title="补充说明"></a>补充说明</h1>]]></content>
-      <categories>
-        <category>嵌入式</category>
-        <category>环境搭建</category>
-        <category>WSL</category>
-      </categories>
-      <tags>
-        <tag>WSL</tag>
-        <tag>VSCode</tag>
-        <tag>GDB</tag>
-        <tag>J-Link</tag>
       </tags>
   </entry>
   <entry>
@@ -272,7 +272,7 @@
 <li>嵌入式Linux开发中，配置NFS挂载根文件系统</li>
 </ul>
 <hr>
-<h4 id="远程端口流量通过SSH映射到本地"><a href="#远程端口流量通过SSH映射到本地" class="headerlink" title="远程端口流量通过SSH映射到本地"></a>远程端口流量通过SSH映射到本地</h4><p>ssh -L 4000:localhost:4000 <a href="mailto:&#x6a;&#100;&#95;&#99;&#x68;&#x65;&#110;&#64;&#x31;&#x39;&#x32;&#x2e;&#49;&#x36;&#56;&#x2e;&#49;&#49;&#x32;&#x2e;&#50;&#52;&#48;">&#x6a;&#100;&#95;&#99;&#x68;&#x65;&#110;&#64;&#x31;&#x39;&#x32;&#x2e;&#49;&#x36;&#56;&#x2e;&#49;&#49;&#x32;&#x2e;&#50;&#52;&#48;</a></p>
+<h4 id="远程端口流量通过SSH映射到本地"><a href="#远程端口流量通过SSH映射到本地" class="headerlink" title="远程端口流量通过SSH映射到本地"></a>远程端口流量通过SSH映射到本地</h4><p>ssh -L 4000:localhost:4000 <a href="mailto:&#106;&#100;&#x5f;&#99;&#104;&#x65;&#x6e;&#x40;&#49;&#57;&#50;&#x2e;&#x31;&#x36;&#56;&#46;&#49;&#49;&#50;&#x2e;&#50;&#x34;&#48;">&#106;&#100;&#x5f;&#99;&#104;&#x65;&#x6e;&#x40;&#49;&#57;&#50;&#x2e;&#x31;&#x36;&#56;&#46;&#49;&#49;&#50;&#x2e;&#50;&#x34;&#48;</a></p>
 <h4 id="Linux给根目录扩容"><a href="#Linux给根目录扩容" class="headerlink" title="Linux给根目录扩容"></a>Linux给根目录扩容</h4>]]></content>
       <categories>
         <category>Linux</category>
@@ -327,10 +327,18 @@
   <entry>
     <title>MCU开发小贴士</title>
     <url>/2023/11/28/MCU%E5%BC%80%E5%8F%91%E5%B0%8F%E8%B4%B4%E5%A3%AB/</url>
-    <content><![CDATA[<ul>
-<li>全局开关中断操作  <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">__disable_irq();    // 将 PRIMASK 寄存器的值设置为 1，禁止所有中断</span><br><span class="line">__enable_irq();     // 将 PRIMASK 寄存器的值设置为 0，开启所有中断</span><br><span class="line">__set_PRIMASK(1);   // PRIMASK 值为 1 ，所有可屏蔽中断的优先级为 1，表示所有可屏蔽中断均不能被中断处理程序处理，只能由 NMI 处理程序处理</span><br><span class="line">__set_PRIMASK(0);</span><br><span class="line"></span><br><span class="line">// 在 Cortex-M 架构中，FAULTMASK 寄存器控制所有异常的优先级</span><br><span class="line">__set_FAULTMASK(1);  // FAULTMASK 寄存器的值为 1 时，所有异常的优先级为 1，表示所有异常均不能被中断处理程序处理，只能由 NMI 处理程序处理</span><br><span class="line">__set_FAULTMASK(0);</span><br><span class="line"></span><br><span class="line">CPSID F        //关异常，FAULTMASK=1</span><br><span class="line">CPSIE F        //开异常，FAULTMASK=0</span><br></pre></td></tr></table></figure></li>
+    <content><![CDATA[<h2 id="内核相关部分"><a href="#内核相关部分" class="headerlink" title="内核相关部分"></a>内核相关部分</h2><h3 id="全局开关中断操作"><a href="#全局开关中断操作" class="headerlink" title="全局开关中断操作"></a>全局开关中断操作</h3><pre><code><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">__disable_irq();    // 将 PRIMASK 寄存器的值设置为 1，禁止所有中断</span><br><span class="line">__enable_irq();     // 将 PRIMASK 寄存器的值设置为 0，开启所有中断</span><br><span class="line">__set_PRIMASK(1);   // PRIMASK 值为 1 ，所有可屏蔽中断的优先级为 1，表示所有可屏蔽中断均不能被中断处理程序处理，只能由 NMI 处理程序处理</span><br><span class="line">__set_PRIMASK(0);</span><br><span class="line"></span><br><span class="line">// 在 Cortex-M 架构中，FAULTMASK 寄存器控制所有异常的优先级</span><br><span class="line">__set_FAULTMASK(1);  // FAULTMASK 寄存器的值为 1 时，所有异常的优先级为 1，表示所有异常均不能被中断处理程序处理，只能由 NMI 处理程序处理</span><br><span class="line">__set_FAULTMASK(0);</span><br><span class="line"></span><br><span class="line">CPSID F        //关异常，FAULTMASK=1</span><br><span class="line">CPSIE F        //开异常，FAULTMASK=0</span><br></pre></td></tr></table></figure>
+</code></pre>
+<h2 id="外设相关部分"><a href="#外设相关部分" class="headerlink" title="外设相关部分"></a>外设相关部分</h2><h3 id="GPIO的输出速度"><a href="#GPIO的输出速度" class="headerlink" title="GPIO的输出速度"></a>GPIO的输出速度</h3><ul>
+<li>根据外部设备要求进行配置<ul>
+<li>常规的控制LED灯、按键等，采用2MHz即可</li>
+<li>GPIO模拟SPI、I2C等总线，可以配置为10MHz</li>
+<li>控制DDR、USB等超高速接口，配置50MHZ</li>
 </ul>
-]]></content>
+</li>
+<li>GPIO的输出速度越高，其驱动电路的功耗就越高</li>
+</ul>
+<h3 id="外设接口的通信频率"><a href="#外设接口的通信频率" class="headerlink" title="外设接口的通信频率"></a>外设接口的通信频率</h3>]]></content>
       <categories>
         <category>MCU</category>
       </categories>
@@ -338,6 +346,32 @@
   <entry>
     <title>RT-Thread启动流程简述</title>
     <url>/2023/11/28/RT-Thread%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B%E7%AE%80%E8%BF%B0/</url>
+    <content><![CDATA[]]></content>
+  </entry>
+  <entry>
+    <title>WSL小贴士</title>
+    <url>/2023/11/28/WSL%E5%B0%8F%E8%B4%B4%E5%A3%AB/</url>
+    <content><![CDATA[<h4 id="在windows下访问WSL的目录"><a href="#在windows下访问WSL的目录" class="headerlink" title="在windows下访问WSL的目录"></a>在windows下访问WSL的目录</h4><ul>
+<li>在wwindows的资源管理器输入<code>\\wsl$</code>即可</li>
+<li>直接访问WSL的根路径<ul>
+<li><code>C:\Users\xxx\AppData\Local\Packages\CanonicalGroupLimited.Ubuntu18.04onWindows_79rhkp1fndgsc\LocalState\rootfs</code></li>
+<li>其中<code>xxx</code>为个人用户名</li>
+<li>如果过程中没有找到对应的文件夹，请勾选<code>资源管理器-&gt;查看-&gt;隐藏的项目</code><br></li>
+</ul>
+</li>
+</ul>
+<h4 id="WSL下通过命令执行Windows下的bat脚本"><a href="#WSL下通过命令执行Windows下的bat脚本" class="headerlink" title="WSL下通过命令执行Windows下的bat脚本"></a>WSL下通过命令执行Windows下的bat脚本</h4><pre><code>`wsl.exe -d Ubuntu-18.04 cmd.exe /c &quot;C:\Users\program.bat&quot;`
+</code></pre>
+<h4 id="开启WSL的NFS服务"><a href="#开启WSL的NFS服务" class="headerlink" title="开启WSL的NFS服务"></a>开启WSL的NFS服务</h4><pre><code>实现u-boot通过nfs服务挂载WSL下的根文件系统
+</code></pre>
+]]></content>
+      <categories>
+        <category>WSL</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>国民技术N32芯片移植RT-Thread-Nano记录</title>
+    <url>/2023/11/28/%E5%9B%BD%E6%B0%91%E6%8A%80%E6%9C%AFN32%E8%8A%AF%E7%89%87%E7%A7%BB%E6%A4%8DRT-Thread-Nano%E8%AE%B0%E5%BD%95/</url>
     <content><![CDATA[]]></content>
   </entry>
   <entry>
@@ -392,32 +426,6 @@
         <tag>STM32</tag>
         <tag>MCU</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>WSL小贴士</title>
-    <url>/2023/11/28/WSL%E5%B0%8F%E8%B4%B4%E5%A3%AB/</url>
-    <content><![CDATA[<h4 id="在windows下访问WSL的目录"><a href="#在windows下访问WSL的目录" class="headerlink" title="在windows下访问WSL的目录"></a>在windows下访问WSL的目录</h4><ul>
-<li>在wwindows的资源管理器输入<code>\\wsl$</code>即可</li>
-<li>直接访问WSL的根路径<ul>
-<li><code>C:\Users\xxx\AppData\Local\Packages\CanonicalGroupLimited.Ubuntu18.04onWindows_79rhkp1fndgsc\LocalState\rootfs</code></li>
-<li>其中<code>xxx</code>为个人用户名</li>
-<li>如果过程中没有找到对应的文件夹，请勾选<code>资源管理器-&gt;查看-&gt;隐藏的项目</code><br></li>
-</ul>
-</li>
-</ul>
-<h4 id="WSL下通过命令执行Windows下的bat脚本"><a href="#WSL下通过命令执行Windows下的bat脚本" class="headerlink" title="WSL下通过命令执行Windows下的bat脚本"></a>WSL下通过命令执行Windows下的bat脚本</h4><pre><code>`wsl.exe -d Ubuntu-18.04 cmd.exe /c &quot;C:\Users\program.bat&quot;`
-</code></pre>
-<h4 id="开启WSL的NFS服务"><a href="#开启WSL的NFS服务" class="headerlink" title="开启WSL的NFS服务"></a>开启WSL的NFS服务</h4><pre><code>实现u-boot通过nfs服务挂载WSL下的根文件系统
-</code></pre>
-]]></content>
-      <categories>
-        <category>WSL</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>国民技术N32芯片移植RT-Thread-Nano记录</title>
-    <url>/2023/11/28/%E5%9B%BD%E6%B0%91%E6%8A%80%E6%9C%AFN32%E8%8A%AF%E7%89%87%E7%A7%BB%E6%A4%8DRT-Thread-Nano%E8%AE%B0%E5%BD%95/</url>
-    <content><![CDATA[]]></content>
   </entry>
   <entry>
     <title>嵌入式MCU开发问题记录</title>
@@ -683,10 +691,30 @@
       </tags>
   </entry>
   <entry>
-    <title>OpenHarmony-V4.0使用记录</title>
+    <title>OpenHarmony-V4.0-LiteOS-M开发调试记录</title>
     <url>/2023/11/29/OpenHarmony-V4-0%E5%BA%94%E7%94%A8%E8%AE%B0%E5%BD%95/</url>
     <content><![CDATA[<h2 id="编译纠错"><a href="#编译纠错" class="headerlink" title="编译纠错"></a>编译纠错</h2><ul>
-<li>提示以下信息，  <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">../../../kernel/liteos_m/kernel/src/los_init.c:54:10: fatal error: los_exc_info.h: No such file or directory</span><br><span class="line">54 | #include &quot;los_exc_info.h&quot;</span><br><span class="line">    |          ^~~~~~~~~~~~~~~~</span><br><span class="line">compilation terminated.</span><br><span class="line">[43/265] gcc cross compiler obj/kernel/liteos_m/kal/posix/src/posix.pthread_cond.o</span><br></pre></td></tr></table></figure></li>
+<li><p>提示以下信息，</p>
+  <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">../../../kernel/liteos_m/kernel/src/los_init.c:54:10: fatal error: los_exc_info.h: No such file or directory</span><br><span class="line">54 | #include &quot;los_exc_info.h&quot;</span><br><span class="line">    |          ^~~~~~~~~~~~~~~~</span><br><span class="line">compilation terminated.</span><br><span class="line">[43/265] gcc cross compiler obj/kernel/liteos_m/kal/posix/src/posix.pthread_cond.o</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>出现如下编译错误，在vfs_fs.c添加头文件&lt;stdbool.h&gt;包含即可</p>
+  <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">[OHOS ERROR] [56/340] gcc cross compiler obj/kernel/liteos_m/components/fs/vfs/vfs.vfs_fs.o</span><br><span class="line">[OHOS ERROR] FAILED: obj/kernel/liteos_m/components/fs/vfs/vfs.vfs_fs.o </span><br><span class="line">...</span><br><span class="line">[OHOS ERROR] ../../../kernel/liteos_m/components/fs/vfs/vfs_fs.c:214:43: error: unknown type name &#x27;bool&#x27;</span><br><span class="line">[OHOS ERROR]   214 | static int VfsPathCheck(const char *path, bool isFile)</span><br><span class="line">[OHOS ERROR]       |                                           ^~~~</span><br><span class="line">[OHOS ERROR] ../../../kernel/liteos_m/components/fs/vfs/vfs_fs.c: In function &#x27;VfsOpen&#x27;:</span><br><span class="line">[OHOS ERROR] ../../../kernel/liteos_m/components/fs/vfs/vfs_fs.c:244:9: error: implicit declaration of function &#x27;VfsPathCheck&#x27; [-Werror=implicit-function-declaration]</span><br><span class="line">[OHOS ERROR]   244 |     if (VfsPathCheck(path, TRUE) != LOS_OK) </span><br><span class="line">[OHOS ERROR]       |         ^~~~~~~~~~~~</span><br><span class="line">[OHOS ERROR] cc1: all warnings being treated as errors</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="轻量系统应用兼容性测试适配"><a href="#轻量系统应用兼容性测试适配" class="headerlink" title="轻量系统应用兼容性测试适配"></a>轻量系统应用兼容性测试适配</h2><ul>
+<li>在vendor目录下产品的config.json文件中，添加XTS子系统组件定义</li>
+</ul>
+<h3 id="XTS子系统编译流程"><a href="#XTS子系统编译流程" class="headerlink" title="XTS子系统编译流程"></a>XTS子系统编译流程</h3><ul>
+<li>通过hb工具读取系统配置文件(即vendor目录下产品的config.json)，获取参与编译的子系统以及部件信息</li>
+<li>通过gn工具会读取XTS子系统BUILD.gn–all_features会读取轻量系统全部acts测试套件<ul>
+<li>判断是否debug版本<code>if (ohos_build_type == &quot;debug&quot; &amp;&amp; ohos_test_args != &quot;notest&quot;) </code>，非debug版本XTS不参与编译</li>
+</ul>
+</li>
+<li>将轻量系统全部acts测试套件与产品的config.json子系统组件对比，存在的子系统部件参与最终编译</li>
+<li>最终生成静态库.a归档路径：<code>out/.../.../libs</code><ul>
+<li>XTS子系统: libmodule_xxx.a，测试框架：libhctest.a</li>
+</ul>
+</li>
+<li>.a库链接操作</li>
 </ul>
 ]]></content>
       <categories>
@@ -1002,26 +1030,6 @@
 ]]></content>
   </entry>
   <entry>
-    <title>ARM架构及相关概念</title>
-    <url>/2023/12/04/ARM%E6%9E%B6%E6%9E%84%E5%8F%8A%E7%9B%B8%E5%85%B3%E6%A6%82%E5%BF%B5/</url>
-    <content><![CDATA[<h2 id="ARM指令集"><a href="#ARM指令集" class="headerlink" title="ARM指令集"></a>ARM指令集</h2><h3 id="Thumb指令集"><a href="#Thumb指令集" class="headerlink" title="Thumb指令集"></a>Thumb指令集</h3><p>其是ARM指令集的一个子集，16位的代码宽度</p>
-<h2 id="哈佛架构与冯诺依曼架构"><a href="#哈佛架构与冯诺依曼架构" class="headerlink" title="哈佛架构与冯诺依曼架构"></a>哈佛架构与冯诺依曼架构</h2><h2 id="CPU寄存器"><a href="#CPU寄存器" class="headerlink" title="CPU寄存器"></a>CPU寄存器</h2><h4 id="glue-7、glue-7t-和-eh-frame"><a href="#glue-7、glue-7t-和-eh-frame" class="headerlink" title="glue_7、glue_7t 和 eh_frame"></a>glue_7、glue_7t 和 eh_frame</h4><ul>
-<li><p>glue_7 和 glue_7t 是 ARM 架构中用于将 ARM 代码和 Thumb 代码粘合在一起的代码。</p>
-</li>
-<li><p>ARM 架构支持两种指令集：ARM 指令集和 Thumb 指令集。ARM 指令集是 32 位指令集，而 Thumb 指令集是 16 位指令集。为了兼容两种指令集，ARM 架构中引入了一种称为 Thumb 嵌入 的机制。</p>
-</li>
-<li><p>Thumb 嵌入允许 ARM 代码中嵌入 Thumb 指令，反之亦然。当 ARM 代码中嵌入 Thumb 指令时，连接器会生成 glue_7 或 glue_7t  section 来将 ARM 代码和 Thumb 代码粘合在一起。</p>
-</li>
-<li><p>eh_frame 是异常处理框架（Exception Handling Frame）的缩写。异常处理框架是用于支持异常处理的一种结构。当程序发生异常时，异常处理框架会保存程序的运行状态，并将程序转到异常处理程序。</p>
-</li>
-<li><p>异常处理框架通常包含以下信息：<br>  程序的堆栈指针（SP）<br>  程序的返回地址（LR）<br>  异常发生时的寄存器值</p>
-</li>
-<li><p>eh_frame section 包含了异常处理框架的信息。当程序发生异常时，连接器会将 eh_frame section 加载到内存中，以便异常处理程序可以访问异常处理框架的信息</p>
-</li>
-</ul>
-]]></content>
-  </entry>
-  <entry>
     <title>Makefile相关学习笔记</title>
     <url>/2023/12/05/Makefile%E7%9B%B8%E5%85%B3%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</url>
     <content><![CDATA[<h2 id="基础学习"><a href="#基础学习" class="headerlink" title="基础学习"></a>基础学习</h2><h3 id="符号"><a href="#符号" class="headerlink" title="符号"></a>符号</h3><ul>
@@ -1077,12 +1085,58 @@
     <content><![CDATA[]]></content>
   </entry>
   <entry>
+    <title>ARM架构及相关概念</title>
+    <url>/2023/12/04/ARM%E6%9E%B6%E6%9E%84%E5%8F%8A%E7%9B%B8%E5%85%B3%E6%A6%82%E5%BF%B5/</url>
+    <content><![CDATA[<h2 id="ARM指令集"><a href="#ARM指令集" class="headerlink" title="ARM指令集"></a>ARM指令集</h2><h3 id="Thumb指令集"><a href="#Thumb指令集" class="headerlink" title="Thumb指令集"></a>Thumb指令集</h3><p>其是ARM指令集的一个子集，16位的代码宽度</p>
+<h2 id="哈佛架构与冯诺依曼架构"><a href="#哈佛架构与冯诺依曼架构" class="headerlink" title="哈佛架构与冯诺依曼架构"></a>哈佛架构与冯诺依曼架构</h2><h2 id="CPU寄存器"><a href="#CPU寄存器" class="headerlink" title="CPU寄存器"></a>CPU寄存器</h2><h4 id="glue-7、glue-7t-和-eh-frame"><a href="#glue-7、glue-7t-和-eh-frame" class="headerlink" title="glue_7、glue_7t 和 eh_frame"></a>glue_7、glue_7t 和 eh_frame</h4><ul>
+<li><p>glue_7 和 glue_7t 是 ARM 架构中用于将 ARM 代码和 Thumb 代码粘合在一起的代码。</p>
+</li>
+<li><p>ARM 架构支持两种指令集：ARM 指令集和 Thumb 指令集。ARM 指令集是 32 位指令集，而 Thumb 指令集是 16 位指令集。为了兼容两种指令集，ARM 架构中引入了一种称为 Thumb 嵌入 的机制。</p>
+</li>
+<li><p>Thumb 嵌入允许 ARM 代码中嵌入 Thumb 指令，反之亦然。当 ARM 代码中嵌入 Thumb 指令时，连接器会生成 glue_7 或 glue_7t  section 来将 ARM 代码和 Thumb 代码粘合在一起。</p>
+</li>
+<li><p>eh_frame 是异常处理框架（Exception Handling Frame）的缩写。异常处理框架是用于支持异常处理的一种结构。当程序发生异常时，异常处理框架会保存程序的运行状态，并将程序转到异常处理程序。</p>
+</li>
+<li><p>异常处理框架通常包含以下信息：<br>  程序的堆栈指针（SP）<br>  程序的返回地址（LR）<br>  异常发生时的寄存器值</p>
+</li>
+<li><p>eh_frame section 包含了异常处理框架的信息。当程序发生异常时，连接器会将 eh_frame section 加载到内存中，以便异常处理程序可以访问异常处理框架的信息</p>
+</li>
+</ul>
+]]></content>
+  </entry>
+  <entry>
     <title>Linux gpio子系统</title>
     <url>/2023/12/19/Linux-gpio%E5%AD%90%E7%B3%BB%E7%BB%9F/</url>
-    <content><![CDATA[]]></content>
+    <content><![CDATA[<h2 id="gpio子系统基本概念简述"><a href="#gpio子系统基本概念简述" class="headerlink" title="gpio子系统基本概念简述"></a>gpio子系统基本概念简述</h2><ul>
+<li>首先，需要区分pinctrl和gpio子系统<ul>
+<li>pinctrl子系统是设置引脚(PIN&#x2F;PAD)的复用属性和电气属性，一个引脚如果被复用为GPIO属性，那么就需要用到gpio子系统</li>
+<li>gpio子系统，提供设置和使用GPIO的系列API，如：配置输入输出方向、设置输出电平、读取输入电平、设置输出速度、注册GPIO中断服务函数等等</li>
+</ul>
+</li>
+</ul>
+]]></content>
       <categories>
         <category>Linux</category>
         <category>I.MX6ULL</category>
       </categories>
+  </entry>
+  <entry>
+    <title>GN和ninja的区别、联系和应用开发</title>
+    <url>/2023/12/27/GN%E5%92%8Cninja%E7%9A%84%E5%8C%BA%E5%88%AB%E3%80%81%E8%81%94%E7%B3%BB%E5%92%8C%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/</url>
+    <content><![CDATA[<h2 id="基本概念介绍"><a href="#基本概念介绍" class="headerlink" title="基本概念介绍"></a>基本概念介绍</h2><ul>
+<li><p>GN文件使用GN语言编写，其是一种基于脚本的语言，用于定义构建系统的规则和目标</p>
+<ul>
+<li>GN文件可以用于构建各种类型的项目，包括C++、Java、Python项目</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">rule my_rule &#123;</span><br><span class="line"># 定义规则的输入</span><br><span class="line">input: &quot;input.cpp&quot;</span><br><span class="line"># 定义规则的输出</span><br><span class="line">output: &quot;output.o&quot;</span><br><span class="line"></span><br><span class="line"># 定义规则的执行逻辑</span><br><span class="line">action &#123;</span><br><span class="line">    command: &quot;gcc -c input.cpp -o output.o&quot;</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>ninja用于执行GN文件定义的规则和目标，其是一个C++编写的构建工具，可以生成高效的构建命令，提高构建速度</p>
+</li>
+</ul>
+<h2 id="LiteOS-M内核之GN设计"><a href="#LiteOS-M内核之GN设计" class="headerlink" title="LiteOS-M内核之GN设计"></a>LiteOS-M内核之GN设计</h2><h3 id="编译入口"><a href="#编译入口" class="headerlink" title="编译入口"></a>编译入口</h3><ul>
+<li>LiteOS-M的编译入口定义在<code>//build/lite/components/kernel.json</code>，目标为<code>//kernel/liteos_m:kernel</code>，其在<code>//kernel/liteos_m/BUILD.gn</code>中定义</li>
+<li>在产品的config.json配置文件中进行如下编写，表示要编译构建LiteOS-M内核<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">&quot;subsystem&quot;: &quot;kernel&quot;,</span><br><span class="line">&quot;components&quot;: [</span><br><span class="line">&#123; &quot;component&quot;: &quot;liteos_m&quot;, &quot;features&quot;:[] &#125;</span><br><span class="line">]</span><br><span class="line">&#125;,</span><br></pre></td></tr></table></figure></li>
+</ul>
+]]></content>
   </entry>
 </search>
