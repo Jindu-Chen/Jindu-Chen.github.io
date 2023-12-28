@@ -251,6 +251,14 @@
       
         <h2 id="内核相关部分"><a href="#内核相关部分" class="headerlink" title="内核相关部分"></a>内核相关部分</h2><h3 id="全局开关中断操作"><a href="#全局开关中断操作" class="headerlink" title="全局开关中断操作"></a>全局开关中断操作</h3><pre><code><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">__disable_irq();    // 将 PRIMASK 寄存器的值设置为 1，禁止所有中断</span><br><span class="line">__enable_irq();     // 将 PRIMASK 寄存器的值设置为 0，开启所有中断</span><br><span class="line">__set_PRIMASK(1);   // PRIMASK 值为 1 ，所有可屏蔽中断的优先级为 1，表示所有可屏蔽中断均不能被中断处理程序处理，只能由 NMI 处理程序处理</span><br><span class="line">__set_PRIMASK(0);</span><br><span class="line"></span><br><span class="line">// 在 Cortex-M 架构中，FAULTMASK 寄存器控制所有异常的优先级</span><br><span class="line">__set_FAULTMASK(1);  // FAULTMASK 寄存器的值为 1 时，所有异常的优先级为 1，表示所有异常均不能被中断处理程序处理，只能由 NMI 处理程序处理</span><br><span class="line">__set_FAULTMASK(0);</span><br><span class="line"></span><br><span class="line">CPSID F        //关异常，FAULTMASK=1</span><br><span class="line">CPSIE F        //开异常，FAULTMASK=0</span><br></pre></td></tr></table></figure>
 </code></pre>
+<h3 id="MCU获取CPU使用率原理"><a href="#MCU获取CPU使用率原理" class="headerlink" title="MCU获取CPU使用率原理"></a>MCU获取CPU使用率原理</h3><ul>
+<li>理论来说，裸机程序不能获取CPU使用率</li>
+<li>在RTOS下，可以通过计时器来测量CPU在空闲任务的运行时间，计算其占整体运行时间的比率即可得到CPU使用率<ul>
+<li>CPU使用率 &#x3D; (CPU总运行时间 - CPU空闲时间) &#x2F; CPU总运行时间</li>
+<li>通过使用计时器，可以计算上电运行以后的 CPU总使用率，也可以计算 一个时间周期内 CPU的使用率</li>
+</ul>
+</li>
+</ul>
 <h2 id="外设相关部分"><a href="#外设相关部分" class="headerlink" title="外设相关部分"></a>外设相关部分</h2><h3 id="GPIO的输出速度"><a href="#GPIO的输出速度" class="headerlink" title="GPIO的输出速度"></a>GPIO的输出速度</h3><ul>
 <li>根据外部设备要求进行配置<ul>
 <li>常规的控制LED灯、按键等，采用2MHz即可</li>
@@ -340,7 +348,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%86%85%E6%A0%B8%E7%9B%B8%E5%85%B3%E9%83%A8%E5%88%86"><span class="nav-number">1.</span> <span class="nav-text">内核相关部分</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%A8%E5%B1%80%E5%BC%80%E5%85%B3%E4%B8%AD%E6%96%AD%E6%93%8D%E4%BD%9C"><span class="nav-number">1.1.</span> <span class="nav-text">全局开关中断操作</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%96%E8%AE%BE%E7%9B%B8%E5%85%B3%E9%83%A8%E5%88%86"><span class="nav-number">2.</span> <span class="nav-text">外设相关部分</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#GPIO%E7%9A%84%E8%BE%93%E5%87%BA%E9%80%9F%E5%BA%A6"><span class="nav-number">2.1.</span> <span class="nav-text">GPIO的输出速度</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%96%E8%AE%BE%E6%8E%A5%E5%8F%A3%E7%9A%84%E9%80%9A%E4%BF%A1%E9%A2%91%E7%8E%87"><span class="nav-number">2.2.</span> <span class="nav-text">外设接口的通信频率</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%86%85%E6%A0%B8%E7%9B%B8%E5%85%B3%E9%83%A8%E5%88%86"><span class="nav-number">1.</span> <span class="nav-text">内核相关部分</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%A8%E5%B1%80%E5%BC%80%E5%85%B3%E4%B8%AD%E6%96%AD%E6%93%8D%E4%BD%9C"><span class="nav-number">1.1.</span> <span class="nav-text">全局开关中断操作</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MCU%E8%8E%B7%E5%8F%96CPU%E4%BD%BF%E7%94%A8%E7%8E%87%E5%8E%9F%E7%90%86"><span class="nav-number">1.2.</span> <span class="nav-text">MCU获取CPU使用率原理</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%96%E8%AE%BE%E7%9B%B8%E5%85%B3%E9%83%A8%E5%88%86"><span class="nav-number">2.</span> <span class="nav-text">外设相关部分</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#GPIO%E7%9A%84%E8%BE%93%E5%87%BA%E9%80%9F%E5%BA%A6"><span class="nav-number">2.1.</span> <span class="nav-text">GPIO的输出速度</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%96%E8%AE%BE%E6%8E%A5%E5%8F%A3%E7%9A%84%E9%80%9A%E4%BF%A1%E9%A2%91%E7%8E%87"><span class="nav-number">2.2.</span> <span class="nav-text">外设接口的通信频率</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
