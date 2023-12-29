@@ -74,27 +74,6 @@
       </tags>
   </entry>
   <entry>
-    <title>IAP/OTA流程概述</title>
-    <url>/2023/11/28/IAP-OTA%E6%B5%81%E7%A8%8B%E6%A6%82%E8%BF%B0/</url>
-    <content><![CDATA[<h3 id="DCD配置"><a href="#DCD配置" class="headerlink" title="DCD配置"></a>DCD配置</h3><h3 id="注意点"><a href="#注意点" class="headerlink" title="注意点"></a>注意点</h3><ul>
-<li><p>内部Flash和片外Flash的擦除单位可能不一致，2K、4K字节不等</p>
-</li>
-<li><p>写Flash须考虑4字节对齐</p>
-</li>
-<li><p>有可能导致内核复位后触发HardFault异常的原因</p>
-<ul>
-<li>跳转前未关中断；中断控制器没复位清零；中断向量表偏移未设置正确；</li>
-</ul>
-</li>
-<li><p>同一个bootloader和app，有时上电无法跳转，程序跑飞，此时断电后马上上电，又能跳转成功？</p>
-</li>
-</ul>
-]]></content>
-      <categories>
-        <category>MCU</category>
-      </categories>
-  </entry>
-  <entry>
     <title>通过VSCode + GDB 搭建WSL下的嵌入式mcu调试环境</title>
     <url>/2023/12/04/%E9%80%9A%E8%BF%87VSCode-GDB-%E6%90%AD%E5%BB%BAWSL%E4%B8%8B%E7%9A%84%E5%B5%8C%E5%85%A5%E5%BC%8Fmcu%E8%B0%83%E8%AF%95%E7%8E%AF%E5%A2%83/</url>
     <content><![CDATA[<h1 id="软件环境准备"><a href="#软件环境准备" class="headerlink" title="软件环境准备"></a>软件环境准备</h1><ul>
@@ -128,6 +107,27 @@
         <tag>GDB</tag>
         <tag>J-Link</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>IAP/OTA流程概述</title>
+    <url>/2023/11/28/IAP-OTA%E6%B5%81%E7%A8%8B%E6%A6%82%E8%BF%B0/</url>
+    <content><![CDATA[<h3 id="DCD配置"><a href="#DCD配置" class="headerlink" title="DCD配置"></a>DCD配置</h3><h3 id="注意点"><a href="#注意点" class="headerlink" title="注意点"></a>注意点</h3><ul>
+<li><p>内部Flash和片外Flash的擦除单位可能不一致，2K、4K字节不等</p>
+</li>
+<li><p>写Flash须考虑4字节对齐</p>
+</li>
+<li><p>有可能导致内核复位后触发HardFault异常的原因</p>
+<ul>
+<li>跳转前未关中断；中断控制器没复位清零；中断向量表偏移未设置正确；</li>
+</ul>
+</li>
+<li><p>同一个bootloader和app，有时上电无法跳转，程序跑飞，此时断电后马上上电，又能跳转成功？</p>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>MCU</category>
+      </categories>
   </entry>
   <entry>
     <title>Linux U-Boot移植概述-基于I-MX6ULL</title>
@@ -213,52 +213,6 @@
       </categories>
   </entry>
   <entry>
-    <title>LiteOS中断管理之SysTick</title>
-    <url>/2023/12/10/LiteOS%E4%B8%AD%E6%96%AD%E7%AE%A1%E7%90%86%E4%B9%8BSysTick/</url>
-    <content><![CDATA[<p>通常用户对LiteOS的初始化调用如下：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">main():</span><br><span class="line">    LOS_KernelInit();       // 内核初始化</span><br><span class="line">    LiteOS_Task_sample();   // 用户业务代码，创建初始任务等</span><br><span class="line">    LOS_Start();            // 开启调度</span><br></pre></td></tr></table></figure>
-
-<h1 id="LiteOS的中断函数映射管理"><a href="#LiteOS的中断函数映射管理" class="headerlink" title="LiteOS的中断函数映射管理"></a>LiteOS的中断函数映射管理</h1><h2 id="LiteOS中断映射表初始化"><a href="#LiteOS中断映射表初始化" class="headerlink" title="LiteOS中断映射表初始化"></a>LiteOS中断映射表初始化</h2><ul>
-<li>函数调用顺序：<code>LOS_KernelInit() -&gt; ArchInit() -&gt; HalHwiInit()</code></li>
-</ul>
-<p>如下代码<code>SCB-&gt;VTOR = (UINT32)(UINTPTR)hwiForm;</code>将中断向量映射基地址设为自定义变量地址</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># arch/arm/cortex-m4/iar/los_interrupt.c &gt; HalHwiInit()</span><br><span class="line"></span><br><span class="line">#if (LOSCFG_USE_SYSTEM_DEFINED_INTERRUPT == 1)</span><br><span class="line">    UINT32 index;</span><br><span class="line">    HWI_PROC_FUNC *hwiForm = (HWI_PROC_FUNC *)ArchGetHwiFrom();</span><br><span class="line">    hwiForm[0] = 0;             /* [0] Top of Stack */</span><br><span class="line">    hwiForm[1] = (HWI_PROC_FUNC)Reset_Handler; /* [1] reset */</span><br><span class="line">    for (index = 2; index &lt; OS_VECTOR_CNT; index++) &#123; /* 2: The starting position of the interrupt */</span><br><span class="line">        hwiForm[index] = (HWI_PROC_FUNC)HalHwiDefaultHandler;</span><br><span class="line">    &#125;</span><br><span class="line">    /* Exception handler register */</span><br><span class="line">    hwiForm[NonMaskableInt_IRQn + OS_SYS_VECTOR_CNT]   = (HWI_PROC_FUNC)HalExcNMI;</span><br><span class="line">    hwiForm[HARDFAULT_IRQN + OS_SYS_VECTOR_CNT]        = (HWI_PROC_FUNC)HalExcHardFault;</span><br><span class="line">    hwiForm[MemoryManagement_IRQn + OS_SYS_VECTOR_CNT] = (HWI_PROC_FUNC)HalExcMemFault;</span><br><span class="line">    hwiForm[BusFault_IRQn + OS_SYS_VECTOR_CNT]         = (HWI_PROC_FUNC)HalExcBusFault;</span><br><span class="line">    hwiForm[UsageFault_IRQn + OS_SYS_VECTOR_CNT]       = (HWI_PROC_FUNC)HalExcUsageFault;</span><br><span class="line">    hwiForm[SVCall_IRQn + OS_SYS_VECTOR_CNT]           = (HWI_PROC_FUNC)HalExcSvcCall;</span><br><span class="line">    hwiForm[PendSV_IRQn + OS_SYS_VECTOR_CNT]           = (HWI_PROC_FUNC)HalPendSV;</span><br><span class="line">    hwiForm[SysTick_IRQn + OS_SYS_VECTOR_CNT]          = (HWI_PROC_FUNC)SysTick_Handler;</span><br><span class="line"></span><br><span class="line">    /* Interrupt vector table location */</span><br><span class="line">    SCB-&gt;VTOR = (UINT32)(UINTPTR)hwiForm;</span><br><span class="line">#endif</span><br></pre></td></tr></table></figure>
-
-<h1 id="配置SysTick中断服务函数"><a href="#配置SysTick中断服务函数" class="headerlink" title="配置SysTick中断服务函数"></a>配置SysTick中断服务函数</h1><ul>
-<li>函数调用顺序：<code>LOS_KernelInit() -&gt; OsTickTimerInit() -&gt; OsTickTimerInit() -&gt; g_sysTickTimer-&gt;init(OsTickHandler) -&gt; SysTickStart(OsTickHandler)</code></li>
-</ul>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># kernel/src/los_tick.c</span><br><span class="line">LITE_OS_SEC_TEXT VOID OsTickHandler(VOID)</span><br><span class="line">&#123;</span><br><span class="line">#if (LOSCFG_BASE_CORE_TICK_WTIMER == 0)</span><br><span class="line">    OsUpdateSysTimeBase();</span><br><span class="line">#endif</span><br><span class="line"></span><br><span class="line">    LOS_SchedTickHandler();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># arch/arm/cortex-m4/gcc/los_timer.c</span><br><span class="line">STATIC UINT32 SysTickStart(HWI_PROC_FUNC handler)</span><br><span class="line">&#123;</span><br><span class="line">    UINT32 ret;</span><br><span class="line">    ArchTickTimer *tick = &amp;g_archTickTimer;</span><br><span class="line"></span><br><span class="line">    tick-&gt;freq = OS_SYS_CLOCK;</span><br><span class="line"></span><br><span class="line">#if (LOSCFG_USE_SYSTEM_DEFINED_INTERRUPT == 1)</span><br><span class="line">#if (LOSCFG_PLATFORM_HWI_WITH_ARG == 1)</span><br><span class="line">    OsSetVector(tick-&gt;irqNum, handler, NULL);</span><br><span class="line">#else</span><br><span class="line">    OsSetVector(tick-&gt;irqNum, handler);     // 设置SysTick的中断向量</span><br><span class="line">#endif</span><br><span class="line">#endif</span><br><span class="line"></span><br><span class="line">    ret = SysTick_Config(LOSCFG_BASE_CORE_TICK_RESPONSE_MAX);   // 在此处配置的SysTick中断无效，后续开启调度时会reload</span><br><span class="line">    if (ret == 1) &#123;</span><br><span class="line">        return LOS_ERRNO_TICK_PER_SEC_TOO_SMALL;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    return LOS_OK;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># arch/arm/common/los_common_interrupt.c</span><br><span class="line">VOID OsSetVector(UINT32 num, HWI_PROC_FUNC vector)</span><br><span class="line">&#123;</span><br><span class="line">    if ((num + OS_SYS_VECTOR_CNT) &lt; OS_VECTOR_CNT) &#123;</span><br><span class="line">        g_hwiForm[num + OS_SYS_VECTOR_CNT] = HalInterrupt;</span><br><span class="line">        g_hwiHandlerForm[num + OS_SYS_VECTOR_CNT] = vector;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-<h1 id="初始化SysTick时基"><a href="#初始化SysTick时基" class="headerlink" title="初始化SysTick时基"></a>初始化SysTick时基</h1><ul>
-<li>函数调用顺序：<code>LOS_Start() -&gt; ArchStartSchedule() -&gt; OsSchedStart() -&gt; OsSchedSetNextExpireTime() -&gt; OsTickTimerReload() -&gt; SysTickReload()</code></li>
-</ul>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># arch/arm/cortex-m4/gcc/los_timer.c</span><br><span class="line"># 调用此函数，传入的值实际上是</span><br><span class="line">STATIC UINT64 SysTickReload(UINT64 nextResponseTime)</span><br><span class="line">&#123;</span><br><span class="line">    if (nextResponseTime &gt; g_archTickTimer.periodMax) &#123;</span><br><span class="line">        nextResponseTime = g_archTickTimer.periodMax;</span><br><span class="line">    &#125;</span><br><span class="line">    SysTick-&gt;CTRL &amp;= ~SysTick_CTRL_ENABLE_Msk;</span><br><span class="line">    SysTick-&gt;LOAD = (UINT32)(nextResponseTime - 1UL); /* set reload register */</span><br><span class="line">    SysTick-&gt;VAL = 0UL; /* Load the SysTick Counter Value */</span><br><span class="line">    NVIC_ClearPendingIRQ(SysTick_IRQn);</span><br><span class="line">    SysTick-&gt;CTRL |= SysTick_CTRL_ENABLE_Msk;</span><br><span class="line">    return nextResponseTime;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h1 id="初始化调用逻辑总结"><a href="#初始化调用逻辑总结" class="headerlink" title="初始化调用逻辑总结"></a>初始化调用逻辑总结</h1><ol>
-<li>在<code>arch/arm/cortex-m4/iar/los_interrupt.c &gt; HalHwiInit()</code>中执行中断向量表初始化<blockquote>
-<p>但在此处初始化的SysTick_Handler向量是弱函数，并且其在后面会被替换</p>
-</blockquote>
-</li>
-<li>在<code>LOS_KernelInit() -&gt; OsTickTimerInit() -&gt; OsTickTimerInit()</code>重设SysTick中断服务函数</li>
-<li>在<code>LOS_Start() -&gt; ArchStartSchedule() -&gt; OsSchedStart()</code>中调用 重置SysTick中断时基为<code>系统时钟/调度间隔Tick值 （如：时钟源 / 1000 = 1ms时基）</code></li>
-<li>最后开启系统调度</li>
-</ol>
-<h1 id="补充说明"><a href="#补充说明" class="headerlink" title="补充说明"></a>补充说明</h1><ul>
-<li>LiteOS的内核初始化和系统启动都对Systick进行了设置，内核初始化时设置了Systick的重装载值为24位最大值，即0xFFFFFF</li>
-<li>系统启动时，重置Systick累计的节拍，并设置重装载值为 <code>SystemCoreClock / 1000</code>，其中SystemCoreClock为系统时钟源频率。</li>
-</ul>
-]]></content>
-      <categories>
-        <category>MCU</category>
-        <category>LiteOS</category>
-      </categories>
-  </entry>
-  <entry>
     <title>Linux知识小贴士</title>
     <url>/2023/11/28/Linux%E7%9F%A5%E8%AF%86%E5%B0%8F%E8%B4%B4%E5%A3%AB/</url>
     <content><![CDATA[<h4 id="内网但非同一网段环境下开启NFS服务"><a href="#内网但非同一网段环境下开启NFS服务" class="headerlink" title="内网但非同一网段环境下开启NFS服务"></a>内网但非同一网段环境下开启NFS服务</h4><ul>
@@ -320,10 +274,56 @@
 <li>嵌入式Linux开发中，配置NFS挂载根文件系统</li>
 </ul>
 <hr>
-<h4 id="远程端口流量通过SSH映射到本地"><a href="#远程端口流量通过SSH映射到本地" class="headerlink" title="远程端口流量通过SSH映射到本地"></a>远程端口流量通过SSH映射到本地</h4><p>ssh -L 4000:localhost:4000 <a href="mailto:&#106;&#x64;&#x5f;&#x63;&#x68;&#x65;&#x6e;&#x40;&#x31;&#x39;&#x32;&#46;&#x31;&#54;&#x38;&#x2e;&#x31;&#x31;&#x32;&#46;&#x32;&#x34;&#48;">&#106;&#x64;&#x5f;&#x63;&#x68;&#x65;&#x6e;&#x40;&#x31;&#x39;&#x32;&#46;&#x31;&#54;&#x38;&#x2e;&#x31;&#x31;&#x32;&#46;&#x32;&#x34;&#48;</a></p>
+<h4 id="远程端口流量通过SSH映射到本地"><a href="#远程端口流量通过SSH映射到本地" class="headerlink" title="远程端口流量通过SSH映射到本地"></a>远程端口流量通过SSH映射到本地</h4><p>ssh -L 4000:localhost:4000 <a href="mailto:&#x6a;&#x64;&#x5f;&#99;&#104;&#x65;&#110;&#x40;&#x31;&#x39;&#50;&#x2e;&#49;&#54;&#56;&#46;&#x31;&#49;&#50;&#46;&#x32;&#52;&#48;">&#x6a;&#x64;&#x5f;&#99;&#104;&#x65;&#110;&#x40;&#x31;&#x39;&#50;&#x2e;&#49;&#54;&#56;&#46;&#x31;&#49;&#50;&#46;&#x32;&#52;&#48;</a></p>
 <h4 id="Linux给根目录扩容"><a href="#Linux给根目录扩容" class="headerlink" title="Linux给根目录扩容"></a>Linux给根目录扩容</h4>]]></content>
       <categories>
         <category>Linux</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>LiteOS中断管理之SysTick</title>
+    <url>/2023/12/10/LiteOS%E4%B8%AD%E6%96%AD%E7%AE%A1%E7%90%86%E4%B9%8BSysTick/</url>
+    <content><![CDATA[<p>通常用户对LiteOS的初始化调用如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">main():</span><br><span class="line">    LOS_KernelInit();       // 内核初始化</span><br><span class="line">    LiteOS_Task_sample();   // 用户业务代码，创建初始任务等</span><br><span class="line">    LOS_Start();            // 开启调度</span><br></pre></td></tr></table></figure>
+
+<h1 id="LiteOS的中断函数映射管理"><a href="#LiteOS的中断函数映射管理" class="headerlink" title="LiteOS的中断函数映射管理"></a>LiteOS的中断函数映射管理</h1><h2 id="LiteOS中断映射表初始化"><a href="#LiteOS中断映射表初始化" class="headerlink" title="LiteOS中断映射表初始化"></a>LiteOS中断映射表初始化</h2><ul>
+<li>函数调用顺序：<code>LOS_KernelInit() -&gt; ArchInit() -&gt; HalHwiInit()</code></li>
+</ul>
+<p>如下代码<code>SCB-&gt;VTOR = (UINT32)(UINTPTR)hwiForm;</code>将中断向量映射基地址设为自定义变量地址</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># arch/arm/cortex-m4/iar/los_interrupt.c &gt; HalHwiInit()</span><br><span class="line"></span><br><span class="line">#if (LOSCFG_USE_SYSTEM_DEFINED_INTERRUPT == 1)</span><br><span class="line">    UINT32 index;</span><br><span class="line">    HWI_PROC_FUNC *hwiForm = (HWI_PROC_FUNC *)ArchGetHwiFrom();</span><br><span class="line">    hwiForm[0] = 0;             /* [0] Top of Stack */</span><br><span class="line">    hwiForm[1] = (HWI_PROC_FUNC)Reset_Handler; /* [1] reset */</span><br><span class="line">    for (index = 2; index &lt; OS_VECTOR_CNT; index++) &#123; /* 2: The starting position of the interrupt */</span><br><span class="line">        hwiForm[index] = (HWI_PROC_FUNC)HalHwiDefaultHandler;</span><br><span class="line">    &#125;</span><br><span class="line">    /* Exception handler register */</span><br><span class="line">    hwiForm[NonMaskableInt_IRQn + OS_SYS_VECTOR_CNT]   = (HWI_PROC_FUNC)HalExcNMI;</span><br><span class="line">    hwiForm[HARDFAULT_IRQN + OS_SYS_VECTOR_CNT]        = (HWI_PROC_FUNC)HalExcHardFault;</span><br><span class="line">    hwiForm[MemoryManagement_IRQn + OS_SYS_VECTOR_CNT] = (HWI_PROC_FUNC)HalExcMemFault;</span><br><span class="line">    hwiForm[BusFault_IRQn + OS_SYS_VECTOR_CNT]         = (HWI_PROC_FUNC)HalExcBusFault;</span><br><span class="line">    hwiForm[UsageFault_IRQn + OS_SYS_VECTOR_CNT]       = (HWI_PROC_FUNC)HalExcUsageFault;</span><br><span class="line">    hwiForm[SVCall_IRQn + OS_SYS_VECTOR_CNT]           = (HWI_PROC_FUNC)HalExcSvcCall;</span><br><span class="line">    hwiForm[PendSV_IRQn + OS_SYS_VECTOR_CNT]           = (HWI_PROC_FUNC)HalPendSV;</span><br><span class="line">    hwiForm[SysTick_IRQn + OS_SYS_VECTOR_CNT]          = (HWI_PROC_FUNC)SysTick_Handler;</span><br><span class="line"></span><br><span class="line">    /* Interrupt vector table location */</span><br><span class="line">    SCB-&gt;VTOR = (UINT32)(UINTPTR)hwiForm;</span><br><span class="line">#endif</span><br></pre></td></tr></table></figure>
+
+<h1 id="配置SysTick中断服务函数"><a href="#配置SysTick中断服务函数" class="headerlink" title="配置SysTick中断服务函数"></a>配置SysTick中断服务函数</h1><ul>
+<li>函数调用顺序：<code>LOS_KernelInit() -&gt; OsTickTimerInit() -&gt; OsTickTimerInit() -&gt; g_sysTickTimer-&gt;init(OsTickHandler) -&gt; SysTickStart(OsTickHandler)</code></li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># kernel/src/los_tick.c</span><br><span class="line">LITE_OS_SEC_TEXT VOID OsTickHandler(VOID)</span><br><span class="line">&#123;</span><br><span class="line">#if (LOSCFG_BASE_CORE_TICK_WTIMER == 0)</span><br><span class="line">    OsUpdateSysTimeBase();</span><br><span class="line">#endif</span><br><span class="line"></span><br><span class="line">    LOS_SchedTickHandler();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># arch/arm/cortex-m4/gcc/los_timer.c</span><br><span class="line">STATIC UINT32 SysTickStart(HWI_PROC_FUNC handler)</span><br><span class="line">&#123;</span><br><span class="line">    UINT32 ret;</span><br><span class="line">    ArchTickTimer *tick = &amp;g_archTickTimer;</span><br><span class="line"></span><br><span class="line">    tick-&gt;freq = OS_SYS_CLOCK;</span><br><span class="line"></span><br><span class="line">#if (LOSCFG_USE_SYSTEM_DEFINED_INTERRUPT == 1)</span><br><span class="line">#if (LOSCFG_PLATFORM_HWI_WITH_ARG == 1)</span><br><span class="line">    OsSetVector(tick-&gt;irqNum, handler, NULL);</span><br><span class="line">#else</span><br><span class="line">    OsSetVector(tick-&gt;irqNum, handler);     // 设置SysTick的中断向量</span><br><span class="line">#endif</span><br><span class="line">#endif</span><br><span class="line"></span><br><span class="line">    ret = SysTick_Config(LOSCFG_BASE_CORE_TICK_RESPONSE_MAX);   // 在此处配置的SysTick中断无效，后续开启调度时会reload</span><br><span class="line">    if (ret == 1) &#123;</span><br><span class="line">        return LOS_ERRNO_TICK_PER_SEC_TOO_SMALL;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    return LOS_OK;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># arch/arm/common/los_common_interrupt.c</span><br><span class="line">VOID OsSetVector(UINT32 num, HWI_PROC_FUNC vector)</span><br><span class="line">&#123;</span><br><span class="line">    if ((num + OS_SYS_VECTOR_CNT) &lt; OS_VECTOR_CNT) &#123;</span><br><span class="line">        g_hwiForm[num + OS_SYS_VECTOR_CNT] = HalInterrupt;</span><br><span class="line">        g_hwiHandlerForm[num + OS_SYS_VECTOR_CNT] = vector;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h1 id="初始化SysTick时基"><a href="#初始化SysTick时基" class="headerlink" title="初始化SysTick时基"></a>初始化SysTick时基</h1><ul>
+<li>函数调用顺序：<code>LOS_Start() -&gt; ArchStartSchedule() -&gt; OsSchedStart() -&gt; OsSchedSetNextExpireTime() -&gt; OsTickTimerReload() -&gt; SysTickReload()</code></li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># arch/arm/cortex-m4/gcc/los_timer.c</span><br><span class="line"># 调用此函数，传入的值实际上是</span><br><span class="line">STATIC UINT64 SysTickReload(UINT64 nextResponseTime)</span><br><span class="line">&#123;</span><br><span class="line">    if (nextResponseTime &gt; g_archTickTimer.periodMax) &#123;</span><br><span class="line">        nextResponseTime = g_archTickTimer.periodMax;</span><br><span class="line">    &#125;</span><br><span class="line">    SysTick-&gt;CTRL &amp;= ~SysTick_CTRL_ENABLE_Msk;</span><br><span class="line">    SysTick-&gt;LOAD = (UINT32)(nextResponseTime - 1UL); /* set reload register */</span><br><span class="line">    SysTick-&gt;VAL = 0UL; /* Load the SysTick Counter Value */</span><br><span class="line">    NVIC_ClearPendingIRQ(SysTick_IRQn);</span><br><span class="line">    SysTick-&gt;CTRL |= SysTick_CTRL_ENABLE_Msk;</span><br><span class="line">    return nextResponseTime;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="初始化调用逻辑总结"><a href="#初始化调用逻辑总结" class="headerlink" title="初始化调用逻辑总结"></a>初始化调用逻辑总结</h1><ol>
+<li>在<code>arch/arm/cortex-m4/iar/los_interrupt.c &gt; HalHwiInit()</code>中执行中断向量表初始化<blockquote>
+<p>但在此处初始化的SysTick_Handler向量是弱函数，并且其在后面会被替换</p>
+</blockquote>
+</li>
+<li>在<code>LOS_KernelInit() -&gt; OsTickTimerInit() -&gt; OsTickTimerInit()</code>重设SysTick中断服务函数</li>
+<li>在<code>LOS_Start() -&gt; ArchStartSchedule() -&gt; OsSchedStart()</code>中调用 重置SysTick中断时基为<code>系统时钟/调度间隔Tick值 （如：时钟源 / 1000 = 1ms时基）</code></li>
+<li>最后开启系统调度</li>
+</ol>
+<h1 id="补充说明"><a href="#补充说明" class="headerlink" title="补充说明"></a>补充说明</h1><ul>
+<li>LiteOS的内核初始化和系统启动都对Systick进行了设置，内核初始化时设置了Systick的重装载值为24位最大值，即0xFFFFFF</li>
+<li>系统启动时，重置Systick累计的节拍，并设置重装载值为 <code>SystemCoreClock / 1000</code>，其中SystemCoreClock为系统时钟源频率。</li>
+</ul>
+]]></content>
+      <categories>
+        <category>MCU</category>
+        <category>LiteOS</category>
       </categories>
   </entry>
   <entry>
@@ -357,6 +357,27 @@
     <title>RT-Thread启动流程简述</title>
     <url>/2023/11/28/RT-Thread%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B%E7%AE%80%E8%BF%B0/</url>
     <content><![CDATA[]]></content>
+  </entry>
+  <entry>
+    <title>WSL小贴士</title>
+    <url>/2023/11/28/WSL%E5%B0%8F%E8%B4%B4%E5%A3%AB/</url>
+    <content><![CDATA[<h4 id="在windows下访问WSL的目录"><a href="#在windows下访问WSL的目录" class="headerlink" title="在windows下访问WSL的目录"></a>在windows下访问WSL的目录</h4><ul>
+<li>在wwindows的资源管理器输入<code>\\wsl$</code>即可</li>
+<li>直接访问WSL的根路径<ul>
+<li><code>C:\Users\xxx\AppData\Local\Packages\CanonicalGroupLimited.Ubuntu18.04onWindows_79rhkp1fndgsc\LocalState\rootfs</code></li>
+<li>其中<code>xxx</code>为个人用户名</li>
+<li>如果过程中没有找到对应的文件夹，请勾选<code>资源管理器-&gt;查看-&gt;隐藏的项目</code><br></li>
+</ul>
+</li>
+</ul>
+<h4 id="WSL下通过命令执行Windows下的bat脚本"><a href="#WSL下通过命令执行Windows下的bat脚本" class="headerlink" title="WSL下通过命令执行Windows下的bat脚本"></a>WSL下通过命令执行Windows下的bat脚本</h4><pre><code>`wsl.exe -d Ubuntu-18.04 cmd.exe /c &quot;C:\Users\program.bat&quot;`
+</code></pre>
+<h4 id="开启WSL的NFS服务"><a href="#开启WSL的NFS服务" class="headerlink" title="开启WSL的NFS服务"></a>开启WSL的NFS服务</h4><pre><code>实现u-boot通过nfs服务挂载WSL下的根文件系统
+</code></pre>
+]]></content>
+      <categories>
+        <category>WSL</category>
+      </categories>
   </entry>
   <entry>
     <title>STM32启动流程概述</title>
@@ -403,47 +424,13 @@
 
 ]]></content>
       <categories>
-        <category>MCU</category>
         <category>嵌入式</category>
+        <category>MCU</category>
       </categories>
       <tags>
         <tag>STM32</tag>
         <tag>MCU</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>WSL小贴士</title>
-    <url>/2023/11/28/WSL%E5%B0%8F%E8%B4%B4%E5%A3%AB/</url>
-    <content><![CDATA[<h4 id="在windows下访问WSL的目录"><a href="#在windows下访问WSL的目录" class="headerlink" title="在windows下访问WSL的目录"></a>在windows下访问WSL的目录</h4><ul>
-<li>在wwindows的资源管理器输入<code>\\wsl$</code>即可</li>
-<li>直接访问WSL的根路径<ul>
-<li><code>C:\Users\xxx\AppData\Local\Packages\CanonicalGroupLimited.Ubuntu18.04onWindows_79rhkp1fndgsc\LocalState\rootfs</code></li>
-<li>其中<code>xxx</code>为个人用户名</li>
-<li>如果过程中没有找到对应的文件夹，请勾选<code>资源管理器-&gt;查看-&gt;隐藏的项目</code><br></li>
-</ul>
-</li>
-</ul>
-<h4 id="WSL下通过命令执行Windows下的bat脚本"><a href="#WSL下通过命令执行Windows下的bat脚本" class="headerlink" title="WSL下通过命令执行Windows下的bat脚本"></a>WSL下通过命令执行Windows下的bat脚本</h4><pre><code>`wsl.exe -d Ubuntu-18.04 cmd.exe /c &quot;C:\Users\program.bat&quot;`
-</code></pre>
-<h4 id="开启WSL的NFS服务"><a href="#开启WSL的NFS服务" class="headerlink" title="开启WSL的NFS服务"></a>开启WSL的NFS服务</h4><pre><code>实现u-boot通过nfs服务挂载WSL下的根文件系统
-</code></pre>
-]]></content>
-      <categories>
-        <category>WSL</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>国民技术N32G452芯片移植RT-Thread-Nano</title>
-    <url>/2023/11/28/%E5%9B%BD%E6%B0%91%E6%8A%80%E6%9C%AFN32%E8%8A%AF%E7%89%87%E7%A7%BB%E6%A4%8DRT-Thread-Nano%E8%AE%B0%E5%BD%95/</url>
-    <content><![CDATA[<h2 id="移植rt-thread，程序编译成功但无法运行的注意点"><a href="#移植rt-thread，程序编译成功但无法运行的注意点" class="headerlink" title="移植rt-thread，程序编译成功但无法运行的注意点"></a>移植rt-thread，程序编译成功但无法运行的注意点</h2><h3 id="rt-thread的内存布局之堆的初始化"><a href="#rt-thread的内存布局之堆的初始化" class="headerlink" title="rt-thread的内存布局之堆的初始化"></a>rt-thread的内存布局之堆的初始化</h3><ul>
-<li>rt-thread的堆初始化，以__bss_end为起始地址、以芯片的内存顶部地址为结束地址，其内存布局顺序有别于常规的<code>rw-data -&gt; bss -&gt; heap -&gt; stack</code>顺序</li>
-<li>因此需要关注rt-thread链接脚本的内存布局与其的堆初始化是否对应无误</li>
-</ul>
-]]></content>
-      <categories>
-        <category>MCU</category>
-        <category>RTOS</category>
-      </categories>
   </entry>
   <entry>
     <title>嵌入式MCU开发问题记录</title>
@@ -533,6 +520,19 @@
 ]]></content>
       <categories>
         <category>MCU</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>国民技术N32G452芯片移植RT-Thread-Nano</title>
+    <url>/2023/11/28/%E5%9B%BD%E6%B0%91%E6%8A%80%E6%9C%AFN32%E8%8A%AF%E7%89%87%E7%A7%BB%E6%A4%8DRT-Thread-Nano%E8%AE%B0%E5%BD%95/</url>
+    <content><![CDATA[<h2 id="移植rt-thread，程序编译成功但无法运行的注意点"><a href="#移植rt-thread，程序编译成功但无法运行的注意点" class="headerlink" title="移植rt-thread，程序编译成功但无法运行的注意点"></a>移植rt-thread，程序编译成功但无法运行的注意点</h2><h3 id="rt-thread的内存布局之堆的初始化"><a href="#rt-thread的内存布局之堆的初始化" class="headerlink" title="rt-thread的内存布局之堆的初始化"></a>rt-thread的内存布局之堆的初始化</h3><ul>
+<li>rt-thread的堆初始化，以__bss_end为起始地址、以芯片的内存顶部地址为结束地址，其内存布局顺序有别于常规的<code>rw-data -&gt; bss -&gt; heap -&gt; stack</code>顺序</li>
+<li>因此需要关注rt-thread链接脚本的内存布局与其的堆初始化是否对应无误</li>
+</ul>
+]]></content>
+      <categories>
+        <category>MCU</category>
+        <category>RTOS</category>
       </categories>
   </entry>
   <entry>
@@ -1086,11 +1086,6 @@
       </categories>
   </entry>
   <entry>
-    <title>GitLab CI-CD</title>
-    <url>/2023/12/04/GitLab-CI-CD/</url>
-    <content><![CDATA[]]></content>
-  </entry>
-  <entry>
     <title>C语言知识点记录</title>
     <url>/2023/12/04/C%E8%AF%AD%E8%A8%80%E7%9F%A5%E8%AF%86%E7%82%B9%E8%AE%B0%E5%BD%95/</url>
     <content><![CDATA[<ul>
@@ -1130,6 +1125,11 @@
       <categories>
         <category>C语言</category>
       </categories>
+  </entry>
+  <entry>
+    <title>GitLab CI-CD</title>
+    <url>/2023/12/04/GitLab-CI-CD/</url>
+    <content><![CDATA[]]></content>
   </entry>
   <entry>
     <title>嵌入式软件架构设计</title>
@@ -1495,6 +1495,15 @@
 </li>
 <li><code>include_dirs</code>属性应用示例如下：<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// 指定一个目录：</span><br><span class="line">include_dirs = [&quot;/usr/include/my_headers&quot;]</span><br><span class="line">// 指定多个目录：</span><br><span class="line">include_dirs = [&quot;/usr/include/my_headers&quot;, &quot;/usr/include/other_headers&quot;]</span><br><span class="line">// 指定相对路径：</span><br><span class="line">include_dirs = [&quot;../include&quot;]</span><br><span class="line">// 指定通配符：</span><br><span class="line">include_dirs = [&quot;**/*.h&quot;]</span><br></pre></td></tr></table></figure></li>
 </ul>
+]]></content>
+      <categories>
+        <category>LiteOS</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>OpenHarmony-LiteOS-M内核之GN设计解析</title>
+    <url>/2023/12/26/Harmony-LiteOS-M%E5%86%85%E6%A0%B8%E4%B9%8BGN%E8%AE%BE%E8%AE%A1%E8%A7%A3%E6%9E%90/</url>
+    <content><![CDATA[<p><a href="/2023/12/28/GN%E5%92%8Cninja%E7%9A%84%E5%8C%BA%E5%88%AB%E3%80%81%E8%81%94%E7%B3%BB%E5%92%8C%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91">GN与Ninja入门</a></p>
 <h2 id="LiteOS-M内核之GN设计"><a href="#LiteOS-M内核之GN设计" class="headerlink" title="LiteOS-M内核之GN设计"></a>LiteOS-M内核之GN设计</h2><h3 id="编译入口"><a href="#编译入口" class="headerlink" title="编译入口"></a>编译入口</h3><ul>
 <li>LiteOS-M的编译入口定义在<code>//build/lite/components/kernel.json</code>，目标为<code>//kernel/liteos_m:kernel</code>，其在<code>//kernel/liteos_m/BUILD.gn</code>中定义</li>
 <li>在产品的config.json配置文件中进行如下编写，表示要编译构建LiteOS-M内核<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">&quot;subsystem&quot;: &quot;kernel&quot;,</span><br><span class="line">&quot;components&quot;: [</span><br><span class="line">&#123; &quot;component&quot;: &quot;liteos_m&quot;, &quot;features&quot;:[] &#125;</span><br><span class="line">]</span><br><span class="line">&#125;,</span><br></pre></td></tr></table></figure></li>
