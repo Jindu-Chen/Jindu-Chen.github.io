@@ -124,7 +124,14 @@
 <p>如：<code>import(&quot;//build/config/c++/c++.gni&quot;)</code></p>
 </blockquote>
 </li>
-<li>GN的基本概念包括：<strong>变量、函数、目标、规则、配置项</strong></li>
+<li>GN的基本概念包括：<strong>变量、函数、目标、规则、配置项</strong><ul>
+<li>变量：用于存储值</li>
+<li>函数：用于执行操作</li>
+<li>目标：用于表示构建过程中的某个对象，例如文件、库或可执行文件</li>
+<li>规则：用于定义目标的构建方式</li>
+<li>配置项：用于控制构建过程的行为</li>
+</ul>
+</li>
 </ul>
 <h3 id="变量"><a href="#变量" class="headerlink" title="变量"></a>变量</h3><blockquote>
 <p>GN中的变量可以使用set_default_variable()函数进行定义。变量的值可以是字符串、数字、布尔值或列表</p>
@@ -811,7 +818,231 @@
   <entry>
     <title>git使用小贴士</title>
     <url>/2023/11/29/git%E4%BD%BF%E7%94%A8%E5%B0%8F%E8%B4%B4%E5%A3%AB/</url>
-    <content><![CDATA[<h2 id="基础"><a href="#基础" class="headerlink" title="基础"></a>基础</h2><ul>
+    <content><![CDATA[<h2 id="常用命令表"><a href="#常用命令表" class="headerlink" title="常用命令表"></a>常用命令表</h2><table>
+<thead>
+<tr>
+<th>命令名称</th>
+<th>命令</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>克隆工程</td>
+<td>git clone xxx</td>
+<td>xxx为克隆链接</td>
+</tr>
+<tr>
+<td>暂存文件修改、删除</td>
+<td>git add -u</td>
+<td>暂存文件修改、删除</td>
+</tr>
+<tr>
+<td>暂存文件修改、新建</td>
+<td>git add .</td>
+<td>暂存文件修改、新建</td>
+</tr>
+<tr>
+<td>暂存文件修改、删除、新建</td>
+<td>git add -A</td>
+<td>暂存文件修改、删除、新建</td>
+</tr>
+<tr>
+<td>暂存文件</td>
+<td>git add xxx</td>
+<td>xxx可为目录、文件，为.时暂存所有</td>
+</tr>
+<tr>
+<td>取消所有已暂存文件</td>
+<td>git reset HEAD .</td>
+<td>放弃所有暂存，不会取消修改</td>
+</tr>
+<tr>
+<td>取消指定文件的暂存</td>
+<td>git reset HEAD filepathname</td>
+<td>放弃指定文件的暂存</td>
+</tr>
+<tr>
+<td>放弃未暂存的指定文件的修改</td>
+<td>git checkout – filepathname</td>
+<td>放弃未暂存的文件修改</td>
+</tr>
+<tr>
+<td>放弃未暂存的文件修改</td>
+<td>git checkout .</td>
+<td>不会删除新建的，未被git跟踪的文件</td>
+</tr>
+<tr>
+<td>显示将要被删除的文件</td>
+<td>git clean -n</td>
+<td>显示将要被删除的文件</td>
+</tr>
+<tr>
+<td>删除工作区新增的文件、文件夹</td>
+<td>git clean -df</td>
+<td>删除新增的文件和新增的文件夹</td>
+</tr>
+<tr>
+<td>删除工作区新增的文件</td>
+<td>git clean -f</td>
+<td>删除当前目录下所有没被track过的文件，.gitignore指定的文件和文件夹不会被删除</td>
+</tr>
+<tr>
+<td>提交</td>
+<td>git commit -m “xxxxx”</td>
+<td>xxx为备注信息</td>
+</tr>
+<tr>
+<td>查看修改的地方</td>
+<td>git diff xxx</td>
+<td>查看修改的地方</td>
+</tr>
+<tr>
+<td>查看工作区、暂存区</td>
+<td>git status</td>
+<td>查看工作区、暂存区</td>
+</tr>
+<tr>
+<td>拉取</td>
+<td>git pull</td>
+<td>在主目录下操作</td>
+</tr>
+<tr>
+<td>合并分支</td>
+<td>git merge dev</td>
+<td>把dev分支合并到当前分支</td>
+</tr>
+<tr>
+<td>合并目标分支的指定文件</td>
+<td>git merge dev –no-ff filepathname</td>
+<td>合并目标分支的指定文件</td>
+</tr>
+<tr>
+<td>推送</td>
+<td>git push</td>
+<td>推送</td>
+</tr>
+<tr>
+<td>强制推送</td>
+<td>git push -f origin master</td>
+<td>适用于本地回退版本后修改推送，master为分支名</td>
+</tr>
+<tr>
+<td>更新远程分支列表</td>
+<td>git remote update origin –prune</td>
+<td>与远程保持同步</td>
+</tr>
+<tr>
+<td>更新子模块</td>
+<td>git submodule update –init</td>
+<td>首次后可不带–init</td>
+</tr>
+<tr>
+<td>切换到某一本地分支</td>
+<td>git checkout dev</td>
+<td>dev为分支名</td>
+</tr>
+<tr>
+<td>查看本地分支</td>
+<td>git branch</td>
+<td>查看本地分支</td>
+</tr>
+<tr>
+<td>切换到本地某个分支</td>
+<td>git checkout dev</td>
+<td>切换到本地某个分支</td>
+</tr>
+<tr>
+<td>查看本地分支与远程分支的关联情况</td>
+<td>git branch -vv</td>
+<td>查看本地分支与远程分支的关联情况</td>
+</tr>
+<tr>
+<td>查看远程分支</td>
+<td>git branch -a</td>
+<td>查看远程分支</td>
+</tr>
+<tr>
+<td>创建本地分支并切换</td>
+<td>git checkout -b V1.1</td>
+<td>V1.1为分支名</td>
+</tr>
+<tr>
+<td>创建远程分支</td>
+<td>git push –set-upstream origin V1.1</td>
+<td>建立本地分支与新建远程分支的关联</td>
+</tr>
+<tr>
+<td>新建本地分支并跟踪远程分支</td>
+<td>git branch dev origin&#x2F;dev</td>
+<td>dev为分支名称</td>
+</tr>
+<tr>
+<td>新建本地分支并跟踪远程分支且切换</td>
+<td>git checkout -b dev origin&#x2F;dev</td>
+<td>本地新建分支 dev ，跟踪远程的同名分支 dev</td>
+</tr>
+<tr>
+<td>本地新建分支 dev ，跟踪远程的同名分支 dev</td>
+<td>git checkout –track origin&#x2F;dev</td>
+<td>本地新建分支 dev ，跟踪远程的同名分支 dev</td>
+</tr>
+<tr>
+<td>获取远程地址及通信方式</td>
+<td>git remote -v</td>
+<td>以git开头为ssh协议</td>
+</tr>
+<tr>
+<td>更新本地仓库的remote地址</td>
+<td>git remote set-url origin xxx</td>
+<td>xxx为远程地址</td>
+</tr>
+<tr>
+<td>回退到上一个版本</td>
+<td>git reset –hard HEAD^</td>
+<td>删除工作区的改动代码，撤销commit、add</td>
+</tr>
+<tr>
+<td>撤销提交（commit）</td>
+<td>git reset –soft HEAD^</td>
+<td>不删除工作区的改动代码，不撤销add</td>
+</tr>
+<tr>
+<td>查看代码提交记录</td>
+<td>git log</td>
+<td>查看代码提交记录</td>
+</tr>
+<tr>
+<td>删除本地分支</td>
+<td>git branch -d Chapater6</td>
+<td>Chapater6为分支名</td>
+</tr>
+<tr>
+<td>删除远程分支</td>
+<td>git push origin –delete Chapater6</td>
+<td></td>
+</tr>
+<tr>
+<td>删除本地标签</td>
+<td>git tag -d rel1</td>
+<td>rel1为标签名</td>
+</tr>
+<tr>
+<td>查看所有本地标签</td>
+<td>git tag -l</td>
+<td></td>
+</tr>
+<tr>
+<td>删除远程标签</td>
+<td>git push –delete origin prod1.0</td>
+<td></td>
+</tr>
+<tr>
+<td>查看远程仓库信息</td>
+<td>git remote show origin</td>
+<td>查看远程仓库信息</td>
+</tr>
+</tbody></table>
+<h2 id="基础"><a href="#基础" class="headerlink" title="基础"></a>基础</h2><ul>
 <li><h2 id="本地git配置-修改用户名-全局-当前项目"><a href="#本地git配置-修改用户名-全局-当前项目" class="headerlink" title="本地git配置  - 修改用户名(全局&#x2F;当前项目)"></a>本地git配置<br>  - 修改用户名(全局&#x2F;当前项目)</h2></li>
 <li><p>执行git pull会覆盖本地的修改吗？</p>
 <ul>
@@ -834,8 +1065,7 @@
 </ul>
 </li>
 </ul>
-<p><strong>附上一个自用的.gitignore文件：</strong></p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">.vscode</span><br><span class="line">.history</span><br><span class="line">build</span><br><span class="line">Listings</span><br><span class="line">Objects</span><br><span class="line"></span><br><span class="line"># Listing Files</span><br><span class="line">*.i</span><br><span class="line">*.lst</span><br><span class="line">*.map</span><br><span class="line"></span><br><span class="line"># Object Files</span><br><span class="line">*.axf</span><br><span class="line">*.b[0-2][0-9]</span><br><span class="line">*.b3[0-1]</span><br><span class="line">*.bak</span><br><span class="line">*.build_log.htm</span><br><span class="line">*.crf</span><br><span class="line">*.d</span><br><span class="line">*.dep</span><br><span class="line">*.elf</span><br><span class="line">*.htm</span><br><span class="line">*.iex</span><br><span class="line">*.lnp</span><br><span class="line">*.o</span><br><span class="line">*.obj</span><br><span class="line">*.sbr</span><br><span class="line"></span><br><span class="line"># Firmware Files</span><br><span class="line">*.bin</span><br><span class="line">*.h86</span><br><span class="line">*.hex</span><br><span class="line"></span><br><span class="line"># Debugger Files</span><br><span class="line">.ini</span><br></pre></td></tr></table></figure>
+<p><strong>附上一个自用的.gitignore文件：</strong><br>    <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">.vscode</span><br><span class="line">.history</span><br><span class="line">build</span><br><span class="line">Listings</span><br><span class="line">Objects</span><br><span class="line"></span><br><span class="line"># Listing Files</span><br><span class="line">*.i</span><br><span class="line">*.lst</span><br><span class="line">*.map</span><br><span class="line"></span><br><span class="line"># Object Files</span><br><span class="line">*.axf</span><br><span class="line">*.b[0-2][0-9]</span><br><span class="line">*.b3[0-1]</span><br><span class="line">*.bak</span><br><span class="line">*.build_log.htm</span><br><span class="line">*.crf</span><br><span class="line">*.d</span><br><span class="line">*.dep</span><br><span class="line">*.elf</span><br><span class="line">*.htm</span><br><span class="line">*.iex</span><br><span class="line">*.lnp</span><br><span class="line">*.o</span><br><span class="line">*.obj</span><br><span class="line">*.sbr</span><br><span class="line"></span><br><span class="line"># Firmware Files</span><br><span class="line">*.bin</span><br><span class="line">*.h86</span><br><span class="line">*.hex</span><br><span class="line"></span><br><span class="line"># Debugger Files</span><br><span class="line">.ini</span><br></pre></td></tr></table></figure></p>
 <h2 id="子模块"><a href="#子模块" class="headerlink" title="子模块"></a>子模块</h2><ul>
 <li><p>删除项目内已有的子模块配置，将其转化为本项目内容</p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">cd ./path/to/submodule</span><br><span class="line">rm -rf .git</span><br><span class="line"></span><br><span class="line"># at project root directory</span><br><span class="line">git rm --cached ./path/to/submodule</span><br><span class="line">git add --all</span><br><span class="line">git commit -m &quot;xxx&quot;</span><br><span class="line">git push</span><br></pre></td></tr></table></figure>
