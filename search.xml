@@ -124,9 +124,18 @@
 <p>如：<code>import(&quot;//build/config/c++/c++.gni&quot;)</code></p>
 </blockquote>
 </li>
-<li>GN具有许多可以被直接调用的内置变量和函数</li>
+<li>GN的基本概念包括：<strong>变量、函数、目标、规则、配置项</strong></li>
 </ul>
-<h3 id="变量"><a href="#变量" class="headerlink" title="变量"></a>变量</h3><h3 id="目标项"><a href="#目标项" class="headerlink" title="目标项"></a>目标项</h3><h3 id="配置项"><a href="#配置项" class="headerlink" title="配置项"></a>配置项</h3><h3 id="自定义模块-函数"><a href="#自定义模块-函数" class="headerlink" title="自定义模块&#x2F;函数"></a>自定义模块&#x2F;函数</h3><ul>
+<h3 id="变量"><a href="#变量" class="headerlink" title="变量"></a>变量</h3><blockquote>
+<p>GN中的变量可以使用set_default_variable()函数进行定义。变量的值可以是字符串、数字、布尔值或列表</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">set_default_variable(&quot;target_os&quot;, &quot;linux&quot;)</span><br></pre></td></tr></table></figure>
+
+<h3 id="目标项"><a href="#目标项" class="headerlink" title="目标项"></a>目标项</h3>  <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">target(&quot;my_executable&quot;) &#123;</span><br><span class="line">type = &quot;executable&quot;</span><br><span class="line">sources = [&quot;main.cc&quot;]</span><br><span class="line">deps = [&quot;my_library&quot;]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="配置项"><a href="#配置项" class="headerlink" title="配置项"></a>配置项</h3><h3 id="规则"><a href="#规则" class="headerlink" title="规则"></a>规则</h3><p>  GN中的规则可以使用rule()函数进行定义。规则可以指定以下属性：</p>
+<p>  inputs：规则需要的输入文件。<br>  outputs：规则的输出文件。<br>  action：规则执行的操作。<br>  <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">rule(&quot;my_rule&quot;) &#123;</span><br><span class="line">inputs = [&quot;input.txt&quot;]</span><br><span class="line">outputs = [&quot;output.txt&quot;]</span><br><span class="line">action = &quot;echo &#x27;Hello, world!&#x27; &gt; $out&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="自定义模块-函数"><a href="#自定义模块-函数" class="headerlink" title="自定义模块&#x2F;函数"></a>自定义模块&#x2F;函数</h3><ul>
 <li>如何使用模板, 用import,类似 C语言的 #include<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">import(”//tools/idl_compiler.gni&quot;)</span><br><span class="line">idl(“my_interfaces”) &#123; #等同于调用 idl</span><br><span class="line">sources = [ “a”, “b” ] #给idl传参, 参数的接收方是 invoker.sources</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
 </ul>
 <h2 id="应用实践范例"><a href="#应用实践范例" class="headerlink" title="应用实践范例"></a>应用实践范例</h2><ul>
