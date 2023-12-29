@@ -221,7 +221,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-12-29 01:49:07" itemprop="dateModified" datetime="2023-12-29T01:49:07+00:00">2023-12-29</time>
+                <time title="Modified: 2023-12-29 01:53:48" itemprop="dateModified" datetime="2023-12-29T01:53:48+00:00">2023-12-29</time>
               </span>
 
           
@@ -235,45 +235,17 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <h2 id="基本概念介绍"><a href="#基本概念介绍" class="headerlink" title="基本概念介绍"></a>基本概念介绍</h2><ul>
-<li>GN文件使用GN语言编写，其是一种基于脚本的语言，用于定义构建系统的规则和目标<ul>
-<li>gn即Generate ninja，gn与ninja的关系 类似于 cmake与make</li>
-<li>GN文件可以用于构建各种类型的项目，包括C++、Java、Python项目<br></li>
-</ul>
-</li>
-<li>ninja用于执行GN文件定义的规则和目标，其是一个C++编写的构建工具，可以生成高效的构建命令，提高构建速度</li>
-</ul>
-<h2 id="基本语法"><a href="#基本语法" class="headerlink" title="基本语法"></a>基本语法</h2><ul>
-<li>.gn是源文件，.gni是头文件，源文件通过import引用头文件<blockquote>
-<p>如：<code>import(&quot;//build/config/c++/c++.gni&quot;)</code></p>
-</blockquote>
-</li>
-<li>GN的基本概念包括：<strong>变量、函数、目标、规则、配置项</strong></li>
-</ul>
-<h3 id="变量"><a href="#变量" class="headerlink" title="变量"></a>变量</h3><blockquote>
-<p>GN中的变量可以使用set_default_variable()函数进行定义。变量的值可以是字符串、数字、布尔值或列表</p>
-</blockquote>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">set_default_variable(&quot;target_os&quot;, &quot;linux&quot;)</span><br></pre></td></tr></table></figure>
-
-<h3 id="目标项"><a href="#目标项" class="headerlink" title="目标项"></a>目标项</h3>  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">target(&quot;my_executable&quot;) &#123;</span><br><span class="line">type = &quot;executable&quot;</span><br><span class="line">sources = [&quot;main.cc&quot;]</span><br><span class="line">deps = [&quot;my_library&quot;]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="配置项"><a href="#配置项" class="headerlink" title="配置项"></a>配置项</h3><h3 id="规则"><a href="#规则" class="headerlink" title="规则"></a>规则</h3><p>  GN中的规则可以使用rule()函数进行定义。规则可以指定以下属性：</p>
-<p>  inputs：规则需要的输入文件。<br>  outputs：规则的输出文件。<br>  action：规则执行的操作。<br>  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">rule(&quot;my_rule&quot;) &#123;</span><br><span class="line">inputs = [&quot;input.txt&quot;]</span><br><span class="line">outputs = [&quot;output.txt&quot;]</span><br><span class="line">action = &quot;echo &#x27;Hello, world!&#x27; &gt; $out&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<h3 id="自定义模块-函数"><a href="#自定义模块-函数" class="headerlink" title="自定义模块&#x2F;函数"></a>自定义模块&#x2F;函数</h3><ul>
-<li>如何使用模板, 用import,类似 C语言的 #include<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">import(”//tools/idl_compiler.gni&quot;)</span><br><span class="line">idl(“my_interfaces”) &#123; #等同于调用 idl</span><br><span class="line">sources = [ “a”, “b” ] #给idl传参, 参数的接收方是 invoker.sources</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-</ul>
-<h2 id="应用实践范例"><a href="#应用实践范例" class="headerlink" title="应用实践范例"></a>应用实践范例</h2><ul>
-<li><p>在构建项目时，GN会首先解析GN文件，并将工程的根目录作为起点，开始构建项目</p>
-<ul>
-<li>目录路径中<code>//xxx/xxx/xxx</code>中双斜杠表示工程源码的根</li>
-</ul>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">rule my_rule &#123;</span><br><span class="line"># 定义规则的输入</span><br><span class="line">input: &quot;input.cpp&quot;</span><br><span class="line"># 定义规则的输出</span><br><span class="line">output: &quot;output.o&quot;</span><br><span class="line"></span><br><span class="line"># 定义规则的执行逻辑</span><br><span class="line">action &#123;</span><br><span class="line">    command: &quot;gcc -c input.cpp -o output.o&quot;</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-</ul>
-<h2 id="LiteOS-M内核之GN设计"><a href="#LiteOS-M内核之GN设计" class="headerlink" title="LiteOS-M内核之GN设计"></a>LiteOS-M内核之GN设计</h2><h3 id="编译入口"><a href="#编译入口" class="headerlink" title="编译入口"></a>编译入口</h3><ul>
-<li>LiteOS-M的编译入口定义在<code>//build/lite/components/kernel.json</code>，目标为<code>//kernel/liteos_m:kernel</code>，其在<code>//kernel/liteos_m/BUILD.gn</code>中定义</li>
-<li>在产品的config.json配置文件中进行如下编写，表示要编译构建LiteOS-M内核<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">&quot;subsystem&quot;: &quot;kernel&quot;,</span><br><span class="line">&quot;components&quot;: [</span><br><span class="line">&#123; &quot;component&quot;: &quot;liteos_m&quot;, &quot;features&quot;:[] &#125;</span><br><span class="line">]</span><br><span class="line">&#125;,</span><br></pre></td></tr></table></figure></li>
-</ul>
-
+          <p>&ensp;GN是一个用于生成工程构建配置文件的工具，而Ninja工具用于替代Make、执行实际构建过程，其构建过程快速、高效，二者通常一起使用。
+<br>&ensp;要移植鸿蒙LiteOS-M、了解其源码工程之构建，那么熟悉GN和Ninja的编译构建方式是必要的，本文介绍个人对GN与Ninja的学习与理解，主要目的为辅助理解OpenHarmony-LiteOS-M工程。
+</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2023/12/28/GN%E5%92%8Cninja%E7%9A%84%E5%8C%BA%E5%88%AB%E3%80%81%E8%81%94%E7%B3%BB%E5%92%8C%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
