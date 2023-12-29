@@ -86,6 +86,8 @@
 <li>跳转前未关中断；中断控制器没复位清零；中断向量表偏移未设置正确；</li>
 </ul>
 </li>
+<li><p>同一个bootloader和app，有时上电无法跳转，程序跑飞，此时断电后马上上电，又能跳转成功？</p>
+</li>
 </ul>
 ]]></content>
       <categories>
@@ -1477,10 +1479,21 @@
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">rule my_rule &#123;</span><br><span class="line"># 定义规则的输入</span><br><span class="line">input: &quot;input.cpp&quot;</span><br><span class="line"># 定义规则的输出</span><br><span class="line">output: &quot;output.o&quot;</span><br><span class="line"></span><br><span class="line"># 定义规则的执行逻辑</span><br><span class="line">action &#123;</span><br><span class="line">    command: &quot;gcc -c input.cpp -o output.o&quot;</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
 </ul>
 <h2 id="GN进阶操作"><a href="#GN进阶操作" class="headerlink" title="GN进阶操作"></a>GN进阶操作</h2><h3 id="自定义模板"><a href="#自定义模板" class="headerlink" title="自定义模板"></a>自定义模板</h3><ul>
-<li>如何使用模板, 用import,类似 C语言的 #include<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">import(”//tools/idl_compiler.gni&quot;)</span><br><span class="line">idl(“my_interfaces”) &#123; #等同于调用 idl</span><br><span class="line">sources = [ “a”, “b” ] #给idl传参, 参数的接收方是 invoker.sources</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><p>自定义模板使用<code>template()</code>语句</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">template(template_name) &#123;</span><br><span class="line">// 模板内容</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>代码应用示例如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">template(&quot;my_template&quot;) &#123;</span><br><span class="line">// 生成一个头文件</span><br><span class="line">action(&quot;my_header&quot;) &#123;</span><br><span class="line">  script = &quot;my_script.py&quot;</span><br><span class="line">  outputs = [&quot;my_header.h&quot;]</span><br><span class="line">  args = [</span><br><span class="line">    &quot;-o&quot;,</span><br><span class="line">    &quot;$target_out_dir/my_header.h&quot;,</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 生成一个源文件</span><br><span class="line">action(&quot;my_source&quot;) &#123;</span><br><span class="line">  script = &quot;my_script.py&quot;</span><br><span class="line">  outputs = [&quot;my_source.cc&quot;]</span><br><span class="line">  args = [</span><br><span class="line">    &quot;-o&quot;,</span><br><span class="line">    &quot;$target_out_dir/my_source.cc&quot;,</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在上述文件目录下，执行<code>gn build</code>将会自动化执行以下命令：<br><code>python my_script.py -o $target_out_dir/my_header.h</code><br><code>python my_script.py -o $target_out_dir/my_source.cc</code></p>
+</li>
 </ul>
-<h2 id="补充说明以及疑惑解答"><a href="#补充说明以及疑惑解答" class="headerlink" title="补充说明以及疑惑解答"></a>补充说明以及疑惑解答</h2><ul>
-<li>GN文件编写如何包含工程源码的头文件路径？</li>
+<h2 id="补充说明以及疑惑解答"><a href="#补充说明以及疑惑解答" class="headerlink" title="补充说明以及疑惑解答"></a>补充说明以及疑惑解答</h2><h3 id="GN文件中如何包含工程源码的头文件路径？"><a href="#GN文件中如何包含工程源码的头文件路径？" class="headerlink" title="GN文件中如何包含工程源码的头文件路径？"></a>GN文件中如何包含工程源码的头文件路径？</h3><ul>
+<li>可以使用<code>include_dirs</code>属性指定C头文件的路径，此属性是一个列表，代码示例如下：<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">target(&quot;my_executable&quot;) &#123;</span><br><span class="line">type = &quot;executable&quot;</span><br><span class="line">sources = [&quot;main.c&quot;]</span><br><span class="line">include_dirs = [&quot;/usr/include/my_headers&quot;]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>也可使用<code>public_configs</code>属性，此属性列表包含了<code>include_dirs</code>属性的配置<ul>
+<li>以下代码示例，指示构建系统在<code>//configs:my_config</code>配置中搜索<code>include_dirs</code>配置<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">target(&quot;my_executable&quot;) &#123;</span><br><span class="line">type = &quot;executable&quot;</span><br><span class="line">sources = [&quot;main.c&quot;]</span><br><span class="line">public_configs = [&quot;//configs:my_config&quot;]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><code>include_dirs</code>属性应用示例如下：<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// 指定一个目录：</span><br><span class="line">include_dirs = [&quot;/usr/include/my_headers&quot;]</span><br><span class="line">// 指定多个目录：</span><br><span class="line">include_dirs = [&quot;/usr/include/my_headers&quot;, &quot;/usr/include/other_headers&quot;]</span><br><span class="line">// 指定相对路径：</span><br><span class="line">include_dirs = [&quot;../include&quot;]</span><br><span class="line">// 指定通配符：</span><br><span class="line">include_dirs = [&quot;**/*.h&quot;]</span><br></pre></td></tr></table></figure></li>
 </ul>
 <h2 id="LiteOS-M内核之GN设计"><a href="#LiteOS-M内核之GN设计" class="headerlink" title="LiteOS-M内核之GN设计"></a>LiteOS-M内核之GN设计</h2><h3 id="编译入口"><a href="#编译入口" class="headerlink" title="编译入口"></a>编译入口</h3><ul>
 <li>LiteOS-M的编译入口定义在<code>//build/lite/components/kernel.json</code>，目标为<code>//kernel/liteos_m:kernel</code>，其在<code>//kernel/liteos_m/BUILD.gn</code>中定义</li>
