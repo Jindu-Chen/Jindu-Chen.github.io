@@ -816,7 +816,7 @@
       </categories>
   </entry>
   <entry>
-    <title>git使用小贴士</title>
+    <title>Git使用小贴士</title>
     <url>/2023/11/29/git%E4%BD%BF%E7%94%A8%E5%B0%8F%E8%B4%B4%E5%A3%AB/</url>
     <content><![CDATA[<h2 id="常用命令表"><a href="#常用命令表" class="headerlink" title="常用命令表"></a>常用命令表</h2><table>
 <thead>
@@ -1042,29 +1042,22 @@
 <td>查看远程仓库信息</td>
 </tr>
 </tbody></table>
-<h2 id="基础"><a href="#基础" class="headerlink" title="基础"></a>基础</h2><ul>
-<li><h2 id="本地git配置-修改用户名-全局-当前项目"><a href="#本地git配置-修改用户名-全局-当前项目" class="headerlink" title="本地git配置  - 修改用户名(全局&#x2F;当前项目)"></a>本地git配置<br>  - 修改用户名(全局&#x2F;当前项目)</h2></li>
-<li><p>执行git pull会覆盖本地的修改吗？</p>
-<ul>
+<h2 id="注意项解答"><a href="#注意项解答" class="headerlink" title="注意项解答"></a>注意项解答</h2><ul>
+<li>执行git pull会覆盖本地的修改吗？<ul>
 <li>没有冲突的情况下，远端会直接更新至本地上，但不会改变本地未提交的变动；如果本地修改已提交，则会执行一个远端分支和本地分支的合并</li>
 </ul>
 </li>
-<li><p>本地仓库多平台推送（推送gitlab、github）</p>
-</li>
-<li><p>.gitignore忽略规则</p>
-<ul>
-<li><p>在git项目根目录下创建.gitignore文件，然后添加需要忽略跟踪的文件选项</p>
-</li>
-<li><p>此前已经被跟踪的文件，添加.gitignore无效</p>
-<blockquote>
-<p>执行<code>git rm --cached /path/to/remove</code>取消跟踪，然后提交推送</p>
-</blockquote>
-</li>
-<li><p>强行跟踪被.gitignore忽略的某个指定文件<br>  <code>git add -f /path/to/add</code>或者 在.gitignore文件后添加<code>!path/to/track</code>(<code>!</code>表示覆盖前面的忽略规则)<br>  如：<code>git add -f hello.bin</code> or 添加<code>!hello.bin</code></p>
-</li>
 </ul>
-</li>
-</ul>
+<h2 id="基础配置操作"><a href="#基础配置操作" class="headerlink" title="基础配置操作"></a>基础配置操作</h2><h3 id="本地git配置"><a href="#本地git配置" class="headerlink" title="本地git配置"></a>本地git配置</h3><pre><code>- 修改用户名(全局/当前项目)
+</code></pre>
+<h3 id="本地仓库同时推送远端的多个平台（推送gitlab、github）"><a href="#本地仓库同时推送远端的多个平台（推送gitlab、github）" class="headerlink" title="本地仓库同时推送远端的多个平台（推送gitlab、github）"></a>本地仓库同时推送远端的多个平台（推送gitlab、github）</h3><h3 id="gitignore忽略规则"><a href="#gitignore忽略规则" class="headerlink" title=".gitignore忽略规则"></a>.gitignore忽略规则</h3><pre><code>- 在git项目根目录下创建.gitignore文件，然后添加需要忽略跟踪的文件选项
+- 此前已经被跟踪的文件，添加.gitignore无效
+    &gt;执行`git rm --cached /path/to/remove`取消跟踪，然后提交推送
+
+- 强行跟踪被.gitignore忽略的某个指定文件
+`git add -f /path/to/add`或者 在.gitignore文件后添加`!path/to/track`(`!`表示覆盖前面的忽略规则)
+如：`git add -f hello.bin` or 添加`!hello.bin`
+</code></pre>
 <p><strong>附上一个自用的.gitignore文件：</strong><br>    <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">.vscode</span><br><span class="line">.history</span><br><span class="line">build</span><br><span class="line">Listings</span><br><span class="line">Objects</span><br><span class="line"></span><br><span class="line"># Listing Files</span><br><span class="line">*.i</span><br><span class="line">*.lst</span><br><span class="line">*.map</span><br><span class="line"></span><br><span class="line"># Object Files</span><br><span class="line">*.axf</span><br><span class="line">*.b[0-2][0-9]</span><br><span class="line">*.b3[0-1]</span><br><span class="line">*.bak</span><br><span class="line">*.build_log.htm</span><br><span class="line">*.crf</span><br><span class="line">*.d</span><br><span class="line">*.dep</span><br><span class="line">*.elf</span><br><span class="line">*.htm</span><br><span class="line">*.iex</span><br><span class="line">*.lnp</span><br><span class="line">*.o</span><br><span class="line">*.obj</span><br><span class="line">*.sbr</span><br><span class="line"></span><br><span class="line"># Firmware Files</span><br><span class="line">*.bin</span><br><span class="line">*.h86</span><br><span class="line">*.hex</span><br><span class="line"></span><br><span class="line"># Debugger Files</span><br><span class="line">.ini</span><br></pre></td></tr></table></figure></p>
 <h2 id="子模块"><a href="#子模块" class="headerlink" title="子模块"></a>子模块</h2><ul>
 <li><p>删除项目内已有的子模块配置，将其转化为本项目内容</p>
@@ -1075,7 +1068,7 @@
 </ul>
 ]]></content>
       <categories>
-        <category>git</category>
+        <category>Git</category>
       </categories>
   </entry>
   <entry>
