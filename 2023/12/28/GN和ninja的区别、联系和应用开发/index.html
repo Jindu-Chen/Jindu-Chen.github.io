@@ -22,13 +22,13 @@
 
   <meta name="description" content="&emsp;&emsp;GN是一个用于生成工程构建配置文件的工具，而Ninja工具用于替代Make、执行实际构建过程，其构建过程快速、高效，二者通常一起使用。 &emsp;&emsp;要移植鸿蒙LiteOS-M、了解其源码工程之构建，那么熟悉GN和Ninja的编译构建方式是必要的，本文介绍个人对GN与Ninja的学习与理解，主要目的为辅助理解OpenHarmony-LiteOS-M工程。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="GN和Ninja构建工具的区别、联系和应用开发">
+<meta property="og:title" content="GN和Ninja构建工具的基础入门、进阶和应用开发">
 <meta property="og:url" content="https://jindu-chen.github.io/2023/12/28/GN%E5%92%8Cninja%E7%9A%84%E5%8C%BA%E5%88%AB%E3%80%81%E8%81%94%E7%B3%BB%E5%92%8C%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/index.html">
 <meta property="og:site_name" content="Jindu-Chen">
 <meta property="og:description" content="&emsp;&emsp;GN是一个用于生成工程构建配置文件的工具，而Ninja工具用于替代Make、执行实际构建过程，其构建过程快速、高效，二者通常一起使用。 &emsp;&emsp;要移植鸿蒙LiteOS-M、了解其源码工程之构建，那么熟悉GN和Ninja的编译构建方式是必要的，本文介绍个人对GN与Ninja的学习与理解，主要目的为辅助理解OpenHarmony-LiteOS-M工程。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2023-12-28T00:00:00.000Z">
-<meta property="article:modified_time" content="2023-12-29T04:06:02.699Z">
+<meta property="article:modified_time" content="2023-12-29T07:49:37.050Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -46,7 +46,7 @@
   };
 </script>
 
-  <title>GN和Ninja构建工具的区别、联系和应用开发 | Jindu-Chen</title>
+  <title>GN和Ninja构建工具的基础入门、进阶和应用开发 | Jindu-Chen</title>
   
 
 
@@ -208,7 +208,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          GN和Ninja构建工具的区别、联系和应用开发
+          GN和Ninja构建工具的基础入门、进阶和应用开发
         </h1>
 
         <div class="post-meta">
@@ -225,7 +225,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2023-12-29 04:06:02" itemprop="dateModified" datetime="2023-12-29T04:06:02+00:00">2023-12-29</time>
+                <time title="Modified: 2023-12-29 07:49:37" itemprop="dateModified" datetime="2023-12-29T07:49:37+00:00">2023-12-29</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -251,7 +251,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h2 id="基本概念介绍"><a href="#基本概念介绍" class="headerlink" title="基本概念介绍"></a>基本概念介绍</h2><ul>
+        <h2 id="基本介绍"><a href="#基本介绍" class="headerlink" title="基本介绍"></a>基本介绍</h2><ul>
 <li>GN文件使用GN语言编写，其是一种基于脚本的语言，用于定义构建系统的规则和目标<ul>
 <li>gn即Generate ninja，gn与ninja的关系 类似于 cmake与make</li>
 <li>GN文件可以用于构建各种类型的项目，包括C++、Java、Python项目<br></li>
@@ -260,7 +260,7 @@
 <li>ninja用于执行GN文件定义的规则和目标，其是一个C++编写的构建工具，可以生成高效的构建命令，提高构建速度</li>
 </ul>
 <h2 id="基本概念与语法"><a href="#基本概念与语法" class="headerlink" title="基本概念与语法"></a>基本概念与语法</h2><ul>
-<li>.gn是源文件，.gni是头文件，源文件通过import引用头文件<blockquote>
+<li>.gn是源文件，.gni是头文件，源文件可通过import引用头文件，也可使用import导入源文件<blockquote>
 <p>如：<code>import(&quot;//build/config/c++/c++.gni&quot;)</code></p>
 </blockquote>
 </li>
@@ -274,21 +274,48 @@
 </li>
 </ul>
 <h3 id="变量"><a href="#变量" class="headerlink" title="变量"></a>变量</h3><blockquote>
-<p>GN中的变量可以使用set_default_variable()函数进行定义。变量的值可以是字符串、数字、布尔值或列表<br>变量可以存储构建过程中使用的常量值，如 参数、目标类型、选项</p>
+<p>GN中的变量可以使用set_default_variable()函数进行定义。变量的值可以是字符串、数字、布尔值或列表<br>变量可以存储构建过程中使用的常量值，如 参数、目标类型、选项<br>如<code>set_default_variable(&quot;target_os&quot;, &quot;linux&quot;)</code>，设置操作系统为linux</p>
 </blockquote>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">set_default_variable(&quot;target_os&quot;, &quot;linux&quot;)</span><br></pre></td></tr></table></figure>
-
-<h3 id="函数"><a href="#函数" class="headerlink" title="函数"></a>函数</h3><ul>
-<li><p>GN中的函数可以使用<code>define_function()</code>定义</p>
+<ul>
+<li><p>内置变量：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">target_os：当前目标的操作系统</span><br><span class="line">target_cpu：当前目标的处理器架构</span><br><span class="line">target_toolchain：当前目标的工具链</span><br><span class="line">target_out_dir：当前目标的输出目录</span><br><span class="line">target_gen_dir：当前目标的生成目录</span><br><span class="line">root_build_dir：构建系统的根目录</span><br><span class="line">buildconfig：构建系统的配置文件</span><br></pre></td></tr></table></figure>
 </li>
-<li><p>如何使用模板, 用import,类似 C语言的 #include</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">import(”//tools/idl_compiler.gni&quot;)</span><br><span class="line">idl(“my_interfaces”) &#123; #等同于调用 idl</span><br><span class="line">sources = [ “a”, “b” ] #给idl传参, 参数的接收方是 invoker.sources</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><p>变量类型：数字、字符串、布尔值、列表、映射</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">x = &quot;Hello, world!&quot;</span><br><span class="line">y = 10</span><br><span class="line">z = true</span><br><span class="line"></span><br><span class="line">// 定义一个名为 list 的列表变量</span><br><span class="line">list = [ &quot;a&quot;, &quot;b&quot;, &quot;c&quot; ]</span><br><span class="line"></span><br><span class="line">// 定义一个名为 map 的映射变量</span><br><span class="line">map = &#123;</span><br><span class="line">&quot;key1&quot; = &quot;value1&quot;,</span><br><span class="line">&quot;key2&quot; = &quot;value2&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>$&#123;&#125;</code>–字符串插值操作符用于在字符串中插入变量、表达式或函数调用的值，如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">x = 10</span><br><span class="line">println(&quot;The value of x is $&#123;x&#125;&quot;)</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="函数"><a href="#函数" class="headerlink" title="函数"></a>函数</h3><ul>
+<li><p>GN的函数形式与C语言的类似，由函数名、参数列表和函数体组成</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">function_name(parameter_list) &#123;</span><br><span class="line">// 函数体</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><p>用户可以使用内置函数或自定义函数</p>
+</li>
+<li><p>内置函数包括有如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">assert()：断言函数，如果条件不成立，则抛出异常</span><br><span class="line">concat()：字符串拼接函数</span><br><span class="line">defined()：判断变量是否定义了的函数</span><br><span class="line">dirname()：获取目录名的函数</span><br><span class="line">file()：获取文件名的函数</span><br><span class="line">join()：字符串连接函数</span><br><span class="line">path()：获取路径名的函数</span><br><span class="line">read_file()：读取文件的函数</span><br><span class="line">write_file()：写入文件的函数</span><br></pre></td></tr></table></figure></li>
+<li><p>用户自定义函数以及调用，示例如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">// a.gn</span><br><span class="line">function add(x, y) &#123;</span><br><span class="line">return x + y;</span><br><span class="line">&#125;</span><br><span class="line">---</span><br><span class="line">// b.gn</span><br><span class="line">import(&quot;a.gn&quot;)</span><br><span class="line"></span><br><span class="line">println(&quot;The sum of 1 and 2 is $&#123;add(1, 2)&#125;&quot;)</span><br></pre></td></tr></table></figure></li>
 </ul>
 <h3 id="目标"><a href="#目标" class="headerlink" title="目标"></a>目标</h3><ul>
 <li><p>目标是构建系统要生成的文件或目录，其可以是可执行文件、库、源代码文件、文档等</p>
 </li>
+<li><p>BUILD.gn是GN构建系统默认使用的文件名</p>
+</li>
+<li><p>目标使用<code>target()</code>语句定义，语法如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">target(target_name) &#123;</span><br><span class="line">// 目标配置</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
 <li><p>其名称必须唯一，可以有以下属性配置项定义：deps-依赖关系、type-目标类型、output-目标输出、public-目标是否公开、configs-目标配置</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">target(&quot;my_executable&quot;) &#123;</span><br><span class="line">type = &quot;executable&quot;</span><br><span class="line">sources = [&quot;main.cc&quot;]</span><br><span class="line">deps = [&quot;my_library&quot;]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<ul>
+<li>子目标可以使用deps属性指定<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">target(&quot;my_executable&quot;) &#123;</span><br><span class="line">type = &quot;executable&quot;       // 指定目标类型为可执行文件</span><br><span class="line">sources = [&quot;main.cc&quot;]     // 指定目标所需要的源文件列表</span><br><span class="line">deps = [&quot;my_library&quot;]     // 依赖关系，系统先构建此子目标</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p>GN目标可以使用<code>build</code>命令构建</p>
+<ul>
+<li>如：在当前路径下有BUILD.gn文件，其定义了名为<code>my_executable</code>的目标</li>
+<li>则在命令行输入<code>gn build my_executable</code>表示构建该目标</li>
+<li><code>gn build</code>表示构建所有目标</li>
+<li><code>gn build my_executable:my_sub</code>表示构建目标的子目标my_sub</li>
+</ul>
+</li>
 </ul>
 <h3 id="配置项"><a href="#配置项" class="headerlink" title="配置项"></a>配置项</h3><ul>
 <li>配置项用于配置GN构建系统的行为，其可以控制：构建目标的类型和输出、构建规则的行为、构建系统的环境</li>
@@ -296,6 +323,7 @@
 <li>其与目标的联系为：配置项用于定义目标的行为，<strong>目标的配置项可以定义在目标的gn配置文件中</strong></li>
 </ul>
 </li>
+<li>常用的配置项如下：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">target_type：定义目标的类型</span><br><span class="line">output：定义目标的输出</span><br><span class="line">deps：定义目标的依赖关系</span><br><span class="line">public：定义目标是否公开</span><br><span class="line">configs：定义目标的配置</span><br><span class="line">rule_type：定义规则的类型</span><br><span class="line">deps：定义规则的依赖关系</span><br><span class="line">inputs：定义规则的输入</span><br><span class="line">outputs：定义规则的输出</span><br><span class="line">action：定义规则的操作</span><br><span class="line">script：定义规则的脚本</span><br><span class="line">args：定义规则的参数</span><br><span class="line">vars：定义规则的变量</span><br></pre></td></tr></table></figure></li>
 </ul>
 <h3 id="规则"><a href="#规则" class="headerlink" title="规则"></a>规则</h3><p>  GN中的规则可以使用rule()函数进行定义。规则可以指定以下属性：</p>
 <p>  inputs：规则需要的输入文件。<br>  outputs：规则的输出文件。<br>  action：规则执行的操作。<br>  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">rule(&quot;my_rule&quot;) &#123;</span><br><span class="line">inputs = [&quot;input.txt&quot;]</span><br><span class="line">outputs = [&quot;output.txt&quot;]</span><br><span class="line">action = &quot;echo &#x27;Hello, world!&#x27; &gt; $out&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
@@ -312,7 +340,13 @@
 </ul>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">rule my_rule &#123;</span><br><span class="line"># 定义规则的输入</span><br><span class="line">input: &quot;input.cpp&quot;</span><br><span class="line"># 定义规则的输出</span><br><span class="line">output: &quot;output.o&quot;</span><br><span class="line"></span><br><span class="line"># 定义规则的执行逻辑</span><br><span class="line">action &#123;</span><br><span class="line">    command: &quot;gcc -c input.cpp -o output.o&quot;</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
 </ul>
-<h2 id="GN进阶操作"><a href="#GN进阶操作" class="headerlink" title="GN进阶操作"></a>GN进阶操作</h2><h3 id="自定义模板"><a href="#自定义模板" class="headerlink" title="自定义模板"></a>自定义模板</h3><h2 id="LiteOS-M内核之GN设计"><a href="#LiteOS-M内核之GN设计" class="headerlink" title="LiteOS-M内核之GN设计"></a>LiteOS-M内核之GN设计</h2><h3 id="编译入口"><a href="#编译入口" class="headerlink" title="编译入口"></a>编译入口</h3><ul>
+<h2 id="GN进阶操作"><a href="#GN进阶操作" class="headerlink" title="GN进阶操作"></a>GN进阶操作</h2><h3 id="自定义模板"><a href="#自定义模板" class="headerlink" title="自定义模板"></a>自定义模板</h3><ul>
+<li>如何使用模板, 用import,类似 C语言的 #include<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">import(”//tools/idl_compiler.gni&quot;)</span><br><span class="line">idl(“my_interfaces”) &#123; #等同于调用 idl</span><br><span class="line">sources = [ “a”, “b” ] #给idl传参, 参数的接收方是 invoker.sources</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="补充说明以及疑惑解答"><a href="#补充说明以及疑惑解答" class="headerlink" title="补充说明以及疑惑解答"></a>补充说明以及疑惑解答</h2><ul>
+<li>GN文件编写如何包含工程源码的头文件路径？</li>
+</ul>
+<h2 id="LiteOS-M内核之GN设计"><a href="#LiteOS-M内核之GN设计" class="headerlink" title="LiteOS-M内核之GN设计"></a>LiteOS-M内核之GN设计</h2><h3 id="编译入口"><a href="#编译入口" class="headerlink" title="编译入口"></a>编译入口</h3><ul>
 <li>LiteOS-M的编译入口定义在<code>//build/lite/components/kernel.json</code>，目标为<code>//kernel/liteos_m:kernel</code>，其在<code>//kernel/liteos_m/BUILD.gn</code>中定义</li>
 <li>在产品的config.json配置文件中进行如下编写，表示要编译构建LiteOS-M内核<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">&quot;subsystem&quot;: &quot;kernel&quot;,</span><br><span class="line">&quot;components&quot;: [</span><br><span class="line">&#123; &quot;component&quot;: &quot;liteos_m&quot;, &quot;features&quot;:[] &#125;</span><br><span class="line">]</span><br><span class="line">&#125;,</span><br></pre></td></tr></table></figure></li>
 </ul>
@@ -393,7 +427,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5%E4%BB%8B%E7%BB%8D"><span class="nav-number">1.</span> <span class="nav-text">基本概念介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5%E4%B8%8E%E8%AF%AD%E6%B3%95"><span class="nav-number">2.</span> <span class="nav-text">基本概念与语法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%98%E9%87%8F"><span class="nav-number">2.1.</span> <span class="nav-text">变量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%87%BD%E6%95%B0"><span class="nav-number">2.2.</span> <span class="nav-text">函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%9B%AE%E6%A0%87"><span class="nav-number">2.3.</span> <span class="nav-text">目标</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE%E9%A1%B9"><span class="nav-number">2.4.</span> <span class="nav-text">配置项</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A7%84%E5%88%99"><span class="nav-number">2.5.</span> <span class="nav-text">规则</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E8%AF%AD%E6%B3%95"><span class="nav-number">2.6.</span> <span class="nav-text">基本语法</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BA%94%E7%94%A8%E5%AE%9E%E8%B7%B5%E8%8C%83%E4%BE%8B"><span class="nav-number">3.</span> <span class="nav-text">应用实践范例</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#GN%E8%BF%9B%E9%98%B6%E6%93%8D%E4%BD%9C"><span class="nav-number">4.</span> <span class="nav-text">GN进阶操作</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%87%AA%E5%AE%9A%E4%B9%89%E6%A8%A1%E6%9D%BF"><span class="nav-number">4.1.</span> <span class="nav-text">自定义模板</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#LiteOS-M%E5%86%85%E6%A0%B8%E4%B9%8BGN%E8%AE%BE%E8%AE%A1"><span class="nav-number">5.</span> <span class="nav-text">LiteOS-M内核之GN设计</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BC%96%E8%AF%91%E5%85%A5%E5%8F%A3"><span class="nav-number">5.1.</span> <span class="nav-text">编译入口</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E4%BB%8B%E7%BB%8D"><span class="nav-number">1.</span> <span class="nav-text">基本介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5%E4%B8%8E%E8%AF%AD%E6%B3%95"><span class="nav-number">2.</span> <span class="nav-text">基本概念与语法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%98%E9%87%8F"><span class="nav-number">2.1.</span> <span class="nav-text">变量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%87%BD%E6%95%B0"><span class="nav-number">2.2.</span> <span class="nav-text">函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%9B%AE%E6%A0%87"><span class="nav-number">2.3.</span> <span class="nav-text">目标</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE%E9%A1%B9"><span class="nav-number">2.4.</span> <span class="nav-text">配置项</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A7%84%E5%88%99"><span class="nav-number">2.5.</span> <span class="nav-text">规则</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E8%AF%AD%E6%B3%95"><span class="nav-number">2.6.</span> <span class="nav-text">基本语法</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BA%94%E7%94%A8%E5%AE%9E%E8%B7%B5%E8%8C%83%E4%BE%8B"><span class="nav-number">3.</span> <span class="nav-text">应用实践范例</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#GN%E8%BF%9B%E9%98%B6%E6%93%8D%E4%BD%9C"><span class="nav-number">4.</span> <span class="nav-text">GN进阶操作</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%87%AA%E5%AE%9A%E4%B9%89%E6%A8%A1%E6%9D%BF"><span class="nav-number">4.1.</span> <span class="nav-text">自定义模板</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A1%A5%E5%85%85%E8%AF%B4%E6%98%8E%E4%BB%A5%E5%8F%8A%E7%96%91%E6%83%91%E8%A7%A3%E7%AD%94"><span class="nav-number">5.</span> <span class="nav-text">补充说明以及疑惑解答</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#LiteOS-M%E5%86%85%E6%A0%B8%E4%B9%8BGN%E8%AE%BE%E8%AE%A1"><span class="nav-number">6.</span> <span class="nav-text">LiteOS-M内核之GN设计</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BC%96%E8%AF%91%E5%85%A5%E5%8F%A3"><span class="nav-number">6.1.</span> <span class="nav-text">编译入口</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
