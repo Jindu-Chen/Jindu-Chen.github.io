@@ -28,7 +28,7 @@
 <meta property="og:description" content="要基于OpenHarmony-V3.2-Release源码工程进行LiteOS-M轻量系统的设备开发，那么熟悉了解其编译构建过程是必要的；本文以STM32的LiteOS移植工程为例，剖析其业务代码、内核代码的调用编译构建流程">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2023-12-26T00:00:00.000Z">
-<meta property="article:modified_time" content="2024-01-02T07:21:09.956Z">
+<meta property="article:modified_time" content="2024-01-02T09:04:08.839Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -225,7 +225,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-01-02 07:21:09" itemprop="dateModified" datetime="2024-01-02T07:21:09+00:00">2024-01-02</time>
+                <time title="Modified: 2024-01-02 09:04:08" itemprop="dateModified" datetime="2024-01-02T09:04:08+00:00">2024-01-02</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -234,6 +234,10 @@
               <span class="post-meta-item-text">In</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
                   <a href="/categories/LiteOS/" itemprop="url" rel="index"><span itemprop="name">LiteOS</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/RTOS/" itemprop="url" rel="index"><span itemprop="name">RTOS</span></a>
                 </span>
             </span>
 
@@ -261,11 +265,50 @@
 </li>
 <li>但其社区移植工程都已经过时，不适配Harmony4.0 Release，编译无法通过，要想移植，只能自己摸索、熟悉GN+Ninja的构建方式，从头理顺开发过程<ul>
 <li>此前已经做了一部分的工作，包括命令行开发环境搭建、各种依赖搭建，但没有系统地进行整理，可以说是个遗憾</li>
-<li>另外感觉<strong>移植编译XTS子系统、通过兼容性测评</strong>这个时间周期会较长，而且是没有任何指导文档下的独立开发，本人对此预研项目持悲观态度，且做且看吧！</li>
+<li>另外感觉<strong>移植编译XTS子系统、通过兼容性测评</strong>这个时间周期会较长，而且是没有任何指导文档下的独立开发，本人对此预研项目持悲观态度，目前也不能把过多时间精力投入此处，且做且看吧！</li>
 </ul>
 </li>
 </ul>
-<h2 id="LiteOS-M内核之GN设计总览"><a href="#LiteOS-M内核之GN设计总览" class="headerlink" title="LiteOS-M内核之GN设计总览"></a>LiteOS-M内核之GN设计总览</h2><h2 id="编译入口"><a href="#编译入口" class="headerlink" title="编译入口"></a>编译入口</h2><ul>
+<h3 id="记于2024-01-02"><a href="#记于2024-01-02" class="headerlink" title="记于2024-01-02"></a>记于2024-01-02</h3><ul>
+<li>客观来说，理论上移植LiteOS-M到N32G452，并编译进行XTS子系统测试是可行的，不能畏惧不前</li>
+<li>目前需要的知识储备为：熟悉GN、Ninja工具，有深入的理解编译及链接原理，熟悉cortex-m架构，了解Python，熟悉RTOS内核实现</li>
+<li>首要任务是：<strong>基于OpenHarmony全量工程的构建方式，把最简程序运行起来</strong></li>
+</ul>
+<h2 id="轻量系统编译构建-命令执行简述"><a href="#轻量系统编译构建-命令执行简述" class="headerlink" title="轻量系统编译构建-命令执行简述"></a>轻量系统编译构建-命令执行简述</h2><h3 id="hb命令"><a href="#hb命令" class="headerlink" title="hb命令"></a>hb命令</h3><p>&emsp;&emsp;hb工具是一个命令行工具，其使用Python语言编写，能够调用gn和ninja工具来生成OpenHarmony的二进制文件。<br></p>
+<ul>
+<li>hb的源代码在<code>build/lite/hb</code>路径下，其入口函数为<code>__main__.py中的main()</code>，支持命令有：<code>set、env、build、clean</code></li>
+<li><strong>hb命令的具体实现位于<code>//build/lite/hb_internal</code>中</strong></li>
+</ul>
+<h3 id="hb-set"><a href="#hb-set" class="headerlink" title="hb set"></a>hb set</h3><ul>
+<li><code>hb set</code>的作用为生成产品配置文件，其会在工程根目录下生成ohos_config.json文件</li>
+<li>其会读取<code>//vendor/</code>的配置，以供选择</li>
+</ul>
+<h3 id="hb-build-copy"><a href="#hb-build-copy" class="headerlink" title="hb build (copy)"></a>hb build (copy)</h3><ul>
+<li>hb build的作用是根据配置信息生成编译指导文件build.ninja。</li>
+<li>代码路径为：build&#x2F;lite&#x2F;hb&#x2F;build&#x2F;build.py<ul>
+<li>调用 gn_build 使用 gn gen生成 *.ninja 文件</li>
+<li>调用 ninja_build 使用 ninja -w dupbuild&#x3D;warn -C 生成 *.o *.so *.bin 等最后的文件</li>
+</ul>
+</li>
+</ul>
+<h2 id="LiteOS-M内核之GN编译构建流程总览"><a href="#LiteOS-M内核之GN编译构建流程总览" class="headerlink" title="LiteOS-M内核之GN编译构建流程总览"></a>LiteOS-M内核之GN编译构建流程总览</h2><ul>
+<li><code>hb build</code>-&gt;<code>build/lite/hb_internal/build/build.py</code></li>
+<li>读取板子配置，包括编译工具链、编译链接选项等</li>
+<li>读取的配置文件有：<ul>
+<li><code>build/lite/ohos_var.gni</code>：定义应用于所有组件的全局变量</li>
+<li><code>device/&#123;company&#125;/&#123;board&#125;/liteos_m/config.gni</code>：编译LiteOS-M内核的配置</li>
+<li><code>vendor/&#123;company&#125;/&#123;board&#125;/config.json</code>：板子所应用的全量配置表，包括子系统、组件等</li>
+</ul>
+</li>
+<li>调用gn gen命令，读取产品配置（板级配置、内核、组件等），生成out目录和ninja文件</li>
+<li>调用<code>ninja -C out/&#123;company&#125;/&#123;product&#125;/</code>开始编译</li>
+<li>打包、制作可执行文件</li>
+</ul>
+<p>分析<code>build/lite/BUILD.gn</code>文件如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br></pre></td><td class="code"><pre><span class="line">group(&quot;ohos&quot;) &#123;</span><br><span class="line">  deps = []</span><br><span class="line">  if (ohos_build_target == &quot;&quot;) &#123;</span><br><span class="line">    # Step 1: Read product configuration profile.</span><br><span class="line">    # 读取/vendor/&#123;company&#125;/&#123;board&#125;/config.json</span><br><span class="line">    product_cfg = read_file(&quot;$&#123;product_config_path&#125;/config.json&quot;, &quot;json&quot;)   </span><br><span class="line"></span><br><span class="line">    parts_targets_info = read_file(</span><br><span class="line">            &quot;$&#123;root_build_dir&#125;/build_configs/parts_info/parts_modules_info.json&quot;,</span><br><span class="line">            &quot;json&quot;)</span><br><span class="line"></span><br><span class="line">    # Step 2: Loop subsystems configured by product.</span><br><span class="line">    # 遍历板子的子系统配置</span><br><span class="line">    foreach(product_configed_subsystem, product_cfg.subsystems) &#123;</span><br><span class="line">      subsystem_name = product_configed_subsystem.subsystem</span><br><span class="line"></span><br><span class="line">      # 判断XTS子系统相关，暂未搞懂</span><br><span class="line">      if (build_xts || (!build_xts &amp;&amp; subsystem_name != &quot;xts&quot;)) &#123;</span><br><span class="line">        # Step 3: Read OS subsystems profile.</span><br><span class="line">        subsystem_parts_info = &#123;</span><br><span class="line">        &#125;</span><br><span class="line">        subsystem_parts_info = read_file(</span><br><span class="line">                &quot;$&#123;root_build_dir&#125;/build_configs/mini_adapter/$&#123;subsystem_name&#125;.json&quot;,</span><br><span class="line">                &quot;json&quot;)</span><br><span class="line"></span><br><span class="line">        # Step 4: Loop components configured by product.</span><br><span class="line">        foreach(product_configed_component,</span><br><span class="line">                product_configed_subsystem.components) &#123;</span><br><span class="line">          # Step 5: Check whether the component configured by product is exist.</span><br><span class="line">          component_found = false</span><br><span class="line"></span><br><span class="line">          foreach(part_name, subsystem_parts_info.parts) &#123;</span><br><span class="line">            if (product_configed_component.component == part_name) &#123;</span><br><span class="line">              component_found = true</span><br><span class="line">            &#125;</span><br><span class="line">          &#125;</span><br><span class="line"></span><br><span class="line">          assert(</span><br><span class="line">              component_found,</span><br><span class="line">              &quot;Component \&quot;$&#123;product_configed_component.component&#125;\&quot; not found&quot; + &quot;, please check your product configuration.&quot;)</span><br><span class="line"></span><br><span class="line">          # Step 6: Loop OS components and check validity of product configuration.</span><br><span class="line">          foreach(part_name, subsystem_parts_info.parts) &#123;</span><br><span class="line">            kernel_valid = true</span><br><span class="line"></span><br><span class="line">            # Step 6.1: Skip component which not configured by product.</span><br><span class="line">            if (part_name == product_configed_component.component) &#123;</span><br><span class="line">              # Step 6.1.1: Loop OS components adapted kernel type.</span><br><span class="line"></span><br><span class="line">              assert(</span><br><span class="line">                  kernel_valid,</span><br><span class="line">                  &quot;Invalid component configed, $&#123;subsystem_name&#125;:$&#123;product_configed_component.component&#125; &quot; + &quot;not available for kernel: $&#123;product_cfg.kernel_type&#125;!&quot;)</span><br><span class="line"></span><br><span class="line">              # Step 6.1.2: Add valid component for compiling.</span><br><span class="line">              # Skip kernel target for userspace only scenario.</span><br><span class="line">              ......</span><br><span class="line">            &#125;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    # Skip device target for userspace only scenario.</span><br><span class="line">    if (!ohos_build_userspace_only) &#123;</span><br><span class="line">      # Step 7: Add device and product target by default.</span><br><span class="line">      # liteos_m kernel organise device build targets, but not by default.</span><br><span class="line">      if (product_cfg.kernel_type != &quot;liteos_m&quot;) &#123;</span><br><span class="line">        deps += [ &quot;$&#123;device_path&#125;/../&quot; ]</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125; else &#123;</span><br><span class="line">    deps += string_split(ohos_build_target, &quot;&amp;&amp;&quot;)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="编译入口"><a href="#编译入口" class="headerlink" title="编译入口"></a>编译入口</h2><ul>
 <li>LiteOS-M的编译入口定义在<code>//build/lite/components/kernel.json</code>，目标为<code>//kernel/liteos_m:kernel</code>，其在<code>//kernel/liteos_m/BUILD.gn</code>中定义</li>
 <li>在产品的config.json配置文件中进行如下编写，表示要编译构建LiteOS-M内核<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">&quot;subsystem&quot;: &quot;kernel&quot;,</span><br><span class="line">&quot;components&quot;: [</span><br><span class="line">&#123; &quot;component&quot;: &quot;liteos_m&quot;, &quot;features&quot;:[] &#125;</span><br><span class="line">]</span><br><span class="line">&#125;,</span><br></pre></td></tr></table></figure></li>
 </ul>
@@ -349,7 +392,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%B0%E4%BA%8E2023-12-29"><span class="nav-number">1.1.</span> <span class="nav-text">记于2023-12-29</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#LiteOS-M%E5%86%85%E6%A0%B8%E4%B9%8BGN%E8%AE%BE%E8%AE%A1%E6%80%BB%E8%A7%88"><span class="nav-number">2.</span> <span class="nav-text">LiteOS-M内核之GN设计总览</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BC%96%E8%AF%91%E5%85%A5%E5%8F%A3"><span class="nav-number">3.</span> <span class="nav-text">编译入口</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%B0%E4%BA%8E2023-12-29"><span class="nav-number">1.1.</span> <span class="nav-text">记于2023-12-29</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%B0%E4%BA%8E2024-01-02"><span class="nav-number">1.2.</span> <span class="nav-text">记于2024-01-02</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BD%BB%E9%87%8F%E7%B3%BB%E7%BB%9F%E7%BC%96%E8%AF%91%E6%9E%84%E5%BB%BA-%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E7%AE%80%E8%BF%B0"><span class="nav-number">2.</span> <span class="nav-text">轻量系统编译构建-命令执行简述</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#hb%E5%91%BD%E4%BB%A4"><span class="nav-number">2.1.</span> <span class="nav-text">hb命令</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#hb-set"><span class="nav-number">2.2.</span> <span class="nav-text">hb set</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#hb-build-copy"><span class="nav-number">2.3.</span> <span class="nav-text">hb build (copy)</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#LiteOS-M%E5%86%85%E6%A0%B8%E4%B9%8BGN%E7%BC%96%E8%AF%91%E6%9E%84%E5%BB%BA%E6%B5%81%E7%A8%8B%E6%80%BB%E8%A7%88"><span class="nav-number">3.</span> <span class="nav-text">LiteOS-M内核之GN编译构建流程总览</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BC%96%E8%AF%91%E5%85%A5%E5%8F%A3"><span class="nav-number">4.</span> <span class="nav-text">编译入口</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
