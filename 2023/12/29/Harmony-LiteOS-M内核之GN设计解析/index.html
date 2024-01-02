@@ -22,18 +22,18 @@
 
   <meta name="description" content="要基于OpenHarmony-V3.2-Release源码工程进行LiteOS-M轻量系统的设备开发，那么熟悉了解其编译构建过程是必要的；本文以STM32的LiteOS移植工程为例，剖析其业务代码、内核代码的调用编译构建流程">
 <meta property="og:type" content="article">
-<meta property="og:title" content="OpenHarmony-LiteOS-M内核之GN设计解析">
-<meta property="og:url" content="https://jindu-chen.github.io/2023/12/26/Harmony-LiteOS-M%E5%86%85%E6%A0%B8%E4%B9%8BGN%E8%AE%BE%E8%AE%A1%E8%A7%A3%E6%9E%90/index.html">
+<meta property="og:title" content="OpenHarmony-LiteOS-M内核之GN设计编译构建过程解析">
+<meta property="og:url" content="https://jindu-chen.github.io/2023/12/29/Harmony-LiteOS-M%E5%86%85%E6%A0%B8%E4%B9%8BGN%E8%AE%BE%E8%AE%A1%E8%A7%A3%E6%9E%90/index.html">
 <meta property="og:site_name" content="Jindu-Chen">
 <meta property="og:description" content="要基于OpenHarmony-V3.2-Release源码工程进行LiteOS-M轻量系统的设备开发，那么熟悉了解其编译构建过程是必要的；本文以STM32的LiteOS移植工程为例，剖析其业务代码、内核代码的调用编译构建流程">
 <meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2023-12-26T00:00:00.000Z">
-<meta property="article:modified_time" content="2024-01-02T10:05:57.817Z">
+<meta property="article:published_time" content="2023-12-29T00:00:00.000Z">
+<meta property="article:modified_time" content="2024-01-02T10:14:08.428Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="https://jindu-chen.github.io/2023/12/26/Harmony-LiteOS-M%E5%86%85%E6%A0%B8%E4%B9%8BGN%E8%AE%BE%E8%AE%A1%E8%A7%A3%E6%9E%90/">
+<link rel="canonical" href="https://jindu-chen.github.io/2023/12/29/Harmony-LiteOS-M%E5%86%85%E6%A0%B8%E4%B9%8BGN%E8%AE%BE%E8%AE%A1%E8%A7%A3%E6%9E%90/">
 
 
 <script id="page-configurations">
@@ -46,7 +46,7 @@
   };
 </script>
 
-  <title>OpenHarmony-LiteOS-M内核之GN设计解析 | Jindu-Chen</title>
+  <title>OpenHarmony-LiteOS-M内核之GN设计编译构建过程解析 | Jindu-Chen</title>
   
 
 
@@ -195,7 +195,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="https://jindu-chen.github.io/2023/12/26/Harmony-LiteOS-M%E5%86%85%E6%A0%B8%E4%B9%8BGN%E8%AE%BE%E8%AE%A1%E8%A7%A3%E6%9E%90/">
+    <link itemprop="mainEntityOfPage" href="https://jindu-chen.github.io/2023/12/29/Harmony-LiteOS-M%E5%86%85%E6%A0%B8%E4%B9%8BGN%E8%AE%BE%E8%AE%A1%E8%A7%A3%E6%9E%90/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -208,7 +208,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          OpenHarmony-LiteOS-M内核之GN设计解析
+          OpenHarmony-LiteOS-M内核之GN设计编译构建过程解析
         </h1>
 
         <div class="post-meta">
@@ -218,14 +218,14 @@
               </span>
               <span class="post-meta-item-text">Posted on</span>
 
-              <time title="Created: 2023-12-26 00:00:00" itemprop="dateCreated datePublished" datetime="2023-12-26T00:00:00+00:00">2023-12-26</time>
+              <time title="Created: 2023-12-29 00:00:00" itemprop="dateCreated datePublished" datetime="2023-12-29T00:00:00+00:00">2023-12-29</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-01-02 10:05:57" itemprop="dateModified" datetime="2024-01-02T10:05:57+00:00">2024-01-02</time>
+                <time title="Modified: 2024-01-02 10:14:08" itemprop="dateModified" datetime="2024-01-02T10:14:08+00:00">2024-01-02</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -329,7 +329,12 @@
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br></pre></td><td class="code"><pre><span class="line">group(&quot;ohos&quot;) &#123;</span><br><span class="line">  deps = []</span><br><span class="line">  if (ohos_build_target == &quot;&quot;) &#123;</span><br><span class="line">    # Step 1: Read product configuration profile.</span><br><span class="line">    # 读取/vendor/&#123;company&#125;/&#123;board&#125;/config.json</span><br><span class="line">    product_cfg = read_file(&quot;$&#123;product_config_path&#125;/config.json&quot;, &quot;json&quot;)   </span><br><span class="line"></span><br><span class="line">    parts_targets_info = read_file(</span><br><span class="line">            &quot;$&#123;root_build_dir&#125;/build_configs/parts_info/parts_modules_info.json&quot;,</span><br><span class="line">            &quot;json&quot;)</span><br><span class="line"></span><br><span class="line">    # Step 2: Loop subsystems configured by product.</span><br><span class="line">    # 遍历板子的子系统配置</span><br><span class="line">    foreach(product_configed_subsystem, product_cfg.subsystems) &#123;</span><br><span class="line">      subsystem_name = product_configed_subsystem.subsystem</span><br><span class="line"></span><br><span class="line">      # 判断XTS子系统相关，暂未搞懂</span><br><span class="line">      if (build_xts || (!build_xts &amp;&amp; subsystem_name != &quot;xts&quot;)) &#123;</span><br><span class="line">        # Step 3: Read OS subsystems profile.</span><br><span class="line">        subsystem_parts_info = &#123;</span><br><span class="line">        &#125;</span><br><span class="line">        subsystem_parts_info = read_file(</span><br><span class="line">                &quot;$&#123;root_build_dir&#125;/build_configs/mini_adapter/$&#123;subsystem_name&#125;.json&quot;,</span><br><span class="line">                &quot;json&quot;)</span><br><span class="line"></span><br><span class="line">        # Step 4: Loop components configured by product.</span><br><span class="line">        foreach(product_configed_component,</span><br><span class="line">                product_configed_subsystem.components) &#123;</span><br><span class="line">          # Step 5: Check whether the component configured by product is exist.</span><br><span class="line">          component_found = false</span><br><span class="line"></span><br><span class="line">          foreach(part_name, subsystem_parts_info.parts) &#123;</span><br><span class="line">            if (product_configed_component.component == part_name) &#123;</span><br><span class="line">              component_found = true</span><br><span class="line">            &#125;</span><br><span class="line">          &#125;</span><br><span class="line"></span><br><span class="line">          assert(</span><br><span class="line">              component_found,</span><br><span class="line">              &quot;Component \&quot;$&#123;product_configed_component.component&#125;\&quot; not found&quot; + &quot;, please check your product configuration.&quot;)</span><br><span class="line"></span><br><span class="line">          # Step 6: Loop OS components and check validity of product configuration.</span><br><span class="line">          foreach(part_name, subsystem_parts_info.parts) &#123;</span><br><span class="line">            kernel_valid = true</span><br><span class="line"></span><br><span class="line">            # Step 6.1: Skip component which not configured by product.</span><br><span class="line">            if (part_name == product_configed_component.component) &#123;</span><br><span class="line">              # Step 6.1.1: Loop OS components adapted kernel type.</span><br><span class="line"></span><br><span class="line">              assert(</span><br><span class="line">                  kernel_valid,</span><br><span class="line">                  &quot;Invalid component configed, $&#123;subsystem_name&#125;:$&#123;product_configed_component.component&#125; &quot; + &quot;not available for kernel: $&#123;product_cfg.kernel_type&#125;!&quot;)</span><br><span class="line"></span><br><span class="line">              # Step 6.1.2: Add valid component for compiling.</span><br><span class="line">              # Skip kernel target for userspace only scenario.</span><br><span class="line">              ......</span><br><span class="line">            &#125;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    # Skip device target for userspace only scenario.</span><br><span class="line">    if (!ohos_build_userspace_only) &#123;</span><br><span class="line">      # Step 7: Add device and product target by default.</span><br><span class="line">      # liteos_m kernel organise device build targets, but not by default.</span><br><span class="line">      if (product_cfg.kernel_type != &quot;liteos_m&quot;) &#123;</span><br><span class="line">        deps += [ &quot;$&#123;device_path&#125;/../&quot; ]</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125; else &#123;</span><br><span class="line">    deps += string_split(ohos_build_target, &quot;&amp;&amp;&quot;)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <hr>
-<h2 id="编译构建调用过程"><a href="#编译构建调用过程" class="headerlink" title="编译构建调用过程"></a>编译构建调用过程</h2><p>主要分为三部分</p>
+<h2 id="编译构建调用过程"><a href="#编译构建调用过程" class="headerlink" title="编译构建调用过程"></a>编译构建调用过程</h2><p>主要分为三部分：</p>
+<ul>
+<li><code>vendor/&#123;company&#125;/&#123;board&#125;/</code>–产品解决方案</li>
+<li><code>device/&#123;company&#125;/&#123;board&#125;/</code>–芯片开发板解决方案</li>
+<li><code>kernel/liteos_m</code>–轻量系统内核</li>
+</ul>
 <h3 id="产品解决方案代码"><a href="#产品解决方案代码" class="headerlink" title="产品解决方案代码"></a>产品解决方案代码</h3><h3 id="芯片开发板解决方案代码"><a href="#芯片开发板解决方案代码" class="headerlink" title="芯片开发板解决方案代码"></a>芯片开发板解决方案代码</h3><h3 id="内核代码"><a href="#内核代码" class="headerlink" title="内核代码"></a>内核代码</h3><h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><ul>
 <li><a target="_blank" rel="noopener" href="https://bbs.huaweicloud.com/blogs/336721">移植案例与原理 - build lite编译构建过程</a></li>
 <li><a target="_blank" rel="noopener" href="https://bbs.huaweicloud.com/blogs/336722">移植案例与原理 - build lite配置目录全梳理</a></li>
@@ -349,13 +354,10 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2023/12/22/%E5%B5%8C%E5%85%A5%E5%BC%8FMCU%E8%87%AA%E5%8A%A8%E5%88%9D%E5%A7%8B%E5%8C%96/" rel="prev" title="嵌入式自动初始化">
-      <i class="fa fa-chevron-left"></i> 嵌入式自动初始化
+    <a href="/2023/12/24/GN%E5%92%8Cninja%E7%9A%84%E5%8C%BA%E5%88%AB%E3%80%81%E8%81%94%E7%B3%BB%E5%92%8C%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/" rel="prev" title="GN和Ninja构建工具的基础入门、进阶和应用开发">
+      <i class="fa fa-chevron-left"></i> GN和Ninja构建工具的基础入门、进阶和应用开发
     </a></div>
-      <div class="post-nav-item">
-    <a href="/2023/12/29/GN%E5%92%8Cninja%E7%9A%84%E5%8C%BA%E5%88%AB%E3%80%81%E8%81%94%E7%B3%BB%E5%92%8C%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/" rel="next" title="GN和Ninja构建工具的基础入门、进阶和应用开发">
-      GN和Ninja构建工具的基础入门、进阶和应用开发 <i class="fa fa-chevron-right"></i>
-    </a></div>
+      <div class="post-nav-item"></div>
     </div>
       </footer>
     
