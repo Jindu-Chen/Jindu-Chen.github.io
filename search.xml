@@ -1583,7 +1583,7 @@
   <entry>
     <title>OpenHarmony-LiteOS-M内核之GN设计编译构建过程解析</title>
     <url>/2023/12/29/Harmony-LiteOS-M%E5%86%85%E6%A0%B8%E4%B9%8BGN%E8%AE%BE%E8%AE%A1%E8%A7%A3%E6%9E%90/</url>
-    <content><![CDATA[<p>阅读本文，须先参阅<a href="/2023/12/28/GN%E5%92%8Cninja%E7%9A%84%E5%8C%BA%E5%88%AB%E3%80%81%E8%81%94%E7%B3%BB%E5%92%8C%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91"><strong>GN与Ninja入门</strong></a></p>
+    <content><![CDATA[<p>阅读本文，须先参阅<a href="/2023/12/24/GN%E5%92%8Cninja%E7%9A%84%E5%8C%BA%E5%88%AB%E3%80%81%E8%81%94%E7%B3%BB%E5%92%8C%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91"><strong>GN与Ninja入门</strong></a></p>
 <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><h3 id="记于2023-12-29"><a href="#记于2023-12-29" class="headerlink" title="记于2023-12-29"></a>记于2023-12-29</h3><ul>
 <li>就目前而言，网上关于LiteOS-M的相关开发移植资料都是相当的少，官方文档也是写得不清不楚的，如果不是项目需求，估计没人愿意来做LiteOS-M的移植适配工作。。</li>
 <li>鄙人初次接触，此前参考了社区的STM32工程移植示例，成功移植LiteOS-M并在gcc+make开发环境运行</li>
