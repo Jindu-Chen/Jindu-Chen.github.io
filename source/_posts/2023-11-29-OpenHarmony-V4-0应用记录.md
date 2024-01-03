@@ -24,15 +24,15 @@ description: 参考社区的STM32之Ninja编译方式的工程范例，移植搭
 
 ## 编译纠错
 
+- 编译成功，但生成的可执行bin文件明显偏小，查看Kconfig配置文件是否有选项没写对，导致的没编译链接
 
-- 提示以下信息，
-    ```
-    ../../../kernel/liteos_m/kernel/src/los_init.c:54:10: fatal error: los_exc_info.h: No such file or directory
-    54 | #include "los_exc_info.h"
-        |          ^~~~~~~~~~~~~~~~
-    compilation terminated.
-    [43/265] gcc cross compiler obj/kernel/liteos_m/kal/posix/src/posix.pthread_cond.o
-    ```
+- 提示以下信息：进入`kernel/liteos_m`，然后make menuconfig，选中兼容项，失能musl库，改为new lib。
+```
+[OHOS ERROR] arm-none-eabi-gcc: fatal error: /home/jd_chen/Downloads/gcc-arm-none-eabi-10-2020-q4-major/bin/../lib/gcc/arm-none-eabi/10.2.1/../../../../arm-none-eabi/lib/nano.specs: attempt to rename spec 'link' to already defined spec 'nano_link'
+[OHOS ERROR] compilation terminated.
+```
+
+
 
 - 出现如下编译错误，在vfs_fs.c添加头文件<stdbool.h>包含即可
     ```
