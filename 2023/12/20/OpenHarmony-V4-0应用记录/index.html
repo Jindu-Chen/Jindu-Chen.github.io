@@ -28,7 +28,7 @@
 <meta property="og:description" content="参考社区的STM32之Ninja编译方式的工程范例，移植搭建基于LiteOS的N32WB452工程，记录其过程中的一些编译纠错、代码功能编写及构建、XTS子系统测试等相关信息，以供检索回溯">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2023-12-20T00:00:00.000Z">
-<meta property="article:modified_time" content="2024-01-03T10:01:16.859Z">
+<meta property="article:modified_time" content="2024-01-03T11:20:32.043Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -225,7 +225,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-01-03 10:01:16" itemprop="dateModified" datetime="2024-01-03T10:01:16+00:00">2024-01-03</time>
+                <time title="Modified: 2024-01-03 11:20:32" itemprop="dateModified" datetime="2024-01-03T11:20:32+00:00">2024-01-03</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -237,7 +237,21 @@
                 </span>
             </span>
 
-          
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>1.1k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>4 mins.</span>
+            </span>
             <div class="post-description">参考社区的STM32之Ninja编译方式的工程范例，移植搭建基于LiteOS的N32WB452工程，记录其过程中的一些编译纠错、代码功能编写及构建、XTS子系统测试等相关信息，以供检索回溯</div>
 
         </div>
@@ -264,9 +278,8 @@
 </li>
 <li><p>提示以下信息：进入<code>kernel/liteos_m</code>，然后make menuconfig，选中兼容项，失能musl库，改为new lib。</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[OHOS ERROR] arm-none-eabi-gcc: fatal error: /home/jd_chen/Downloads/gcc-arm-none-eabi-10-2020-q4-major/bin/../lib/gcc/arm-none-eabi/10.2.1/../../../../arm-none-eabi/lib/nano.specs: attempt to rename spec &#x27;link&#x27; to already defined spec &#x27;nano_link&#x27;</span><br><span class="line">[OHOS ERROR] compilation terminated.</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>提示以下信息，</p>
-  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">../../../kernel/liteos_m/kernel/src/los_init.c:54:10: fatal error: los_exc_info.h: No such file or directory</span><br><span class="line">54 | #include &quot;los_exc_info.h&quot;</span><br><span class="line">    |          ^~~~~~~~~~~~~~~~</span><br><span class="line">compilation terminated.</span><br><span class="line">[43/265] gcc cross compiler obj/kernel/liteos_m/kal/posix/src/posix.pthread_cond.o</span><br></pre></td></tr></table></figure>
+
+
 </li>
 <li><p>出现如下编译错误，在vfs_fs.c添加头文件&lt;stdbool.h&gt;包含即可</p>
   <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">[OHOS ERROR] [56/340] gcc cross compiler obj/kernel/liteos_m/components/fs/vfs/vfs.vfs_fs.o</span><br><span class="line">[OHOS ERROR] FAILED: obj/kernel/liteos_m/components/fs/vfs/vfs.vfs_fs.o </span><br><span class="line">...</span><br><span class="line">[OHOS ERROR] ../../../kernel/liteos_m/components/fs/vfs/vfs_fs.c:214:43: error: unknown type name &#x27;bool&#x27;</span><br><span class="line">[OHOS ERROR]   214 | static int VfsPathCheck(const char *path, bool isFile)</span><br><span class="line">[OHOS ERROR]       |                                           ^~~~</span><br><span class="line">[OHOS ERROR] ../../../kernel/liteos_m/components/fs/vfs/vfs_fs.c: In function &#x27;VfsOpen&#x27;:</span><br><span class="line">[OHOS ERROR] ../../../kernel/liteos_m/components/fs/vfs/vfs_fs.c:244:9: error: implicit declaration of function &#x27;VfsPathCheck&#x27; [-Werror=implicit-function-declaration]</span><br><span class="line">[OHOS ERROR]   244 |     if (VfsPathCheck(path, TRUE) != LOS_OK) </span><br><span class="line">[OHOS ERROR]       |         ^~~~~~~~~~~~</span><br><span class="line">[OHOS ERROR] cc1: all warnings being treated as errors</span><br></pre></td></tr></table></figure></li>
@@ -444,6 +457,16 @@
     <i class="fa fa-heart"></i>
   </span>
   <span class="author" itemprop="copyrightHolder">cjd</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="Symbols count total">21k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">1:17</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
   </div>

@@ -74,27 +74,6 @@
       </tags>
   </entry>
   <entry>
-    <title>IAP/OTA流程概述</title>
-    <url>/2023/11/28/IAP-OTA%E6%B5%81%E7%A8%8B%E6%A6%82%E8%BF%B0/</url>
-    <content><![CDATA[<h3 id="DCD配置"><a href="#DCD配置" class="headerlink" title="DCD配置"></a>DCD配置</h3><h3 id="注意点"><a href="#注意点" class="headerlink" title="注意点"></a>注意点</h3><ul>
-<li><p>内部Flash和片外Flash的擦除单位可能不一致，2K、4K字节不等</p>
-</li>
-<li><p>写Flash须考虑4字节对齐</p>
-</li>
-<li><p>有可能导致内核复位后触发HardFault异常的原因</p>
-<ul>
-<li>跳转前未关中断；中断控制器没复位清零；中断向量表偏移未设置正确；</li>
-</ul>
-</li>
-<li><p>同一个bootloader和app，有时上电无法跳转，程序跑飞，此时断电后马上上电，又能跳转成功？</p>
-</li>
-</ul>
-]]></content>
-      <categories>
-        <category>MCU</category>
-      </categories>
-  </entry>
-  <entry>
     <title>通过VSCode + GDB 搭建WSL下的嵌入式mcu调试环境</title>
     <url>/2023/12/04/%E9%80%9A%E8%BF%87VSCode-GDB-%E6%90%AD%E5%BB%BAWSL%E4%B8%8B%E7%9A%84%E5%B5%8C%E5%85%A5%E5%BC%8Fmcu%E8%B0%83%E8%AF%95%E7%8E%AF%E5%A2%83/</url>
     <content><![CDATA[<h1 id="软件环境准备"><a href="#软件环境准备" class="headerlink" title="软件环境准备"></a>软件环境准备</h1><ul>
@@ -128,6 +107,203 @@
         <tag>GDB</tag>
         <tag>J-Link</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>GN和Ninja构建工具的基础入门、进阶和应用开发</title>
+    <url>/2023/12/24/GN%E5%92%8Cninja%E7%9A%84%E5%8C%BA%E5%88%AB%E3%80%81%E8%81%94%E7%B3%BB%E5%92%8C%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/</url>
+    <content><![CDATA[<ul>
+<li>本文是个人对GN文件的理解，可能知识体系上有些凌乱分散，与官方表述上有些许出入</li>
+<li>文章主要为谈及GN文件的常见重要概念，并基于此引申出代码示例及解释</li>
+</ul>
+<h2 id="基本介绍"><a href="#基本介绍" class="headerlink" title="基本介绍"></a>基本介绍</h2><ul>
+<li>GN文件使用GN语言编写，其是一种基于脚本的语言，用于定义构建系统的规则和目标<ul>
+<li>gn即Generate ninja，gn与ninja的关系 类似于 cmake与make</li>
+<li>GN文件可以用于构建各种类型的项目，包括C++、Java、Python项目<br></li>
+</ul>
+</li>
+<li>ninja用于执行GN文件定义的规则和目标，其是一个C++编写的构建工具，可以生成高效的构建命令，提高构建速度</li>
+</ul>
+<h2 id="基本概念与语法"><a href="#基本概念与语法" class="headerlink" title="基本概念与语法"></a>基本概念与语法</h2><ul>
+<li>.gn是源文件，.gni是头文件，源文件可通过import引用头文件，也可使用import导入源文件<blockquote>
+<p>如：<code>import(&quot;//build/config/c++/c++.gni&quot;)</code></p>
+</blockquote>
+</li>
+<li>GN的基本概念包括：<strong>变量、函数、目标、规则、配置项、模块</strong><ul>
+<li>变量：用于存储值</li>
+<li>函数：用于执行操作</li>
+<li>目标：用于表示构建过程中的某个对象，例如文件、库或可执行文件；<strong>目标是GN构建系统的基本单位</strong></li>
+<li>规则：用于定义目标的构建方式</li>
+<li>配置项：用于控制构建过程的行为</li>
+<li>模块：一种组织和管理代码的方式，可以包含变量、函数、目标、规则等，便于模块化地管理和复用构建配置</li>
+</ul>
+</li>
+</ul>
+<h3 id="变量"><a href="#变量" class="headerlink" title="变量"></a>变量</h3><blockquote>
+<p>GN中的变量可以使用set_default_variable()函数进行定义。变量的值可以是字符串、数字、布尔值或列表<br>变量可以存储构建过程中使用的常量值，如 参数、目标类型、选项<br>如<code>set_default_variable(&quot;target_os&quot;, &quot;linux&quot;)</code>，设置操作系统为linux</p>
+</blockquote>
+<ul>
+<li><p>内置变量：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">target_os：当前目标的操作系统</span><br><span class="line">target_cpu：当前目标的处理器架构</span><br><span class="line">target_toolchain：当前目标的工具链</span><br><span class="line">target_out_dir：当前目标的输出目录，默认值是//out/target_name/</span><br><span class="line">target_gen_dir：当前目标的生成目录</span><br><span class="line">root_build_dir：构建系统的根目录</span><br><span class="line">buildconfig：构建系统的配置文件</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>变量类型：数字、字符串、布尔值、列表、映射</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">x = &quot;Hello, world!&quot;</span><br><span class="line">y = 10</span><br><span class="line">z = true</span><br><span class="line"></span><br><span class="line">// 定义一个名为 list 的列表变量</span><br><span class="line">list = [ &quot;a&quot;, &quot;b&quot;, &quot;c&quot; ]</span><br><span class="line"></span><br><span class="line">// 定义一个名为 map 的映射变量</span><br><span class="line">map = &#123;</span><br><span class="line">&quot;key1&quot; = &quot;value1&quot;,</span><br><span class="line">&quot;key2&quot; = &quot;value2&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>$&#123;&#125;</code>–字符串插值操作符用于在字符串中插入变量、表达式或函数调用的值，如：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">x = 10</span><br><span class="line">println(&quot;The value of x is $&#123;x&#125;&quot;)</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="函数"><a href="#函数" class="headerlink" title="函数"></a>函数</h3><ul>
+<li><p>GN的函数形式与C语言的类似，由函数名、参数列表和函数体组成</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">function_name(parameter_list) &#123;</span><br><span class="line">// 函数体</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><p>用户可以使用内置函数或自定义函数</p>
+</li>
+<li><p>内置函数包括有如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">assert()：断言函数，如果条件不成立，则抛出异常</span><br><span class="line">concat()：字符串拼接函数</span><br><span class="line">defined()：判断变量是否定义了的函数</span><br><span class="line">dirname()：获取目录名的函数</span><br><span class="line">file()：获取文件名的函数</span><br><span class="line">join()：字符串连接函数</span><br><span class="line">path()：获取路径名的函数</span><br><span class="line">read_file()：读取文件的函数</span><br><span class="line">write_file()：写入文件的函数</span><br></pre></td></tr></table></figure></li>
+<li><p>其中，read_file()示例如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># config.json</span><br><span class="line">&#123;</span><br><span class="line">&quot;product_name&quot;: &quot;My Product&quot;,</span><br><span class="line">&quot;product_version&quot;: &quot;1.0.0&quot;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">---</span><br><span class="line"># 读取product_config_path目录下的config.json文件，并将其内容以JSON格式返回</span><br><span class="line">product_cfg = read_file(&quot;$&#123;product_config_path&#125;/config.json&quot;, &quot;json&quot;)</span><br><span class="line"></span><br><span class="line"># 将product_name属性的值赋值给变量product_name</span><br><span class="line">product_name = product_cfg[&quot;product_name&quot;]</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>用户自定义函数以及调用，示例如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// a.gn</span><br><span class="line">function add(x, y) &#123;</span><br><span class="line">return x + y;</span><br><span class="line">&#125;</span><br><span class="line">---</span><br><span class="line">// b.gn</span><br><span class="line">import(&quot;a.gn&quot;)</span><br><span class="line"></span><br><span class="line">println(&quot;The sum of 1 and 2 is $&#123;add(1, 2)&#125;&quot;)</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="目标"><a href="#目标" class="headerlink" title="目标"></a>目标</h3><ul>
+<li><p>目标是构建系统要生成的文件或目录，其可以是可执行文件、库、源代码文件、文档等</p>
+</li>
+<li><p>BUILD.gn是GN构建系统默认使用的文件名</p>
+</li>
+<li><p>目标使用<code>target()</code>语句定义，语法如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">target(target_name) &#123;</span><br><span class="line">// 目标配置</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><p>其名称必须唯一，可以有以下属性配置项定义：deps-依赖关系、type-目标类型、output-目标输出、public-目标是否公开、configs-目标配置</p>
+<ul>
+<li>子目标可以使用deps属性指定<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">target(&quot;my_executable&quot;) &#123;</span><br><span class="line">type = &quot;executable&quot;       // 指定目标类型为可执行文件</span><br><span class="line">sources = [&quot;main.cc&quot;]     // 指定目标所需要的源文件列表</span><br><span class="line">deps = [&quot;my_library&quot;]     // 依赖关系，系统先构建此子目标</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p>GN目标可以使用<code>build</code>命令构建</p>
+<ul>
+<li>如：在当前路径下有BUILD.gn文件，其定义了名为<code>my_executable</code>的目标</li>
+<li>则在命令行输入<code>gn build my_executable</code>表示构建该目标</li>
+<li><code>gn build</code>表示构建所有目标</li>
+<li><code>gn build my_executable:my_sub</code>表示构建目标的子目标my_sub</li>
+</ul>
+</li>
+</ul>
+<h3 id="配置项"><a href="#配置项" class="headerlink" title="配置项"></a>配置项</h3><ul>
+<li><p>配置项用于配置GN构建系统的行为，其可以控制：构建目标的类型和输出、构建规则的行为、构建系统的环境</p>
+</li>
+<li><p>其可以分为：<strong>目标配置项、规则配置项、环境配置项</strong></p>
+<ul>
+<li>其与目标的联系为：配置项用于定义目标的行为，<strong>目标的配置项可以定义在目标的gn配置文件中</strong></li>
+</ul>
+</li>
+<li><p>常用的配置项如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">target_type：定义目标的类型</span><br><span class="line">output：定义目标的输出</span><br><span class="line">deps：定义目标的依赖关系</span><br><span class="line">public：定义目标是否公开</span><br><span class="line">configs：定义目标的配置</span><br><span class="line">rule_type：定义规则的类型</span><br><span class="line">deps：定义规则的依赖关系</span><br><span class="line">inputs：定义规则的输入</span><br><span class="line">outputs：定义规则的输出</span><br><span class="line">action：定义规则的操作</span><br><span class="line">script：定义规则的脚本</span><br><span class="line">args：定义规则的参数</span><br><span class="line">vars：定义规则的变量</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>config()</code>函数用于创建配置，其可以指定<strong>配置名称、编译选项、链接选项、依赖关系、宏定义、头文件目录、公开的配置、可见性</strong>等</p>
+</li>
+<li><p>代码应用示例如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">config(name) &#123;</span><br><span class="line">  options = []</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">config(&quot;my_config&quot;) &#123;</span><br><span class="line">  cflags = [&quot;-Wall&quot;]</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"># 将 my_config 配置应用于 my_target 目标</span><br><span class="line">executable(&quot;my_target&quot;) &#123;</span><br><span class="line">  configs = [&quot;my_config&quot;]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="规则"><a href="#规则" class="headerlink" title="规则"></a>规则</h3><p>  GN中的规则可以使用rule()函数进行定义。规则可以指定以下属性：</p>
+<p>  inputs：规则需要的输入文件。<br>  outputs：规则的输出文件。<br>  action：规则执行的操作。<br>  <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">rule(&quot;my_rule&quot;) &#123;</span><br><span class="line">inputs = [&quot;input.txt&quot;]</span><br><span class="line">outputs = [&quot;output.txt&quot;]</span><br><span class="line">action = &quot;echo &#x27;Hello, world!&#x27; &gt; $out&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="模块"><a href="#模块" class="headerlink" title="模块"></a>模块</h3><ul>
+<li><p>模块可以是任何类型的代码，其可以包含源文件、头文件、库文件等，GN使用模块来组织代码和构建文件。</p>
+<ul>
+<li>如：一个模块可以包含一个应用程序的所有源文件，另一个模块可以包含一个库的所有源文件</li>
+</ul>
+</li>
+<li><p>GN可使用模块来表示构建过程中的依赖关系</p>
+<ul>
+<li>如：一个模块可以依赖另一个模块的源文件或者库文件</li>
+</ul>
+</li>
+<li><p>GN中的模块可以分为几种类型：<strong>executable(可执行文件)、library(库文件)、test(测试文件)、group(组模块)、action(动作模块)</strong></p>
+</li>
+<li><p>模块可以应用在GN构建系统的任何地方，包括但不限于组织代码、表示依赖关系、执行操作等</p>
+</li>
+<li><p>以下示例创建了一个名为my_module的模块，其包含源文件my_module.c，而后创建了一个名为my_executable的可执行文件，其依赖my_module模块</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">module(&quot;my_module&quot;) &#123;</span><br><span class="line">  sources = [&quot;my_module.c&quot;]</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">executable(&quot;my_executable&quot;) &#123;</span><br><span class="line">  sources = [&quot;my_executable.c&quot;]</span><br><span class="line">  deps = [&quot;:my_module&quot;]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<blockquote>
+<p>kernel_module() 函数用于创建内核模块。内核模块是运行在操作系统内核中的模块。<br>module() 函数用于创建普通模块。普通模块可以运行在操作系统内核中，也可以运行在操作系统用户空间中</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">kernel_module(name) &#123;</span><br><span class="line">  sources = []</span><br><span class="line">  deps = []</span><br><span class="line">  ldflags = []</span><br><span class="line">  cflags = []</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">module(name) &#123;</span><br><span class="line">  sources = []</span><br><span class="line">  deps = []</span><br><span class="line">  ldflags = []</span><br><span class="line">  cflags = []</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="基本语法"><a href="#基本语法" class="headerlink" title="基本语法"></a>基本语法</h3><ul>
+<li><p>注释：在注释句子的行首加上<code>#</code>即可</p>
+</li>
+<li><p>条件语句</p>
+</li>
+<li><p>循环语句</p>
+</li>
+</ul>
+<h2 id="应用实践范例"><a href="#应用实践范例" class="headerlink" title="应用实践范例"></a>应用实践范例</h2><ul>
+<li><p>在构建项目时，GN会首先解析GN文件，并将工程的根目录作为起点，开始构建项目</p>
+<ul>
+<li>目录路径中<code>//xxx/xxx/xxx</code>中双斜杠表示工程源码的根</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">rule my_rule &#123;</span><br><span class="line"># 定义规则的输入</span><br><span class="line">input: &quot;input.cpp&quot;</span><br><span class="line"># 定义规则的输出</span><br><span class="line">output: &quot;output.o&quot;</span><br><span class="line"></span><br><span class="line"># 定义规则的执行逻辑</span><br><span class="line">action &#123;</span><br><span class="line">    command: &quot;gcc -c input.cpp -o output.o&quot;</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="GN进阶操作"><a href="#GN进阶操作" class="headerlink" title="GN进阶操作"></a>GN进阶操作</h2><h3 id="自定义模板"><a href="#自定义模板" class="headerlink" title="自定义模板"></a>自定义模板</h3><ul>
+<li>模板是用于重复使用代码的工具。模板可以用于创建目标、配置、或其他 GN 对象</li>
+<li>自定义模板使用<code>template()</code>语句<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">template(name) &#123;</span><br><span class="line">  options = []</span><br><span class="line">  output = &quot;&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>template() 函数的输出是模板的配置</li>
+<li>代码应用示例如下：<ul>
+<li>名为 my_executable 的可执行文件，其使用 my_template 模板，包含其模板的所有配置（源文件、依赖）<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">template(&quot;my_template&quot;) &#123;</span><br><span class="line">  sources = [&quot;my_template.c&quot;]</span><br><span class="line">  deps = [&quot;:my_module&quot;]</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">executable(&quot;my_executable&quot;) &#123;</span><br><span class="line">  sources = [&quot;my_executable.c&quot;]</span><br><span class="line">  template = &quot;:my_template&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+</ul>
+<h3 id="group元目标"><a href="#group元目标" class="headerlink" title="group元目标"></a>group元目标</h3><ul>
+<li><p>group不是目标，目标是指可以生成可执行文件、库文件或其它产物的构建单元</p>
+</li>
+<li><p>group是gn工具提供的一种元目标，其可以用于组织其它目标，但它本身并不生成任何产物</p>
+</li>
+<li><p>其用途包括：</p>
+<ul>
+<li>组织具有相同功能或目的的目标：例如，可以将所有驱动程序目标组织到一个group中，将所有库文件目标组织到另一个group中</li>
+<li>定义依赖关系：例如，可以将一个group定义为另一个group的依赖，这样，如果第一个group中的任何一个目标被编译，则第二个group中的所有目标也会被编译</li>
+<li>提供文档：group可以包含文档，这些文档将在gn工具生成的输出中显示。</li>
+</ul>
+</li>
+<li><p>一个应用示例如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">group(&quot;drivers&quot;) &#123;</span><br><span class="line">  deps = [</span><br><span class="line">    &quot;//drivers/usb/host&quot;,</span><br><span class="line">    &quot;//drivers/ethernet&quot;,</span><br><span class="line">    &quot;//drivers/storage&quot;,</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">group(&quot;libraries&quot;) &#123;</span><br><span class="line">  deps = [</span><br><span class="line">    &quot;//libraries/lib1&quot;,</span><br><span class="line">    &quot;//libraries/lib2&quot;,</span><br><span class="line">    &quot;//libraries/lib3&quot;,</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>以上代码定义了两个group，drivers目标依赖于&#x2F;&#x2F;drivers&#x2F;usb&#x2F;host、&#x2F;&#x2F;drivers&#x2F;ethernet和&#x2F;&#x2F;drivers&#x2F;storage三个目标。libraries目标依赖于&#x2F;&#x2F;libraries&#x2F;lib1、&#x2F;&#x2F;libraries&#x2F;lib2和&#x2F;&#x2F;libraries&#x2F;lib3三个目标</li>
+<li>在gn工具生成的输出中，drivers和libraries两个group将显示为一个单独的目标</li>
+</ul>
+</li>
+</ul>
+<h2 id="补充说明以及疑惑解答"><a href="#补充说明以及疑惑解答" class="headerlink" title="补充说明以及疑惑解答"></a>补充说明以及疑惑解答</h2><h3 id="GN文件中如何包含工程源码的头文件路径？"><a href="#GN文件中如何包含工程源码的头文件路径？" class="headerlink" title="GN文件中如何包含工程源码的头文件路径？"></a>GN文件中如何包含工程源码的头文件路径？</h3><ul>
+<li>可以使用<code>include_dirs</code>属性指定C头文件的路径，此属性是一个列表，代码示例如下：<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">target(&quot;my_executable&quot;) &#123;</span><br><span class="line">type = &quot;executable&quot;</span><br><span class="line">sources = [&quot;main.c&quot;]</span><br><span class="line">include_dirs = [&quot;/usr/include/my_headers&quot;]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>也可使用<code>public_configs</code>属性，此属性列表包含了<code>include_dirs</code>属性的配置<ul>
+<li>以下代码示例，指示构建系统在<code>//configs:my_config</code>配置中搜索<code>include_dirs</code>配置<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">target(&quot;my_executable&quot;) &#123;</span><br><span class="line">type = &quot;executable&quot;</span><br><span class="line">sources = [&quot;main.c&quot;]</span><br><span class="line">public_configs = [&quot;//configs:my_config&quot;]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><code>include_dirs</code>属性应用示例如下：<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// 指定一个目录：</span><br><span class="line">include_dirs = [&quot;/usr/include/my_headers&quot;]</span><br><span class="line">// 指定多个目录：</span><br><span class="line">include_dirs = [&quot;/usr/include/my_headers&quot;, &quot;/usr/include/other_headers&quot;]</span><br><span class="line">// 指定相对路径：</span><br><span class="line">include_dirs = [&quot;../include&quot;]</span><br><span class="line">// 指定通配符：</span><br><span class="line">include_dirs = [&quot;**/*.h&quot;]</span><br></pre></td></tr></table></figure></li>
+</ul>
+]]></content>
+      <categories>
+        <category>LiteOS</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>IAP/OTA流程概述</title>
+    <url>/2023/11/28/IAP-OTA%E6%B5%81%E7%A8%8B%E6%A6%82%E8%BF%B0/</url>
+    <content><![CDATA[<h3 id="DCD配置"><a href="#DCD配置" class="headerlink" title="DCD配置"></a>DCD配置</h3><h3 id="注意点"><a href="#注意点" class="headerlink" title="注意点"></a>注意点</h3><ul>
+<li><p>内部Flash和片外Flash的擦除单位可能不一致，2K、4K字节不等</p>
+</li>
+<li><p>写Flash须考虑4字节对齐</p>
+</li>
+<li><p>有可能导致内核复位后触发HardFault异常的原因</p>
+<ul>
+<li>跳转前未关中断；中断控制器没复位清零；中断向量表偏移未设置正确；</li>
+</ul>
+</li>
+<li><p>同一个bootloader和app，有时上电无法跳转，程序跑飞，此时断电后马上上电，又能跳转成功？</p>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>MCU</category>
+      </categories>
   </entry>
   <entry>
     <title>Linux U-Boot移植概述-基于I-MX6ULL</title>
@@ -274,7 +450,7 @@
 <li>嵌入式Linux开发中，配置NFS挂载根文件系统</li>
 </ul>
 <hr>
-<h4 id="远程端口流量通过SSH映射到本地"><a href="#远程端口流量通过SSH映射到本地" class="headerlink" title="远程端口流量通过SSH映射到本地"></a>远程端口流量通过SSH映射到本地</h4><p>ssh -L 4000:localhost:4000 <a href="mailto:&#x6a;&#100;&#x5f;&#99;&#104;&#x65;&#x6e;&#64;&#49;&#57;&#x32;&#x2e;&#x31;&#x36;&#x38;&#x2e;&#x31;&#49;&#x32;&#46;&#x32;&#x34;&#48;">&#x6a;&#100;&#x5f;&#99;&#104;&#x65;&#x6e;&#64;&#49;&#57;&#x32;&#x2e;&#x31;&#x36;&#x38;&#x2e;&#x31;&#49;&#x32;&#46;&#x32;&#x34;&#48;</a></p>
+<h4 id="远程端口流量通过SSH映射到本地"><a href="#远程端口流量通过SSH映射到本地" class="headerlink" title="远程端口流量通过SSH映射到本地"></a>远程端口流量通过SSH映射到本地</h4><p>ssh -L 4000:localhost:4000 <a href="mailto:&#106;&#100;&#x5f;&#x63;&#x68;&#101;&#x6e;&#x40;&#x31;&#57;&#50;&#46;&#x31;&#54;&#56;&#46;&#x31;&#49;&#50;&#46;&#50;&#x34;&#48;">&#106;&#100;&#x5f;&#x63;&#x68;&#101;&#x6e;&#x40;&#x31;&#57;&#50;&#46;&#x31;&#54;&#56;&#46;&#x31;&#49;&#50;&#46;&#50;&#x34;&#48;</a></p>
 <h4 id="Linux给根目录扩容"><a href="#Linux给根目录扩容" class="headerlink" title="Linux给根目录扩容"></a>Linux给根目录扩容</h4>]]></content>
       <categories>
         <category>Linux</category>
@@ -322,8 +498,8 @@
 </ul>
 ]]></content>
       <categories>
-        <category>MCU</category>
         <category>LiteOS</category>
+        <category>MCU</category>
       </categories>
   </entry>
   <entry>
@@ -403,8 +579,8 @@
 
 ]]></content>
       <categories>
-        <category>MCU</category>
         <category>嵌入式</category>
+        <category>MCU</category>
       </categories>
       <tags>
         <tag>STM32</tag>
@@ -603,8 +779,8 @@
 <p>总结：<br>1、需要下载交叉编译器并安装、使能相应的环境变量<br>2、在ubuntu上交叉编译tslib库和ARM Qt库源码后，将编译生成的库文件移植到嵌入式平台文件系统中<br>3、在ubuntu下编写Qt应用程序，并使用交叉工具链编译，然后拷贝到嵌入式平台上运行即可</p>
 ]]></content>
       <categories>
-        <category>Linux</category>
         <category>环境搭建</category>
+        <category>Linux</category>
       </categories>
       <tags>
         <tag>Qt</tag>
@@ -700,9 +876,8 @@
 </li>
 <li><p>提示以下信息：进入<code>kernel/liteos_m</code>，然后make menuconfig，选中兼容项，失能musl库，改为new lib。</p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">[OHOS ERROR] arm-none-eabi-gcc: fatal error: /home/jd_chen/Downloads/gcc-arm-none-eabi-10-2020-q4-major/bin/../lib/gcc/arm-none-eabi/10.2.1/../../../../arm-none-eabi/lib/nano.specs: attempt to rename spec &#x27;link&#x27; to already defined spec &#x27;nano_link&#x27;</span><br><span class="line">[OHOS ERROR] compilation terminated.</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>提示以下信息，</p>
-  <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">../../../kernel/liteos_m/kernel/src/los_init.c:54:10: fatal error: los_exc_info.h: No such file or directory</span><br><span class="line">54 | #include &quot;los_exc_info.h&quot;</span><br><span class="line">    |          ^~~~~~~~~~~~~~~~</span><br><span class="line">compilation terminated.</span><br><span class="line">[43/265] gcc cross compiler obj/kernel/liteos_m/kal/posix/src/posix.pthread_cond.o</span><br></pre></td></tr></table></figure>
+
+
 </li>
 <li><p>出现如下编译错误，在vfs_fs.c添加头文件&lt;stdbool.h&gt;包含即可</p>
   <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">[OHOS ERROR] [56/340] gcc cross compiler obj/kernel/liteos_m/components/fs/vfs/vfs.vfs_fs.o</span><br><span class="line">[OHOS ERROR] FAILED: obj/kernel/liteos_m/components/fs/vfs/vfs.vfs_fs.o </span><br><span class="line">...</span><br><span class="line">[OHOS ERROR] ../../../kernel/liteos_m/components/fs/vfs/vfs_fs.c:214:43: error: unknown type name &#x27;bool&#x27;</span><br><span class="line">[OHOS ERROR]   214 | static int VfsPathCheck(const char *path, bool isFile)</span><br><span class="line">[OHOS ERROR]       |                                           ^~~~</span><br><span class="line">[OHOS ERROR] ../../../kernel/liteos_m/components/fs/vfs/vfs_fs.c: In function &#x27;VfsOpen&#x27;:</span><br><span class="line">[OHOS ERROR] ../../../kernel/liteos_m/components/fs/vfs/vfs_fs.c:244:9: error: implicit declaration of function &#x27;VfsPathCheck&#x27; [-Werror=implicit-function-declaration]</span><br><span class="line">[OHOS ERROR]   244 |     if (VfsPathCheck(path, TRUE) != LOS_OK) </span><br><span class="line">[OHOS ERROR]       |         ^~~~~~~~~~~~</span><br><span class="line">[OHOS ERROR] cc1: all warnings being treated as errors</span><br></pre></td></tr></table></figure></li>
@@ -976,7 +1151,7 @@
 <h2 id="注意项解答"><a href="#注意项解答" class="headerlink" title="注意项解答"></a>注意项解答</h2><h3 id="执行git-pull会覆盖本地的修改吗？"><a href="#执行git-pull会覆盖本地的修改吗？" class="headerlink" title="执行git pull会覆盖本地的修改吗？"></a>执行git pull会覆盖本地的修改吗？</h3><ul>
 <li>没有冲突的情况下，远端会直接更新至本地上，但不会改变本地未提交的变动；如果本地修改已提交，则会执行一个远端分支和本地分支的合并</li>
 </ul>
-<h2 id="基础配置操作"><a href="#基础配置操作" class="headerlink" title="基础配置操作"></a>基础配置操作</h2><h3 id="本地git配置"><a href="#本地git配置" class="headerlink" title="本地git配置"></a>本地git配置</h3><ul>
+<h2 id="基础非典型操作"><a href="#基础非典型操作" class="headerlink" title="基础非典型操作"></a>基础非典型操作</h2><h3 id="本地git配置"><a href="#本地git配置" class="headerlink" title="本地git配置"></a>本地git配置</h3><ul>
 <li>查看本地配置：<ul>
 <li><code>git config --list</code>查看当前项目的所有配置</li>
 <li><code>git config --global --list</code>查看全局配置</li>
@@ -1012,7 +1187,19 @@
 如：`git add -f hello.bin` or 添加`!hello.bin`
 </code></pre>
 <p><strong>附上一个自用的.gitignore文件：</strong><br>    <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">.vscode</span><br><span class="line">.history</span><br><span class="line">build</span><br><span class="line">Listings</span><br><span class="line">Objects</span><br><span class="line"></span><br><span class="line"># Listing Files</span><br><span class="line">*.i</span><br><span class="line">*.lst</span><br><span class="line">*.map</span><br><span class="line"></span><br><span class="line"># Object Files</span><br><span class="line">*.axf</span><br><span class="line">*.b[0-2][0-9]</span><br><span class="line">*.b3[0-1]</span><br><span class="line">*.bak</span><br><span class="line">*.build_log.htm</span><br><span class="line">*.crf</span><br><span class="line">*.d</span><br><span class="line">*.dep</span><br><span class="line">*.elf</span><br><span class="line">*.htm</span><br><span class="line">*.iex</span><br><span class="line">*.lnp</span><br><span class="line">*.o</span><br><span class="line">*.obj</span><br><span class="line">*.sbr</span><br><span class="line"></span><br><span class="line"># Firmware Files</span><br><span class="line">*.bin</span><br><span class="line">*.h86</span><br><span class="line">*.hex</span><br><span class="line"></span><br><span class="line"># Debugger Files</span><br><span class="line">.ini</span><br></pre></td></tr></table></figure></p>
-<h2 id="子模块"><a href="#子模块" class="headerlink" title="子模块"></a>子模块</h2><ul>
+<h3 id="版本发布"><a href="#版本发布" class="headerlink" title="版本发布"></a>版本发布</h3><h2 id="进阶操作"><a href="#进阶操作" class="headerlink" title="进阶操作"></a>进阶操作</h2><h3 id="钩子配置-Git-Hooks"><a href="#钩子配置-Git-Hooks" class="headerlink" title="钩子配置(Git Hooks)"></a>钩子配置(Git Hooks)</h3><ul>
+<li>Hook 即在执行某个事件之前或之后进行一些其他额外的操作，如下<ul>
+<li>自动部署代码</li>
+<li>自动进行代码审查</li>
+<li>安全审查</li>
+<li>日志记录</li>
+<li>通知用户</li>
+</ul>
+</li>
+<li>Git有许多的事件（commit、push 等等），每个事件也应了有不同的钩子（如 commit 前，commit 后）</li>
+<li>使用：暂略</li>
+</ul>
+<h3 id="子模块"><a href="#子模块" class="headerlink" title="子模块"></a>子模块</h3><ul>
 <li><p>删除项目内已有的子模块配置，将其转化为本项目内容</p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">cd ./path/to/submodule</span><br><span class="line">rm -rf .git</span><br><span class="line"></span><br><span class="line"># at project root directory</span><br><span class="line">git rm --cached ./path/to/submodule</span><br><span class="line">git add --all</span><br><span class="line">git commit -m &quot;xxx&quot;</span><br><span class="line">git push</span><br></pre></td></tr></table></figure>
 </li>
@@ -1385,182 +1572,6 @@
       <categories>
         <category>Linux</category>
         <category>I.MX6ULL</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>GN和Ninja构建工具的基础入门、进阶和应用开发</title>
-    <url>/2023/12/24/GN%E5%92%8Cninja%E7%9A%84%E5%8C%BA%E5%88%AB%E3%80%81%E8%81%94%E7%B3%BB%E5%92%8C%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/</url>
-    <content><![CDATA[<ul>
-<li>本文是个人对GN文件的理解，可能知识体系上有些凌乱分散，与官方表述上有些许出入</li>
-<li>文章主要为谈及GN文件的常见重要概念，并基于此引申出代码示例及解释</li>
-</ul>
-<h2 id="基本介绍"><a href="#基本介绍" class="headerlink" title="基本介绍"></a>基本介绍</h2><ul>
-<li>GN文件使用GN语言编写，其是一种基于脚本的语言，用于定义构建系统的规则和目标<ul>
-<li>gn即Generate ninja，gn与ninja的关系 类似于 cmake与make</li>
-<li>GN文件可以用于构建各种类型的项目，包括C++、Java、Python项目<br></li>
-</ul>
-</li>
-<li>ninja用于执行GN文件定义的规则和目标，其是一个C++编写的构建工具，可以生成高效的构建命令，提高构建速度</li>
-</ul>
-<h2 id="基本概念与语法"><a href="#基本概念与语法" class="headerlink" title="基本概念与语法"></a>基本概念与语法</h2><ul>
-<li>.gn是源文件，.gni是头文件，源文件可通过import引用头文件，也可使用import导入源文件<blockquote>
-<p>如：<code>import(&quot;//build/config/c++/c++.gni&quot;)</code></p>
-</blockquote>
-</li>
-<li>GN的基本概念包括：<strong>变量、函数、目标、规则、配置项、模块</strong><ul>
-<li>变量：用于存储值</li>
-<li>函数：用于执行操作</li>
-<li>目标：用于表示构建过程中的某个对象，例如文件、库或可执行文件；<strong>目标是GN构建系统的基本单位</strong></li>
-<li>规则：用于定义目标的构建方式</li>
-<li>配置项：用于控制构建过程的行为</li>
-<li>模块：一种组织和管理代码的方式，可以包含变量、函数、目标、规则等，便于模块化地管理和复用构建配置</li>
-</ul>
-</li>
-</ul>
-<h3 id="变量"><a href="#变量" class="headerlink" title="变量"></a>变量</h3><blockquote>
-<p>GN中的变量可以使用set_default_variable()函数进行定义。变量的值可以是字符串、数字、布尔值或列表<br>变量可以存储构建过程中使用的常量值，如 参数、目标类型、选项<br>如<code>set_default_variable(&quot;target_os&quot;, &quot;linux&quot;)</code>，设置操作系统为linux</p>
-</blockquote>
-<ul>
-<li><p>内置变量：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">target_os：当前目标的操作系统</span><br><span class="line">target_cpu：当前目标的处理器架构</span><br><span class="line">target_toolchain：当前目标的工具链</span><br><span class="line">target_out_dir：当前目标的输出目录，默认值是//out/target_name/</span><br><span class="line">target_gen_dir：当前目标的生成目录</span><br><span class="line">root_build_dir：构建系统的根目录</span><br><span class="line">buildconfig：构建系统的配置文件</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>变量类型：数字、字符串、布尔值、列表、映射</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">x = &quot;Hello, world!&quot;</span><br><span class="line">y = 10</span><br><span class="line">z = true</span><br><span class="line"></span><br><span class="line">// 定义一个名为 list 的列表变量</span><br><span class="line">list = [ &quot;a&quot;, &quot;b&quot;, &quot;c&quot; ]</span><br><span class="line"></span><br><span class="line">// 定义一个名为 map 的映射变量</span><br><span class="line">map = &#123;</span><br><span class="line">&quot;key1&quot; = &quot;value1&quot;,</span><br><span class="line">&quot;key2&quot; = &quot;value2&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p><code>$&#123;&#125;</code>–字符串插值操作符用于在字符串中插入变量、表达式或函数调用的值，如：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">x = 10</span><br><span class="line">println(&quot;The value of x is $&#123;x&#125;&quot;)</span><br></pre></td></tr></table></figure></li>
-</ul>
-<h3 id="函数"><a href="#函数" class="headerlink" title="函数"></a>函数</h3><ul>
-<li><p>GN的函数形式与C语言的类似，由函数名、参数列表和函数体组成</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">function_name(parameter_list) &#123;</span><br><span class="line">// 函数体</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-<li><p>用户可以使用内置函数或自定义函数</p>
-</li>
-<li><p>内置函数包括有如下：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">assert()：断言函数，如果条件不成立，则抛出异常</span><br><span class="line">concat()：字符串拼接函数</span><br><span class="line">defined()：判断变量是否定义了的函数</span><br><span class="line">dirname()：获取目录名的函数</span><br><span class="line">file()：获取文件名的函数</span><br><span class="line">join()：字符串连接函数</span><br><span class="line">path()：获取路径名的函数</span><br><span class="line">read_file()：读取文件的函数</span><br><span class="line">write_file()：写入文件的函数</span><br></pre></td></tr></table></figure></li>
-<li><p>其中，read_file()示例如下：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># config.json</span><br><span class="line">&#123;</span><br><span class="line">&quot;product_name&quot;: &quot;My Product&quot;,</span><br><span class="line">&quot;product_version&quot;: &quot;1.0.0&quot;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">---</span><br><span class="line"># 读取product_config_path目录下的config.json文件，并将其内容以JSON格式返回</span><br><span class="line">product_cfg = read_file(&quot;$&#123;product_config_path&#125;/config.json&quot;, &quot;json&quot;)</span><br><span class="line"></span><br><span class="line"># 将product_name属性的值赋值给变量product_name</span><br><span class="line">product_name = product_cfg[&quot;product_name&quot;]</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>用户自定义函数以及调用，示例如下：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// a.gn</span><br><span class="line">function add(x, y) &#123;</span><br><span class="line">return x + y;</span><br><span class="line">&#125;</span><br><span class="line">---</span><br><span class="line">// b.gn</span><br><span class="line">import(&quot;a.gn&quot;)</span><br><span class="line"></span><br><span class="line">println(&quot;The sum of 1 and 2 is $&#123;add(1, 2)&#125;&quot;)</span><br></pre></td></tr></table></figure></li>
-</ul>
-<h3 id="目标"><a href="#目标" class="headerlink" title="目标"></a>目标</h3><ul>
-<li><p>目标是构建系统要生成的文件或目录，其可以是可执行文件、库、源代码文件、文档等</p>
-</li>
-<li><p>BUILD.gn是GN构建系统默认使用的文件名</p>
-</li>
-<li><p>目标使用<code>target()</code>语句定义，语法如下：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">target(target_name) &#123;</span><br><span class="line">// 目标配置</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-<li><p>其名称必须唯一，可以有以下属性配置项定义：deps-依赖关系、type-目标类型、output-目标输出、public-目标是否公开、configs-目标配置</p>
-<ul>
-<li>子目标可以使用deps属性指定<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">target(&quot;my_executable&quot;) &#123;</span><br><span class="line">type = &quot;executable&quot;       // 指定目标类型为可执行文件</span><br><span class="line">sources = [&quot;main.cc&quot;]     // 指定目标所需要的源文件列表</span><br><span class="line">deps = [&quot;my_library&quot;]     // 依赖关系，系统先构建此子目标</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-</ul>
-</li>
-<li><p>GN目标可以使用<code>build</code>命令构建</p>
-<ul>
-<li>如：在当前路径下有BUILD.gn文件，其定义了名为<code>my_executable</code>的目标</li>
-<li>则在命令行输入<code>gn build my_executable</code>表示构建该目标</li>
-<li><code>gn build</code>表示构建所有目标</li>
-<li><code>gn build my_executable:my_sub</code>表示构建目标的子目标my_sub</li>
-</ul>
-</li>
-</ul>
-<h3 id="配置项"><a href="#配置项" class="headerlink" title="配置项"></a>配置项</h3><ul>
-<li><p>配置项用于配置GN构建系统的行为，其可以控制：构建目标的类型和输出、构建规则的行为、构建系统的环境</p>
-</li>
-<li><p>其可以分为：<strong>目标配置项、规则配置项、环境配置项</strong></p>
-<ul>
-<li>其与目标的联系为：配置项用于定义目标的行为，<strong>目标的配置项可以定义在目标的gn配置文件中</strong></li>
-</ul>
-</li>
-<li><p>常用的配置项如下：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">target_type：定义目标的类型</span><br><span class="line">output：定义目标的输出</span><br><span class="line">deps：定义目标的依赖关系</span><br><span class="line">public：定义目标是否公开</span><br><span class="line">configs：定义目标的配置</span><br><span class="line">rule_type：定义规则的类型</span><br><span class="line">deps：定义规则的依赖关系</span><br><span class="line">inputs：定义规则的输入</span><br><span class="line">outputs：定义规则的输出</span><br><span class="line">action：定义规则的操作</span><br><span class="line">script：定义规则的脚本</span><br><span class="line">args：定义规则的参数</span><br><span class="line">vars：定义规则的变量</span><br></pre></td></tr></table></figure>
-</li>
-<li><p><code>config()</code>函数用于创建配置，其可以指定<strong>配置名称、编译选项、链接选项、依赖关系、宏定义、头文件目录、公开的配置、可见性</strong>等</p>
-</li>
-<li><p>代码应用示例如下：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">config(name) &#123;</span><br><span class="line">  options = []</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">config(&quot;my_config&quot;) &#123;</span><br><span class="line">  cflags = [&quot;-Wall&quot;]</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"># 将 my_config 配置应用于 my_target 目标</span><br><span class="line">executable(&quot;my_target&quot;) &#123;</span><br><span class="line">  configs = [&quot;my_config&quot;]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-</ul>
-<h3 id="规则"><a href="#规则" class="headerlink" title="规则"></a>规则</h3><p>  GN中的规则可以使用rule()函数进行定义。规则可以指定以下属性：</p>
-<p>  inputs：规则需要的输入文件。<br>  outputs：规则的输出文件。<br>  action：规则执行的操作。<br>  <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">rule(&quot;my_rule&quot;) &#123;</span><br><span class="line">inputs = [&quot;input.txt&quot;]</span><br><span class="line">outputs = [&quot;output.txt&quot;]</span><br><span class="line">action = &quot;echo &#x27;Hello, world!&#x27; &gt; $out&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<h3 id="模块"><a href="#模块" class="headerlink" title="模块"></a>模块</h3><ul>
-<li><p>模块可以是任何类型的代码，其可以包含源文件、头文件、库文件等，GN使用模块来组织代码和构建文件。</p>
-<ul>
-<li>如：一个模块可以包含一个应用程序的所有源文件，另一个模块可以包含一个库的所有源文件</li>
-</ul>
-</li>
-<li><p>GN可使用模块来表示构建过程中的依赖关系</p>
-<ul>
-<li>如：一个模块可以依赖另一个模块的源文件或者库文件</li>
-</ul>
-</li>
-<li><p>GN中的模块可以分为几种类型：<strong>executable(可执行文件)、library(库文件)、test(测试文件)、group(组模块)、action(动作模块)</strong></p>
-</li>
-<li><p>模块可以应用在GN构建系统的任何地方，包括但不限于组织代码、表示依赖关系、执行操作等</p>
-</li>
-<li><p>以下示例创建了一个名为my_module的模块，其包含源文件my_module.c，而后创建了一个名为my_executable的可执行文件，其依赖my_module模块</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">module(&quot;my_module&quot;) &#123;</span><br><span class="line">  sources = [&quot;my_module.c&quot;]</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">executable(&quot;my_executable&quot;) &#123;</span><br><span class="line">  sources = [&quot;my_executable.c&quot;]</span><br><span class="line">  deps = [&quot;:my_module&quot;]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-</ul>
-<blockquote>
-<p>kernel_module() 函数用于创建内核模块。内核模块是运行在操作系统内核中的模块。<br>module() 函数用于创建普通模块。普通模块可以运行在操作系统内核中，也可以运行在操作系统用户空间中</p>
-</blockquote>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">kernel_module(name) &#123;</span><br><span class="line">  sources = []</span><br><span class="line">  deps = []</span><br><span class="line">  ldflags = []</span><br><span class="line">  cflags = []</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">module(name) &#123;</span><br><span class="line">  sources = []</span><br><span class="line">  deps = []</span><br><span class="line">  ldflags = []</span><br><span class="line">  cflags = []</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-<h3 id="基本语法"><a href="#基本语法" class="headerlink" title="基本语法"></a>基本语法</h3><ul>
-<li><p>注释：在注释句子的行首加上<code>#</code>即可</p>
-</li>
-<li><p>条件语句</p>
-</li>
-<li><p>循环语句</p>
-</li>
-</ul>
-<h2 id="应用实践范例"><a href="#应用实践范例" class="headerlink" title="应用实践范例"></a>应用实践范例</h2><ul>
-<li><p>在构建项目时，GN会首先解析GN文件，并将工程的根目录作为起点，开始构建项目</p>
-<ul>
-<li>目录路径中<code>//xxx/xxx/xxx</code>中双斜杠表示工程源码的根</li>
-</ul>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">rule my_rule &#123;</span><br><span class="line"># 定义规则的输入</span><br><span class="line">input: &quot;input.cpp&quot;</span><br><span class="line"># 定义规则的输出</span><br><span class="line">output: &quot;output.o&quot;</span><br><span class="line"></span><br><span class="line"># 定义规则的执行逻辑</span><br><span class="line">action &#123;</span><br><span class="line">    command: &quot;gcc -c input.cpp -o output.o&quot;</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-</ul>
-<h2 id="GN进阶操作"><a href="#GN进阶操作" class="headerlink" title="GN进阶操作"></a>GN进阶操作</h2><h3 id="自定义模板"><a href="#自定义模板" class="headerlink" title="自定义模板"></a>自定义模板</h3><ul>
-<li>模板是用于重复使用代码的工具。模板可以用于创建目标、配置、或其他 GN 对象</li>
-<li>自定义模板使用<code>template()</code>语句<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">template(name) &#123;</span><br><span class="line">  options = []</span><br><span class="line">  output = &quot;&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-<li>template() 函数的输出是模板的配置</li>
-<li>代码应用示例如下：<ul>
-<li>名为 my_executable 的可执行文件，其使用 my_template 模板，包含其模板的所有配置（源文件、依赖）<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">template(&quot;my_template&quot;) &#123;</span><br><span class="line">  sources = [&quot;my_template.c&quot;]</span><br><span class="line">  deps = [&quot;:my_module&quot;]</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">executable(&quot;my_executable&quot;) &#123;</span><br><span class="line">  sources = [&quot;my_executable.c&quot;]</span><br><span class="line">  template = &quot;:my_template&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-</ul>
-</li>
-</ul>
-<h3 id="group元目标"><a href="#group元目标" class="headerlink" title="group元目标"></a>group元目标</h3><ul>
-<li><p>group不是目标，目标是指可以生成可执行文件、库文件或其它产物的构建单元</p>
-</li>
-<li><p>group是gn工具提供的一种元目标，其可以用于组织其它目标，但它本身并不生成任何产物</p>
-</li>
-<li><p>其用途包括：</p>
-<ul>
-<li>组织具有相同功能或目的的目标：例如，可以将所有驱动程序目标组织到一个group中，将所有库文件目标组织到另一个group中</li>
-<li>定义依赖关系：例如，可以将一个group定义为另一个group的依赖，这样，如果第一个group中的任何一个目标被编译，则第二个group中的所有目标也会被编译</li>
-<li>提供文档：group可以包含文档，这些文档将在gn工具生成的输出中显示。</li>
-</ul>
-</li>
-<li><p>一个应用示例如下：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">group(&quot;drivers&quot;) &#123;</span><br><span class="line">  deps = [</span><br><span class="line">    &quot;//drivers/usb/host&quot;,</span><br><span class="line">    &quot;//drivers/ethernet&quot;,</span><br><span class="line">    &quot;//drivers/storage&quot;,</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">group(&quot;libraries&quot;) &#123;</span><br><span class="line">  deps = [</span><br><span class="line">    &quot;//libraries/lib1&quot;,</span><br><span class="line">    &quot;//libraries/lib2&quot;,</span><br><span class="line">    &quot;//libraries/lib3&quot;,</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<ul>
-<li>以上代码定义了两个group，drivers目标依赖于&#x2F;&#x2F;drivers&#x2F;usb&#x2F;host、&#x2F;&#x2F;drivers&#x2F;ethernet和&#x2F;&#x2F;drivers&#x2F;storage三个目标。libraries目标依赖于&#x2F;&#x2F;libraries&#x2F;lib1、&#x2F;&#x2F;libraries&#x2F;lib2和&#x2F;&#x2F;libraries&#x2F;lib3三个目标</li>
-<li>在gn工具生成的输出中，drivers和libraries两个group将显示为一个单独的目标</li>
-</ul>
-</li>
-</ul>
-<h2 id="补充说明以及疑惑解答"><a href="#补充说明以及疑惑解答" class="headerlink" title="补充说明以及疑惑解答"></a>补充说明以及疑惑解答</h2><h3 id="GN文件中如何包含工程源码的头文件路径？"><a href="#GN文件中如何包含工程源码的头文件路径？" class="headerlink" title="GN文件中如何包含工程源码的头文件路径？"></a>GN文件中如何包含工程源码的头文件路径？</h3><ul>
-<li>可以使用<code>include_dirs</code>属性指定C头文件的路径，此属性是一个列表，代码示例如下：<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">target(&quot;my_executable&quot;) &#123;</span><br><span class="line">type = &quot;executable&quot;</span><br><span class="line">sources = [&quot;main.c&quot;]</span><br><span class="line">include_dirs = [&quot;/usr/include/my_headers&quot;]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-<li>也可使用<code>public_configs</code>属性，此属性列表包含了<code>include_dirs</code>属性的配置<ul>
-<li>以下代码示例，指示构建系统在<code>//configs:my_config</code>配置中搜索<code>include_dirs</code>配置<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">target(&quot;my_executable&quot;) &#123;</span><br><span class="line">type = &quot;executable&quot;</span><br><span class="line">sources = [&quot;main.c&quot;]</span><br><span class="line">public_configs = [&quot;//configs:my_config&quot;]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
-</ul>
-</li>
-<li><code>include_dirs</code>属性应用示例如下：<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">// 指定一个目录：</span><br><span class="line">include_dirs = [&quot;/usr/include/my_headers&quot;]</span><br><span class="line">// 指定多个目录：</span><br><span class="line">include_dirs = [&quot;/usr/include/my_headers&quot;, &quot;/usr/include/other_headers&quot;]</span><br><span class="line">// 指定相对路径：</span><br><span class="line">include_dirs = [&quot;../include&quot;]</span><br><span class="line">// 指定通配符：</span><br><span class="line">include_dirs = [&quot;**/*.h&quot;]</span><br></pre></td></tr></table></figure></li>
-</ul>
-]]></content>
-      <categories>
-        <category>LiteOS</category>
       </categories>
   </entry>
   <entry>
