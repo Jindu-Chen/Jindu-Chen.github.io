@@ -28,7 +28,7 @@
 <meta property="og:description" content="主要讲述MCU如何具体实现自动初始化的几种方式，基本原理为：给所有需要初始化的函数声明一个段，在段的首末设定锚点，通过执行首末地址之间的所有函数指针，从而实现隐式的函数初始化。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2023-12-22T00:00:00.000Z">
-<meta property="article:modified_time" content="2024-01-03T12:08:35.802Z">
+<meta property="article:modified_time" content="2024-01-04T07:10:44.245Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -225,7 +225,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-01-03 12:08:35" itemprop="dateModified" datetime="2024-01-03T12:08:35+00:00">2024-01-03</time>
+                <time title="Modified: 2024-01-04 07:10:44" itemprop="dateModified" datetime="2024-01-04T07:10:44+00:00">2024-01-04</time>
               </span>
 
           <br>
@@ -234,14 +234,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>1.1k</span>
+              <span>1.4k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>4 mins.</span>
+              <span>5 mins.</span>
             </span>
             <div class="post-description">主要讲述MCU如何具体实现自动初始化的几种方式，基本原理为：给所有需要初始化的函数声明一个段，在段的首末设定锚点，通过执行首末地址之间的所有函数指针，从而实现隐式的函数初始化。</div>
 
@@ -302,10 +302,23 @@
 <li>以下为自动初始化的实现<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line">void act_auto_initialize(void)</span><br><span class="line">&#123;</span><br><span class="line">    extern initcall_t initcall0init$$Base[];</span><br><span class="line">    extern initcall_t initcall0init$$Limit[];</span><br><span class="line">    extern initcall_t initcall1init$$Base[];</span><br><span class="line">    extern initcall_t initcall1init$$Limit[];</span><br><span class="line">    extern initcall_t initcall2init$$Base[];</span><br><span class="line">    extern initcall_t initcall2init$$Limit[];</span><br><span class="line">    extern initcall_t initcall3init$$Base[];</span><br><span class="line">    extern initcall_t initcall3init$$Limit[];</span><br><span class="line">    </span><br><span class="line">    initcall_t *fn;</span><br><span class="line">    </span><br><span class="line">    for (fn = initcall0init$$Base;</span><br><span class="line">            fn &lt; initcall0init$$Limit;</span><br><span class="line">            fn++)</span><br><span class="line">    &#123;</span><br><span class="line">        if(fn)</span><br><span class="line">            (*fn)();</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    for (fn = initcall1init$$Base;</span><br><span class="line">            fn &lt; initcall1init$$Limit;</span><br><span class="line">            fn++)</span><br><span class="line">    &#123;</span><br><span class="line">        if(fn)</span><br><span class="line">            (*fn)();</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    for (fn = initcall2init$$Base;</span><br><span class="line">            fn &lt; initcall2init$$Limit;</span><br><span class="line">            fn++)</span><br><span class="line">    &#123;</span><br><span class="line">        if(fn)</span><br><span class="line">            (*fn)();</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    for (fn = initcall3init$$Base;</span><br><span class="line">            fn &lt; initcall3init$$Limit;</span><br><span class="line">            fn++)</span><br><span class="line">    &#123;</span><br><span class="line">        if(fn)</span><br><span class="line">            (*fn)();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
 </ul>
 <h2 id="适用于GCC环境下的自动初始化"><a href="#适用于GCC环境下的自动初始化" class="headerlink" title="适用于GCC环境下的自动初始化"></a>适用于GCC环境下的自动初始化</h2><ul>
-<li>GCC环境下，可以采用事先定义两个静态函数的段，将需要初始化的函数指针声明到这个段的中间，通过执行两个静态函数地址之间的所有函数指针即可。</li>
+<li><p>GCC环境下，可以采用事先定义两个静态函数的段，将需要初始化的函数指针声明到这个段的中间，通过执行两个静态函数地址之间的所有函数指针即可。</p>
+</li>
+<li><p><strong>以下源码示例片段摘选自rt-thread</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line">#define SECTION(x)                  __attribute__((section(x)))</span><br><span class="line">typedef int (*init_fn_t)(void);</span><br><span class="line">#define INIT_EXPORT(fn, level)                                                       \</span><br><span class="line">   RT_USED const init_fn_t __rt_init_##fn SECTION(&quot;.rti_fn.&quot; level) = fn      // 定义一个函数指针常量，并声明到指定的段名中</span><br><span class="line"></span><br><span class="line">static int rti_start(void)</span><br><span class="line">&#123;</span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br><span class="line">INIT_EXPORT(rti_start, &quot;0&quot;);</span><br><span class="line">static int rti_board_start(void)</span><br><span class="line">&#123;</span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br><span class="line">INIT_EXPORT(rti_board_start, &quot;0.end&quot;);</span><br><span class="line">static int rti_board_end(void)</span><br><span class="line">&#123;</span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br><span class="line">INIT_EXPORT(rti_board_end, &quot;1.end&quot;);</span><br><span class="line">static int rti_end(void)</span><br><span class="line">&#123;</span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br><span class="line">INIT_EXPORT(rti_end, &quot;6.end&quot;);</span><br><span class="line"></span><br><span class="line">// 系统在初始化时调用此函数</span><br><span class="line">void rt_components_init(void)  </span><br><span class="line">&#123;</span><br><span class="line">  volatile const init_fn_t *fn_ptr;</span><br><span class="line"></span><br><span class="line">  for (fn_ptr = &amp;__rt_init_rti_board_start; fn_ptr &lt; &amp;__rt_init_rti_board_end; fn_ptr++)</span><br><span class="line">  &#123;</span><br><span class="line">      (*fn_ptr)();</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  volatile const init_fn_t *fn_ptr;</span><br><span class="line"></span><br><span class="line">  for (fn_ptr = &amp;__rt_init_rti_board_start; fn_ptr &lt; &amp;__rt_init_rti_board_end; fn_ptr++)</span><br><span class="line">  &#123;</span><br><span class="line">      (*fn_ptr)();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>以下为初始化函数应用接口，宏定义声明传入函数指针(函数名)即可<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">#define INIT_BOARD_EXPORT(fn)           INIT_EXPORT(fn, &quot;1&quot;)</span><br><span class="line">#define INIT_PREV_EXPORT(fn)            INIT_EXPORT(fn, &quot;2&quot;)</span><br><span class="line">#define INIT_DEVICE_EXPORT(fn)          INIT_EXPORT(fn, &quot;3&quot;)</span><br><span class="line">#define INIT_COMPONENT_EXPORT(fn)       INIT_EXPORT(fn, &quot;4&quot;)</span><br><span class="line">#define INIT_ENV_EXPORT(fn)             INIT_EXPORT(fn, &quot;5&quot;)</span><br><span class="line">#define INIT_APP_EXPORT(fn)             INIT_EXPORT(fn, &quot;6&quot;)</span><br><span class="line"></span><br><span class="line">//应用示例</span><br><span class="line">void function_need_to_init(void)</span><br><span class="line">&#123;</span><br><span class="line">  // xxx</span><br><span class="line">&#125;</span><br><span class="line">INIT_BOARD_EXPORT(function_need_to_init);</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
 </ul>
 <h2 id="注意项"><a href="#注意项" class="headerlink" title="注意项"></a>注意项</h2><ul>
-<li><p>初始化函数指针声明在段中的顺序</p>
+<li><p>不同的段名在内存映射中的排序</p>
+<ul>
+<li>通常，map文件中的段是按照首字母顺序排序的</li>
+<li>另，依照rt-thread方式所编译生成<code>.map</code>文件的段排序如下，供参考：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">.rti_fn.0                                0x08018e6c   Section        4  components.o(.rti_fn.0)</span><br><span class="line">__tagsym$$used                           0x08018e6c   Number         0  components.o(.rti_fn.0)</span><br><span class="line">.rti_fn.0.end                            0x08018e70   Section        4  components.o(.rti_fn.0.end)</span><br><span class="line">__tagsym$$used                           0x08018e70   Number         0  components.o(.rti_fn.0.end)</span><br><span class="line">.rti_fn.1                                0x08018e74   Section        4  user_board_interface.o(.rti_fn.1)</span><br><span class="line">__tagsym$$used                           0x08018e74   Number         0  user_board_interface.o(.rti_fn.1)</span><br><span class="line">.rti_fn.1.end                            0x08018e78   Section        4  components.o(.rti_fn.1.end)</span><br><span class="line">__tagsym$$used                           0x08018e78   Number         0  components.o(.rti_fn.1.end)</span><br><span class="line">.rti_fn.6                                0x08018e7c   Section        4  shell.o(.rti_fn.6)</span><br><span class="line">__tagsym$$used                           0x08018e7c   Number         0  shell.o(.rti_fn.6)</span><br><span class="line">.rti_fn.6.end                            0x08018e80   Section        4  components.o(.rti_fn.6.end)</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li><p>初始化函数指针声明在同一个段中的顺序</p>
 <ul>
 <li>实际上，此种自动初始化是函数指针的段声明，本质上是变量的声明</li>
 <li>同一源文件中，其声明顺序按照它们在源代码中的布局顺序进行排列</li>
@@ -462,12 +475,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">21k</span>
+    <span title="Symbols count total">22k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">1:18</span>
+    <span title="Reading time total">1:19</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
   </div>
