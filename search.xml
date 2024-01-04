@@ -731,6 +731,9 @@
 </li>
 <li>.a库链接操作</li>
 </ul>
+<h3 id="如何添加XTS子系统"><a href="#如何添加XTS子系统" class="headerlink" title="如何添加XTS子系统"></a>如何添加XTS子系统</h3><ul>
+<li><code>hb build -b debug</code></li>
+</ul>
 <h3 id="XTS子系统测试项"><a href="#XTS子系统测试项" class="headerlink" title="XTS子系统测试项"></a>XTS子系统测试项</h3><p>轻量系统的全部测试项包含有：应用管理(Ability和Bundle)、网络通信(LwIP)、文件系统、系统参数、Wi-Fi IOT、分布式数据管理、安全、日志、事件、分布式调度、系统更新、系统引导</p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">#//test/xts/acts/build_lite/BUILD.gn</span><br><span class="line">    if (ohos_kernel_type == &quot;liteos_m&quot;)</span><br><span class="line">      all_features += [</span><br><span class="line">        &quot;//test/xts/acts/ability_lite/ability_hal:ActsAbilityMgrTest&quot;,</span><br><span class="line">        &quot;//test/xts/acts/appexecfwk_lite/appexecfwk_hal:ActsBundleMgrTest&quot;,</span><br><span class="line">        &quot;//test/xts/acts/communication_lite/lwip_hal:ActsLwipTest&quot;,</span><br><span class="line"></span><br><span class="line">        #&quot;//test/xts/acts/communication_lite/wifiservice_hal:ActsWifiServiceTest&quot;,</span><br><span class="line">        &quot;//test/xts/acts/commonlibrary_lite/file_hal:ActsUtilsFileTest&quot;,</span><br><span class="line">        &quot;//test/xts/acts/startup_lite/syspara_hal:ActsParameterTest&quot;,</span><br><span class="line">        &quot;//test/xts/acts/iothardware_lite/peripheral_hal:ActsWifiIotTest&quot;,</span><br><span class="line">        &quot;//test/xts/acts/distributeddatamgr_lite/kv_store_hal:ActsKvStoreTest&quot;,</span><br><span class="line">        &quot;//test/xts/acts/security_lite/huks/liteos_m_adapter:ActsHuksHalFunctionTest&quot;,</span><br><span class="line">        &quot;//test/xts/acts/hiviewdfx_lite/hilog_hal:ActsDfxFuncTest&quot;,</span><br><span class="line">        &quot;//test/xts/acts/hiviewdfx_lite/hievent_hal:ActsHieventLiteTest&quot;,</span><br><span class="line">        &quot;//test/xts/acts/distributed_schedule_lite/system_ability_manager_hal:ActsSamgrTest&quot;,</span><br><span class="line">        &quot;//test/xts/acts/update_lite/dupdate_hal:ActsUpdaterFuncTest&quot;,</span><br><span class="line">        &quot;//test/xts/acts/startup_lite/bootstrap_hal:ActsBootstrapTest&quot;,</span><br><span class="line">      ]</span><br></pre></td></tr></table></figure>
 <ul>
@@ -1607,6 +1610,12 @@
 <li>客观来说，理论上移植LiteOS-M到N32G452，并编译进行XTS子系统测试是可行的，不能畏惧不前</li>
 <li>目前需要的知识储备为：<strong>熟悉GN、Ninja工具，有深入的理解编译及链接原理，熟悉cortex-m架构，了解Python，熟悉RTOS内核实现</strong></li>
 <li>首要任务是：<strong>基于OpenHarmony全量工程的构建方式，把最简程序运行起来</strong></li>
+</ul>
+<h3 id="记于2024-01-04"><a href="#记于2024-01-04" class="headerlink" title="记于2024-01-04"></a>记于2024-01-04</h3><ul>
+<li>进展远超预期</li>
+<li>截止今天已经完成了soc、board、vendor的移植适配工作，主要归功于华为云-连志安的博客，参考其对于GD32的移植范例及教程，快速地完成了国民技术的适配，包括底层驱动</li>
+<li>不禁感叹，前期的文献检索调研是相当重要的</li>
+<li>目前只剩下XTS子系统的编译链接，即可开始OpenHarmony兼容性测评认证工作</li>
 </ul>
 <hr>
 <h2 id="轻量系统编译构建-命令执行简述"><a href="#轻量系统编译构建-命令执行简述" class="headerlink" title="轻量系统编译构建-命令执行简述"></a>轻量系统编译构建-命令执行简述</h2><h3 id="hb命令"><a href="#hb命令" class="headerlink" title="hb命令"></a>hb命令</h3><p>&emsp;&emsp;hb工具是一个命令行工具，其使用Python语言编写，能够调用gn和ninja工具来生成OpenHarmony的二进制文件。<br></p>
