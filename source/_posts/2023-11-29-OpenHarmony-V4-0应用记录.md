@@ -66,6 +66,10 @@ description: 参考社区的STM32之Ninja编译方式的工程范例，移植搭
   - XTS子系统: libmodule_xxx.a，测试框架：libhctest.a
 - .a库链接操作
 
+### 如何添加XTS子系统
+
+- `hb build -b debug`
+
 ### XTS子系统测试项
 
 轻量系统的全部测试项包含有：应用管理(Ability和Bundle)、网络通信(LwIP)、文件系统、系统参数、Wi-Fi IOT、分布式数据管理、安全、日志、事件、分布式调度、系统更新、系统引导
