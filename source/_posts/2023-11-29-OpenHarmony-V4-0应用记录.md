@@ -70,6 +70,15 @@ description: 参考社区的STM32之Ninja编译方式的工程范例，移植搭
 
 - `hb build -b debug`
 
+- 目前已知在//out/xxx/xxx/libs有.a库文件
+  - 如何将其链接进bin文件，并使其得以运行呢
+  - 在何处添加链接选项，添加怎样的链接选项呢？官方的链接选项会报错
+  - 考虑在config.gni添加合适的链接选项，同时是否需要考虑在何处添加函数调用？
+
+
+### XTS是如何测试的
+
+
 ### XTS子系统测试项
 
 轻量系统的全部测试项包含有：应用管理(Ability和Bundle)、网络通信(LwIP)、文件系统、系统参数、Wi-Fi IOT、分布式数据管理、安全、日志、事件、分布式调度、系统更新、系统引导
@@ -109,4 +118,9 @@ description: 参考社区的STM32之Ninja编译方式的工程范例，移植搭
 - 隐藏测试项: ActsWifiServiceTest: 测试Wi-Fi服务相关功能，但被注释掉（以#开头）。<br>
 - ActsBootstrapTest: 测试系统引导功能。<br>
 
+
+
+## 参考站点
+
+- [OpenHarmony L0级设备XTS适配经验分享](https://blog.csdn.net/Via6666/article/details/132093613)
 
