@@ -109,6 +109,120 @@
       </tags>
   </entry>
   <entry>
+    <title>OpenHarmony-LiteOS-M内核之GN设计编译构建过程解析</title>
+    <url>/2023/12/29/Harmony-LiteOS-M%E5%86%85%E6%A0%B8%E4%B9%8BGN%E8%AE%BE%E8%AE%A1%E8%A7%A3%E6%9E%90/</url>
+    <content><![CDATA[<p>阅读本文，须先参阅<a href="/2023/12/24/GN%E5%92%8Cninja%E7%9A%84%E5%8C%BA%E5%88%AB%E3%80%81%E8%81%94%E7%B3%BB%E5%92%8C%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91"><strong>GN与Ninja入门</strong></a></p>
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><h3 id="记于2023-12-29"><a href="#记于2023-12-29" class="headerlink" title="记于2023-12-29"></a>记于2023-12-29</h3><ul>
+<li>就目前而言，网上关于LiteOS-M的相关开发移植资料都是相当的少，官方文档也是写得不清不楚的，如果不是项目需求，估计没人愿意来做LiteOS-M的移植适配工作。。</li>
+<li>鄙人初次接触，此前参考了社区的STM32工程移植示例，成功移植LiteOS-M并在gcc+make开发环境运行</li>
+<li>但由于政策或者是项目需要，单纯的内核源码移植其实没什么用，跟别的RTOS内核没啥两样，由此，接触了一个新概念：<strong>XTS子系统</strong>，要获得开放原子基金会的认证，那么就需要通过这个XTS兼容性测评</li>
+<li>要把这个XTS测试组件编译进工程里面，鄙人目前一头雾水，特别还是基于国民技术N32G452芯片移植并编译测试，目前还在熟悉状态，考虑两种方式：<ul>
+<li>基于 <a href="https://gitee.com/openharmony/kernel_liteos_m">https://gitee.com/openharmony/kernel_liteos_m</a> 所拉取的源码工程，进行熟悉构建开发</li>
+<li>基于 <a href="https://gitee.com/link?target=https://repo.huaweicloud.com/openharmony/os/4.0-Release/code-v4.0-Release.tar.gz">https://gitee.com/link?target=https%3A%2F%2Frepo.huaweicloud.com%2Fopenharmony%2Fos%2F4.0-Release%2Fcode-v4.0-Release.tar.gz</a> 整个OpenHarmony全量代码工程进行熟悉开发</li>
+</ul>
+</li>
+<li>但其社区移植工程都已经过时，不适配Harmony4.0 Release，编译无法通过，要想移植，只能自己摸索、熟悉GN+Ninja的构建方式，从头理顺开发过程<ul>
+<li>此前已经做了一部分的工作，包括命令行开发环境搭建、各种依赖搭建，但没有系统地进行整理，可以说是个遗憾</li>
+<li>另外感觉<strong>移植编译XTS子系统、通过兼容性测评</strong>这个时间周期会较长，而且是没有任何指导文档下的独立开发，本人对此预研项目持悲观态度，目前也不能把过多时间精力投入此处，且做且看吧！</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h3 id="记于2024-01-02"><a href="#记于2024-01-02" class="headerlink" title="记于2024-01-02"></a>记于2024-01-02</h3><ul>
+<li>客观来说，理论上移植LiteOS-M到N32G452，并编译进行XTS子系统测试是可行的，不能畏惧不前</li>
+<li>目前需要的知识储备为：<strong>熟悉GN、Ninja工具，有深入的理解编译及链接原理，熟悉cortex-m架构，了解Python，熟悉RTOS内核实现</strong></li>
+<li>首要任务是：<strong>基于OpenHarmony全量工程的构建方式，把最简程序运行起来</strong></li>
+</ul>
+<hr>
+<h3 id="记于2024-01-04"><a href="#记于2024-01-04" class="headerlink" title="记于2024-01-04"></a>记于2024-01-04</h3><ul>
+<li>进展远超预期</li>
+<li>截止今天已经完成了soc、board、vendor的移植适配工作，主要归功于华为云-连志安的博客，参考其对于GD32的移植范例及教程，快速地完成了国民技术的适配，包括底层驱动以及最简工程测试验证</li>
+<li>不禁感叹，<strong>前期的文献检索调研</strong>是相当重要的</li>
+<li>目前只剩下XTS子系统的编译链接，即可开始OpenHarmony兼容性测评认证工作</li>
+</ul>
+<hr>
+<h2 id="轻量系统编译构建-命令执行简述"><a href="#轻量系统编译构建-命令执行简述" class="headerlink" title="轻量系统编译构建-命令执行简述"></a>轻量系统编译构建-命令执行简述</h2><h3 id="hb命令"><a href="#hb命令" class="headerlink" title="hb命令"></a>hb命令</h3><p>&emsp;&emsp;hb工具是一个命令行工具，其使用Python语言编写，能够调用gn和ninja工具来生成OpenHarmony的二进制文件。<br></p>
+<ul>
+<li>hb的源代码在<code>build/lite/hb</code>路径下，其入口函数为<code>__main__.py中的main()</code>，支持命令有：<code>set、env、build、clean</code></li>
+<li><strong>hb命令的具体实现位于<code>//build/lite/hb_internal</code>中</strong></li>
+</ul>
+<h3 id="hb-set"><a href="#hb-set" class="headerlink" title="hb set"></a>hb set</h3><ul>
+<li><code>hb set</code>的作用为生成产品配置文件，其会在工程根目录下生成ohos_config.json文件</li>
+<li>其会读取<code>//vendor/</code>的配置，以供选择</li>
+</ul>
+<h3 id="hb-build-copy"><a href="#hb-build-copy" class="headerlink" title="hb build (copy)"></a>hb build (copy)</h3><ul>
+<li>配置好产品解决方案、芯片开发板解决方案后，即可执行<code>hb set -&gt; hb build</code>进行编译</li>
+<li>hb build的作用是根据配置信息生成编译指导文件build.ninja。</li>
+<li>代码路径为：build&#x2F;lite&#x2F;hb&#x2F;build&#x2F;build.py<ul>
+<li>调用 gn_build 使用 gn gen生成 *.ninja 文件</li>
+<li>调用 ninja_build 使用 ninja -w dupbuild&#x3D;warn -C 生成 *.o *.so *.bin 等最后的文件</li>
+</ul>
+</li>
+</ul>
+<h3 id="build-lite-配置目录梳理"><a href="#build-lite-配置目录梳理" class="headerlink" title="build lite 配置目录梳理"></a>build lite 配置目录梳理</h3><p>复述自：<a href="https://bbs.huaweicloud.com/blogs/336722">https://bbs.huaweicloud.com/blogs/336722</a></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">build/lite</span><br><span class="line">├── components                  # 组件描述文件</span><br><span class="line">├── hb                          # hb pip安装包源码</span><br><span class="line">├── make_rootfs                 # 文件系统镜像制作脚本</span><br><span class="line">├── config                      # 编译配置项</span><br><span class="line">│   ├── component               # 组件相关的模板定义</span><br><span class="line">│   ├── kernel                  # 内核相关的编译配置</span><br><span class="line">│   └── subsystem               # 子系统编译配置</span><br><span class="line">├── platform                    # ld脚本</span><br><span class="line">├── testfwk                     # 测试编译框架</span><br><span class="line">└── toolchain                   # 编译工具链配置，包括：编译器路径、编译选项、链接选项等</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>build&#x2F;lite&#x2F;ohos_var.gni</p>
+<ul>
+<li>定义了所有部件的全局变量</li>
+<li>用于读取产品解决方案的配置文件config.json中的配置项，解析为gn变量</li>
+<li>被build\lite\config\BUILDCONFIG.gn包含导入import</li>
+</ul>
+</li>
+<li><p>build\lite\config\BUILDCONFIG.gn</p>
+<ul>
+<li>用于配置编译构建，其会import导入产品解决方案和芯片开发板解决方案的配置文件</li>
+<li>解析开发板配置文件config.gni</li>
+</ul>
+</li>
+</ul>
+<h2 id="LiteOS-M内核之GN编译构建流程总览"><a href="#LiteOS-M内核之GN编译构建流程总览" class="headerlink" title="LiteOS-M内核之GN编译构建流程总览"></a>LiteOS-M内核之GN编译构建流程总览</h2><p>编译构建过程参考：<a href="https://bbs.huaweicloud.com/blogs/336721">https://bbs.huaweicloud.com/blogs/336721</a></p>
+<ul>
+<li><code>hb build</code>-&gt;<code>build/lite/hb_internal/build/build.py</code></li>
+<li>读取板子配置，包括编译工具链、编译链接选项等</li>
+<li>读取的配置文件有：<ul>
+<li><code>build/lite/ohos_var.gni</code>：定义应用于所有组件的全局变量</li>
+<li><code>device/&#123;company&#125;/&#123;board&#125;/liteos_m/config.gni</code>：编译LiteOS-M内核的配置 – 需要前提配置好的芯片开发板解决方案</li>
+<li><code>vendor/&#123;company&#125;/&#123;board&#125;/config.json</code>：板子所应用的全量配置表，包括子系统、组件等 – 需要提前配置好的产品解决方案</li>
+</ul>
+</li>
+<li>调用gn gen命令，读取产品配置（板级配置、内核、组件等），生成out目录和ninja文件</li>
+<li>调用<code>ninja -C out/&#123;company&#125;/&#123;product&#125;/</code>开始编译</li>
+<li>打包、制作可执行文件</li>
+</ul>
+<hr>
+<p>分析<code>build/lite/BUILD.gn</code>文件中<code>ohos</code>元目标如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">group(&quot;ohos&quot;) &#123;</span><br><span class="line">  deps = []</span><br><span class="line">  if (ohos_build_target == &quot;&quot;) &#123;</span><br><span class="line">    # Step 1: Read product configuration profile.</span><br><span class="line">    # 读取/vendor/&#123;company&#125;/&#123;board&#125;/config.json</span><br><span class="line">    product_cfg = read_file(&quot;$&#123;product_config_path&#125;/config.json&quot;, &quot;json&quot;)   </span><br><span class="line"></span><br><span class="line">    parts_targets_info = read_file(</span><br><span class="line">            &quot;$&#123;root_build_dir&#125;/build_configs/parts_info/parts_modules_info.json&quot;,</span><br><span class="line">            &quot;json&quot;)</span><br><span class="line"></span><br><span class="line">    # Step 2: Loop subsystems configured by product.</span><br><span class="line">    # 遍历板子的子系统配置</span><br><span class="line">    foreach(product_configed_subsystem, product_cfg.subsystems) &#123;</span><br><span class="line">      subsystem_name = product_configed_subsystem.subsystem</span><br><span class="line"></span><br><span class="line">      # 判断XTS子系统相关，暂未搞懂</span><br><span class="line">      if (build_xts || (!build_xts &amp;&amp; subsystem_name != &quot;xts&quot;)) &#123;</span><br><span class="line">        # Step 3: Read OS subsystems profile.</span><br><span class="line">        subsystem_parts_info = &#123;</span><br><span class="line">        &#125;</span><br><span class="line">        subsystem_parts_info = read_file(</span><br><span class="line">                &quot;$&#123;root_build_dir&#125;/build_configs/mini_adapter/$&#123;subsystem_name&#125;.json&quot;,</span><br><span class="line">                &quot;json&quot;)</span><br><span class="line"></span><br><span class="line">        # Step 4: Loop components configured by product.</span><br><span class="line">        foreach(product_configed_component,</span><br><span class="line">                product_configed_subsystem.components) &#123;</span><br><span class="line">          # Step 5: Check whether the component configured by product is exist.</span><br><span class="line">          component_found = false</span><br><span class="line"></span><br><span class="line">          foreach(part_name, subsystem_parts_info.parts) &#123;</span><br><span class="line">            if (product_configed_component.component == part_name) &#123;</span><br><span class="line">              component_found = true</span><br><span class="line">            &#125;</span><br><span class="line">          &#125;</span><br><span class="line"></span><br><span class="line">          assert(</span><br><span class="line">              component_found,</span><br><span class="line">              &quot;Component \&quot;$&#123;product_configed_component.component&#125;\&quot; not found&quot; + &quot;, please check your product configuration.&quot;)</span><br><span class="line"></span><br><span class="line">          # Step 6: Loop OS components and check validity of product configuration.</span><br><span class="line">          foreach(part_name, subsystem_parts_info.parts) &#123;</span><br><span class="line">            kernel_valid = true</span><br><span class="line"></span><br><span class="line">            # Step 6.1: Skip component which not configured by product.</span><br><span class="line">            if (part_name == product_configed_component.component) &#123;</span><br><span class="line">              # Step 6.1.1: Loop OS components adapted kernel type.</span><br><span class="line"></span><br><span class="line">              assert(</span><br><span class="line">                  kernel_valid,</span><br><span class="line">                  &quot;Invalid component configed, $&#123;subsystem_name&#125;:$&#123;product_configed_component.component&#125; &quot; + &quot;not available for kernel: $&#123;product_cfg.kernel_type&#125;!&quot;)</span><br><span class="line"></span><br><span class="line">              # Step 6.1.2: Add valid component for compiling.</span><br><span class="line">              # Skip kernel target for userspace only scenario.</span><br><span class="line">              ......</span><br><span class="line">            &#125;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    # Skip device target for userspace only scenario.</span><br><span class="line">    if (!ohos_build_userspace_only) &#123;</span><br><span class="line">      # Step 7: Add device and product target by default.</span><br><span class="line">      # liteos_m kernel organise device build targets, but not by default.</span><br><span class="line">      if (product_cfg.kernel_type != &quot;liteos_m&quot;) &#123;</span><br><span class="line">        deps += [ &quot;$&#123;device_path&#125;/../&quot; ]</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125; else &#123;</span><br><span class="line">    deps += string_split(ohos_build_target, &quot;&amp;&amp;&quot;)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="编译构建调用过程"><a href="#编译构建调用过程" class="headerlink" title="编译构建调用过程"></a>编译构建调用过程</h2><p>主要分为三部分：</p>
+<ul>
+<li><code>vendor/&#123;company&#125;/&#123;board&#125;/</code>–产品解决方案</li>
+<li><code>device/&#123;company&#125;/&#123;board&#125;/</code>–芯片开发板解决方案</li>
+<li><code>kernel/liteos_m</code>–轻量系统内核</li>
+</ul>
+<h3 id="产品解决方案代码"><a href="#产品解决方案代码" class="headerlink" title="产品解决方案代码"></a>产品解决方案代码</h3><h3 id="芯片开发板解决方案代码"><a href="#芯片开发板解决方案代码" class="headerlink" title="芯片开发板解决方案代码"></a>芯片开发板解决方案代码</h3><h3 id="内核代码"><a href="#内核代码" class="headerlink" title="内核代码"></a>内核代码</h3><h2 id="移植思路总结"><a href="#移植思路总结" class="headerlink" title="移植思路总结"></a>移植思路总结</h2><p>此部分内容直接转述自参考文章：<a href="https://developer.huawei.com/consumer/cn/blog/topic/03889745165640019">https://developer.huawei.com/consumer/cn/blog/topic/03889745165640019</a></p>
+<p>移植类型可以分为三部分：ARCH、SoC、Board</p>
+<ul>
+<li>ARCH为架构级别移植，代码位于kernel&#x2F;liteos_m&#x2F;arch</li>
+<li>SoC为对已支持的架构做芯片厂商级的移植，代码位于device&#x2F;soc</li>
+<li>Board为对芯片下不同板子的移植，代码位于device&#x2F;board</li>
+<li>另，还有厂商配置相关代码，位于vendor，其主要用于编译系统、HDF配置(驱动框架的配置描述文件)：用于描述驱动程序的硬件资源、功能特性，使用Key-Value格式-由属性节点与子节点组成</li>
+</ul>
+<p>移植路线：**&#x2F;&#x2F;vendor -&gt; &#x2F;&#x2F;device&#x2F;board -&gt; &#x2F;&#x2F;device&#x2F;soc -&gt; ARCH**</p>
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><ul>
+<li><a href="https://bbs.huaweicloud.com/blogs/336721">移植案例与原理 - build lite编译构建过程</a></li>
+<li><a href="https://bbs.huaweicloud.com/blogs/336722">移植案例与原理 - build lite配置目录全梳理</a></li>
+<li><a href="https://developer.huawei.com/consumer/cn/blog/topic/03893164050570049">从零开始移植OpenHarmony轻量系统</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>LiteOS</category>
+        <category>RTOS</category>
+      </categories>
+  </entry>
+  <entry>
     <title>IAP/OTA流程概述</title>
     <url>/2023/11/28/IAP-OTA%E6%B5%81%E7%A8%8B%E6%A6%82%E8%BF%B0/</url>
     <content><![CDATA[<h3 id="DCD配置"><a href="#DCD配置" class="headerlink" title="DCD配置"></a>DCD配置</h3><h3 id="注意点"><a href="#注意点" class="headerlink" title="注意点"></a>注意点</h3><ul>
@@ -274,10 +388,124 @@
 <li>嵌入式Linux开发中，配置NFS挂载根文件系统</li>
 </ul>
 <hr>
-<h4 id="远程端口流量通过SSH映射到本地"><a href="#远程端口流量通过SSH映射到本地" class="headerlink" title="远程端口流量通过SSH映射到本地"></a>远程端口流量通过SSH映射到本地</h4><p>ssh -L 4000:localhost:4000 <a href="mailto:&#x6a;&#100;&#x5f;&#x63;&#104;&#x65;&#x6e;&#x40;&#x31;&#x39;&#50;&#46;&#x31;&#x36;&#56;&#46;&#x31;&#49;&#x32;&#x2e;&#x32;&#52;&#48;">&#x6a;&#100;&#x5f;&#x63;&#104;&#x65;&#x6e;&#x40;&#x31;&#x39;&#50;&#46;&#x31;&#x36;&#56;&#46;&#x31;&#49;&#x32;&#x2e;&#x32;&#52;&#48;</a></p>
+<h4 id="远程端口流量通过SSH映射到本地"><a href="#远程端口流量通过SSH映射到本地" class="headerlink" title="远程端口流量通过SSH映射到本地"></a>远程端口流量通过SSH映射到本地</h4><p>ssh -L 4000:localhost:4000 <a href="mailto:&#106;&#100;&#x5f;&#x63;&#104;&#x65;&#x6e;&#x40;&#x31;&#x39;&#50;&#46;&#49;&#54;&#56;&#x2e;&#49;&#x31;&#50;&#x2e;&#50;&#x34;&#x30;">&#106;&#100;&#x5f;&#x63;&#104;&#x65;&#x6e;&#x40;&#x31;&#x39;&#50;&#46;&#49;&#54;&#56;&#x2e;&#49;&#x31;&#50;&#x2e;&#50;&#x34;&#x30;</a></p>
 <h4 id="Linux给根目录扩容"><a href="#Linux给根目录扩容" class="headerlink" title="Linux给根目录扩容"></a>Linux给根目录扩容</h4>]]></content>
       <categories>
         <category>Linux</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>MCU开发知识点记录与总结</title>
+    <url>/2023/11/28/MCU%E5%BC%80%E5%8F%91%E5%B0%8F%E8%B4%B4%E5%A3%AB/</url>
+    <content><![CDATA[<h2 id="内核相关部分"><a href="#内核相关部分" class="headerlink" title="内核相关部分"></a>内核相关部分</h2><h3 id="全局开关中断操作"><a href="#全局开关中断操作" class="headerlink" title="全局开关中断操作"></a>全局开关中断操作</h3><pre><code><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">__disable_irq();    // 将 PRIMASK 寄存器的值设置为 1，禁止所有中断</span><br><span class="line">__enable_irq();     // 将 PRIMASK 寄存器的值设置为 0，开启所有中断</span><br><span class="line">__set_PRIMASK(1);   // PRIMASK 值为 1 ，所有可屏蔽中断的优先级为 1，表示所有可屏蔽中断均不能被中断处理程序处理，只能由 NMI 处理程序处理</span><br><span class="line">__set_PRIMASK(0);</span><br><span class="line"></span><br><span class="line">// 在 Cortex-M 架构中，FAULTMASK 寄存器控制所有异常的优先级</span><br><span class="line">__set_FAULTMASK(1);  // FAULTMASK 寄存器的值为 1 时，所有异常的优先级为 1，表示所有异常均不能被中断处理程序处理，只能由 NMI 处理程序处理</span><br><span class="line">__set_FAULTMASK(0);</span><br><span class="line"></span><br><span class="line">CPSID F        //关异常，FAULTMASK=1</span><br><span class="line">CPSIE F        //开异常，FAULTMASK=0</span><br></pre></td></tr></table></figure>
+</code></pre>
+<h3 id="MCU获取CPU使用率原理"><a href="#MCU获取CPU使用率原理" class="headerlink" title="MCU获取CPU使用率原理"></a>MCU获取CPU使用率原理</h3><ul>
+<li>理论来说，裸机程序不能获取CPU使用率</li>
+<li>在RTOS下，可以通过计时器来测量CPU在空闲任务的运行时间，计算其占整体运行时间的比率即可得到CPU使用率<ul>
+<li>CPU使用率 &#x3D; (CPU总运行时间 - CPU空闲时间) &#x2F; CPU总运行时间</li>
+<li>通过使用计时器，可以计算上电运行以后的 CPU总使用率，也可以计算 一个时间周期内 CPU的使用率</li>
+</ul>
+</li>
+</ul>
+<h2 id="外设相关部分"><a href="#外设相关部分" class="headerlink" title="外设相关部分"></a>外设相关部分</h2><h3 id="GPIO的输出速度"><a href="#GPIO的输出速度" class="headerlink" title="GPIO的输出速度"></a>GPIO的输出速度</h3><ul>
+<li>根据外部设备要求进行配置<ul>
+<li>常规的控制LED灯、按键等，采用2MHz即可</li>
+<li>GPIO模拟SPI、I2C等总线，可以配置为10MHz</li>
+<li>控制DDR、USB等超高速接口，配置50MHZ</li>
+</ul>
+</li>
+<li>GPIO的输出速度越高，其驱动电路的功耗就越高</li>
+</ul>
+<h3 id="内部与外部晶振"><a href="#内部与外部晶振" class="headerlink" title="内部与外部晶振"></a>内部与外部晶振</h3><ul>
+<li>内部晶振精度较外部晶振低</li>
+<li>一般情况下，使用内部晶振足以满足常用需求，包括spi、iic、uart的外设通信</li>
+<li>如果要求时钟精度高，或应用于精密仪器等场景，或用到高速外设如usb、sdio的高精度时钟要求场景，考虑用外部晶振<ul>
+<li>SDIO 接口要求时钟信号的精度为 2% 或以下<ul>
+<li>存储卡、扩展卡、无线模块</li>
+<li>高速图像传感器、高速存储卡</li>
+</ul>
+</li>
+<li>USB 接口要求时钟信号的精度为 5% 或以下<ul>
+<li>鼠标、键盘、打印机、网络摄像头、耳机</li>
+<li>高速摄像头、高速打印机、高品质音频设备</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="外设接口的通信频率"><a href="#外设接口的通信频率" class="headerlink" title="外设接口的通信频率"></a>外设接口的通信频率</h3><h4 id="MCU常用外设的通信速率范围"><a href="#MCU常用外设的通信速率范围" class="headerlink" title="MCU常用外设的通信速率范围"></a>MCU常用外设的通信速率范围</h4><table>
+<thead>
+<tr>
+<th>接口类型</th>
+<th>通信频率</th>
+<th>精度</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>SDIO</td>
+<td>25 MHz~50 MHz</td>
+<td>2% 以下</td>
+</tr>
+<tr>
+<td>USB</td>
+<td>12 MHz~480 MHz</td>
+<td>5% 以下</td>
+</tr>
+<tr>
+<td>I2C</td>
+<td>100 kHz~400 kHz</td>
+<td>1% 以下</td>
+</tr>
+<tr>
+<td>SPI</td>
+<td>1 MHz~20 MHz</td>
+<td>1% 以下</td>
+</tr>
+<tr>
+<td>UART</td>
+<td>1200 bps~921600 bps</td>
+<td>1% 以下</td>
+</tr>
+</tbody></table>
+<h3 id="UART外设"><a href="#UART外设" class="headerlink" title="UART外设"></a>UART外设</h3><ul>
+<li>UART(通用异步收发传输器)是一种设备、通信的基础，规定了数据的格式和帧结构；RS232和RS485是基于UART的电气接口标准，其规定了电气特性和物理特性</li>
+<li>TTL电平的通信速率：MCU的UART外设<strong>理论最高速率取决于其外设的时钟源</strong><ul>
+<li>可通过芯片手册查看时钟树，获取外设的时钟频率</li>
+</ul>
+</li>
+<li>RS232为点对点通信，其标准传输速率须在20Kbps下，抗干扰能力差，传输最大距离不超过15m</li>
+<li>RS485的理论最高传输速率为10Mbps，可一对多通信，理论最大传输距离1500米(9600bps)</li>
+<li>测试较高波特率场景要求时，可以<strong>通过示波器抓取uart外设波形，计算其误差是否满足</strong>，或者通过逻辑分析仪在收发两端分别测试验证</li>
+</ul>
+<p>以下转述参考文章: <a href="https://zhuanlan.zhihu.com/p/534135274">UART波特率对时钟精度的要求有多高？</a></p>
+<blockquote>
+<p>分频误差：波特率是根据系统时钟分频产生的，而系统时钟和波特率可能不是整数倍的关系，所以分频时也会产生误差。但是，当系统时钟较高，或者波特率较低时，这个误差影响很小。</p>
+</blockquote>
+<blockquote>
+<p>时钟误差：波特率的主要误差还是取决于系统时钟的误差。串口通讯对时钟误差的要求有多高呢？<br>每一个字节都有一个起始位做同步，所以误差只会在一个字节内累计。在最后一个位采样时，误差最大，允许极限误差为0.5位。<br>按照每个字节10位计算，最大允许误差为±0.5&#x2F;10&#x3D;±0.05，即±5%。<br>考虑到串口通讯涉及收发两端，两端都可能存在误差，所以，每端的误差最好控制在±2.5%以内。当数据位、校验位等较多时，要求的时钟误差就更高一些。<br>考虑到上面所说的分频误差，一般来说，当时钟误差小于±2%时，串口通信是比较可靠的。</p>
+</blockquote>
+<h4 id="UART通信协议"><a href="#UART通信协议" class="headerlink" title="UART通信协议"></a>UART通信协议</h4><ul>
+<li>空闲状态</li>
+<li>起始位</li>
+<li>数据位</li>
+<li>奇偶检验位</li>
+<li>停止位</li>
+</ul>
+<h4 id="空闲位和空闲中断"><a href="#空闲位和空闲中断" class="headerlink" title="空闲位和空闲中断"></a>空闲位和空闲中断</h4><ul>
+<li><p>空闲位：在UART通信中两个字节或者两个帧之间的 <strong>一位高电平</strong>，用于表示线路的空闲状态；当接收端检测到线路从”1”跳转到”0”(起始位)时，可以知道下一字节开始传输</p>
+<ul>
+<li>当一次发送多个字节时，每字节间会有个空闲位(可配置？看实际设计)，用于区分字节<br></li>
+</ul>
+</li>
+<li><p>空闲中断：在接收到数据之后，如果<strong>在一个字节的时间内</strong>没有再接收到数据，就会产生空闲中断</p>
+<ul>
+<li>其一般用于接收不定长数据，用于<strong>标识一个数据包&#x2F;一帧数据</strong></li>
+</ul>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>MCU</category>
       </categories>
   </entry>
   <entry>
@@ -322,34 +550,7 @@
 </ul>
 ]]></content>
       <categories>
-        <category>MCU</category>
         <category>LiteOS</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>MCU开发小贴士</title>
-    <url>/2023/11/28/MCU%E5%BC%80%E5%8F%91%E5%B0%8F%E8%B4%B4%E5%A3%AB/</url>
-    <content><![CDATA[<h2 id="内核相关部分"><a href="#内核相关部分" class="headerlink" title="内核相关部分"></a>内核相关部分</h2><h3 id="全局开关中断操作"><a href="#全局开关中断操作" class="headerlink" title="全局开关中断操作"></a>全局开关中断操作</h3><pre><code><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">__disable_irq();    // 将 PRIMASK 寄存器的值设置为 1，禁止所有中断</span><br><span class="line">__enable_irq();     // 将 PRIMASK 寄存器的值设置为 0，开启所有中断</span><br><span class="line">__set_PRIMASK(1);   // PRIMASK 值为 1 ，所有可屏蔽中断的优先级为 1，表示所有可屏蔽中断均不能被中断处理程序处理，只能由 NMI 处理程序处理</span><br><span class="line">__set_PRIMASK(0);</span><br><span class="line"></span><br><span class="line">// 在 Cortex-M 架构中，FAULTMASK 寄存器控制所有异常的优先级</span><br><span class="line">__set_FAULTMASK(1);  // FAULTMASK 寄存器的值为 1 时，所有异常的优先级为 1，表示所有异常均不能被中断处理程序处理，只能由 NMI 处理程序处理</span><br><span class="line">__set_FAULTMASK(0);</span><br><span class="line"></span><br><span class="line">CPSID F        //关异常，FAULTMASK=1</span><br><span class="line">CPSIE F        //开异常，FAULTMASK=0</span><br></pre></td></tr></table></figure>
-</code></pre>
-<h3 id="MCU获取CPU使用率原理"><a href="#MCU获取CPU使用率原理" class="headerlink" title="MCU获取CPU使用率原理"></a>MCU获取CPU使用率原理</h3><ul>
-<li>理论来说，裸机程序不能获取CPU使用率</li>
-<li>在RTOS下，可以通过计时器来测量CPU在空闲任务的运行时间，计算其占整体运行时间的比率即可得到CPU使用率<ul>
-<li>CPU使用率 &#x3D; (CPU总运行时间 - CPU空闲时间) &#x2F; CPU总运行时间</li>
-<li>通过使用计时器，可以计算上电运行以后的 CPU总使用率，也可以计算 一个时间周期内 CPU的使用率</li>
-</ul>
-</li>
-</ul>
-<h2 id="外设相关部分"><a href="#外设相关部分" class="headerlink" title="外设相关部分"></a>外设相关部分</h2><h3 id="GPIO的输出速度"><a href="#GPIO的输出速度" class="headerlink" title="GPIO的输出速度"></a>GPIO的输出速度</h3><ul>
-<li>根据外部设备要求进行配置<ul>
-<li>常规的控制LED灯、按键等，采用2MHz即可</li>
-<li>GPIO模拟SPI、I2C等总线，可以配置为10MHz</li>
-<li>控制DDR、USB等超高速接口，配置50MHZ</li>
-</ul>
-</li>
-<li>GPIO的输出速度越高，其驱动电路的功耗就越高</li>
-</ul>
-<h3 id="外设接口的通信频率"><a href="#外设接口的通信频率" class="headerlink" title="外设接口的通信频率"></a>外设接口的通信频率</h3>]]></content>
-      <categories>
         <category>MCU</category>
       </categories>
   </entry>
@@ -423,8 +624,20 @@
 </ul>
 </li>
 </ul>
-<h4 id="WSL下通过命令执行Windows下的bat脚本"><a href="#WSL下通过命令执行Windows下的bat脚本" class="headerlink" title="WSL下通过命令执行Windows下的bat脚本"></a>WSL下通过命令执行Windows下的bat脚本</h4><pre><code>`wsl.exe -d Ubuntu-18.04 cmd.exe /c &quot;C:\Users\program.bat&quot;`
-</code></pre>
+<h4 id="重启WSL2"><a href="#重启WSL2" class="headerlink" title="重启WSL2"></a>重启WSL2</h4><ul>
+<li>打开PowerShell<ul>
+<li>输入命令<code>Get-Service LxssManager | Restart-Service</code>，重启LxssManager服务</li>
+<li>停止LxssManager服务&#x2F;关机：<code>net stop LxssManager</code></li>
+<li>启动LxssManager服务&#x2F;开机：<code>net start LxssManager</code></li>
+</ul>
+</li>
+</ul>
+<h4 id="WSL下通过命令执行Windows下的bat脚本"><a href="#WSL下通过命令执行Windows下的bat脚本" class="headerlink" title="WSL下通过命令执行Windows下的bat脚本"></a>WSL下通过命令执行Windows下的bat脚本</h4><ul>
+<li><code>wsl.exe -d Ubuntu-18.04 cmd.exe /c &quot;C:\Users\program.bat&quot;</code><ul>
+<li>系统发行版本与脚本路径 替换为实际的即可</li>
+</ul>
+</li>
+</ul>
 <h4 id="开启WSL的NFS服务"><a href="#开启WSL的NFS服务" class="headerlink" title="开启WSL的NFS服务"></a>开启WSL的NFS服务</h4><pre><code>实现u-boot通过nfs服务挂载WSL下的根文件系统
 </code></pre>
 ]]></content>
@@ -625,8 +838,8 @@
 <p>总结：<br>1、需要下载交叉编译器并安装、使能相应的环境变量<br>2、在ubuntu上交叉编译tslib库和ARM Qt库源码后，将编译生成的库文件移植到嵌入式平台文件系统中<br>3、在ubuntu下编写Qt应用程序，并使用交叉工具链编译，然后拷贝到嵌入式平台上运行即可</p>
 ]]></content>
       <categories>
-        <category>Linux</category>
         <category>环境搭建</category>
+        <category>Linux</category>
       </categories>
       <tags>
         <tag>Qt</tag>
@@ -1001,12 +1214,23 @@
 <li>没有冲突的情况下，远端会直接更新至本地上，但不会改变本地未提交的变动；如果本地修改已提交，则会执行一个远端分支和本地分支的合并</li>
 </ul>
 <h2 id="基础非典型操作"><a href="#基础非典型操作" class="headerlink" title="基础非典型操作"></a>基础非典型操作</h2><h3 id="本地git配置"><a href="#本地git配置" class="headerlink" title="本地git配置"></a>本地git配置</h3><ul>
-<li>查看本地配置：<ul>
+<li><p>配置本地与远端的SSH密钥连接流程</p>
+<ul>
+<li>本地生成SSH公钥和私钥(如果没有的话，另，linux下公钥通常存放于<code>~/.ssh/*.pub</code>)<ul>
+<li><code>ssh-keygen -t rsa -b 4096</code></li>
+</ul>
+</li>
+<li>复制公钥，添加至远端平台的SSH设置上</li>
+</ul>
+</li>
+<li><p>查看本地配置：</p>
+<ul>
 <li><code>git config --list</code>查看当前项目的所有配置</li>
 <li><code>git config --global --list</code>查看全局配置</li>
 </ul>
 </li>
-<li>修改用户名(全局&#x2F;当前项目)<ul>
+<li><p>修改用户名(全局&#x2F;当前项目)</p>
+<ul>
 <li>修改全局用户名：<code>git config --global user.name &quot;xxx&quot;</code>，影响用户的所有仓库</li>
 <li>修改当前路径项目的用户名：<code>git config user.name &quot;xxx&quot;</code></li>
 <li>查看全局用户名：<code>git config user.name</code></li>
@@ -1049,6 +1273,8 @@
 <li>使用：暂略</li>
 </ul>
 <h3 id="子模块"><a href="#子模块" class="headerlink" title="子模块"></a>子模块</h3><ul>
+<li><p>对于需要流水线自动化作业编译的项目，可以将其工具链单独存放，作为子模块被调用</p>
+</li>
 <li><p>删除项目内已有的子模块配置，将其转化为本项目内容</p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">cd ./path/to/submodule</span><br><span class="line">rm -rf .git</span><br><span class="line"></span><br><span class="line"># at project root directory</span><br><span class="line">git rm --cached ./path/to/submodule</span><br><span class="line">git add --all</span><br><span class="line">git commit -m &quot;xxx&quot;</span><br><span class="line">git push</span><br></pre></td></tr></table></figure>
 </li>
@@ -1333,26 +1559,6 @@
 ]]></content>
   </entry>
   <entry>
-    <title>ARM架构及相关概念</title>
-    <url>/2023/12/04/ARM%E6%9E%B6%E6%9E%84%E5%8F%8A%E7%9B%B8%E5%85%B3%E6%A6%82%E5%BF%B5/</url>
-    <content><![CDATA[<h2 id="ARM指令集"><a href="#ARM指令集" class="headerlink" title="ARM指令集"></a>ARM指令集</h2><h3 id="Thumb指令集"><a href="#Thumb指令集" class="headerlink" title="Thumb指令集"></a>Thumb指令集</h3><p>其是ARM指令集的一个子集，16位的代码宽度</p>
-<h2 id="哈佛架构与冯诺依曼架构"><a href="#哈佛架构与冯诺依曼架构" class="headerlink" title="哈佛架构与冯诺依曼架构"></a>哈佛架构与冯诺依曼架构</h2><h2 id="CPU寄存器"><a href="#CPU寄存器" class="headerlink" title="CPU寄存器"></a>CPU寄存器</h2><h4 id="glue-7、glue-7t-和-eh-frame"><a href="#glue-7、glue-7t-和-eh-frame" class="headerlink" title="glue_7、glue_7t 和 eh_frame"></a>glue_7、glue_7t 和 eh_frame</h4><ul>
-<li><p>glue_7 和 glue_7t 是 ARM 架构中用于将 ARM 代码和 Thumb 代码粘合在一起的代码。</p>
-</li>
-<li><p>ARM 架构支持两种指令集：ARM 指令集和 Thumb 指令集。ARM 指令集是 32 位指令集，而 Thumb 指令集是 16 位指令集。为了兼容两种指令集，ARM 架构中引入了一种称为 Thumb 嵌入 的机制。</p>
-</li>
-<li><p>Thumb 嵌入允许 ARM 代码中嵌入 Thumb 指令，反之亦然。当 ARM 代码中嵌入 Thumb 指令时，连接器会生成 glue_7 或 glue_7t  section 来将 ARM 代码和 Thumb 代码粘合在一起。</p>
-</li>
-<li><p>eh_frame 是异常处理框架（Exception Handling Frame）的缩写。异常处理框架是用于支持异常处理的一种结构。当程序发生异常时，异常处理框架会保存程序的运行状态，并将程序转到异常处理程序。</p>
-</li>
-<li><p>异常处理框架通常包含以下信息：<br>  程序的堆栈指针（SP）<br>  程序的返回地址（LR）<br>  异常发生时的寄存器值</p>
-</li>
-<li><p>eh_frame section 包含了异常处理框架的信息。当程序发生异常时，连接器会将 eh_frame section 加载到内存中，以便异常处理程序可以访问异常处理框架的信息</p>
-</li>
-</ul>
-]]></content>
-  </entry>
-  <entry>
     <title>Makefile相关学习笔记</title>
     <url>/2023/12/05/Makefile%E7%9B%B8%E5%85%B3%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</url>
     <content><![CDATA[<h2 id="基础学习"><a href="#基础学习" class="headerlink" title="基础学习"></a>基础学习</h2><h3 id="符号"><a href="#符号" class="headerlink" title="符号"></a>符号</h3><ul>
@@ -1385,6 +1591,26 @@
       <tags>
         <tag>make</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>ARM架构及相关概念</title>
+    <url>/2023/12/04/ARM%E6%9E%B6%E6%9E%84%E5%8F%8A%E7%9B%B8%E5%85%B3%E6%A6%82%E5%BF%B5/</url>
+    <content><![CDATA[<h2 id="ARM指令集"><a href="#ARM指令集" class="headerlink" title="ARM指令集"></a>ARM指令集</h2><h3 id="Thumb指令集"><a href="#Thumb指令集" class="headerlink" title="Thumb指令集"></a>Thumb指令集</h3><p>其是ARM指令集的一个子集，16位的代码宽度</p>
+<h2 id="哈佛架构与冯诺依曼架构"><a href="#哈佛架构与冯诺依曼架构" class="headerlink" title="哈佛架构与冯诺依曼架构"></a>哈佛架构与冯诺依曼架构</h2><h2 id="CPU寄存器"><a href="#CPU寄存器" class="headerlink" title="CPU寄存器"></a>CPU寄存器</h2><h4 id="glue-7、glue-7t-和-eh-frame"><a href="#glue-7、glue-7t-和-eh-frame" class="headerlink" title="glue_7、glue_7t 和 eh_frame"></a>glue_7、glue_7t 和 eh_frame</h4><ul>
+<li><p>glue_7 和 glue_7t 是 ARM 架构中用于将 ARM 代码和 Thumb 代码粘合在一起的代码。</p>
+</li>
+<li><p>ARM 架构支持两种指令集：ARM 指令集和 Thumb 指令集。ARM 指令集是 32 位指令集，而 Thumb 指令集是 16 位指令集。为了兼容两种指令集，ARM 架构中引入了一种称为 Thumb 嵌入 的机制。</p>
+</li>
+<li><p>Thumb 嵌入允许 ARM 代码中嵌入 Thumb 指令，反之亦然。当 ARM 代码中嵌入 Thumb 指令时，连接器会生成 glue_7 或 glue_7t  section 来将 ARM 代码和 Thumb 代码粘合在一起。</p>
+</li>
+<li><p>eh_frame 是异常处理框架（Exception Handling Frame）的缩写。异常处理框架是用于支持异常处理的一种结构。当程序发生异常时，异常处理框架会保存程序的运行状态，并将程序转到异常处理程序。</p>
+</li>
+<li><p>异常处理框架通常包含以下信息：<br>  程序的堆栈指针（SP）<br>  程序的返回地址（LR）<br>  异常发生时的寄存器值</p>
+</li>
+<li><p>eh_frame section 包含了异常处理框架的信息。当程序发生异常时，连接器会将 eh_frame section 加载到内存中，以便异常处理程序可以访问异常处理框架的信息</p>
+</li>
+</ul>
+]]></content>
   </entry>
   <entry>
     <title>PID算法</title>
@@ -1597,120 +1823,6 @@
 ]]></content>
       <categories>
         <category>LiteOS</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>OpenHarmony-LiteOS-M内核之GN设计编译构建过程解析</title>
-    <url>/2023/12/29/Harmony-LiteOS-M%E5%86%85%E6%A0%B8%E4%B9%8BGN%E8%AE%BE%E8%AE%A1%E8%A7%A3%E6%9E%90/</url>
-    <content><![CDATA[<p>阅读本文，须先参阅<a href="/2023/12/24/GN%E5%92%8Cninja%E7%9A%84%E5%8C%BA%E5%88%AB%E3%80%81%E8%81%94%E7%B3%BB%E5%92%8C%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91"><strong>GN与Ninja入门</strong></a></p>
-<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><h3 id="记于2023-12-29"><a href="#记于2023-12-29" class="headerlink" title="记于2023-12-29"></a>记于2023-12-29</h3><ul>
-<li>就目前而言，网上关于LiteOS-M的相关开发移植资料都是相当的少，官方文档也是写得不清不楚的，如果不是项目需求，估计没人愿意来做LiteOS-M的移植适配工作。。</li>
-<li>鄙人初次接触，此前参考了社区的STM32工程移植示例，成功移植LiteOS-M并在gcc+make开发环境运行</li>
-<li>但由于政策或者是项目需要，单纯的内核源码移植其实没什么用，跟别的RTOS内核没啥两样，由此，接触了一个新概念：<strong>XTS子系统</strong>，要获得开放原子基金会的认证，那么就需要通过这个XTS兼容性测评</li>
-<li>要把这个XTS测试组件编译进工程里面，鄙人目前一头雾水，特别还是基于国民技术N32G452芯片移植并编译测试，目前还在熟悉状态，考虑两种方式：<ul>
-<li>基于 <a href="https://gitee.com/openharmony/kernel_liteos_m">https://gitee.com/openharmony/kernel_liteos_m</a> 所拉取的源码工程，进行熟悉构建开发</li>
-<li>基于 <a href="https://gitee.com/link?target=https://repo.huaweicloud.com/openharmony/os/4.0-Release/code-v4.0-Release.tar.gz">https://gitee.com/link?target=https%3A%2F%2Frepo.huaweicloud.com%2Fopenharmony%2Fos%2F4.0-Release%2Fcode-v4.0-Release.tar.gz</a> 整个OpenHarmony全量代码工程进行熟悉开发</li>
-</ul>
-</li>
-<li>但其社区移植工程都已经过时，不适配Harmony4.0 Release，编译无法通过，要想移植，只能自己摸索、熟悉GN+Ninja的构建方式，从头理顺开发过程<ul>
-<li>此前已经做了一部分的工作，包括命令行开发环境搭建、各种依赖搭建，但没有系统地进行整理，可以说是个遗憾</li>
-<li>另外感觉<strong>移植编译XTS子系统、通过兼容性测评</strong>这个时间周期会较长，而且是没有任何指导文档下的独立开发，本人对此预研项目持悲观态度，目前也不能把过多时间精力投入此处，且做且看吧！</li>
-</ul>
-</li>
-</ul>
-<hr>
-<h3 id="记于2024-01-02"><a href="#记于2024-01-02" class="headerlink" title="记于2024-01-02"></a>记于2024-01-02</h3><ul>
-<li>客观来说，理论上移植LiteOS-M到N32G452，并编译进行XTS子系统测试是可行的，不能畏惧不前</li>
-<li>目前需要的知识储备为：<strong>熟悉GN、Ninja工具，有深入的理解编译及链接原理，熟悉cortex-m架构，了解Python，熟悉RTOS内核实现</strong></li>
-<li>首要任务是：<strong>基于OpenHarmony全量工程的构建方式，把最简程序运行起来</strong></li>
-</ul>
-<hr>
-<h3 id="记于2024-01-04"><a href="#记于2024-01-04" class="headerlink" title="记于2024-01-04"></a>记于2024-01-04</h3><ul>
-<li>进展远超预期</li>
-<li>截止今天已经完成了soc、board、vendor的移植适配工作，主要归功于华为云-连志安的博客，参考其对于GD32的移植范例及教程，快速地完成了国民技术的适配，包括底层驱动以及最简工程测试验证</li>
-<li>不禁感叹，<strong>前期的文献检索调研</strong>是相当重要的</li>
-<li>目前只剩下XTS子系统的编译链接，即可开始OpenHarmony兼容性测评认证工作</li>
-</ul>
-<hr>
-<h2 id="轻量系统编译构建-命令执行简述"><a href="#轻量系统编译构建-命令执行简述" class="headerlink" title="轻量系统编译构建-命令执行简述"></a>轻量系统编译构建-命令执行简述</h2><h3 id="hb命令"><a href="#hb命令" class="headerlink" title="hb命令"></a>hb命令</h3><p>&emsp;&emsp;hb工具是一个命令行工具，其使用Python语言编写，能够调用gn和ninja工具来生成OpenHarmony的二进制文件。<br></p>
-<ul>
-<li>hb的源代码在<code>build/lite/hb</code>路径下，其入口函数为<code>__main__.py中的main()</code>，支持命令有：<code>set、env、build、clean</code></li>
-<li><strong>hb命令的具体实现位于<code>//build/lite/hb_internal</code>中</strong></li>
-</ul>
-<h3 id="hb-set"><a href="#hb-set" class="headerlink" title="hb set"></a>hb set</h3><ul>
-<li><code>hb set</code>的作用为生成产品配置文件，其会在工程根目录下生成ohos_config.json文件</li>
-<li>其会读取<code>//vendor/</code>的配置，以供选择</li>
-</ul>
-<h3 id="hb-build-copy"><a href="#hb-build-copy" class="headerlink" title="hb build (copy)"></a>hb build (copy)</h3><ul>
-<li>配置好产品解决方案、芯片开发板解决方案后，即可执行<code>hb set -&gt; hb build</code>进行编译</li>
-<li>hb build的作用是根据配置信息生成编译指导文件build.ninja。</li>
-<li>代码路径为：build&#x2F;lite&#x2F;hb&#x2F;build&#x2F;build.py<ul>
-<li>调用 gn_build 使用 gn gen生成 *.ninja 文件</li>
-<li>调用 ninja_build 使用 ninja -w dupbuild&#x3D;warn -C 生成 *.o *.so *.bin 等最后的文件</li>
-</ul>
-</li>
-</ul>
-<h3 id="build-lite-配置目录梳理"><a href="#build-lite-配置目录梳理" class="headerlink" title="build lite 配置目录梳理"></a>build lite 配置目录梳理</h3><p>复述自：<a href="https://bbs.huaweicloud.com/blogs/336722">https://bbs.huaweicloud.com/blogs/336722</a></p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">build/lite</span><br><span class="line">├── components                  # 组件描述文件</span><br><span class="line">├── hb                          # hb pip安装包源码</span><br><span class="line">├── make_rootfs                 # 文件系统镜像制作脚本</span><br><span class="line">├── config                      # 编译配置项</span><br><span class="line">│   ├── component               # 组件相关的模板定义</span><br><span class="line">│   ├── kernel                  # 内核相关的编译配置</span><br><span class="line">│   └── subsystem               # 子系统编译配置</span><br><span class="line">├── platform                    # ld脚本</span><br><span class="line">├── testfwk                     # 测试编译框架</span><br><span class="line">└── toolchain                   # 编译工具链配置，包括：编译器路径、编译选项、链接选项等</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li><p>build&#x2F;lite&#x2F;ohos_var.gni</p>
-<ul>
-<li>定义了所有部件的全局变量</li>
-<li>用于读取产品解决方案的配置文件config.json中的配置项，解析为gn变量</li>
-<li>被build\lite\config\BUILDCONFIG.gn包含导入import</li>
-</ul>
-</li>
-<li><p>build\lite\config\BUILDCONFIG.gn</p>
-<ul>
-<li>用于配置编译构建，其会import导入产品解决方案和芯片开发板解决方案的配置文件</li>
-<li>解析开发板配置文件config.gni</li>
-</ul>
-</li>
-</ul>
-<h2 id="LiteOS-M内核之GN编译构建流程总览"><a href="#LiteOS-M内核之GN编译构建流程总览" class="headerlink" title="LiteOS-M内核之GN编译构建流程总览"></a>LiteOS-M内核之GN编译构建流程总览</h2><p>编译构建过程参考：<a href="https://bbs.huaweicloud.com/blogs/336721">https://bbs.huaweicloud.com/blogs/336721</a></p>
-<ul>
-<li><code>hb build</code>-&gt;<code>build/lite/hb_internal/build/build.py</code></li>
-<li>读取板子配置，包括编译工具链、编译链接选项等</li>
-<li>读取的配置文件有：<ul>
-<li><code>build/lite/ohos_var.gni</code>：定义应用于所有组件的全局变量</li>
-<li><code>device/&#123;company&#125;/&#123;board&#125;/liteos_m/config.gni</code>：编译LiteOS-M内核的配置 – 需要前提配置好的芯片开发板解决方案</li>
-<li><code>vendor/&#123;company&#125;/&#123;board&#125;/config.json</code>：板子所应用的全量配置表，包括子系统、组件等 – 需要提前配置好的产品解决方案</li>
-</ul>
-</li>
-<li>调用gn gen命令，读取产品配置（板级配置、内核、组件等），生成out目录和ninja文件</li>
-<li>调用<code>ninja -C out/&#123;company&#125;/&#123;product&#125;/</code>开始编译</li>
-<li>打包、制作可执行文件</li>
-</ul>
-<hr>
-<p>分析<code>build/lite/BUILD.gn</code>文件中<code>ohos</code>元目标如下：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">group(&quot;ohos&quot;) &#123;</span><br><span class="line">  deps = []</span><br><span class="line">  if (ohos_build_target == &quot;&quot;) &#123;</span><br><span class="line">    # Step 1: Read product configuration profile.</span><br><span class="line">    # 读取/vendor/&#123;company&#125;/&#123;board&#125;/config.json</span><br><span class="line">    product_cfg = read_file(&quot;$&#123;product_config_path&#125;/config.json&quot;, &quot;json&quot;)   </span><br><span class="line"></span><br><span class="line">    parts_targets_info = read_file(</span><br><span class="line">            &quot;$&#123;root_build_dir&#125;/build_configs/parts_info/parts_modules_info.json&quot;,</span><br><span class="line">            &quot;json&quot;)</span><br><span class="line"></span><br><span class="line">    # Step 2: Loop subsystems configured by product.</span><br><span class="line">    # 遍历板子的子系统配置</span><br><span class="line">    foreach(product_configed_subsystem, product_cfg.subsystems) &#123;</span><br><span class="line">      subsystem_name = product_configed_subsystem.subsystem</span><br><span class="line"></span><br><span class="line">      # 判断XTS子系统相关，暂未搞懂</span><br><span class="line">      if (build_xts || (!build_xts &amp;&amp; subsystem_name != &quot;xts&quot;)) &#123;</span><br><span class="line">        # Step 3: Read OS subsystems profile.</span><br><span class="line">        subsystem_parts_info = &#123;</span><br><span class="line">        &#125;</span><br><span class="line">        subsystem_parts_info = read_file(</span><br><span class="line">                &quot;$&#123;root_build_dir&#125;/build_configs/mini_adapter/$&#123;subsystem_name&#125;.json&quot;,</span><br><span class="line">                &quot;json&quot;)</span><br><span class="line"></span><br><span class="line">        # Step 4: Loop components configured by product.</span><br><span class="line">        foreach(product_configed_component,</span><br><span class="line">                product_configed_subsystem.components) &#123;</span><br><span class="line">          # Step 5: Check whether the component configured by product is exist.</span><br><span class="line">          component_found = false</span><br><span class="line"></span><br><span class="line">          foreach(part_name, subsystem_parts_info.parts) &#123;</span><br><span class="line">            if (product_configed_component.component == part_name) &#123;</span><br><span class="line">              component_found = true</span><br><span class="line">            &#125;</span><br><span class="line">          &#125;</span><br><span class="line"></span><br><span class="line">          assert(</span><br><span class="line">              component_found,</span><br><span class="line">              &quot;Component \&quot;$&#123;product_configed_component.component&#125;\&quot; not found&quot; + &quot;, please check your product configuration.&quot;)</span><br><span class="line"></span><br><span class="line">          # Step 6: Loop OS components and check validity of product configuration.</span><br><span class="line">          foreach(part_name, subsystem_parts_info.parts) &#123;</span><br><span class="line">            kernel_valid = true</span><br><span class="line"></span><br><span class="line">            # Step 6.1: Skip component which not configured by product.</span><br><span class="line">            if (part_name == product_configed_component.component) &#123;</span><br><span class="line">              # Step 6.1.1: Loop OS components adapted kernel type.</span><br><span class="line"></span><br><span class="line">              assert(</span><br><span class="line">                  kernel_valid,</span><br><span class="line">                  &quot;Invalid component configed, $&#123;subsystem_name&#125;:$&#123;product_configed_component.component&#125; &quot; + &quot;not available for kernel: $&#123;product_cfg.kernel_type&#125;!&quot;)</span><br><span class="line"></span><br><span class="line">              # Step 6.1.2: Add valid component for compiling.</span><br><span class="line">              # Skip kernel target for userspace only scenario.</span><br><span class="line">              ......</span><br><span class="line">            &#125;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    # Skip device target for userspace only scenario.</span><br><span class="line">    if (!ohos_build_userspace_only) &#123;</span><br><span class="line">      # Step 7: Add device and product target by default.</span><br><span class="line">      # liteos_m kernel organise device build targets, but not by default.</span><br><span class="line">      if (product_cfg.kernel_type != &quot;liteos_m&quot;) &#123;</span><br><span class="line">        deps += [ &quot;$&#123;device_path&#125;/../&quot; ]</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125; else &#123;</span><br><span class="line">    deps += string_split(ohos_build_target, &quot;&amp;&amp;&quot;)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<hr>
-<h2 id="编译构建调用过程"><a href="#编译构建调用过程" class="headerlink" title="编译构建调用过程"></a>编译构建调用过程</h2><p>主要分为三部分：</p>
-<ul>
-<li><code>vendor/&#123;company&#125;/&#123;board&#125;/</code>–产品解决方案</li>
-<li><code>device/&#123;company&#125;/&#123;board&#125;/</code>–芯片开发板解决方案</li>
-<li><code>kernel/liteos_m</code>–轻量系统内核</li>
-</ul>
-<h3 id="产品解决方案代码"><a href="#产品解决方案代码" class="headerlink" title="产品解决方案代码"></a>产品解决方案代码</h3><h3 id="芯片开发板解决方案代码"><a href="#芯片开发板解决方案代码" class="headerlink" title="芯片开发板解决方案代码"></a>芯片开发板解决方案代码</h3><h3 id="内核代码"><a href="#内核代码" class="headerlink" title="内核代码"></a>内核代码</h3><h2 id="移植思路总结"><a href="#移植思路总结" class="headerlink" title="移植思路总结"></a>移植思路总结</h2><p>此部分内容直接转述自参考文章：<a href="https://developer.huawei.com/consumer/cn/blog/topic/03889745165640019">https://developer.huawei.com/consumer/cn/blog/topic/03889745165640019</a></p>
-<p>移植类型可以分为三部分：ARCH、SoC、Board</p>
-<ul>
-<li>ARCH为架构级别移植，代码位于kernel&#x2F;liteos_m&#x2F;arch</li>
-<li>SoC为对已支持的架构做芯片厂商级的移植，代码位于device&#x2F;soc</li>
-<li>Board为对芯片下不同板子的移植，代码位于device&#x2F;board</li>
-<li>另，还有厂商配置相关代码，位于vendor，其主要用于编译系统、HDF配置(驱动框架的配置描述文件)：用于描述驱动程序的硬件资源、功能特性，使用Key-Value格式-由属性节点与子节点组成</li>
-</ul>
-<p>移植路线：**&#x2F;&#x2F;vendor -&gt; &#x2F;&#x2F;device&#x2F;board -&gt; &#x2F;&#x2F;device&#x2F;soc -&gt; ARCH**</p>
-<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><ul>
-<li><a href="https://bbs.huaweicloud.com/blogs/336721">移植案例与原理 - build lite编译构建过程</a></li>
-<li><a href="https://bbs.huaweicloud.com/blogs/336722">移植案例与原理 - build lite配置目录全梳理</a></li>
-<li><a href="https://developer.huawei.com/consumer/cn/blog/topic/03893164050570049">从零开始移植OpenHarmony轻量系统</a></li>
-</ul>
-]]></content>
-      <categories>
-        <category>LiteOS</category>
-        <category>RTOS</category>
       </categories>
   </entry>
 </search>
