@@ -28,7 +28,7 @@
 <meta property="og:description" content="要基于OpenHarmony-V3.2-Release源码工程进行LiteOS-M轻量系统的设备开发，那么熟悉了解其编译构建过程是必要的；本文以STM32&#x2F;N32G452的LiteOS移植工程为例，剖析其业务代码、内核代码的调用编译构建流程">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2023-12-29T00:00:00.000Z">
-<meta property="article:modified_time" content="2024-01-04T06:02:46.786Z">
+<meta property="article:modified_time" content="2024-01-05T04:08:47.707Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -225,7 +225,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-01-04 06:02:46" itemprop="dateModified" datetime="2024-01-04T06:02:46+00:00">2024-01-04</time>
+                <time title="Modified: 2024-01-05 04:08:47" itemprop="dateModified" datetime="2024-01-05T04:08:47+00:00">2024-01-05</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -247,7 +247,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>1.9k</span>
+              <span>2k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
@@ -305,6 +305,13 @@
 <h3 id="hb-set"><a href="#hb-set" class="headerlink" title="hb set"></a>hb set</h3><ul>
 <li><code>hb set</code>的作用为生成产品配置文件，其会在工程根目录下生成ohos_config.json文件</li>
 <li>其会读取<code>//vendor/</code>的配置，以供选择</li>
+</ul>
+<h4 id="调用解决方案包Kconfig的具体步骤"><a href="#调用解决方案包Kconfig的具体步骤" class="headerlink" title="调用解决方案包Kconfig的具体步骤"></a>调用解决方案包Kconfig的具体步骤</h4><ul>
+<li><code>hb set</code>根据配置项的名称找到对应的 Kconfig 配置项。</li>
+<li>将配置项的值写入到 Kconfig 配置项的变量中。</li>
+<li>使用 make menuconfig 命令生成 .config 文件。</li>
+<li>.config 文件会包含配置项的值。</li>
+<li>使用 gn 命令将 .config 文件中的配置项读取到 gn 文件中</li>
 </ul>
 <h3 id="hb-build-copy"><a href="#hb-build-copy" class="headerlink" title="hb build (copy)"></a>hb build (copy)</h3><ul>
 <li>配置好产品解决方案、芯片开发板解决方案后，即可执行<code>hb set -&gt; hb build</code>进行编译</li>
@@ -390,7 +397,10 @@
     <a href="/2023/12/24/GN%E5%92%8Cninja%E7%9A%84%E5%8C%BA%E5%88%AB%E3%80%81%E8%81%94%E7%B3%BB%E5%92%8C%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/" rel="prev" title="GN和Ninja构建工具的基础入门、进阶和应用开发">
       <i class="fa fa-chevron-left"></i> GN和Ninja构建工具的基础入门、进阶和应用开发
     </a></div>
-      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/2024/01/05/Kconfig%E5%85%A5%E9%97%A8%E3%80%81%E5%B8%B8%E7%94%A8%E8%AF%AD%E6%B3%95%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" rel="next" title="Kconfig入门、常用语法学习笔记">
+      Kconfig入门、常用语法学习笔记 <i class="fa fa-chevron-right"></i>
+    </a></div>
     </div>
       </footer>
     
@@ -449,7 +459,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%B0%E4%BA%8E2023-12-29"><span class="nav-number">1.1.</span> <span class="nav-text">记于2023-12-29</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%B0%E4%BA%8E2024-01-02"><span class="nav-number">1.2.</span> <span class="nav-text">记于2024-01-02</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%B0%E4%BA%8E2024-01-04"><span class="nav-number">1.3.</span> <span class="nav-text">记于2024-01-04</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BD%BB%E9%87%8F%E7%B3%BB%E7%BB%9F%E7%BC%96%E8%AF%91%E6%9E%84%E5%BB%BA-%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E7%AE%80%E8%BF%B0"><span class="nav-number">2.</span> <span class="nav-text">轻量系统编译构建-命令执行简述</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#hb%E5%91%BD%E4%BB%A4"><span class="nav-number">2.1.</span> <span class="nav-text">hb命令</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#hb-set"><span class="nav-number">2.2.</span> <span class="nav-text">hb set</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#hb-build-copy"><span class="nav-number">2.3.</span> <span class="nav-text">hb build (copy)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#build-lite-%E9%85%8D%E7%BD%AE%E7%9B%AE%E5%BD%95%E6%A2%B3%E7%90%86"><span class="nav-number">2.4.</span> <span class="nav-text">build lite 配置目录梳理</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#LiteOS-M%E5%86%85%E6%A0%B8%E4%B9%8BGN%E7%BC%96%E8%AF%91%E6%9E%84%E5%BB%BA%E6%B5%81%E7%A8%8B%E6%80%BB%E8%A7%88"><span class="nav-number">3.</span> <span class="nav-text">LiteOS-M内核之GN编译构建流程总览</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BC%96%E8%AF%91%E6%9E%84%E5%BB%BA%E8%B0%83%E7%94%A8%E8%BF%87%E7%A8%8B"><span class="nav-number">4.</span> <span class="nav-text">编译构建调用过程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%A7%E5%93%81%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%E4%BB%A3%E7%A0%81"><span class="nav-number">4.1.</span> <span class="nav-text">产品解决方案代码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%8A%AF%E7%89%87%E5%BC%80%E5%8F%91%E6%9D%BF%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%E4%BB%A3%E7%A0%81"><span class="nav-number">4.2.</span> <span class="nav-text">芯片开发板解决方案代码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%86%85%E6%A0%B8%E4%BB%A3%E7%A0%81"><span class="nav-number">4.3.</span> <span class="nav-text">内核代码</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A7%BB%E6%A4%8D%E6%80%9D%E8%B7%AF%E6%80%BB%E7%BB%93"><span class="nav-number">5.</span> <span class="nav-text">移植思路总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE"><span class="nav-number">6.</span> <span class="nav-text">参考文献</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%B0%E4%BA%8E2023-12-29"><span class="nav-number">1.1.</span> <span class="nav-text">记于2023-12-29</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%B0%E4%BA%8E2024-01-02"><span class="nav-number">1.2.</span> <span class="nav-text">记于2024-01-02</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%B0%E4%BA%8E2024-01-04"><span class="nav-number">1.3.</span> <span class="nav-text">记于2024-01-04</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BD%BB%E9%87%8F%E7%B3%BB%E7%BB%9F%E7%BC%96%E8%AF%91%E6%9E%84%E5%BB%BA-%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E7%AE%80%E8%BF%B0"><span class="nav-number">2.</span> <span class="nav-text">轻量系统编译构建-命令执行简述</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#hb%E5%91%BD%E4%BB%A4"><span class="nav-number">2.1.</span> <span class="nav-text">hb命令</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#hb-set"><span class="nav-number">2.2.</span> <span class="nav-text">hb set</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%B0%83%E7%94%A8%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%E5%8C%85Kconfig%E7%9A%84%E5%85%B7%E4%BD%93%E6%AD%A5%E9%AA%A4"><span class="nav-number">2.2.1.</span> <span class="nav-text">调用解决方案包Kconfig的具体步骤</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#hb-build-copy"><span class="nav-number">2.3.</span> <span class="nav-text">hb build (copy)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#build-lite-%E9%85%8D%E7%BD%AE%E7%9B%AE%E5%BD%95%E6%A2%B3%E7%90%86"><span class="nav-number">2.4.</span> <span class="nav-text">build lite 配置目录梳理</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#LiteOS-M%E5%86%85%E6%A0%B8%E4%B9%8BGN%E7%BC%96%E8%AF%91%E6%9E%84%E5%BB%BA%E6%B5%81%E7%A8%8B%E6%80%BB%E8%A7%88"><span class="nav-number">3.</span> <span class="nav-text">LiteOS-M内核之GN编译构建流程总览</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BC%96%E8%AF%91%E6%9E%84%E5%BB%BA%E8%B0%83%E7%94%A8%E8%BF%87%E7%A8%8B"><span class="nav-number">4.</span> <span class="nav-text">编译构建调用过程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%A7%E5%93%81%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%E4%BB%A3%E7%A0%81"><span class="nav-number">4.1.</span> <span class="nav-text">产品解决方案代码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%8A%AF%E7%89%87%E5%BC%80%E5%8F%91%E6%9D%BF%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%E4%BB%A3%E7%A0%81"><span class="nav-number">4.2.</span> <span class="nav-text">芯片开发板解决方案代码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%86%85%E6%A0%B8%E4%BB%A3%E7%A0%81"><span class="nav-number">4.3.</span> <span class="nav-text">内核代码</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A7%BB%E6%A4%8D%E6%80%9D%E8%B7%AF%E6%80%BB%E7%BB%93"><span class="nav-number">5.</span> <span class="nav-text">移植思路总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE"><span class="nav-number">6.</span> <span class="nav-text">参考文献</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -463,7 +473,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">36</span>
+          <span class="site-state-item-count">37</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -517,7 +527,7 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">1:23</span>
+    <span title="Reading time total">1:24</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
   </div>

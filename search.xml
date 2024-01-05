@@ -150,6 +150,13 @@
 <li><code>hb set</code>的作用为生成产品配置文件，其会在工程根目录下生成ohos_config.json文件</li>
 <li>其会读取<code>//vendor/</code>的配置，以供选择</li>
 </ul>
+<h4 id="调用解决方案包Kconfig的具体步骤"><a href="#调用解决方案包Kconfig的具体步骤" class="headerlink" title="调用解决方案包Kconfig的具体步骤"></a>调用解决方案包Kconfig的具体步骤</h4><ul>
+<li><code>hb set</code>根据配置项的名称找到对应的 Kconfig 配置项。</li>
+<li>将配置项的值写入到 Kconfig 配置项的变量中。</li>
+<li>使用 make menuconfig 命令生成 .config 文件。</li>
+<li>.config 文件会包含配置项的值。</li>
+<li>使用 gn 命令将 .config 文件中的配置项读取到 gn 文件中</li>
+</ul>
 <h3 id="hb-build-copy"><a href="#hb-build-copy" class="headerlink" title="hb build (copy)"></a>hb build (copy)</h3><ul>
 <li>配置好产品解决方案、芯片开发板解决方案后，即可执行<code>hb set -&gt; hb build</code>进行编译</li>
 <li>hb build的作用是根据配置信息生成编译指导文件build.ninja。</li>
@@ -1823,6 +1830,16 @@
 ]]></content>
       <categories>
         <category>LiteOS</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>Kconfig入门、常用语法学习笔记</title>
+    <url>/2024/01/05/Kconfig%E5%85%A5%E9%97%A8%E3%80%81%E5%B8%B8%E7%94%A8%E8%AF%AD%E6%B3%95%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</url>
+    <content><![CDATA[<h2 id="概况"><a href="#概况" class="headerlink" title="概况"></a>概况</h2><p>make menuconfig<br>一定是生成.config文件吗，这个文件名是否可改<br>make<br>Makefile<br>gn<br>OpenHarmony<br>Kconfig.xx.xx文件类型<br>如何构建</p>
+]]></content>
+      <categories>
+        <category>LiteOS</category>
+        <category>Linux</category>
       </categories>
   </entry>
 </search>
