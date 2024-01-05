@@ -28,7 +28,7 @@
 <meta property="og:description" content="参考社区的STM32之Ninja编译方式的工程范例，移植搭建基于LiteOS的N32WB452工程，记录其过程中的一些编译纠错、代码功能编写及构建、XTS子系统测试等相关信息，以供检索回溯">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2023-12-20T00:00:00.000Z">
-<meta property="article:modified_time" content="2024-01-05T09:47:31.985Z">
+<meta property="article:modified_time" content="2024-01-05T09:59:29.794Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -225,7 +225,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-01-05 09:47:31" itemprop="dateModified" datetime="2024-01-05T09:47:31+00:00">2024-01-05</time>
+                <time title="Modified: 2024-01-05 09:59:29" itemprop="dateModified" datetime="2024-01-05T09:59:29+00:00">2024-01-05</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -307,6 +307,7 @@
 <ul>
 <li>如何将其链接进bin文件，并使其得以运行呢</li>
 <li>在何处添加链接选项，添加怎样的链接选项呢？官方的链接选项会报错</li>
+<li>考虑在config.gni添加合适的链接选项，同时是否需要考虑在何处添加函数调用？</li>
 </ul>
 </li>
 </ul>
@@ -479,7 +480,7 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">1:24</span>
+    <span title="Reading time total">1:25</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
   </div>
