@@ -139,6 +139,7 @@
 <li>截止今天已经完成了soc、board、vendor的移植适配工作，主要归功于华为云-连志安的博客，参考其对于GD32的移植范例及教程，快速地完成了国民技术的适配，包括底层驱动以及最简工程测试验证</li>
 <li>不禁感叹，<strong>前期的文献检索调研</strong>是相当重要的</li>
 <li>目前只剩下XTS子系统的编译链接，即可开始OpenHarmony兼容性测评认证工作</li>
+<li>参照零星示例，尝试在vendor&#x2F;xxx&#x2F;config.json添加了xts子系统，同时在BUILD.gn添加链接选项，可看到xts组件有编译，但没链接进bin文件，对整个XTS子系统添加、编译链接流程思路还是不清晰，需要时间</li>
 </ul>
 <hr>
 <h2 id="轻量系统编译构建-命令执行简述"><a href="#轻量系统编译构建-命令执行简述" class="headerlink" title="轻量系统编译构建-命令执行简述"></a>轻量系统编译构建-命令执行简述</h2><h3 id="hb命令"><a href="#hb命令" class="headerlink" title="hb命令"></a>hb命令</h3><p>&emsp;&emsp;hb工具是一个命令行工具，其使用Python语言编写，能够调用gn和ninja工具来生成OpenHarmony的二进制文件。<br></p>
@@ -218,7 +219,7 @@
 <li>另，还有厂商配置相关代码，位于vendor，其主要用于编译系统、HDF配置(驱动框架的配置描述文件)：用于描述驱动程序的硬件资源、功能特性，使用Key-Value格式-由属性节点与子节点组成</li>
 </ul>
 <p>移植路线：**&#x2F;&#x2F;vendor -&gt; &#x2F;&#x2F;device&#x2F;board -&gt; &#x2F;&#x2F;device&#x2F;soc -&gt; ARCH**</p>
-<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><ul>
+<h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2><ul>
 <li><a href="https://bbs.huaweicloud.com/blogs/336721">移植案例与原理 - build lite编译构建过程</a></li>
 <li><a href="https://bbs.huaweicloud.com/blogs/336722">移植案例与原理 - build lite配置目录全梳理</a></li>
 <li><a href="https://developer.huawei.com/consumer/cn/blog/topic/03893164050570049">从零开始移植OpenHarmony轻量系统</a></li>
@@ -965,9 +966,16 @@
 <li>.a库链接操作</li>
 </ul>
 <h3 id="如何添加XTS子系统"><a href="#如何添加XTS子系统" class="headerlink" title="如何添加XTS子系统"></a>如何添加XTS子系统</h3><ul>
-<li><code>hb build -b debug</code></li>
+<li><p><code>hb build -b debug</code></p>
+</li>
+<li><p>目前已知在&#x2F;&#x2F;out&#x2F;xxx&#x2F;xxx&#x2F;libs有.a库文件</p>
+<ul>
+<li>如何将其链接进bin文件，并使其得以运行呢</li>
+<li>在何处添加链接选项，添加怎样的链接选项呢？官方的链接选项会报错</li>
 </ul>
-<h3 id="XTS子系统测试项"><a href="#XTS子系统测试项" class="headerlink" title="XTS子系统测试项"></a>XTS子系统测试项</h3><p>轻量系统的全部测试项包含有：应用管理(Ability和Bundle)、网络通信(LwIP)、文件系统、系统参数、Wi-Fi IOT、分布式数据管理、安全、日志、事件、分布式调度、系统更新、系统引导</p>
+</li>
+</ul>
+<h3 id="XTS是如何测试的"><a href="#XTS是如何测试的" class="headerlink" title="XTS是如何测试的"></a>XTS是如何测试的</h3><h3 id="XTS子系统测试项"><a href="#XTS子系统测试项" class="headerlink" title="XTS子系统测试项"></a>XTS子系统测试项</h3><p>轻量系统的全部测试项包含有：应用管理(Ability和Bundle)、网络通信(LwIP)、文件系统、系统参数、Wi-Fi IOT、分布式数据管理、安全、日志、事件、分布式调度、系统更新、系统引导</p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">#//test/xts/acts/build_lite/BUILD.gn</span><br><span class="line">    if (ohos_kernel_type == &quot;liteos_m&quot;)</span><br><span class="line">      all_features += [</span><br><span class="line">        &quot;//test/xts/acts/ability_lite/ability_hal:ActsAbilityMgrTest&quot;,</span><br><span class="line">        &quot;//test/xts/acts/appexecfwk_lite/appexecfwk_hal:ActsBundleMgrTest&quot;,</span><br><span class="line">        &quot;//test/xts/acts/communication_lite/lwip_hal:ActsLwipTest&quot;,</span><br><span class="line"></span><br><span class="line">        #&quot;//test/xts/acts/communication_lite/wifiservice_hal:ActsWifiServiceTest&quot;,</span><br><span class="line">        &quot;//test/xts/acts/commonlibrary_lite/file_hal:ActsUtilsFileTest&quot;,</span><br><span class="line">        &quot;//test/xts/acts/startup_lite/syspara_hal:ActsParameterTest&quot;,</span><br><span class="line">        &quot;//test/xts/acts/iothardware_lite/peripheral_hal:ActsWifiIotTest&quot;,</span><br><span class="line">        &quot;//test/xts/acts/distributeddatamgr_lite/kv_store_hal:ActsKvStoreTest&quot;,</span><br><span class="line">        &quot;//test/xts/acts/security_lite/huks/liteos_m_adapter:ActsHuksHalFunctionTest&quot;,</span><br><span class="line">        &quot;//test/xts/acts/hiviewdfx_lite/hilog_hal:ActsDfxFuncTest&quot;,</span><br><span class="line">        &quot;//test/xts/acts/hiviewdfx_lite/hievent_hal:ActsHieventLiteTest&quot;,</span><br><span class="line">        &quot;//test/xts/acts/distributed_schedule_lite/system_ability_manager_hal:ActsSamgrTest&quot;,</span><br><span class="line">        &quot;//test/xts/acts/update_lite/dupdate_hal:ActsUpdaterFuncTest&quot;,</span><br><span class="line">        &quot;//test/xts/acts/startup_lite/bootstrap_hal:ActsBootstrapTest&quot;,</span><br><span class="line">      ]</span><br></pre></td></tr></table></figure>
 <ul>
 <li>ActsAbilityMgrTest: 测试Ability管理器相关功能，包括Ability的启动、停止、生命周期管理等。<br></li>
@@ -984,6 +992,9 @@
 <li>ActsUpdaterFuncTest: 测试系统更新功能。<br></li>
 <li>隐藏测试项: ActsWifiServiceTest: 测试Wi-Fi服务相关功能，但被注释掉（以#开头）。<br></li>
 <li>ActsBootstrapTest: 测试系统引导功能。<br></li>
+</ul>
+<h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2><ul>
+<li><a href="https://blog.csdn.net/Via6666/article/details/132093613">OpenHarmony L0级设备XTS适配经验分享</a></li>
 </ul>
 ]]></content>
       <categories>
@@ -1835,8 +1846,11 @@
   <entry>
     <title>Kconfig入门、常用语法学习笔记</title>
     <url>/2024/01/05/Kconfig%E5%85%A5%E9%97%A8%E3%80%81%E5%B8%B8%E7%94%A8%E8%AF%AD%E6%B3%95%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</url>
-    <content><![CDATA[<h2 id="概况"><a href="#概况" class="headerlink" title="概况"></a>概况</h2><p>make menuconfig<br>一定是生成.config文件吗，这个文件名是否可改<br>make<br>Makefile<br>gn<br>OpenHarmony<br>Kconfig.xx.xx文件类型<br>如何构建</p>
-]]></content>
+    <content><![CDATA[<h2 id="概况"><a href="#概况" class="headerlink" title="概况"></a>概况</h2><h2 id="基本语法"><a href="#基本语法" class="headerlink" title="基本语法"></a>基本语法</h2><h2 id="进阶操作"><a href="#进阶操作" class="headerlink" title="进阶操作"></a>进阶操作</h2><h2 id="示例解释"><a href="#示例解释" class="headerlink" title="示例解释"></a>示例解释</h2><h2 id="注意项及疑惑解答"><a href="#注意项及疑惑解答" class="headerlink" title="注意项及疑惑解答"></a>注意项及疑惑解答</h2><p>make menuconfig<br>一定是生成.config文件吗，这个文件名是否可改<br>make<br>Makefile<br>gn<br>OpenHarmony<br>Kconfig.xx.xx文件类型<br>如何构建</p>
+<ul>
+<li>.json文件的用法，其属性与Kconfig的联系？</li>
+</ul>
+<h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2>]]></content>
       <categories>
         <category>LiteOS</category>
         <category>Linux</category>

@@ -28,7 +28,7 @@
 <meta property="og:description" content="&emsp;&emsp;Kconfig作为一个配置管理工具，其不仅是Linux内核配置系统的一部分，也被广泛应用于其它开源项目，如Buildroot、U-Boot、OpenHarmony。 &emsp;&emsp;要熟悉大型工程的配置和编译构建过程，那么需要对Kconfig有一定了解，本文为Kconfig之学习笔记，介绍Kconfig的概况、常用语法、代码示例解释等。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2024-01-05T05:47:11.000Z">
-<meta property="article:modified_time" content="2024-01-05T06:29:16.734Z">
+<meta property="article:modified_time" content="2024-01-05T07:28:53.858Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -219,7 +219,7 @@
               <span class="post-meta-item-text">Posted on</span>
               
 
-              <time title="Created: 2024-01-05 05:47:11 / Modified: 06:29:16" itemprop="dateCreated datePublished" datetime="2024-01-05T05:47:11+00:00">2024-01-05</time>
+              <time title="Created: 2024-01-05 05:47:11 / Modified: 07:28:53" itemprop="dateCreated datePublished" datetime="2024-01-05T05:47:11+00:00">2024-01-05</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -241,7 +241,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>35</span>
+              <span>73</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
@@ -263,8 +263,11 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h2 id="概况"><a href="#概况" class="headerlink" title="概况"></a>概况</h2><p>make menuconfig<br>一定是生成.config文件吗，这个文件名是否可改<br>make<br>Makefile<br>gn<br>OpenHarmony<br>Kconfig.xx.xx文件类型<br>如何构建</p>
-
+        <h2 id="概况"><a href="#概况" class="headerlink" title="概况"></a>概况</h2><h2 id="基本语法"><a href="#基本语法" class="headerlink" title="基本语法"></a>基本语法</h2><h2 id="进阶操作"><a href="#进阶操作" class="headerlink" title="进阶操作"></a>进阶操作</h2><h2 id="示例解释"><a href="#示例解释" class="headerlink" title="示例解释"></a>示例解释</h2><h2 id="注意项及疑惑解答"><a href="#注意项及疑惑解答" class="headerlink" title="注意项及疑惑解答"></a>注意项及疑惑解答</h2><p>make menuconfig<br>一定是生成.config文件吗，这个文件名是否可改<br>make<br>Makefile<br>gn<br>OpenHarmony<br>Kconfig.xx.xx文件类型<br>如何构建</p>
+<ul>
+<li>.json文件的用法，其属性与Kconfig的联系？</li>
+</ul>
+<h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2>
     </div>
 
     
@@ -341,7 +344,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A6%82%E5%86%B5"><span class="nav-number">1.</span> <span class="nav-text">概况</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A6%82%E5%86%B5"><span class="nav-number">1.</span> <span class="nav-text">概况</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E8%AF%AD%E6%B3%95"><span class="nav-number">2.</span> <span class="nav-text">基本语法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%9B%E9%98%B6%E6%93%8D%E4%BD%9C"><span class="nav-number">3.</span> <span class="nav-text">进阶操作</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B%E8%A7%A3%E9%87%8A"><span class="nav-number">4.</span> <span class="nav-text">示例解释</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B3%A8%E6%84%8F%E9%A1%B9%E5%8F%8A%E7%96%91%E6%83%91%E8%A7%A3%E7%AD%94"><span class="nav-number">5.</span> <span class="nav-text">注意项及疑惑解答</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E7%AB%99%E7%82%B9"><span class="nav-number">6.</span> <span class="nav-text">参考站点</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 

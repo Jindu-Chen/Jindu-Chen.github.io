@@ -28,7 +28,7 @@
 <meta property="og:description" content="要基于OpenHarmony-V3.2-Release源码工程进行LiteOS-M轻量系统的设备开发，那么熟悉了解其编译构建过程是必要的；本文以STM32&#x2F;N32G452的LiteOS移植工程为例，剖析其业务代码、内核代码的调用编译构建流程">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2023-12-29T00:00:00.000Z">
-<meta property="article:modified_time" content="2024-01-05T04:08:47.707Z">
+<meta property="article:modified_time" content="2024-01-05T09:48:49.785Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -225,7 +225,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-01-05 04:08:47" itemprop="dateModified" datetime="2024-01-05T04:08:47+00:00">2024-01-05</time>
+                <time title="Modified: 2024-01-05 09:48:49" itemprop="dateModified" datetime="2024-01-05T09:48:49+00:00">2024-01-05</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -247,14 +247,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>2k</span>
+              <span>2.1k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>7 mins.</span>
+              <span>8 mins.</span>
             </span>
             <div class="post-description">要基于OpenHarmony-V3.2-Release源码工程进行LiteOS-M轻量系统的设备开发，那么熟悉了解其编译构建过程是必要的；本文以STM32/N32G452的LiteOS移植工程为例，剖析其业务代码、内核代码的调用编译构建流程</div>
 
@@ -295,6 +295,7 @@
 <li>截止今天已经完成了soc、board、vendor的移植适配工作，主要归功于华为云-连志安的博客，参考其对于GD32的移植范例及教程，快速地完成了国民技术的适配，包括底层驱动以及最简工程测试验证</li>
 <li>不禁感叹，<strong>前期的文献检索调研</strong>是相当重要的</li>
 <li>目前只剩下XTS子系统的编译链接，即可开始OpenHarmony兼容性测评认证工作</li>
+<li>参照零星示例，尝试在vendor&#x2F;xxx&#x2F;config.json添加了xts子系统，同时在BUILD.gn添加链接选项，可看到xts组件有编译，但没链接进bin文件，对整个XTS子系统添加、编译链接流程思路还是不清晰，需要时间</li>
 </ul>
 <hr>
 <h2 id="轻量系统编译构建-命令执行简述"><a href="#轻量系统编译构建-命令执行简述" class="headerlink" title="轻量系统编译构建-命令执行简述"></a>轻量系统编译构建-命令执行简述</h2><h3 id="hb命令"><a href="#hb命令" class="headerlink" title="hb命令"></a>hb命令</h3><p>&emsp;&emsp;hb工具是一个命令行工具，其使用Python语言编写，能够调用gn和ninja工具来生成OpenHarmony的二进制文件。<br></p>
@@ -374,7 +375,7 @@
 <li>另，还有厂商配置相关代码，位于vendor，其主要用于编译系统、HDF配置(驱动框架的配置描述文件)：用于描述驱动程序的硬件资源、功能特性，使用Key-Value格式-由属性节点与子节点组成</li>
 </ul>
 <p>移植路线：**&#x2F;&#x2F;vendor -&gt; &#x2F;&#x2F;device&#x2F;board -&gt; &#x2F;&#x2F;device&#x2F;soc -&gt; ARCH**</p>
-<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><ul>
+<h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2><ul>
 <li><a target="_blank" rel="noopener" href="https://bbs.huaweicloud.com/blogs/336721">移植案例与原理 - build lite编译构建过程</a></li>
 <li><a target="_blank" rel="noopener" href="https://bbs.huaweicloud.com/blogs/336722">移植案例与原理 - build lite配置目录全梳理</a></li>
 <li><a target="_blank" rel="noopener" href="https://developer.huawei.com/consumer/cn/blog/topic/03893164050570049">从零开始移植OpenHarmony轻量系统</a></li>
@@ -459,7 +460,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%B0%E4%BA%8E2023-12-29"><span class="nav-number">1.1.</span> <span class="nav-text">记于2023-12-29</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%B0%E4%BA%8E2024-01-02"><span class="nav-number">1.2.</span> <span class="nav-text">记于2024-01-02</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%B0%E4%BA%8E2024-01-04"><span class="nav-number">1.3.</span> <span class="nav-text">记于2024-01-04</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BD%BB%E9%87%8F%E7%B3%BB%E7%BB%9F%E7%BC%96%E8%AF%91%E6%9E%84%E5%BB%BA-%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E7%AE%80%E8%BF%B0"><span class="nav-number">2.</span> <span class="nav-text">轻量系统编译构建-命令执行简述</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#hb%E5%91%BD%E4%BB%A4"><span class="nav-number">2.1.</span> <span class="nav-text">hb命令</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#hb-set"><span class="nav-number">2.2.</span> <span class="nav-text">hb set</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%B0%83%E7%94%A8%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%E5%8C%85Kconfig%E7%9A%84%E5%85%B7%E4%BD%93%E6%AD%A5%E9%AA%A4"><span class="nav-number">2.2.1.</span> <span class="nav-text">调用解决方案包Kconfig的具体步骤</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#hb-build-copy"><span class="nav-number">2.3.</span> <span class="nav-text">hb build (copy)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#build-lite-%E9%85%8D%E7%BD%AE%E7%9B%AE%E5%BD%95%E6%A2%B3%E7%90%86"><span class="nav-number">2.4.</span> <span class="nav-text">build lite 配置目录梳理</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#LiteOS-M%E5%86%85%E6%A0%B8%E4%B9%8BGN%E7%BC%96%E8%AF%91%E6%9E%84%E5%BB%BA%E6%B5%81%E7%A8%8B%E6%80%BB%E8%A7%88"><span class="nav-number">3.</span> <span class="nav-text">LiteOS-M内核之GN编译构建流程总览</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BC%96%E8%AF%91%E6%9E%84%E5%BB%BA%E8%B0%83%E7%94%A8%E8%BF%87%E7%A8%8B"><span class="nav-number">4.</span> <span class="nav-text">编译构建调用过程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%A7%E5%93%81%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%E4%BB%A3%E7%A0%81"><span class="nav-number">4.1.</span> <span class="nav-text">产品解决方案代码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%8A%AF%E7%89%87%E5%BC%80%E5%8F%91%E6%9D%BF%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%E4%BB%A3%E7%A0%81"><span class="nav-number">4.2.</span> <span class="nav-text">芯片开发板解决方案代码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%86%85%E6%A0%B8%E4%BB%A3%E7%A0%81"><span class="nav-number">4.3.</span> <span class="nav-text">内核代码</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A7%BB%E6%A4%8D%E6%80%9D%E8%B7%AF%E6%80%BB%E7%BB%93"><span class="nav-number">5.</span> <span class="nav-text">移植思路总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE"><span class="nav-number">6.</span> <span class="nav-text">参考文献</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%B0%E4%BA%8E2023-12-29"><span class="nav-number">1.1.</span> <span class="nav-text">记于2023-12-29</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%B0%E4%BA%8E2024-01-02"><span class="nav-number">1.2.</span> <span class="nav-text">记于2024-01-02</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%B0%E4%BA%8E2024-01-04"><span class="nav-number">1.3.</span> <span class="nav-text">记于2024-01-04</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BD%BB%E9%87%8F%E7%B3%BB%E7%BB%9F%E7%BC%96%E8%AF%91%E6%9E%84%E5%BB%BA-%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E7%AE%80%E8%BF%B0"><span class="nav-number">2.</span> <span class="nav-text">轻量系统编译构建-命令执行简述</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#hb%E5%91%BD%E4%BB%A4"><span class="nav-number">2.1.</span> <span class="nav-text">hb命令</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#hb-set"><span class="nav-number">2.2.</span> <span class="nav-text">hb set</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%B0%83%E7%94%A8%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%E5%8C%85Kconfig%E7%9A%84%E5%85%B7%E4%BD%93%E6%AD%A5%E9%AA%A4"><span class="nav-number">2.2.1.</span> <span class="nav-text">调用解决方案包Kconfig的具体步骤</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#hb-build-copy"><span class="nav-number">2.3.</span> <span class="nav-text">hb build (copy)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#build-lite-%E9%85%8D%E7%BD%AE%E7%9B%AE%E5%BD%95%E6%A2%B3%E7%90%86"><span class="nav-number">2.4.</span> <span class="nav-text">build lite 配置目录梳理</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#LiteOS-M%E5%86%85%E6%A0%B8%E4%B9%8BGN%E7%BC%96%E8%AF%91%E6%9E%84%E5%BB%BA%E6%B5%81%E7%A8%8B%E6%80%BB%E8%A7%88"><span class="nav-number">3.</span> <span class="nav-text">LiteOS-M内核之GN编译构建流程总览</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BC%96%E8%AF%91%E6%9E%84%E5%BB%BA%E8%B0%83%E7%94%A8%E8%BF%87%E7%A8%8B"><span class="nav-number">4.</span> <span class="nav-text">编译构建调用过程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%A7%E5%93%81%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%E4%BB%A3%E7%A0%81"><span class="nav-number">4.1.</span> <span class="nav-text">产品解决方案代码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%8A%AF%E7%89%87%E5%BC%80%E5%8F%91%E6%9D%BF%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%E4%BB%A3%E7%A0%81"><span class="nav-number">4.2.</span> <span class="nav-text">芯片开发板解决方案代码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%86%85%E6%A0%B8%E4%BB%A3%E7%A0%81"><span class="nav-number">4.3.</span> <span class="nav-text">内核代码</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A7%BB%E6%A4%8D%E6%80%9D%E8%B7%AF%E6%80%BB%E7%BB%93"><span class="nav-number">5.</span> <span class="nav-text">移植思路总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E7%AB%99%E7%82%B9"><span class="nav-number">6.</span> <span class="nav-text">参考站点</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
