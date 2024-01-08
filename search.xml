@@ -847,7 +847,7 @@
 </li>
 <li>参考社区的移植流程，根据其工程范例进一步了解轻量系统的构建开发原理</li>
 </ul>
-<h2 id="目标工程的编译构建流程"><a href="#目标工程的编译构建流程" class="headerlink" title="目标工程的编译构建流程"></a>目标工程的编译构建流程</h2><h2 id="编译纠错"><a href="#编译纠错" class="headerlink" title="编译纠错"></a>编译纠错</h2><ul>
+<h2 id="目标工程的编译构建流程"><a href="#目标工程的编译构建流程" class="headerlink" title="目标工程的编译构建流程"></a>目标工程的编译构建流程</h2><h2 id="子系统添加和构建"><a href="#子系统添加和构建" class="headerlink" title="子系统添加和构建"></a>子系统添加和构建</h2><h3 id="添加系统引导、更新升级功能"><a href="#添加系统引导、更新升级功能" class="headerlink" title="添加系统引导、更新升级功能"></a>添加系统引导、更新升级功能</h3><h2 id="编译纠错"><a href="#编译纠错" class="headerlink" title="编译纠错"></a>编译纠错</h2><ul>
 <li><p>编译成功，但生成的可执行bin文件明显偏小，查看Kconfig配置文件是否有选项没写对，导致的没编译链接</p>
 </li>
 <li><p>提示以下信息：进入<code>kernel/liteos_m</code>，然后make menuconfig，选中兼容项，失能musl库，改为new lib。</p>
@@ -858,7 +858,7 @@
 <li><p>出现如下编译错误，在vfs_fs.c添加头文件&lt;stdbool.h&gt;包含即可</p>
   <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">[OHOS ERROR] [56/340] gcc cross compiler obj/kernel/liteos_m/components/fs/vfs/vfs.vfs_fs.o</span><br><span class="line">[OHOS ERROR] FAILED: obj/kernel/liteos_m/components/fs/vfs/vfs.vfs_fs.o </span><br><span class="line">...</span><br><span class="line">[OHOS ERROR] ../../../kernel/liteos_m/components/fs/vfs/vfs_fs.c:214:43: error: unknown type name &#x27;bool&#x27;</span><br><span class="line">[OHOS ERROR]   214 | static int VfsPathCheck(const char *path, bool isFile)</span><br><span class="line">[OHOS ERROR]       |                                           ^~~~</span><br><span class="line">[OHOS ERROR] ../../../kernel/liteos_m/components/fs/vfs/vfs_fs.c: In function &#x27;VfsOpen&#x27;:</span><br><span class="line">[OHOS ERROR] ../../../kernel/liteos_m/components/fs/vfs/vfs_fs.c:244:9: error: implicit declaration of function &#x27;VfsPathCheck&#x27; [-Werror=implicit-function-declaration]</span><br><span class="line">[OHOS ERROR]   244 |     if (VfsPathCheck(path, TRUE) != LOS_OK) </span><br><span class="line">[OHOS ERROR]       |         ^~~~~~~~~~~~</span><br><span class="line">[OHOS ERROR] cc1: all warnings being treated as errors</span><br></pre></td></tr></table></figure></li>
 </ul>
-<h2 id="添加系统引导、更新升级功能"><a href="#添加系统引导、更新升级功能" class="headerlink" title="添加系统引导、更新升级功能"></a>添加系统引导、更新升级功能</h2><h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2><ul>
+<h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2><ul>
 <li><a href="https://gitee.com/openharmony/docs/blob/master/zh-cn/device-dev/quick-start/Readme-CN.md#/openharmony/docs/blob/master/zh-cn/device-dev/quick-start/quickstart-pkg-sourcecode.md">Gitee-OpenHarmony基于命令行入门</a></li>
 </ul>
 ]]></content>
@@ -1890,7 +1890,13 @@
 </li>
 <li>.a库链接操作</li>
 </ul>
-<h2 id="XTS子系统测试分析"><a href="#XTS子系统测试分析" class="headerlink" title="XTS子系统测试分析"></a>XTS子系统测试分析</h2><h2 id="如何编码以通过兼容性测试"><a href="#如何编码以通过兼容性测试" class="headerlink" title="如何编码以通过兼容性测试"></a>如何编码以通过兼容性测试</h2><h3 id="XTS是如何测试的"><a href="#XTS是如何测试的" class="headerlink" title="XTS是如何测试的"></a>XTS是如何测试的</h3><h3 id="XTS子系统测试项"><a href="#XTS子系统测试项" class="headerlink" title="XTS子系统测试项"></a>XTS子系统测试项</h3><p>轻量系统的全部测试项包含有：应用管理(Ability和Bundle)、网络通信(LwIP)、文件系统、系统参数、Wi-Fi IOT、分布式数据管理、安全、日志、事件、分布式调度、系统更新、系统引导</p>
+<h2 id="XTS子系统测试分析"><a href="#XTS子系统测试分析" class="headerlink" title="XTS子系统测试分析"></a>XTS子系统测试分析</h2><h2 id="规范编码以通过兼容性测试"><a href="#规范编码以通过兼容性测试" class="headerlink" title="规范编码以通过兼容性测试"></a>规范编码以通过兼容性测试</h2><ul>
+<li><p>遵循 OpenHarmony 的开发规范。OpenHarmony 提供了完善的开发规范，包括代码风格、命名规范、注释规范等</p>
+</li>
+<li><p>使用 OpenHarmony 的标准 API。OpenHarmony 提供了丰富的标准 API，可以满足轻量系统开发的大部分需求</p>
+</li>
+</ul>
+<h3 id="XTS是如何测试的"><a href="#XTS是如何测试的" class="headerlink" title="XTS是如何测试的"></a>XTS是如何测试的</h3><h3 id="XTS子系统测试项"><a href="#XTS子系统测试项" class="headerlink" title="XTS子系统测试项"></a>XTS子系统测试项</h3><p>轻量系统的全部测试项包含有：应用管理(Ability和Bundle)、网络通信(LwIP)、文件系统、系统参数、Wi-Fi IOT、分布式数据管理、安全、日志、事件、分布式调度、系统更新、系统引导</p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">#//test/xts/acts/build_lite/BUILD.gn</span><br><span class="line">    if (ohos_kernel_type == &quot;liteos_m&quot;)</span><br><span class="line">      all_features += [</span><br><span class="line">        &quot;//test/xts/acts/ability_lite/ability_hal:ActsAbilityMgrTest&quot;,</span><br><span class="line">        &quot;//test/xts/acts/appexecfwk_lite/appexecfwk_hal:ActsBundleMgrTest&quot;,</span><br><span class="line">        &quot;//test/xts/acts/communication_lite/lwip_hal:ActsLwipTest&quot;,</span><br><span class="line"></span><br><span class="line">        #&quot;//test/xts/acts/communication_lite/wifiservice_hal:ActsWifiServiceTest&quot;,</span><br><span class="line">        &quot;//test/xts/acts/commonlibrary_lite/file_hal:ActsUtilsFileTest&quot;,</span><br><span class="line">        &quot;//test/xts/acts/startup_lite/syspara_hal:ActsParameterTest&quot;,</span><br><span class="line">        &quot;//test/xts/acts/iothardware_lite/peripheral_hal:ActsWifiIotTest&quot;,</span><br><span class="line">        &quot;//test/xts/acts/distributeddatamgr_lite/kv_store_hal:ActsKvStoreTest&quot;,</span><br><span class="line">        &quot;//test/xts/acts/security_lite/huks/liteos_m_adapter:ActsHuksHalFunctionTest&quot;,</span><br><span class="line">        &quot;//test/xts/acts/hiviewdfx_lite/hilog_hal:ActsDfxFuncTest&quot;,</span><br><span class="line">        &quot;//test/xts/acts/hiviewdfx_lite/hievent_hal:ActsHieventLiteTest&quot;,</span><br><span class="line">        &quot;//test/xts/acts/distributed_schedule_lite/system_ability_manager_hal:ActsSamgrTest&quot;,</span><br><span class="line">        &quot;//test/xts/acts/update_lite/dupdate_hal:ActsUpdaterFuncTest&quot;,</span><br><span class="line">        &quot;//test/xts/acts/startup_lite/bootstrap_hal:ActsBootstrapTest&quot;,</span><br><span class="line">      ]</span><br></pre></td></tr></table></figure>
 <ul>
 <li>ActsAbilityMgrTest: 测试Ability管理器相关功能，包括Ability的启动、停止、生命周期管理等。<br></li>
@@ -1912,7 +1918,7 @@
 <li>相对于不同架构的工程，其XTS子系统源码是否也要更改？</li>
 <li>相对新移植的工程，是直接复制现有的XTS源码，还是要开发者基于移植工程、按照规范编写相关程序？</li>
 </ul>
-<h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2><ul>
+<h2 id="XTS子系统源码分析"><a href="#XTS子系统源码分析" class="headerlink" title="XTS子系统源码分析"></a>XTS子系统源码分析</h2><h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2><ul>
 <li><a href="https://blog.csdn.net/Via6666/article/details/132093613">OpenHarmony L0级设备XTS适配经验分享</a></li>
 <li><a href="https://bbs.huaweicloud.com/blogs/336717">移植案例与原理 - XTS子系统之应用兼容性测试套件</a></li>
 </ul>
@@ -1933,6 +1939,7 @@
 <li>hexo server</li>
 </ul>
 <h2 id="blog"><a href="#blog" class="headerlink" title="blog"></a>blog</h2><h3 id="嵌入式MCU裸机工程移植CmBacktrace"><a href="#嵌入式MCU裸机工程移植CmBacktrace" class="headerlink" title="嵌入式MCU裸机工程移植CmBacktrace"></a>嵌入式MCU裸机工程移植CmBacktrace</h3><p>原理、移植调试注意点、如何应用其打印信息来辅助排查错误、addrline2.exe工具</p>
+<h3 id="XTS子系统深入剖析"><a href="#XTS子系统深入剖析" class="headerlink" title="XTS子系统深入剖析"></a>XTS子系统深入剖析</h3><p>源码分析<br>功能、作用分析<br>测试用例分析<br>原理分析</p>
 ]]></content>
       <categories>
         <category>MISC</category>
