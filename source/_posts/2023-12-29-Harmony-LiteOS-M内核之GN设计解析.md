@@ -4,6 +4,7 @@ date: 2023-12-29
 tags:
 categories:
 - [LiteOS]
+- [OpenHarmony]
 - [RTOS]
 description: 要基于OpenHarmony-V3.2-Release源码工程进行LiteOS-M轻量系统的设备开发，那么熟悉了解其编译构建过程是必要的；本文以STM32/N32G452的LiteOS移植工程为例，剖析其业务代码、内核代码的调用编译构建流程
 ---
