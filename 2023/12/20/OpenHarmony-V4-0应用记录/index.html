@@ -28,7 +28,7 @@
 <meta property="og:description" content="参考社区的STM32之Ninja编译方式的工程范例，移植搭建基于LiteOS的N32WB452工程，记录其过程中的一些编译纠错、代码功能编写及构建、XTS子系统测试等相关信息，以供检索回溯">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2023-12-20T00:00:00.000Z">
-<meta property="article:modified_time" content="2024-01-05T09:59:29.794Z">
+<meta property="article:modified_time" content="2024-01-08T02:05:33.186Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -225,7 +225,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-01-05 09:59:29" itemprop="dateModified" datetime="2024-01-05T09:59:29+00:00">2024-01-05</time>
+                <time title="Modified: 2024-01-08 02:05:33" itemprop="dateModified" datetime="2024-01-08T02:05:33+00:00">2024-01-08</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -243,14 +243,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>1.2k</span>
+              <span>1.3k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>4 mins.</span>
+              <span>5 mins.</span>
             </span>
             <div class="post-description">参考社区的STM32之Ninja编译方式的工程范例，移植搭建基于LiteOS的N32WB452工程，记录其过程中的一些编译纠错、代码功能编写及构建、XTS子系统测试等相关信息，以供检索回溯</div>
 
@@ -309,6 +309,19 @@
 <li>在何处添加链接选项，添加怎样的链接选项呢？官方的链接选项会报错</li>
 <li>考虑在config.gni添加合适的链接选项，同时是否需要考虑在何处添加函数调用？</li>
 </ul>
+</li>
+<li><p>在工程配置<code>target_config.h</code>宏定义中使能Test测试项</p>
+</li>
+<li><p>在<code>//kernel/liteos_m</code>中make menuconfig中，使能测试相关配置</p>
+</li>
+<li><p>在<code>//vendor/xxx/config.json</code>添加合适的子系统配置</p>
+</li>
+<li><p>在<code>//device/board/xxx/liteos_m/config.gni</code>添加适配的头文件路径</p>
+<ul>
+<li>链接选项中增添合适的静态库链接，以实现链接测试用例相关库</li>
+</ul>
+</li>
+<li><p>在<code>//device/board/xxx/xxx.ld</code>链接脚本中添加OpenHarmony特有的测试段</p>
 </li>
 </ul>
 <h3 id="XTS是如何测试的"><a href="#XTS是如何测试的" class="headerlink" title="XTS是如何测试的"></a>XTS是如何测试的</h3><h3 id="XTS子系统测试项"><a href="#XTS子系统测试项" class="headerlink" title="XTS子系统测试项"></a>XTS子系统测试项</h3><p>轻量系统的全部测试项包含有：应用管理(Ability和Bundle)、网络通信(LwIP)、文件系统、系统参数、Wi-Fi IOT、分布式数据管理、安全、日志、事件、分布式调度、系统更新、系统引导</p>
@@ -439,7 +452,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-count">15</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -475,12 +488,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">23k</span>
+    <span title="Symbols count total">24k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">1:25</span>
+    <span title="Reading time total">1:26</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
   </div>

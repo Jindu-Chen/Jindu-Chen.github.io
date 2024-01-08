@@ -14,27 +14,9 @@
       </tags>
   </entry>
   <entry>
-    <title>常用编译/链接选项解释</title>
-    <url>/2023/12/15/%E7%BC%96%E8%AF%91%E9%93%BE%E6%8E%A5%E9%80%89%E9%A1%B9%E6%84%8F%E4%B9%89%E8%A7%A3%E9%87%8A/</url>
-    <content><![CDATA[<h2 id="编译纠错修改以及一些注意点"><a href="#编译纠错修改以及一些注意点" class="headerlink" title="编译纠错修改以及一些注意点"></a>编译纠错修改以及一些注意点</h2><ul>
-<li><p>当编译提示:<code>- undefined reference to _init</code>，类似时，检查是否添加了编译选项<code>--nostdlib</code>，不链接标准库，却又没指定库，导致的编译错误</p>
-</li>
-<li><p>提示<code>- exit.c:(.text.exit+0x2c): undefined reference to _exit</code>，考虑在.ld链接文件的.text段的末尾加上<code>_exit = .;</code></p>
-</li>
-<li><p>开启两级优化时, 需要注意C程序中汇编函数的调用可能会被优化掉, 可以考虑加上__attribute__ ((used))</p>
-</li>
-<li><p>需要注意编译等级的选择，可能会影响到程序的运行，代码编写时需要严谨</p>
-</li>
-<li><p>应用 <strong><code>-fdata-sections</code></strong> 可能会导致程序出错</p>
-<ul>
-<li>编程时尽量避免在不同的源文件中定义相同名称的全局变量或函数，避免链接错误</li>
-<li>确保先正确初始化全局变量或函数，然后再引用</li>
-</ul>
-</li>
-<li><p>编译选项和链接选项是分开处理的，编译选项只影响编译过程，链接选项只影响链接过程。而，在GCC中，可以在同一条命令中指定编译选项和链接选项，GCC会在编译和链接过程中分别应用这些选项。但不建议这样做</p>
-</li>
-</ul>
-<h2 id="GCC编译选项CFLAGS参数及说明"><a href="#GCC编译选项CFLAGS参数及说明" class="headerlink" title="GCC编译选项CFLAGS参数及说明"></a>GCC编译选项CFLAGS参数及说明</h2><ul>
+    <title>常用编译/链接选项说明及其应用分析</title>
+    <url>/2024/01/02/%E7%BC%96%E8%AF%91%E9%93%BE%E6%8E%A5%E9%80%89%E9%A1%B9%E6%84%8F%E4%B9%89%E8%A7%A3%E9%87%8A/</url>
+    <content><![CDATA[<h2 id="GCC编译选项CFLAGS参数及说明"><a href="#GCC编译选项CFLAGS参数及说明" class="headerlink" title="GCC编译选项CFLAGS参数及说明"></a>GCC编译选项CFLAGS参数及说明</h2><ul>
 <li><p><strong><code>-ffunction-sections</code></strong> : 告知编译器将每个函数放置在单独的小节中。使得可以在链接过程中只保留实际使用到的函数，未用到的函数将不会被链接，大大缩减生成可执行文件的大小</p>
 </li>
 <li><p><strong><code>-fdata-sections</code></strong> : 标准的编译选项，与-ffunction-sections类似，告知编译器将全局和静态变量放置在单独的小节中。</p>
@@ -59,18 +41,52 @@
 </li>
 <li><p><strong><code>--specs=rdimon.specs</code></strong> : 不了解，在嵌入式MCU中加与不加都一样</p>
 </li>
+<li><p><strong><code>-Wl,–whole-archive</code></strong> ：告诉链接器将指定的静态库中的所有对象文件都链接到生成的目标文件中，即使这些对象文件中定义的符号在目标文件中没有被使用</p>
+</li>
+<li><p><strong><code>-Wl,–no-whole-archive</code></strong> ：选项告诉链接器只链接到静态库中那些定义了目标文件中使用的符号的对象文件</p>
+</li>
+<li><p><strong><code>-L 和 -l</code></strong> ：用于链接库文件，<code>-L</code>用于指定库文件的路径（如果库文件不在默认的搜索路径），<code>-l</code>用于指定要链接的库的名称（只需要提供库的名称，不需要lib前缀或.a、.so）</p>
+<blockquote>
+<p>例如，-L&#x2F;path&#x2F;to&#x2F;library<br>例如，对于libxxx.a或libxxx.so，只需要写-lxxx</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="非典型应用示例"><a href="#非典型应用示例" class="headerlink" title="非典型应用示例"></a>非典型应用示例</h2><h3 id="控制链接器链接静态库文件"><a href="#控制链接器链接静态库文件" class="headerlink" title="控制链接器链接静态库文件"></a>控制链接器链接静态库文件</h3><ul>
+<li>以下为工程中链接选项的片段：<ul>
+<li>其将以下指示的静态库中所有对象文件都链接到目标文件中</li>
+<li>而后将链接器恢复为只链接到静态库中定义了目标文件中使用的符号的对象文件<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># xxx</span><br><span class="line">-Wl,--whole-archive \</span><br><span class="line">libs/libbootstrap.a libs/libbroadcast.a \</span><br><span class="line">libs/libsamgr.a libs/libtoken_static.a libs/libnative_file.a \</span><br><span class="line">libs/libhilog_lite.a libs/libhiview_lite.a libs/libhievent_lite.a \</span><br><span class="line">-Wl,--no-whole-archive</span><br><span class="line"># xxx</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+</ul>
+<h2 id="编译纠错修改以及一些注意点"><a href="#编译纠错修改以及一些注意点" class="headerlink" title="编译纠错修改以及一些注意点"></a>编译纠错修改以及一些注意点</h2><ul>
+<li><p>当编译提示:<code>- undefined reference to _init</code>，类似时，检查是否添加了编译选项<code>--nostdlib</code>，不链接标准库，却又没指定库，导致的编译错误</p>
+</li>
+<li><p>提示<code>- exit.c:(.text.exit+0x2c): undefined reference to _exit</code>，考虑在.ld链接文件的.text段的末尾加上<code>_exit = .;</code></p>
+</li>
+<li><p>开启两级优化时, 需要注意C程序中汇编函数的调用可能会被优化掉, 可以考虑加上__attribute__ ((used))</p>
+</li>
+<li><p>需要注意编译等级的选择，可能会影响到程序的运行，代码编写时需要严谨</p>
+</li>
+<li><p>应用 <strong><code>-fdata-sections</code></strong> 可能会导致程序出错</p>
+<ul>
+<li>编程时尽量避免在不同的源文件中定义相同名称的全局变量或函数，避免链接错误</li>
+<li>确保先正确初始化全局变量或函数，然后再引用</li>
+</ul>
+</li>
+<li><p>编译选项和链接选项是分开处理的，编译选项只影响编译过程，链接选项只影响链接过程。而，在GCC中，可以在同一条命令中指定编译选项和链接选项，GCC会在编译和链接过程中分别应用这些选项。但不建议这样做</p>
+</li>
 </ul>
 <h2 id="Makefile应用实例"><a href="#Makefile应用实例" class="headerlink" title="Makefile应用实例"></a>Makefile应用实例</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 指定交叉编译工具链的 编译器、连接器、库管理器、</span><br><span class="line">CROSS_COMPILE=arm-none-eabi-</span><br><span class="line">CC=$(CROSS_COMPILE)gcc</span><br><span class="line">LD=$(CROSS_COMPILE)ld</span><br><span class="line">AR=$(CROSS_COMPILE)ar</span><br><span class="line">AS=$(CROSS_COMPILE)as</span><br><span class="line">OC=$(CROSS_COMPILE)objcopy</span><br><span class="line">OD=$(CROSS_COMPILE)objdump</span><br><span class="line">SZ=$(CROSS_COMPILE)size</span><br><span class="line"></span><br><span class="line"># 指定目标硬件的架构和浮点运算单元   -mfpu=fpv4-sp-d16 -mfloat-abi=hard </span><br><span class="line"># O0:禁用优化，O1：基本优化，O2, O3, Os</span><br><span class="line"># g0:禁用调试信息, g1, g2, g3, g</span><br><span class="line">MCU = -mcpu=cortex-m4 -mthumb \</span><br><span class="line">	-ffunction-sections \</span><br><span class="line">	-fdata-sections \</span><br><span class="line">	-Os -ggdb</span><br><span class="line"></span><br><span class="line"># 定义编译C源文件的编译选项：禁用共享变量、函数和数据分段、优化级别、调试信息级别、开启所有警告、目标架构、预定义宏</span><br><span class="line">CFLAGS= -c -fno-common \</span><br><span class="line">	--specs=rdimon.specs \</span><br><span class="line">	-std=gnu99 -mabi=aapcs \</span><br><span class="line">	-Wall \</span><br><span class="line">	$(MCU) \</span><br><span class="line">	$(C_DEFS)</span><br><span class="line"></span><br><span class="line"># 定义链接器脚本、链接选项、目标文件格式转换选项、反汇编等等</span><br><span class="line">LDSCRIPT=n32l40x_flash.ld</span><br><span class="line">LDFLAGS = -Wl,--gc-sections --data-sections -mabi=aapcs $(MCU) -T$(LDSCRIPT) \</span><br><span class="line">	--specs=nosys.specs \</span><br><span class="line">	--specs=nano.specs \</span><br><span class="line">	-x assembler-with-cpp -Wa,-mimplicit-it=thumb</span><br><span class="line">OCFLAGS	= -Obinary</span><br><span class="line">ODFLAGS	= -S</span><br></pre></td></tr></table></figure>
 ]]></content>
       <categories>
         <category>C语言</category>
         <category>嵌入式</category>
+        <category>Linux</category>
       </categories>
       <tags>
         <tag>gcc</tag>
         <tag>链接</tag>
         <tag>编译</tag>
-        <tag>make</tag>
       </tags>
   </entry>
   <entry>
@@ -107,128 +123,6 @@
         <tag>GDB</tag>
         <tag>J-Link</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>OpenHarmony-LiteOS-M内核之GN设计编译构建过程解析</title>
-    <url>/2023/12/29/Harmony-LiteOS-M%E5%86%85%E6%A0%B8%E4%B9%8BGN%E8%AE%BE%E8%AE%A1%E8%A7%A3%E6%9E%90/</url>
-    <content><![CDATA[<p>阅读本文，须先参阅<a href="/2023/12/24/GN%E5%92%8Cninja%E7%9A%84%E5%8C%BA%E5%88%AB%E3%80%81%E8%81%94%E7%B3%BB%E5%92%8C%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91"><strong>GN与Ninja入门</strong></a></p>
-<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><h3 id="记于2023-12-29"><a href="#记于2023-12-29" class="headerlink" title="记于2023-12-29"></a>记于2023-12-29</h3><ul>
-<li>就目前而言，网上关于LiteOS-M的相关开发移植资料都是相当的少，官方文档也是写得不清不楚的，如果不是项目需求，估计没人愿意来做LiteOS-M的移植适配工作。。</li>
-<li>鄙人初次接触，此前参考了社区的STM32工程移植示例，成功移植LiteOS-M并在gcc+make开发环境运行</li>
-<li>但由于政策或者是项目需要，单纯的内核源码移植其实没什么用，跟别的RTOS内核没啥两样，由此，接触了一个新概念：<strong>XTS子系统</strong>，要获得开放原子基金会的认证，那么就需要通过这个XTS兼容性测评</li>
-<li>要把这个XTS测试组件编译进工程里面，鄙人目前一头雾水，特别还是基于国民技术N32G452芯片移植并编译测试，目前还在熟悉状态，考虑两种方式：<ul>
-<li>基于 <a href="https://gitee.com/openharmony/kernel_liteos_m">https://gitee.com/openharmony/kernel_liteos_m</a> 所拉取的源码工程，进行熟悉构建开发</li>
-<li>基于 <a href="https://gitee.com/link?target=https://repo.huaweicloud.com/openharmony/os/4.0-Release/code-v4.0-Release.tar.gz">https://gitee.com/link?target=https%3A%2F%2Frepo.huaweicloud.com%2Fopenharmony%2Fos%2F4.0-Release%2Fcode-v4.0-Release.tar.gz</a> 整个OpenHarmony全量代码工程进行熟悉开发</li>
-</ul>
-</li>
-<li>但其社区移植工程都已经过时，不适配Harmony4.0 Release，编译无法通过，要想移植，只能自己摸索、熟悉GN+Ninja的构建方式，从头理顺开发过程<ul>
-<li>此前已经做了一部分的工作，包括命令行开发环境搭建、各种依赖搭建，但没有系统地进行整理，可以说是个遗憾</li>
-<li>另外感觉<strong>移植编译XTS子系统、通过兼容性测评</strong>这个时间周期会较长，而且是没有任何指导文档下的独立开发，本人对此预研项目持悲观态度，目前也不能把过多时间精力投入此处，且做且看吧！</li>
-</ul>
-</li>
-</ul>
-<hr>
-<h3 id="记于2024-01-02"><a href="#记于2024-01-02" class="headerlink" title="记于2024-01-02"></a>记于2024-01-02</h3><ul>
-<li>客观来说，理论上移植LiteOS-M到N32G452，并编译进行XTS子系统测试是可行的，不能畏惧不前</li>
-<li>目前需要的知识储备为：<strong>熟悉GN、Ninja工具，有深入的理解编译及链接原理，熟悉cortex-m架构，了解Python，熟悉RTOS内核实现</strong></li>
-<li>首要任务是：<strong>基于OpenHarmony全量工程的构建方式，把最简程序运行起来</strong></li>
-</ul>
-<hr>
-<h3 id="记于2024-01-04"><a href="#记于2024-01-04" class="headerlink" title="记于2024-01-04"></a>记于2024-01-04</h3><ul>
-<li>进展远超预期</li>
-<li>截止今天已经完成了soc、board、vendor的移植适配工作，主要归功于华为云-连志安的博客，参考其对于GD32的移植范例及教程，快速地完成了国民技术的适配，包括底层驱动以及最简工程测试验证</li>
-<li>不禁感叹，<strong>前期的文献检索调研</strong>是相当重要的</li>
-<li>目前只剩下XTS子系统的编译链接，即可开始OpenHarmony兼容性测评认证工作</li>
-<li>参照零星示例，尝试在vendor&#x2F;xxx&#x2F;config.json添加了xts子系统，同时在BUILD.gn添加链接选项，可看到xts组件有编译，但没链接进bin文件，对整个XTS子系统添加、编译链接流程思路还是不清晰，需要时间</li>
-</ul>
-<hr>
-<h2 id="轻量系统编译构建-命令执行简述"><a href="#轻量系统编译构建-命令执行简述" class="headerlink" title="轻量系统编译构建-命令执行简述"></a>轻量系统编译构建-命令执行简述</h2><h3 id="hb命令"><a href="#hb命令" class="headerlink" title="hb命令"></a>hb命令</h3><p>&emsp;&emsp;hb工具是一个命令行工具，其使用Python语言编写，能够调用gn和ninja工具来生成OpenHarmony的二进制文件。<br></p>
-<ul>
-<li>hb的源代码在<code>build/lite/hb</code>路径下，其入口函数为<code>__main__.py中的main()</code>，支持命令有：<code>set、env、build、clean</code></li>
-<li><strong>hb命令的具体实现位于<code>//build/lite/hb_internal</code>中</strong></li>
-</ul>
-<h3 id="hb-set"><a href="#hb-set" class="headerlink" title="hb set"></a>hb set</h3><ul>
-<li><code>hb set</code>的作用为生成产品配置文件，其会在工程根目录下生成ohos_config.json文件</li>
-<li>其会读取<code>//vendor/</code>的配置，以供选择</li>
-</ul>
-<h4 id="调用解决方案包Kconfig的具体步骤"><a href="#调用解决方案包Kconfig的具体步骤" class="headerlink" title="调用解决方案包Kconfig的具体步骤"></a>调用解决方案包Kconfig的具体步骤</h4><ul>
-<li><code>hb set</code>根据配置项的名称找到对应的 Kconfig 配置项。</li>
-<li>将配置项的值写入到 Kconfig 配置项的变量中。</li>
-<li>使用 make menuconfig 命令生成 .config 文件。</li>
-<li>.config 文件会包含配置项的值。</li>
-<li>使用 gn 命令将 .config 文件中的配置项读取到 gn 文件中</li>
-</ul>
-<h3 id="hb-build-copy"><a href="#hb-build-copy" class="headerlink" title="hb build (copy)"></a>hb build (copy)</h3><ul>
-<li>配置好产品解决方案、芯片开发板解决方案后，即可执行<code>hb set -&gt; hb build</code>进行编译</li>
-<li>hb build的作用是根据配置信息生成编译指导文件build.ninja。</li>
-<li>代码路径为：build&#x2F;lite&#x2F;hb&#x2F;build&#x2F;build.py<ul>
-<li>调用 gn_build 使用 gn gen生成 *.ninja 文件</li>
-<li>调用 ninja_build 使用 ninja -w dupbuild&#x3D;warn -C 生成 *.o *.so *.bin 等最后的文件</li>
-</ul>
-</li>
-</ul>
-<h3 id="build-lite-配置目录梳理"><a href="#build-lite-配置目录梳理" class="headerlink" title="build lite 配置目录梳理"></a>build lite 配置目录梳理</h3><p>复述自：<a href="https://bbs.huaweicloud.com/blogs/336722">https://bbs.huaweicloud.com/blogs/336722</a></p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">build/lite</span><br><span class="line">├── components                  # 组件描述文件</span><br><span class="line">├── hb                          # hb pip安装包源码</span><br><span class="line">├── make_rootfs                 # 文件系统镜像制作脚本</span><br><span class="line">├── config                      # 编译配置项</span><br><span class="line">│   ├── component               # 组件相关的模板定义</span><br><span class="line">│   ├── kernel                  # 内核相关的编译配置</span><br><span class="line">│   └── subsystem               # 子系统编译配置</span><br><span class="line">├── platform                    # ld脚本</span><br><span class="line">├── testfwk                     # 测试编译框架</span><br><span class="line">└── toolchain                   # 编译工具链配置，包括：编译器路径、编译选项、链接选项等</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li><p>build&#x2F;lite&#x2F;ohos_var.gni</p>
-<ul>
-<li>定义了所有部件的全局变量</li>
-<li>用于读取产品解决方案的配置文件config.json中的配置项，解析为gn变量</li>
-<li>被build\lite\config\BUILDCONFIG.gn包含导入import</li>
-</ul>
-</li>
-<li><p>build\lite\config\BUILDCONFIG.gn</p>
-<ul>
-<li>用于配置编译构建，其会import导入产品解决方案和芯片开发板解决方案的配置文件</li>
-<li>解析开发板配置文件config.gni</li>
-</ul>
-</li>
-</ul>
-<h2 id="LiteOS-M内核之GN编译构建流程总览"><a href="#LiteOS-M内核之GN编译构建流程总览" class="headerlink" title="LiteOS-M内核之GN编译构建流程总览"></a>LiteOS-M内核之GN编译构建流程总览</h2><p>编译构建过程参考：<a href="https://bbs.huaweicloud.com/blogs/336721">https://bbs.huaweicloud.com/blogs/336721</a></p>
-<ul>
-<li><code>hb build</code>-&gt;<code>build/lite/hb_internal/build/build.py</code></li>
-<li>读取板子配置，包括编译工具链、编译链接选项等</li>
-<li>读取的配置文件有：<ul>
-<li><code>build/lite/ohos_var.gni</code>：定义应用于所有组件的全局变量</li>
-<li><code>device/&#123;company&#125;/&#123;board&#125;/liteos_m/config.gni</code>：编译LiteOS-M内核的配置 – 需要前提配置好的芯片开发板解决方案</li>
-<li><code>vendor/&#123;company&#125;/&#123;board&#125;/config.json</code>：板子所应用的全量配置表，包括子系统、组件等 – 需要提前配置好的产品解决方案</li>
-</ul>
-</li>
-<li>调用gn gen命令，读取产品配置（板级配置、内核、组件等），生成out目录和ninja文件</li>
-<li>调用<code>ninja -C out/&#123;company&#125;/&#123;product&#125;/</code>开始编译</li>
-<li>打包、制作可执行文件</li>
-</ul>
-<hr>
-<p>分析<code>build/lite/BUILD.gn</code>文件中<code>ohos</code>元目标如下：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">group(&quot;ohos&quot;) &#123;</span><br><span class="line">  deps = []</span><br><span class="line">  if (ohos_build_target == &quot;&quot;) &#123;</span><br><span class="line">    # Step 1: Read product configuration profile.</span><br><span class="line">    # 读取/vendor/&#123;company&#125;/&#123;board&#125;/config.json</span><br><span class="line">    product_cfg = read_file(&quot;$&#123;product_config_path&#125;/config.json&quot;, &quot;json&quot;)   </span><br><span class="line"></span><br><span class="line">    parts_targets_info = read_file(</span><br><span class="line">            &quot;$&#123;root_build_dir&#125;/build_configs/parts_info/parts_modules_info.json&quot;,</span><br><span class="line">            &quot;json&quot;)</span><br><span class="line"></span><br><span class="line">    # Step 2: Loop subsystems configured by product.</span><br><span class="line">    # 遍历板子的子系统配置</span><br><span class="line">    foreach(product_configed_subsystem, product_cfg.subsystems) &#123;</span><br><span class="line">      subsystem_name = product_configed_subsystem.subsystem</span><br><span class="line"></span><br><span class="line">      # 判断XTS子系统相关，暂未搞懂</span><br><span class="line">      if (build_xts || (!build_xts &amp;&amp; subsystem_name != &quot;xts&quot;)) &#123;</span><br><span class="line">        # Step 3: Read OS subsystems profile.</span><br><span class="line">        subsystem_parts_info = &#123;</span><br><span class="line">        &#125;</span><br><span class="line">        subsystem_parts_info = read_file(</span><br><span class="line">                &quot;$&#123;root_build_dir&#125;/build_configs/mini_adapter/$&#123;subsystem_name&#125;.json&quot;,</span><br><span class="line">                &quot;json&quot;)</span><br><span class="line"></span><br><span class="line">        # Step 4: Loop components configured by product.</span><br><span class="line">        foreach(product_configed_component,</span><br><span class="line">                product_configed_subsystem.components) &#123;</span><br><span class="line">          # Step 5: Check whether the component configured by product is exist.</span><br><span class="line">          component_found = false</span><br><span class="line"></span><br><span class="line">          foreach(part_name, subsystem_parts_info.parts) &#123;</span><br><span class="line">            if (product_configed_component.component == part_name) &#123;</span><br><span class="line">              component_found = true</span><br><span class="line">            &#125;</span><br><span class="line">          &#125;</span><br><span class="line"></span><br><span class="line">          assert(</span><br><span class="line">              component_found,</span><br><span class="line">              &quot;Component \&quot;$&#123;product_configed_component.component&#125;\&quot; not found&quot; + &quot;, please check your product configuration.&quot;)</span><br><span class="line"></span><br><span class="line">          # Step 6: Loop OS components and check validity of product configuration.</span><br><span class="line">          foreach(part_name, subsystem_parts_info.parts) &#123;</span><br><span class="line">            kernel_valid = true</span><br><span class="line"></span><br><span class="line">            # Step 6.1: Skip component which not configured by product.</span><br><span class="line">            if (part_name == product_configed_component.component) &#123;</span><br><span class="line">              # Step 6.1.1: Loop OS components adapted kernel type.</span><br><span class="line"></span><br><span class="line">              assert(</span><br><span class="line">                  kernel_valid,</span><br><span class="line">                  &quot;Invalid component configed, $&#123;subsystem_name&#125;:$&#123;product_configed_component.component&#125; &quot; + &quot;not available for kernel: $&#123;product_cfg.kernel_type&#125;!&quot;)</span><br><span class="line"></span><br><span class="line">              # Step 6.1.2: Add valid component for compiling.</span><br><span class="line">              # Skip kernel target for userspace only scenario.</span><br><span class="line">              ......</span><br><span class="line">            &#125;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    # Skip device target for userspace only scenario.</span><br><span class="line">    if (!ohos_build_userspace_only) &#123;</span><br><span class="line">      # Step 7: Add device and product target by default.</span><br><span class="line">      # liteos_m kernel organise device build targets, but not by default.</span><br><span class="line">      if (product_cfg.kernel_type != &quot;liteos_m&quot;) &#123;</span><br><span class="line">        deps += [ &quot;$&#123;device_path&#125;/../&quot; ]</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125; else &#123;</span><br><span class="line">    deps += string_split(ohos_build_target, &quot;&amp;&amp;&quot;)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<hr>
-<h2 id="编译构建调用过程"><a href="#编译构建调用过程" class="headerlink" title="编译构建调用过程"></a>编译构建调用过程</h2><p>主要分为三部分：</p>
-<ul>
-<li><code>vendor/&#123;company&#125;/&#123;board&#125;/</code>–产品解决方案</li>
-<li><code>device/&#123;company&#125;/&#123;board&#125;/</code>–芯片开发板解决方案</li>
-<li><code>kernel/liteos_m</code>–轻量系统内核</li>
-</ul>
-<h3 id="产品解决方案代码"><a href="#产品解决方案代码" class="headerlink" title="产品解决方案代码"></a>产品解决方案代码</h3><h3 id="芯片开发板解决方案代码"><a href="#芯片开发板解决方案代码" class="headerlink" title="芯片开发板解决方案代码"></a>芯片开发板解决方案代码</h3><h3 id="内核代码"><a href="#内核代码" class="headerlink" title="内核代码"></a>内核代码</h3><h2 id="移植思路总结"><a href="#移植思路总结" class="headerlink" title="移植思路总结"></a>移植思路总结</h2><p>此部分内容直接转述自参考文章：<a href="https://developer.huawei.com/consumer/cn/blog/topic/03889745165640019">https://developer.huawei.com/consumer/cn/blog/topic/03889745165640019</a></p>
-<p>移植类型可以分为三部分：ARCH、SoC、Board</p>
-<ul>
-<li>ARCH为架构级别移植，代码位于kernel&#x2F;liteos_m&#x2F;arch</li>
-<li>SoC为对已支持的架构做芯片厂商级的移植，代码位于device&#x2F;soc</li>
-<li>Board为对芯片下不同板子的移植，代码位于device&#x2F;board</li>
-<li>另，还有厂商配置相关代码，位于vendor，其主要用于编译系统、HDF配置(驱动框架的配置描述文件)：用于描述驱动程序的硬件资源、功能特性，使用Key-Value格式-由属性节点与子节点组成</li>
-</ul>
-<p>移植路线：**&#x2F;&#x2F;vendor -&gt; &#x2F;&#x2F;device&#x2F;board -&gt; &#x2F;&#x2F;device&#x2F;soc -&gt; ARCH**</p>
-<h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2><ul>
-<li><a href="https://bbs.huaweicloud.com/blogs/336721">移植案例与原理 - build lite编译构建过程</a></li>
-<li><a href="https://bbs.huaweicloud.com/blogs/336722">移植案例与原理 - build lite配置目录全梳理</a></li>
-<li><a href="https://developer.huawei.com/consumer/cn/blog/topic/03893164050570049">从零开始移植OpenHarmony轻量系统</a></li>
-</ul>
-]]></content>
-      <categories>
-        <category>LiteOS</category>
-        <category>RTOS</category>
-      </categories>
   </entry>
   <entry>
     <title>IAP/OTA流程概述</title>
@@ -396,10 +290,56 @@
 <li>嵌入式Linux开发中，配置NFS挂载根文件系统</li>
 </ul>
 <hr>
-<h4 id="远程端口流量通过SSH映射到本地"><a href="#远程端口流量通过SSH映射到本地" class="headerlink" title="远程端口流量通过SSH映射到本地"></a>远程端口流量通过SSH映射到本地</h4><p>ssh -L 4000:localhost:4000 <a href="mailto:&#106;&#100;&#x5f;&#x63;&#104;&#x65;&#x6e;&#x40;&#x31;&#x39;&#50;&#46;&#49;&#54;&#56;&#x2e;&#49;&#x31;&#50;&#x2e;&#50;&#x34;&#x30;">&#106;&#100;&#x5f;&#x63;&#104;&#x65;&#x6e;&#x40;&#x31;&#x39;&#50;&#46;&#49;&#54;&#56;&#x2e;&#49;&#x31;&#50;&#x2e;&#50;&#x34;&#x30;</a></p>
+<h4 id="远程端口流量通过SSH映射到本地"><a href="#远程端口流量通过SSH映射到本地" class="headerlink" title="远程端口流量通过SSH映射到本地"></a>远程端口流量通过SSH映射到本地</h4><p>ssh -L 4000:localhost:4000 <a href="mailto:&#x6a;&#x64;&#x5f;&#99;&#104;&#101;&#110;&#64;&#49;&#x39;&#x32;&#x2e;&#x31;&#x36;&#56;&#x2e;&#x31;&#x31;&#x32;&#46;&#x32;&#x34;&#x30;">&#x6a;&#x64;&#x5f;&#99;&#104;&#101;&#110;&#64;&#49;&#x39;&#x32;&#x2e;&#x31;&#x36;&#56;&#x2e;&#x31;&#x31;&#x32;&#46;&#x32;&#x34;&#x30;</a></p>
 <h4 id="Linux给根目录扩容"><a href="#Linux给根目录扩容" class="headerlink" title="Linux给根目录扩容"></a>Linux给根目录扩容</h4>]]></content>
       <categories>
         <category>Linux</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>LiteOS中断管理之SysTick</title>
+    <url>/2023/12/10/LiteOS%E4%B8%AD%E6%96%AD%E7%AE%A1%E7%90%86%E4%B9%8BSysTick/</url>
+    <content><![CDATA[<p>通常用户对LiteOS的初始化调用如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">main():</span><br><span class="line">    LOS_KernelInit();       // 内核初始化</span><br><span class="line">    LiteOS_Task_sample();   // 用户业务代码，创建初始任务等</span><br><span class="line">    LOS_Start();            // 开启调度</span><br></pre></td></tr></table></figure>
+
+<h1 id="LiteOS的中断函数映射管理"><a href="#LiteOS的中断函数映射管理" class="headerlink" title="LiteOS的中断函数映射管理"></a>LiteOS的中断函数映射管理</h1><h2 id="LiteOS中断映射表初始化"><a href="#LiteOS中断映射表初始化" class="headerlink" title="LiteOS中断映射表初始化"></a>LiteOS中断映射表初始化</h2><ul>
+<li>函数调用顺序：<code>LOS_KernelInit() -&gt; ArchInit() -&gt; HalHwiInit()</code></li>
+</ul>
+<p>如下代码<code>SCB-&gt;VTOR = (UINT32)(UINTPTR)hwiForm;</code>将中断向量映射基地址设为自定义变量地址</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># arch/arm/cortex-m4/iar/los_interrupt.c &gt; HalHwiInit()</span><br><span class="line"></span><br><span class="line">#if (LOSCFG_USE_SYSTEM_DEFINED_INTERRUPT == 1)</span><br><span class="line">    UINT32 index;</span><br><span class="line">    HWI_PROC_FUNC *hwiForm = (HWI_PROC_FUNC *)ArchGetHwiFrom();</span><br><span class="line">    hwiForm[0] = 0;             /* [0] Top of Stack */</span><br><span class="line">    hwiForm[1] = (HWI_PROC_FUNC)Reset_Handler; /* [1] reset */</span><br><span class="line">    for (index = 2; index &lt; OS_VECTOR_CNT; index++) &#123; /* 2: The starting position of the interrupt */</span><br><span class="line">        hwiForm[index] = (HWI_PROC_FUNC)HalHwiDefaultHandler;</span><br><span class="line">    &#125;</span><br><span class="line">    /* Exception handler register */</span><br><span class="line">    hwiForm[NonMaskableInt_IRQn + OS_SYS_VECTOR_CNT]   = (HWI_PROC_FUNC)HalExcNMI;</span><br><span class="line">    hwiForm[HARDFAULT_IRQN + OS_SYS_VECTOR_CNT]        = (HWI_PROC_FUNC)HalExcHardFault;</span><br><span class="line">    hwiForm[MemoryManagement_IRQn + OS_SYS_VECTOR_CNT] = (HWI_PROC_FUNC)HalExcMemFault;</span><br><span class="line">    hwiForm[BusFault_IRQn + OS_SYS_VECTOR_CNT]         = (HWI_PROC_FUNC)HalExcBusFault;</span><br><span class="line">    hwiForm[UsageFault_IRQn + OS_SYS_VECTOR_CNT]       = (HWI_PROC_FUNC)HalExcUsageFault;</span><br><span class="line">    hwiForm[SVCall_IRQn + OS_SYS_VECTOR_CNT]           = (HWI_PROC_FUNC)HalExcSvcCall;</span><br><span class="line">    hwiForm[PendSV_IRQn + OS_SYS_VECTOR_CNT]           = (HWI_PROC_FUNC)HalPendSV;</span><br><span class="line">    hwiForm[SysTick_IRQn + OS_SYS_VECTOR_CNT]          = (HWI_PROC_FUNC)SysTick_Handler;</span><br><span class="line"></span><br><span class="line">    /* Interrupt vector table location */</span><br><span class="line">    SCB-&gt;VTOR = (UINT32)(UINTPTR)hwiForm;</span><br><span class="line">#endif</span><br></pre></td></tr></table></figure>
+
+<h1 id="配置SysTick中断服务函数"><a href="#配置SysTick中断服务函数" class="headerlink" title="配置SysTick中断服务函数"></a>配置SysTick中断服务函数</h1><ul>
+<li>函数调用顺序：<code>LOS_KernelInit() -&gt; OsTickTimerInit() -&gt; OsTickTimerInit() -&gt; g_sysTickTimer-&gt;init(OsTickHandler) -&gt; SysTickStart(OsTickHandler)</code></li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># kernel/src/los_tick.c</span><br><span class="line">LITE_OS_SEC_TEXT VOID OsTickHandler(VOID)</span><br><span class="line">&#123;</span><br><span class="line">#if (LOSCFG_BASE_CORE_TICK_WTIMER == 0)</span><br><span class="line">    OsUpdateSysTimeBase();</span><br><span class="line">#endif</span><br><span class="line"></span><br><span class="line">    LOS_SchedTickHandler();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># arch/arm/cortex-m4/gcc/los_timer.c</span><br><span class="line">STATIC UINT32 SysTickStart(HWI_PROC_FUNC handler)</span><br><span class="line">&#123;</span><br><span class="line">    UINT32 ret;</span><br><span class="line">    ArchTickTimer *tick = &amp;g_archTickTimer;</span><br><span class="line"></span><br><span class="line">    tick-&gt;freq = OS_SYS_CLOCK;</span><br><span class="line"></span><br><span class="line">#if (LOSCFG_USE_SYSTEM_DEFINED_INTERRUPT == 1)</span><br><span class="line">#if (LOSCFG_PLATFORM_HWI_WITH_ARG == 1)</span><br><span class="line">    OsSetVector(tick-&gt;irqNum, handler, NULL);</span><br><span class="line">#else</span><br><span class="line">    OsSetVector(tick-&gt;irqNum, handler);     // 设置SysTick的中断向量</span><br><span class="line">#endif</span><br><span class="line">#endif</span><br><span class="line"></span><br><span class="line">    ret = SysTick_Config(LOSCFG_BASE_CORE_TICK_RESPONSE_MAX);   // 在此处配置的SysTick中断无效，后续开启调度时会reload</span><br><span class="line">    if (ret == 1) &#123;</span><br><span class="line">        return LOS_ERRNO_TICK_PER_SEC_TOO_SMALL;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    return LOS_OK;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># arch/arm/common/los_common_interrupt.c</span><br><span class="line">VOID OsSetVector(UINT32 num, HWI_PROC_FUNC vector)</span><br><span class="line">&#123;</span><br><span class="line">    if ((num + OS_SYS_VECTOR_CNT) &lt; OS_VECTOR_CNT) &#123;</span><br><span class="line">        g_hwiForm[num + OS_SYS_VECTOR_CNT] = HalInterrupt;</span><br><span class="line">        g_hwiHandlerForm[num + OS_SYS_VECTOR_CNT] = vector;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h1 id="初始化SysTick时基"><a href="#初始化SysTick时基" class="headerlink" title="初始化SysTick时基"></a>初始化SysTick时基</h1><ul>
+<li>函数调用顺序：<code>LOS_Start() -&gt; ArchStartSchedule() -&gt; OsSchedStart() -&gt; OsSchedSetNextExpireTime() -&gt; OsTickTimerReload() -&gt; SysTickReload()</code></li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># arch/arm/cortex-m4/gcc/los_timer.c</span><br><span class="line"># 调用此函数，传入的值实际上是</span><br><span class="line">STATIC UINT64 SysTickReload(UINT64 nextResponseTime)</span><br><span class="line">&#123;</span><br><span class="line">    if (nextResponseTime &gt; g_archTickTimer.periodMax) &#123;</span><br><span class="line">        nextResponseTime = g_archTickTimer.periodMax;</span><br><span class="line">    &#125;</span><br><span class="line">    SysTick-&gt;CTRL &amp;= ~SysTick_CTRL_ENABLE_Msk;</span><br><span class="line">    SysTick-&gt;LOAD = (UINT32)(nextResponseTime - 1UL); /* set reload register */</span><br><span class="line">    SysTick-&gt;VAL = 0UL; /* Load the SysTick Counter Value */</span><br><span class="line">    NVIC_ClearPendingIRQ(SysTick_IRQn);</span><br><span class="line">    SysTick-&gt;CTRL |= SysTick_CTRL_ENABLE_Msk;</span><br><span class="line">    return nextResponseTime;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="初始化调用逻辑总结"><a href="#初始化调用逻辑总结" class="headerlink" title="初始化调用逻辑总结"></a>初始化调用逻辑总结</h1><ol>
+<li>在<code>arch/arm/cortex-m4/iar/los_interrupt.c &gt; HalHwiInit()</code>中执行中断向量表初始化<blockquote>
+<p>但在此处初始化的SysTick_Handler向量是弱函数，并且其在后面会被替换</p>
+</blockquote>
+</li>
+<li>在<code>LOS_KernelInit() -&gt; OsTickTimerInit() -&gt; OsTickTimerInit()</code>重设SysTick中断服务函数</li>
+<li>在<code>LOS_Start() -&gt; ArchStartSchedule() -&gt; OsSchedStart()</code>中调用 重置SysTick中断时基为<code>系统时钟/调度间隔Tick值 （如：时钟源 / 1000 = 1ms时基）</code></li>
+<li>最后开启系统调度</li>
+</ol>
+<h1 id="补充说明"><a href="#补充说明" class="headerlink" title="补充说明"></a>补充说明</h1><ul>
+<li>LiteOS的内核初始化和系统启动都对Systick进行了设置，内核初始化时设置了Systick的重装载值为24位最大值，即0xFFFFFF</li>
+<li>系统启动时，重置Systick累计的节拍，并设置重装载值为 <code>SystemCoreClock / 1000</code>，其中SystemCoreClock为系统时钟源频率。</li>
+</ul>
+]]></content>
+      <categories>
+        <category>MCU</category>
+        <category>LiteOS</category>
       </categories>
   </entry>
   <entry>
@@ -513,52 +453,6 @@
 </ul>
 ]]></content>
       <categories>
-        <category>MCU</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>LiteOS中断管理之SysTick</title>
-    <url>/2023/12/10/LiteOS%E4%B8%AD%E6%96%AD%E7%AE%A1%E7%90%86%E4%B9%8BSysTick/</url>
-    <content><![CDATA[<p>通常用户对LiteOS的初始化调用如下：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">main():</span><br><span class="line">    LOS_KernelInit();       // 内核初始化</span><br><span class="line">    LiteOS_Task_sample();   // 用户业务代码，创建初始任务等</span><br><span class="line">    LOS_Start();            // 开启调度</span><br></pre></td></tr></table></figure>
-
-<h1 id="LiteOS的中断函数映射管理"><a href="#LiteOS的中断函数映射管理" class="headerlink" title="LiteOS的中断函数映射管理"></a>LiteOS的中断函数映射管理</h1><h2 id="LiteOS中断映射表初始化"><a href="#LiteOS中断映射表初始化" class="headerlink" title="LiteOS中断映射表初始化"></a>LiteOS中断映射表初始化</h2><ul>
-<li>函数调用顺序：<code>LOS_KernelInit() -&gt; ArchInit() -&gt; HalHwiInit()</code></li>
-</ul>
-<p>如下代码<code>SCB-&gt;VTOR = (UINT32)(UINTPTR)hwiForm;</code>将中断向量映射基地址设为自定义变量地址</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># arch/arm/cortex-m4/iar/los_interrupt.c &gt; HalHwiInit()</span><br><span class="line"></span><br><span class="line">#if (LOSCFG_USE_SYSTEM_DEFINED_INTERRUPT == 1)</span><br><span class="line">    UINT32 index;</span><br><span class="line">    HWI_PROC_FUNC *hwiForm = (HWI_PROC_FUNC *)ArchGetHwiFrom();</span><br><span class="line">    hwiForm[0] = 0;             /* [0] Top of Stack */</span><br><span class="line">    hwiForm[1] = (HWI_PROC_FUNC)Reset_Handler; /* [1] reset */</span><br><span class="line">    for (index = 2; index &lt; OS_VECTOR_CNT; index++) &#123; /* 2: The starting position of the interrupt */</span><br><span class="line">        hwiForm[index] = (HWI_PROC_FUNC)HalHwiDefaultHandler;</span><br><span class="line">    &#125;</span><br><span class="line">    /* Exception handler register */</span><br><span class="line">    hwiForm[NonMaskableInt_IRQn + OS_SYS_VECTOR_CNT]   = (HWI_PROC_FUNC)HalExcNMI;</span><br><span class="line">    hwiForm[HARDFAULT_IRQN + OS_SYS_VECTOR_CNT]        = (HWI_PROC_FUNC)HalExcHardFault;</span><br><span class="line">    hwiForm[MemoryManagement_IRQn + OS_SYS_VECTOR_CNT] = (HWI_PROC_FUNC)HalExcMemFault;</span><br><span class="line">    hwiForm[BusFault_IRQn + OS_SYS_VECTOR_CNT]         = (HWI_PROC_FUNC)HalExcBusFault;</span><br><span class="line">    hwiForm[UsageFault_IRQn + OS_SYS_VECTOR_CNT]       = (HWI_PROC_FUNC)HalExcUsageFault;</span><br><span class="line">    hwiForm[SVCall_IRQn + OS_SYS_VECTOR_CNT]           = (HWI_PROC_FUNC)HalExcSvcCall;</span><br><span class="line">    hwiForm[PendSV_IRQn + OS_SYS_VECTOR_CNT]           = (HWI_PROC_FUNC)HalPendSV;</span><br><span class="line">    hwiForm[SysTick_IRQn + OS_SYS_VECTOR_CNT]          = (HWI_PROC_FUNC)SysTick_Handler;</span><br><span class="line"></span><br><span class="line">    /* Interrupt vector table location */</span><br><span class="line">    SCB-&gt;VTOR = (UINT32)(UINTPTR)hwiForm;</span><br><span class="line">#endif</span><br></pre></td></tr></table></figure>
-
-<h1 id="配置SysTick中断服务函数"><a href="#配置SysTick中断服务函数" class="headerlink" title="配置SysTick中断服务函数"></a>配置SysTick中断服务函数</h1><ul>
-<li>函数调用顺序：<code>LOS_KernelInit() -&gt; OsTickTimerInit() -&gt; OsTickTimerInit() -&gt; g_sysTickTimer-&gt;init(OsTickHandler) -&gt; SysTickStart(OsTickHandler)</code></li>
-</ul>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># kernel/src/los_tick.c</span><br><span class="line">LITE_OS_SEC_TEXT VOID OsTickHandler(VOID)</span><br><span class="line">&#123;</span><br><span class="line">#if (LOSCFG_BASE_CORE_TICK_WTIMER == 0)</span><br><span class="line">    OsUpdateSysTimeBase();</span><br><span class="line">#endif</span><br><span class="line"></span><br><span class="line">    LOS_SchedTickHandler();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># arch/arm/cortex-m4/gcc/los_timer.c</span><br><span class="line">STATIC UINT32 SysTickStart(HWI_PROC_FUNC handler)</span><br><span class="line">&#123;</span><br><span class="line">    UINT32 ret;</span><br><span class="line">    ArchTickTimer *tick = &amp;g_archTickTimer;</span><br><span class="line"></span><br><span class="line">    tick-&gt;freq = OS_SYS_CLOCK;</span><br><span class="line"></span><br><span class="line">#if (LOSCFG_USE_SYSTEM_DEFINED_INTERRUPT == 1)</span><br><span class="line">#if (LOSCFG_PLATFORM_HWI_WITH_ARG == 1)</span><br><span class="line">    OsSetVector(tick-&gt;irqNum, handler, NULL);</span><br><span class="line">#else</span><br><span class="line">    OsSetVector(tick-&gt;irqNum, handler);     // 设置SysTick的中断向量</span><br><span class="line">#endif</span><br><span class="line">#endif</span><br><span class="line"></span><br><span class="line">    ret = SysTick_Config(LOSCFG_BASE_CORE_TICK_RESPONSE_MAX);   // 在此处配置的SysTick中断无效，后续开启调度时会reload</span><br><span class="line">    if (ret == 1) &#123;</span><br><span class="line">        return LOS_ERRNO_TICK_PER_SEC_TOO_SMALL;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    return LOS_OK;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># arch/arm/common/los_common_interrupt.c</span><br><span class="line">VOID OsSetVector(UINT32 num, HWI_PROC_FUNC vector)</span><br><span class="line">&#123;</span><br><span class="line">    if ((num + OS_SYS_VECTOR_CNT) &lt; OS_VECTOR_CNT) &#123;</span><br><span class="line">        g_hwiForm[num + OS_SYS_VECTOR_CNT] = HalInterrupt;</span><br><span class="line">        g_hwiHandlerForm[num + OS_SYS_VECTOR_CNT] = vector;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-<h1 id="初始化SysTick时基"><a href="#初始化SysTick时基" class="headerlink" title="初始化SysTick时基"></a>初始化SysTick时基</h1><ul>
-<li>函数调用顺序：<code>LOS_Start() -&gt; ArchStartSchedule() -&gt; OsSchedStart() -&gt; OsSchedSetNextExpireTime() -&gt; OsTickTimerReload() -&gt; SysTickReload()</code></li>
-</ul>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># arch/arm/cortex-m4/gcc/los_timer.c</span><br><span class="line"># 调用此函数，传入的值实际上是</span><br><span class="line">STATIC UINT64 SysTickReload(UINT64 nextResponseTime)</span><br><span class="line">&#123;</span><br><span class="line">    if (nextResponseTime &gt; g_archTickTimer.periodMax) &#123;</span><br><span class="line">        nextResponseTime = g_archTickTimer.periodMax;</span><br><span class="line">    &#125;</span><br><span class="line">    SysTick-&gt;CTRL &amp;= ~SysTick_CTRL_ENABLE_Msk;</span><br><span class="line">    SysTick-&gt;LOAD = (UINT32)(nextResponseTime - 1UL); /* set reload register */</span><br><span class="line">    SysTick-&gt;VAL = 0UL; /* Load the SysTick Counter Value */</span><br><span class="line">    NVIC_ClearPendingIRQ(SysTick_IRQn);</span><br><span class="line">    SysTick-&gt;CTRL |= SysTick_CTRL_ENABLE_Msk;</span><br><span class="line">    return nextResponseTime;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h1 id="初始化调用逻辑总结"><a href="#初始化调用逻辑总结" class="headerlink" title="初始化调用逻辑总结"></a>初始化调用逻辑总结</h1><ol>
-<li>在<code>arch/arm/cortex-m4/iar/los_interrupt.c &gt; HalHwiInit()</code>中执行中断向量表初始化<blockquote>
-<p>但在此处初始化的SysTick_Handler向量是弱函数，并且其在后面会被替换</p>
-</blockquote>
-</li>
-<li>在<code>LOS_KernelInit() -&gt; OsTickTimerInit() -&gt; OsTickTimerInit()</code>重设SysTick中断服务函数</li>
-<li>在<code>LOS_Start() -&gt; ArchStartSchedule() -&gt; OsSchedStart()</code>中调用 重置SysTick中断时基为<code>系统时钟/调度间隔Tick值 （如：时钟源 / 1000 = 1ms时基）</code></li>
-<li>最后开启系统调度</li>
-</ol>
-<h1 id="补充说明"><a href="#补充说明" class="headerlink" title="补充说明"></a>补充说明</h1><ul>
-<li>LiteOS的内核初始化和系统启动都对Systick进行了设置，内核初始化时设置了Systick的重装载值为24位最大值，即0xFFFFFF</li>
-<li>系统启动时，重置Systick累计的节拍，并设置重装载值为 <code>SystemCoreClock / 1000</code>，其中SystemCoreClock为系统时钟源频率。</li>
-</ul>
-]]></content>
-      <categories>
-        <category>LiteOS</category>
         <category>MCU</category>
       </categories>
   </entry>
@@ -846,8 +740,8 @@
 <p>总结：<br>1、需要下载交叉编译器并安装、使能相应的环境变量<br>2、在ubuntu上交叉编译tslib库和ARM Qt库源码后，将编译生成的库文件移植到嵌入式平台文件系统中<br>3、在ubuntu下编写Qt应用程序，并使用交叉工具链编译，然后拷贝到嵌入式平台上运行即可</p>
 ]]></content>
       <categories>
-        <category>环境搭建</category>
         <category>Linux</category>
+        <category>环境搭建</category>
       </categories>
       <tags>
         <tag>Qt</tag>
@@ -974,6 +868,19 @@
 <li>在何处添加链接选项，添加怎样的链接选项呢？官方的链接选项会报错</li>
 <li>考虑在config.gni添加合适的链接选项，同时是否需要考虑在何处添加函数调用？</li>
 </ul>
+</li>
+<li><p>在工程配置<code>target_config.h</code>宏定义中使能Test测试项</p>
+</li>
+<li><p>在<code>//kernel/liteos_m</code>中make menuconfig中，使能测试相关配置</p>
+</li>
+<li><p>在<code>//vendor/xxx/config.json</code>添加合适的子系统配置</p>
+</li>
+<li><p>在<code>//device/board/xxx/liteos_m/config.gni</code>添加适配的头文件路径</p>
+<ul>
+<li>链接选项中增添合适的静态库链接，以实现链接测试用例相关库</li>
+</ul>
+</li>
+<li><p>在<code>//device/board/xxx/xxx.ld</code>链接脚本中添加OpenHarmony特有的测试段</p>
 </li>
 </ul>
 <h3 id="XTS是如何测试的"><a href="#XTS是如何测试的" class="headerlink" title="XTS是如何测试的"></a>XTS是如何测试的</h3><h3 id="XTS子系统测试项"><a href="#XTS子系统测试项" class="headerlink" title="XTS子系统测试项"></a>XTS子系统测试项</h3><p>轻量系统的全部测试项包含有：应用管理(Ability和Bundle)、网络通信(LwIP)、文件系统、系统参数、Wi-Fi IOT、分布式数据管理、安全、日志、事件、分布式调度、系统更新、系统引导</p>
@@ -1578,6 +1485,26 @@
 ]]></content>
   </entry>
   <entry>
+    <title>ARM架构及相关概念</title>
+    <url>/2023/12/04/ARM%E6%9E%B6%E6%9E%84%E5%8F%8A%E7%9B%B8%E5%85%B3%E6%A6%82%E5%BF%B5/</url>
+    <content><![CDATA[<h2 id="ARM指令集"><a href="#ARM指令集" class="headerlink" title="ARM指令集"></a>ARM指令集</h2><h3 id="Thumb指令集"><a href="#Thumb指令集" class="headerlink" title="Thumb指令集"></a>Thumb指令集</h3><p>其是ARM指令集的一个子集，16位的代码宽度</p>
+<h2 id="哈佛架构与冯诺依曼架构"><a href="#哈佛架构与冯诺依曼架构" class="headerlink" title="哈佛架构与冯诺依曼架构"></a>哈佛架构与冯诺依曼架构</h2><h2 id="CPU寄存器"><a href="#CPU寄存器" class="headerlink" title="CPU寄存器"></a>CPU寄存器</h2><h4 id="glue-7、glue-7t-和-eh-frame"><a href="#glue-7、glue-7t-和-eh-frame" class="headerlink" title="glue_7、glue_7t 和 eh_frame"></a>glue_7、glue_7t 和 eh_frame</h4><ul>
+<li><p>glue_7 和 glue_7t 是 ARM 架构中用于将 ARM 代码和 Thumb 代码粘合在一起的代码。</p>
+</li>
+<li><p>ARM 架构支持两种指令集：ARM 指令集和 Thumb 指令集。ARM 指令集是 32 位指令集，而 Thumb 指令集是 16 位指令集。为了兼容两种指令集，ARM 架构中引入了一种称为 Thumb 嵌入 的机制。</p>
+</li>
+<li><p>Thumb 嵌入允许 ARM 代码中嵌入 Thumb 指令，反之亦然。当 ARM 代码中嵌入 Thumb 指令时，连接器会生成 glue_7 或 glue_7t  section 来将 ARM 代码和 Thumb 代码粘合在一起。</p>
+</li>
+<li><p>eh_frame 是异常处理框架（Exception Handling Frame）的缩写。异常处理框架是用于支持异常处理的一种结构。当程序发生异常时，异常处理框架会保存程序的运行状态，并将程序转到异常处理程序。</p>
+</li>
+<li><p>异常处理框架通常包含以下信息：<br>  程序的堆栈指针（SP）<br>  程序的返回地址（LR）<br>  异常发生时的寄存器值</p>
+</li>
+<li><p>eh_frame section 包含了异常处理框架的信息。当程序发生异常时，连接器会将 eh_frame section 加载到内存中，以便异常处理程序可以访问异常处理框架的信息</p>
+</li>
+</ul>
+]]></content>
+  </entry>
+  <entry>
     <title>Makefile相关学习笔记</title>
     <url>/2023/12/05/Makefile%E7%9B%B8%E5%85%B3%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</url>
     <content><![CDATA[<h2 id="基础学习"><a href="#基础学习" class="headerlink" title="基础学习"></a>基础学习</h2><h3 id="符号"><a href="#符号" class="headerlink" title="符号"></a>符号</h3><ul>
@@ -1607,29 +1534,9 @@
 </li>
 </ul>
 ]]></content>
-      <tags>
-        <tag>make</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>ARM架构及相关概念</title>
-    <url>/2023/12/04/ARM%E6%9E%B6%E6%9E%84%E5%8F%8A%E7%9B%B8%E5%85%B3%E6%A6%82%E5%BF%B5/</url>
-    <content><![CDATA[<h2 id="ARM指令集"><a href="#ARM指令集" class="headerlink" title="ARM指令集"></a>ARM指令集</h2><h3 id="Thumb指令集"><a href="#Thumb指令集" class="headerlink" title="Thumb指令集"></a>Thumb指令集</h3><p>其是ARM指令集的一个子集，16位的代码宽度</p>
-<h2 id="哈佛架构与冯诺依曼架构"><a href="#哈佛架构与冯诺依曼架构" class="headerlink" title="哈佛架构与冯诺依曼架构"></a>哈佛架构与冯诺依曼架构</h2><h2 id="CPU寄存器"><a href="#CPU寄存器" class="headerlink" title="CPU寄存器"></a>CPU寄存器</h2><h4 id="glue-7、glue-7t-和-eh-frame"><a href="#glue-7、glue-7t-和-eh-frame" class="headerlink" title="glue_7、glue_7t 和 eh_frame"></a>glue_7、glue_7t 和 eh_frame</h4><ul>
-<li><p>glue_7 和 glue_7t 是 ARM 架构中用于将 ARM 代码和 Thumb 代码粘合在一起的代码。</p>
-</li>
-<li><p>ARM 架构支持两种指令集：ARM 指令集和 Thumb 指令集。ARM 指令集是 32 位指令集，而 Thumb 指令集是 16 位指令集。为了兼容两种指令集，ARM 架构中引入了一种称为 Thumb 嵌入 的机制。</p>
-</li>
-<li><p>Thumb 嵌入允许 ARM 代码中嵌入 Thumb 指令，反之亦然。当 ARM 代码中嵌入 Thumb 指令时，连接器会生成 glue_7 或 glue_7t  section 来将 ARM 代码和 Thumb 代码粘合在一起。</p>
-</li>
-<li><p>eh_frame 是异常处理框架（Exception Handling Frame）的缩写。异常处理框架是用于支持异常处理的一种结构。当程序发生异常时，异常处理框架会保存程序的运行状态，并将程序转到异常处理程序。</p>
-</li>
-<li><p>异常处理框架通常包含以下信息：<br>  程序的堆栈指针（SP）<br>  程序的返回地址（LR）<br>  异常发生时的寄存器值</p>
-</li>
-<li><p>eh_frame section 包含了异常处理框架的信息。当程序发生异常时，连接器会将 eh_frame section 加载到内存中，以便异常处理程序可以访问异常处理框架的信息</p>
-</li>
-</ul>
-]]></content>
+      <categories>
+        <category>Linux</category>
+      </categories>
   </entry>
   <entry>
     <title>PID算法</title>
@@ -1845,6 +1752,128 @@
       </categories>
   </entry>
   <entry>
+    <title>OpenHarmony-LiteOS-M内核之GN设计编译构建过程解析</title>
+    <url>/2023/12/29/Harmony-LiteOS-M%E5%86%85%E6%A0%B8%E4%B9%8BGN%E8%AE%BE%E8%AE%A1%E8%A7%A3%E6%9E%90/</url>
+    <content><![CDATA[<p>阅读本文，须先参阅<a href="/2023/12/24/GN%E5%92%8Cninja%E7%9A%84%E5%8C%BA%E5%88%AB%E3%80%81%E8%81%94%E7%B3%BB%E5%92%8C%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91"><strong>GN与Ninja入门</strong></a></p>
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><h3 id="记于2023-12-29"><a href="#记于2023-12-29" class="headerlink" title="记于2023-12-29"></a>记于2023-12-29</h3><ul>
+<li>就目前而言，网上关于LiteOS-M的相关开发移植资料都是相当的少，官方文档也是写得不清不楚的，如果不是项目需求，估计没人愿意来做LiteOS-M的移植适配工作。。</li>
+<li>鄙人初次接触，此前参考了社区的STM32工程移植示例，成功移植LiteOS-M并在gcc+make开发环境运行</li>
+<li>但由于政策或者是项目需要，单纯的内核源码移植其实没什么用，跟别的RTOS内核没啥两样，由此，接触了一个新概念：<strong>XTS子系统</strong>，要获得开放原子基金会的认证，那么就需要通过这个XTS兼容性测评</li>
+<li>要把这个XTS测试组件编译进工程里面，鄙人目前一头雾水，特别还是基于国民技术N32G452芯片移植并编译测试，目前还在熟悉状态，考虑两种方式：<ul>
+<li>基于 <a href="https://gitee.com/openharmony/kernel_liteos_m">https://gitee.com/openharmony/kernel_liteos_m</a> 所拉取的源码工程，进行熟悉构建开发</li>
+<li>基于 <a href="https://gitee.com/link?target=https://repo.huaweicloud.com/openharmony/os/4.0-Release/code-v4.0-Release.tar.gz">https://gitee.com/link?target=https%3A%2F%2Frepo.huaweicloud.com%2Fopenharmony%2Fos%2F4.0-Release%2Fcode-v4.0-Release.tar.gz</a> 整个OpenHarmony全量代码工程进行熟悉开发</li>
+</ul>
+</li>
+<li>但其社区移植工程都已经过时，不适配Harmony4.0 Release，编译无法通过，要想移植，只能自己摸索、熟悉GN+Ninja的构建方式，从头理顺开发过程<ul>
+<li>此前已经做了一部分的工作，包括命令行开发环境搭建、各种依赖搭建，但没有系统地进行整理，可以说是个遗憾</li>
+<li>另外感觉<strong>移植编译XTS子系统、通过兼容性测评</strong>这个时间周期会较长，而且是没有任何指导文档下的独立开发，本人对此预研项目持悲观态度，目前也不能把过多时间精力投入此处，且做且看吧！</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h3 id="记于2024-01-02"><a href="#记于2024-01-02" class="headerlink" title="记于2024-01-02"></a>记于2024-01-02</h3><ul>
+<li>客观来说，理论上移植LiteOS-M到N32G452，并编译进行XTS子系统测试是可行的，不能畏惧不前</li>
+<li>目前需要的知识储备为：<strong>熟悉GN、Ninja工具，有深入的理解编译及链接原理，熟悉cortex-m架构，了解Python，熟悉RTOS内核实现</strong></li>
+<li>首要任务是：<strong>基于OpenHarmony全量工程的构建方式，把最简程序运行起来</strong></li>
+</ul>
+<hr>
+<h3 id="记于2024-01-04"><a href="#记于2024-01-04" class="headerlink" title="记于2024-01-04"></a>记于2024-01-04</h3><ul>
+<li>进展远超预期</li>
+<li>截止今天已经完成了soc、board、vendor的移植适配工作，主要归功于华为云-连志安的博客，参考其对于GD32的移植范例及教程，快速地完成了国民技术的适配，包括底层驱动以及最简工程测试验证</li>
+<li>不禁感叹，<strong>前期的文献检索调研</strong>是相当重要的</li>
+<li>目前只剩下XTS子系统的编译链接，即可开始OpenHarmony兼容性测评认证工作</li>
+<li>参照零星示例，尝试在vendor&#x2F;xxx&#x2F;config.json添加了xts子系统，同时在BUILD.gn添加链接选项，可看到xts组件有编译，但没链接进bin文件，对整个XTS子系统添加、编译链接流程思路还是不清晰，需要时间</li>
+</ul>
+<hr>
+<h2 id="轻量系统编译构建-命令执行简述"><a href="#轻量系统编译构建-命令执行简述" class="headerlink" title="轻量系统编译构建-命令执行简述"></a>轻量系统编译构建-命令执行简述</h2><h3 id="hb命令"><a href="#hb命令" class="headerlink" title="hb命令"></a>hb命令</h3><p>&emsp;&emsp;hb工具是一个命令行工具，其使用Python语言编写，能够调用gn和ninja工具来生成OpenHarmony的二进制文件。<br></p>
+<ul>
+<li>hb的源代码在<code>build/lite/hb</code>路径下，其入口函数为<code>__main__.py中的main()</code>，支持命令有：<code>set、env、build、clean</code></li>
+<li><strong>hb命令的具体实现位于<code>//build/lite/hb_internal</code>中</strong></li>
+</ul>
+<h3 id="hb-set"><a href="#hb-set" class="headerlink" title="hb set"></a>hb set</h3><ul>
+<li><code>hb set</code>的作用为生成产品配置文件，其会在工程根目录下生成ohos_config.json文件</li>
+<li>其会读取<code>//vendor/</code>的配置，以供选择</li>
+</ul>
+<h4 id="调用解决方案包Kconfig的具体步骤"><a href="#调用解决方案包Kconfig的具体步骤" class="headerlink" title="调用解决方案包Kconfig的具体步骤"></a>调用解决方案包Kconfig的具体步骤</h4><ul>
+<li><code>hb set</code>根据配置项的名称找到对应的 Kconfig 配置项。</li>
+<li>将配置项的值写入到 Kconfig 配置项的变量中。</li>
+<li>使用 make menuconfig 命令生成 .config 文件。</li>
+<li>.config 文件会包含配置项的值。</li>
+<li>使用 gn 命令将 .config 文件中的配置项读取到 gn 文件中</li>
+</ul>
+<h3 id="hb-build-copy"><a href="#hb-build-copy" class="headerlink" title="hb build (copy)"></a>hb build (copy)</h3><ul>
+<li>配置好产品解决方案、芯片开发板解决方案后，即可执行<code>hb set -&gt; hb build</code>进行编译</li>
+<li>hb build的作用是根据配置信息生成编译指导文件build.ninja。</li>
+<li>代码路径为：build&#x2F;lite&#x2F;hb&#x2F;build&#x2F;build.py<ul>
+<li>调用 gn_build 使用 gn gen生成 *.ninja 文件</li>
+<li>调用 ninja_build 使用 ninja -w dupbuild&#x3D;warn -C 生成 *.o *.so *.bin 等最后的文件</li>
+</ul>
+</li>
+</ul>
+<h3 id="build-lite-配置目录梳理"><a href="#build-lite-配置目录梳理" class="headerlink" title="build lite 配置目录梳理"></a>build lite 配置目录梳理</h3><p>复述自：<a href="https://bbs.huaweicloud.com/blogs/336722">https://bbs.huaweicloud.com/blogs/336722</a></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">build/lite</span><br><span class="line">├── components                  # 组件描述文件</span><br><span class="line">├── hb                          # hb pip安装包源码</span><br><span class="line">├── make_rootfs                 # 文件系统镜像制作脚本</span><br><span class="line">├── config                      # 编译配置项</span><br><span class="line">│   ├── component               # 组件相关的模板定义</span><br><span class="line">│   ├── kernel                  # 内核相关的编译配置</span><br><span class="line">│   └── subsystem               # 子系统编译配置</span><br><span class="line">├── platform                    # ld脚本</span><br><span class="line">├── testfwk                     # 测试编译框架</span><br><span class="line">└── toolchain                   # 编译工具链配置，包括：编译器路径、编译选项、链接选项等</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>build&#x2F;lite&#x2F;ohos_var.gni</p>
+<ul>
+<li>定义了所有部件的全局变量</li>
+<li>用于读取产品解决方案的配置文件config.json中的配置项，解析为gn变量</li>
+<li>被build\lite\config\BUILDCONFIG.gn包含导入import</li>
+</ul>
+</li>
+<li><p>build\lite\config\BUILDCONFIG.gn</p>
+<ul>
+<li>用于配置编译构建，其会import导入产品解决方案和芯片开发板解决方案的配置文件</li>
+<li>解析开发板配置文件config.gni</li>
+</ul>
+</li>
+</ul>
+<h2 id="LiteOS-M内核之GN编译构建流程总览"><a href="#LiteOS-M内核之GN编译构建流程总览" class="headerlink" title="LiteOS-M内核之GN编译构建流程总览"></a>LiteOS-M内核之GN编译构建流程总览</h2><p>编译构建过程参考：<a href="https://bbs.huaweicloud.com/blogs/336721">https://bbs.huaweicloud.com/blogs/336721</a></p>
+<ul>
+<li><code>hb build</code>-&gt;<code>build/lite/hb_internal/build/build.py</code></li>
+<li>读取板子配置，包括编译工具链、编译链接选项等</li>
+<li>读取的配置文件有：<ul>
+<li><code>build/lite/ohos_var.gni</code>：定义应用于所有组件的全局变量</li>
+<li><code>device/&#123;company&#125;/&#123;board&#125;/liteos_m/config.gni</code>：编译LiteOS-M内核的配置 – 需要前提配置好的芯片开发板解决方案</li>
+<li><code>vendor/&#123;company&#125;/&#123;board&#125;/config.json</code>：板子所应用的全量配置表，包括子系统、组件等 – 需要提前配置好的产品解决方案</li>
+</ul>
+</li>
+<li>调用gn gen命令，读取产品配置（板级配置、内核、组件等），生成out目录和ninja文件</li>
+<li>调用<code>ninja -C out/&#123;company&#125;/&#123;product&#125;/</code>开始编译</li>
+<li>打包、制作可执行文件</li>
+</ul>
+<hr>
+<p>分析<code>build/lite/BUILD.gn</code>文件中<code>ohos</code>元目标如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">group(&quot;ohos&quot;) &#123;</span><br><span class="line">  deps = []</span><br><span class="line">  if (ohos_build_target == &quot;&quot;) &#123;</span><br><span class="line">    # Step 1: Read product configuration profile.</span><br><span class="line">    # 读取/vendor/&#123;company&#125;/&#123;board&#125;/config.json</span><br><span class="line">    product_cfg = read_file(&quot;$&#123;product_config_path&#125;/config.json&quot;, &quot;json&quot;)   </span><br><span class="line"></span><br><span class="line">    parts_targets_info = read_file(</span><br><span class="line">            &quot;$&#123;root_build_dir&#125;/build_configs/parts_info/parts_modules_info.json&quot;,</span><br><span class="line">            &quot;json&quot;)</span><br><span class="line"></span><br><span class="line">    # Step 2: Loop subsystems configured by product.</span><br><span class="line">    # 遍历板子的子系统配置</span><br><span class="line">    foreach(product_configed_subsystem, product_cfg.subsystems) &#123;</span><br><span class="line">      subsystem_name = product_configed_subsystem.subsystem</span><br><span class="line"></span><br><span class="line">      # 判断XTS子系统相关，暂未搞懂</span><br><span class="line">      if (build_xts || (!build_xts &amp;&amp; subsystem_name != &quot;xts&quot;)) &#123;</span><br><span class="line">        # Step 3: Read OS subsystems profile.</span><br><span class="line">        subsystem_parts_info = &#123;</span><br><span class="line">        &#125;</span><br><span class="line">        subsystem_parts_info = read_file(</span><br><span class="line">                &quot;$&#123;root_build_dir&#125;/build_configs/mini_adapter/$&#123;subsystem_name&#125;.json&quot;,</span><br><span class="line">                &quot;json&quot;)</span><br><span class="line"></span><br><span class="line">        # Step 4: Loop components configured by product.</span><br><span class="line">        foreach(product_configed_component,</span><br><span class="line">                product_configed_subsystem.components) &#123;</span><br><span class="line">          # Step 5: Check whether the component configured by product is exist.</span><br><span class="line">          component_found = false</span><br><span class="line"></span><br><span class="line">          foreach(part_name, subsystem_parts_info.parts) &#123;</span><br><span class="line">            if (product_configed_component.component == part_name) &#123;</span><br><span class="line">              component_found = true</span><br><span class="line">            &#125;</span><br><span class="line">          &#125;</span><br><span class="line"></span><br><span class="line">          assert(</span><br><span class="line">              component_found,</span><br><span class="line">              &quot;Component \&quot;$&#123;product_configed_component.component&#125;\&quot; not found&quot; + &quot;, please check your product configuration.&quot;)</span><br><span class="line"></span><br><span class="line">          # Step 6: Loop OS components and check validity of product configuration.</span><br><span class="line">          foreach(part_name, subsystem_parts_info.parts) &#123;</span><br><span class="line">            kernel_valid = true</span><br><span class="line"></span><br><span class="line">            # Step 6.1: Skip component which not configured by product.</span><br><span class="line">            if (part_name == product_configed_component.component) &#123;</span><br><span class="line">              # Step 6.1.1: Loop OS components adapted kernel type.</span><br><span class="line"></span><br><span class="line">              assert(</span><br><span class="line">                  kernel_valid,</span><br><span class="line">                  &quot;Invalid component configed, $&#123;subsystem_name&#125;:$&#123;product_configed_component.component&#125; &quot; + &quot;not available for kernel: $&#123;product_cfg.kernel_type&#125;!&quot;)</span><br><span class="line"></span><br><span class="line">              # Step 6.1.2: Add valid component for compiling.</span><br><span class="line">              # Skip kernel target for userspace only scenario.</span><br><span class="line">              ......</span><br><span class="line">            &#125;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    # Skip device target for userspace only scenario.</span><br><span class="line">    if (!ohos_build_userspace_only) &#123;</span><br><span class="line">      # Step 7: Add device and product target by default.</span><br><span class="line">      # liteos_m kernel organise device build targets, but not by default.</span><br><span class="line">      if (product_cfg.kernel_type != &quot;liteos_m&quot;) &#123;</span><br><span class="line">        deps += [ &quot;$&#123;device_path&#125;/../&quot; ]</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125; else &#123;</span><br><span class="line">    deps += string_split(ohos_build_target, &quot;&amp;&amp;&quot;)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="编译构建调用过程"><a href="#编译构建调用过程" class="headerlink" title="编译构建调用过程"></a>编译构建调用过程</h2><p>主要分为三部分：</p>
+<ul>
+<li><code>vendor/&#123;company&#125;/&#123;board&#125;/</code>–产品解决方案</li>
+<li><code>device/&#123;company&#125;/&#123;board&#125;/</code>–芯片开发板解决方案</li>
+<li><code>kernel/liteos_m</code>–轻量系统内核</li>
+</ul>
+<h3 id="产品解决方案代码"><a href="#产品解决方案代码" class="headerlink" title="产品解决方案代码"></a>产品解决方案代码</h3><h3 id="芯片开发板解决方案代码"><a href="#芯片开发板解决方案代码" class="headerlink" title="芯片开发板解决方案代码"></a>芯片开发板解决方案代码</h3><h3 id="内核代码"><a href="#内核代码" class="headerlink" title="内核代码"></a>内核代码</h3><h2 id="移植思路总结"><a href="#移植思路总结" class="headerlink" title="移植思路总结"></a>移植思路总结</h2><p>此部分内容直接转述自参考文章：<a href="https://developer.huawei.com/consumer/cn/blog/topic/03889745165640019">https://developer.huawei.com/consumer/cn/blog/topic/03889745165640019</a></p>
+<p>移植类型可以分为三部分：ARCH、SoC、Board</p>
+<ul>
+<li>ARCH为架构级别移植，代码位于kernel&#x2F;liteos_m&#x2F;arch</li>
+<li>SoC为对已支持的架构做芯片厂商级的移植，代码位于device&#x2F;soc</li>
+<li>Board为对芯片下不同板子的移植，代码位于device&#x2F;board</li>
+<li>另，还有厂商配置相关代码，位于vendor，其主要用于编译系统、HDF配置(驱动框架的配置描述文件)：用于描述驱动程序的硬件资源、功能特性，使用Key-Value格式-由属性节点与子节点组成</li>
+</ul>
+<p>移植路线：**&#x2F;&#x2F;vendor -&gt; &#x2F;&#x2F;device&#x2F;board -&gt; &#x2F;&#x2F;device&#x2F;soc -&gt; ARCH**</p>
+<h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2><ul>
+<li><a href="https://bbs.huaweicloud.com/blogs/336721">移植案例与原理 - build lite编译构建过程</a></li>
+<li><a href="https://bbs.huaweicloud.com/blogs/336722">移植案例与原理 - build lite配置目录全梳理</a></li>
+<li><a href="https://developer.huawei.com/consumer/cn/blog/topic/03893164050570049">从零开始移植OpenHarmony轻量系统</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>LiteOS</category>
+        <category>RTOS</category>
+      </categories>
+  </entry>
+  <entry>
     <title>Kconfig入门、常用语法学习笔记</title>
     <url>/2024/01/05/Kconfig%E5%85%A5%E9%97%A8%E3%80%81%E5%B8%B8%E7%94%A8%E8%AF%AD%E6%B3%95%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</url>
     <content><![CDATA[<h2 id="概况"><a href="#概况" class="headerlink" title="概况"></a>概况</h2><h2 id="基本语法"><a href="#基本语法" class="headerlink" title="基本语法"></a>基本语法</h2><h2 id="进阶操作"><a href="#进阶操作" class="headerlink" title="进阶操作"></a>进阶操作</h2><h2 id="示例解释"><a href="#示例解释" class="headerlink" title="示例解释"></a>示例解释</h2><h2 id="注意项及疑惑解答"><a href="#注意项及疑惑解答" class="headerlink" title="注意项及疑惑解答"></a>注意项及疑惑解答</h2><p>make menuconfig<br>一定是生成.config文件吗，这个文件名是否可改<br>make<br>Makefile<br>gn<br>OpenHarmony<br>Kconfig.xx.xx文件类型<br>如何构建</p>
@@ -1853,8 +1882,8 @@
 </ul>
 <h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2>]]></content>
       <categories>
-        <category>LiteOS</category>
         <category>Linux</category>
+        <category>LiteOS</category>
       </categories>
   </entry>
 </search>
