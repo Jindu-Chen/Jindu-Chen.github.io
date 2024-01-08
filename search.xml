@@ -1,19 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>国民技术N32L406之GCC环境搭建</title>
-    <url>/2023/11/27/%E5%9B%BD%E6%B0%91%E6%8A%80%E6%9C%AFGCC%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/</url>
-    <content><![CDATA[]]></content>
-      <categories>
-        <category>arm</category>
-        <category>环境搭建</category>
-        <category>gcc</category>
-      </categories>
-      <tags>
-        <tag>n32</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>常用编译/链接选项说明及其应用分析</title>
     <url>/2024/01/02/%E7%BC%96%E8%AF%91%E9%93%BE%E6%8E%A5%E9%80%89%E9%A1%B9%E6%84%8F%E4%B9%89%E8%A7%A3%E9%87%8A/</url>
     <content><![CDATA[<h2 id="GCC编译选项CFLAGS参数及说明"><a href="#GCC编译选项CFLAGS参数及说明" class="headerlink" title="GCC编译选项CFLAGS参数及说明"></a>GCC编译选项CFLAGS参数及说明</h2><ul>
@@ -290,7 +277,7 @@
 <li>嵌入式Linux开发中，配置NFS挂载根文件系统</li>
 </ul>
 <hr>
-<h4 id="远程端口流量通过SSH映射到本地"><a href="#远程端口流量通过SSH映射到本地" class="headerlink" title="远程端口流量通过SSH映射到本地"></a>远程端口流量通过SSH映射到本地</h4><p>ssh -L 4000:localhost:4000 <a href="mailto:&#106;&#100;&#95;&#x63;&#104;&#101;&#110;&#64;&#x31;&#57;&#50;&#46;&#49;&#54;&#56;&#46;&#x31;&#x31;&#x32;&#46;&#50;&#x34;&#x30;">&#106;&#100;&#95;&#x63;&#104;&#101;&#110;&#64;&#x31;&#57;&#50;&#46;&#49;&#54;&#56;&#46;&#x31;&#x31;&#x32;&#46;&#50;&#x34;&#x30;</a></p>
+<h4 id="远程端口流量通过SSH映射到本地"><a href="#远程端口流量通过SSH映射到本地" class="headerlink" title="远程端口流量通过SSH映射到本地"></a>远程端口流量通过SSH映射到本地</h4><p>ssh -L 4000:localhost:4000 <a href="mailto:&#106;&#x64;&#x5f;&#x63;&#104;&#101;&#x6e;&#x40;&#49;&#x39;&#x32;&#46;&#49;&#x36;&#56;&#46;&#x31;&#49;&#50;&#46;&#50;&#52;&#x30;">&#106;&#x64;&#x5f;&#x63;&#104;&#101;&#x6e;&#x40;&#49;&#x39;&#x32;&#46;&#49;&#x36;&#56;&#46;&#x31;&#49;&#50;&#46;&#50;&#52;&#x30;</a></p>
 <h4 id="Linux给根目录扩容"><a href="#Linux给根目录扩容" class="headerlink" title="Linux给根目录扩容"></a>Linux给根目录扩容</h4>]]></content>
       <categories>
         <category>Linux</category>
@@ -519,6 +506,24 @@
       </tags>
   </entry>
   <entry>
+    <title>RT-Thread系统移植--以国民技术N32G452芯片为例</title>
+    <url>/2023/11/28/%E5%9B%BD%E6%B0%91%E6%8A%80%E6%9C%AFN32%E8%8A%AF%E7%89%87%E7%A7%BB%E6%A4%8DRT-Thread-Nano%E8%AE%B0%E5%BD%95/</url>
+    <content><![CDATA[<p>须先参阅RTOS内核原理深入剖析</p>
+<h2 id="移植rt-thread，程序编译成功但无法运行的注意点"><a href="#移植rt-thread，程序编译成功但无法运行的注意点" class="headerlink" title="移植rt-thread，程序编译成功但无法运行的注意点"></a>移植rt-thread，程序编译成功但无法运行的注意点</h2><h3 id="rt-thread的内存布局之堆的初始化"><a href="#rt-thread的内存布局之堆的初始化" class="headerlink" title="rt-thread的内存布局之堆的初始化"></a>rt-thread的内存布局之堆的初始化</h3><ul>
+<li>rt-thread的堆初始化，以__bss_end为起始地址、以芯片的内存顶部地址为结束地址，其内存布局顺序有别于常规的<code>rw-data -&gt; bss -&gt; heap -&gt; stack</code>顺序</li>
+<li>因此需要关注rt-thread链接脚本的内存布局与其的堆初始化是否对应无误</li>
+</ul>
+<h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2><ul>
+<li><a href="https://www.cnblogs.com/icefree/p/10835505.html">RT-Thread–内核移植</a></li>
+<li><a href="https://www.rt-thread.org/document/site/#/rt-thread-version/rt-thread-standard/programming-manual/porting/porting">RT-Thread文档中心</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>MCU</category>
+        <category>RTOS</category>
+      </categories>
+  </entry>
+  <entry>
     <title>WSL小贴士</title>
     <url>/2023/11/28/WSL%E5%B0%8F%E8%B4%B4%E5%A3%AB/</url>
     <content><![CDATA[<h4 id="在windows下访问WSL的目录"><a href="#在windows下访问WSL的目录" class="headerlink" title="在windows下访问WSL的目录"></a>在windows下访问WSL的目录</h4><ul>
@@ -549,19 +554,6 @@
 ]]></content>
       <categories>
         <category>WSL</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>国民技术N32G452芯片移植RT-Thread-Nano</title>
-    <url>/2023/11/28/%E5%9B%BD%E6%B0%91%E6%8A%80%E6%9C%AFN32%E8%8A%AF%E7%89%87%E7%A7%BB%E6%A4%8DRT-Thread-Nano%E8%AE%B0%E5%BD%95/</url>
-    <content><![CDATA[<h2 id="移植rt-thread，程序编译成功但无法运行的注意点"><a href="#移植rt-thread，程序编译成功但无法运行的注意点" class="headerlink" title="移植rt-thread，程序编译成功但无法运行的注意点"></a>移植rt-thread，程序编译成功但无法运行的注意点</h2><h3 id="rt-thread的内存布局之堆的初始化"><a href="#rt-thread的内存布局之堆的初始化" class="headerlink" title="rt-thread的内存布局之堆的初始化"></a>rt-thread的内存布局之堆的初始化</h3><ul>
-<li>rt-thread的堆初始化，以__bss_end为起始地址、以芯片的内存顶部地址为结束地址，其内存布局顺序有别于常规的<code>rw-data -&gt; bss -&gt; heap -&gt; stack</code>顺序</li>
-<li>因此需要关注rt-thread链接脚本的内存布局与其的堆初始化是否对应无误</li>
-</ul>
-]]></content>
-      <categories>
-        <category>MCU</category>
-        <category>RTOS</category>
       </categories>
   </entry>
   <entry>
@@ -829,7 +821,7 @@
     <content><![CDATA[<h2 id="基于命令行开发环境搭建"><a href="#基于命令行开发环境搭建" class="headerlink" title="基于命令行开发环境搭建"></a>基于命令行开发环境搭建</h2><p>复述官方文档，仅作参考，当在源码根目录下键入<code>hb help</code>，命令执行成功，基本完成前期环境的搭建</p>
 <ul>
 <li><a href="https://gitee.com/openharmony/docs/blob/master/zh-cn/device-dev/quick-start/quickstart-pkg-install-package.md">安装库和工具集</a></li>
-<li>下载OpenHarmony-V4.0 Release全量代码，可通过git拉取或者下载压缩包解压<ul>
+<li>下载OpenHarmony-V4.0-Release全量代码，可通过git拉取或者下载压缩包解压<ul>
 <li>在源码根目录下执行prebuilts脚本，安装编译器及二进制工具–<code>bash build/prebuilts_download.sh</code></li>
 </ul>
 </li>
@@ -847,7 +839,11 @@
 </li>
 <li>参考社区的移植流程，根据其工程范例进一步了解轻量系统的构建开发原理</li>
 </ul>
-<h2 id="目标工程的编译构建流程"><a href="#目标工程的编译构建流程" class="headerlink" title="目标工程的编译构建流程"></a>目标工程的编译构建流程</h2><h2 id="子系统添加和构建"><a href="#子系统添加和构建" class="headerlink" title="子系统添加和构建"></a>子系统添加和构建</h2><h3 id="添加系统引导、更新升级功能"><a href="#添加系统引导、更新升级功能" class="headerlink" title="添加系统引导、更新升级功能"></a>添加系统引导、更新升级功能</h3><h2 id="编译纠错"><a href="#编译纠错" class="headerlink" title="编译纠错"></a>编译纠错</h2><ul>
+<h2 id="目标工程的编译构建流程"><a href="#目标工程的编译构建流程" class="headerlink" title="目标工程的编译构建流程"></a>目标工程的编译构建流程</h2><ul>
+<li>hb set</li>
+<li>hb build如何调用构建</li>
+</ul>
+<h2 id="子系统添加和构建"><a href="#子系统添加和构建" class="headerlink" title="子系统添加和构建"></a>子系统添加和构建</h2><h2 id="编译纠错"><a href="#编译纠错" class="headerlink" title="编译纠错"></a>编译纠错</h2><ul>
 <li><p>编译成功，但生成的可执行bin文件明显偏小，查看Kconfig配置文件是否有选项没写对，导致的没编译链接</p>
 </li>
 <li><p>提示以下信息：进入<code>kernel/liteos_m</code>，然后make menuconfig，选中兼容项，失能musl库，改为new lib。</p>
@@ -1274,14 +1270,15 @@
       </categories>
   </entry>
   <entry>
-    <title>GitLab CI-CD</title>
-    <url>/2023/12/04/GitLab-CI-CD/</url>
-    <content><![CDATA[]]></content>
-  </entry>
-  <entry>
-    <title>嵌入式软件架构设计</title>
+    <title>嵌入式MCU软件架构设计</title>
     <url>/2023/12/04/%E5%B5%8C%E5%85%A5%E5%BC%8F%E8%BD%AF%E4%BB%B6%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/</url>
-    <content><![CDATA[<h2 id="嵌入式MCU开发-裸机-RTOS的优缺点"><a href="#嵌入式MCU开发-裸机-RTOS的优缺点" class="headerlink" title="嵌入式MCU开发-裸机&#x2F;RTOS的优缺点"></a>嵌入式MCU开发-裸机&#x2F;RTOS的优缺点</h2><h2 id="裸机程序的特性如下："><a href="#裸机程序的特性如下：" class="headerlink" title="  裸机程序的特性如下："></a>  裸机程序的特性如下：</h2><p>  RTOS的特性如下：</p>
+    <content><![CDATA[<h2 id="嵌入式MCU开发-裸机-RTOS的优缺点"><a href="#嵌入式MCU开发-裸机-RTOS的优缺点" class="headerlink" title="嵌入式MCU开发-裸机&#x2F;RTOS的优缺点"></a>嵌入式MCU开发-裸机&#x2F;RTOS的优缺点</h2><p>  裸机程序的特性如下：</p>
+<ul>
+<li>轮询执行，通常为每个模块将其核心业务加入时间片周期轮询</li>
+<li>从RTOS的角度理解，相当于仅有软件定时器，通过定时器超时执行 核心业务回调函数，而这个轮询时间由开发者根据实际情况设定</li>
+<li>无法实现非阻塞延时，只用到MSP主堆栈，任务的上下文无法保存</li>
+</ul>
+<p>  RTOS的特性如下：</p>
 <ul>
 <li>对于单核MCU来说，RTOS虽不是真正的并行执行，只是宏观上达到多程序并行的效果</li>
 <li>RTOS能较好地实现模块的分离和隔离，降低耦合，每个任务都有自己的任务栈，这对于业务开发、移植、维护较为友好</li>
@@ -1291,12 +1288,13 @@
 <li><p>层级之间的调用和信息上报</p>
 <ul>
 <li>下层提供直接接口调用，提供注册回调函数，禁止调用上层接口</li>
+<li>不同层级的文件命名、函数命名、变量命名要有标识度</li>
 </ul>
 </li>
 <li><p>设计模式的应用</p>
 <ul>
 <li>状态机</li>
-<li>命令模式<br> 事件与匹配函数执行的数组集</li>
+<li>命令模式<br>事件与匹配函数执行的数组集</li>
 </ul>
 </li>
 </ul>
@@ -1741,6 +1739,7 @@
 <li>不禁感叹，<strong>前期的文献检索调研</strong>是相当重要的</li>
 <li>目前只剩下XTS子系统的编译链接，即可开始OpenHarmony兼容性测评认证工作</li>
 <li>参照零星示例，尝试在vendor&#x2F;xxx&#x2F;config.json添加了xts子系统，同时在BUILD.gn添加链接选项，可看到xts组件有编译，但没链接进bin文件，对整个XTS子系统添加、编译链接流程思路还是不清晰，需要时间</li>
+<li>捋清XTS添加核心步骤：生成相应的测试静态库、添加链接项或者修改链接脚本使得静态库能加入可执行文件、确保应用程序中有函数调用执行相关的测试操作</li>
 </ul>
 <hr>
 <h2 id="轻量系统编译构建-命令执行简述"><a href="#轻量系统编译构建-命令执行简述" class="headerlink" title="轻量系统编译构建-命令执行简述"></a>轻量系统编译构建-命令执行简述</h2><h3 id="hb命令"><a href="#hb命令" class="headerlink" title="hb命令"></a>hb命令</h3><p>&emsp;&emsp;hb工具是一个命令行工具，其使用Python语言编写，能够调用gn和ninja工具来生成OpenHarmony的二进制文件。<br></p>
@@ -1893,7 +1892,7 @@
 <h2 id="XTS子系统测试分析"><a href="#XTS子系统测试分析" class="headerlink" title="XTS子系统测试分析"></a>XTS子系统测试分析</h2><h2 id="规范编码以通过兼容性测试"><a href="#规范编码以通过兼容性测试" class="headerlink" title="规范编码以通过兼容性测试"></a>规范编码以通过兼容性测试</h2><ul>
 <li><p>遵循 OpenHarmony 的开发规范。OpenHarmony 提供了完善的开发规范，包括代码风格、命名规范、注释规范等</p>
 </li>
-<li><p>使用 OpenHarmony 的标准 API。OpenHarmony 提供了丰富的标准 API，可以满足轻量系统开发的大部分需求</p>
+<li><p>使用 OpenHarmony 的标准 API</p>
 </li>
 </ul>
 <h3 id="XTS是如何测试的"><a href="#XTS是如何测试的" class="headerlink" title="XTS是如何测试的"></a>XTS是如何测试的</h3><h3 id="XTS子系统测试项"><a href="#XTS子系统测试项" class="headerlink" title="XTS子系统测试项"></a>XTS子系统测试项</h3><p>轻量系统的全部测试项包含有：应用管理(Ability和Bundle)、网络通信(LwIP)、文件系统、系统参数、Wi-Fi IOT、分布式数据管理、安全、日志、事件、分布式调度、系统更新、系统引导</p>
@@ -1918,7 +1917,9 @@
 <li>相对于不同架构的工程，其XTS子系统源码是否也要更改？</li>
 <li>相对新移植的工程，是直接复制现有的XTS源码，还是要开发者基于移植工程、按照规范编写相关程序？</li>
 </ul>
-<h2 id="XTS子系统源码分析"><a href="#XTS子系统源码分析" class="headerlink" title="XTS子系统源码分析"></a>XTS子系统源码分析</h2><h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2><ul>
+<h2 id="XTS子系统源码分析"><a href="#XTS子系统源码分析" class="headerlink" title="XTS子系统源码分析"></a>XTS子系统源码分析</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">LITE_TEST_CASE(IntTestSuite, TestCase001, Level0) </span><br><span class="line">&#123;  </span><br><span class="line">  //do something </span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2><ul>
 <li><a href="https://blog.csdn.net/Via6666/article/details/132093613">OpenHarmony L0级设备XTS适配经验分享</a></li>
 <li><a href="https://bbs.huaweicloud.com/blogs/336717">移植案例与原理 - XTS子系统之应用兼容性测试套件</a></li>
 </ul>
@@ -1938,9 +1939,16 @@
 <li>hexo d</li>
 <li>hexo server</li>
 </ul>
-<h2 id="blog"><a href="#blog" class="headerlink" title="blog"></a>blog</h2><h3 id="嵌入式MCU裸机工程移植CmBacktrace"><a href="#嵌入式MCU裸机工程移植CmBacktrace" class="headerlink" title="嵌入式MCU裸机工程移植CmBacktrace"></a>嵌入式MCU裸机工程移植CmBacktrace</h3><p>原理、移植调试注意点、如何应用其打印信息来辅助排查错误、addrline2.exe工具</p>
+<h2 id="blog"><a href="#blog" class="headerlink" title="blog"></a>blog</h2><h3 id="RTOS内核原理深入剖析"><a href="#RTOS内核原理深入剖析" class="headerlink" title="RTOS内核原理深入剖析"></a>RTOS内核原理深入剖析</h3><p>以rt-thread为例</p>
+<ul>
+<li>核心：任务调度器的调度原理，如何切换上下文</li>
+<li>内核组件：系统时基、信号量、互斥量、消息队列、命令行调试、软件定时器</li>
+<li>移植步骤</li>
+</ul>
+<h3 id="嵌入式MCU裸机工程移植CmBacktrace"><a href="#嵌入式MCU裸机工程移植CmBacktrace" class="headerlink" title="嵌入式MCU裸机工程移植CmBacktrace"></a>嵌入式MCU裸机工程移植CmBacktrace</h3><p>原理、移植调试注意点、如何应用其打印信息来辅助排查错误、addrline2.exe工具</p>
 <h3 id="XTS子系统深入剖析"><a href="#XTS子系统深入剖析" class="headerlink" title="XTS子系统深入剖析"></a>XTS子系统深入剖析</h3><p>源码分析<br>功能、作用分析<br>测试用例分析<br>原理分析</p>
-]]></content>
+<h3 id="Gitlab-CI-CD"><a href="#Gitlab-CI-CD" class="headerlink" title="Gitlab CI-CD"></a>Gitlab CI-CD</h3><p>自动化编译，工具链放至服务器上</p>
+<h3 id="国民技术的GCC环境搭建"><a href="#国民技术的GCC环境搭建" class="headerlink" title="国民技术的GCC环境搭建"></a>国民技术的GCC环境搭建</h3><h3 id="设计模式"><a href="#设计模式" class="headerlink" title="设计模式"></a>设计模式</h3>]]></content>
       <categories>
         <category>MISC</category>
       </categories>

@@ -28,7 +28,7 @@
 <meta property="og:description" content="介绍基于国民技术N32G452芯片(Cortex-M4内核)的OpenHarmony-V4.0轻量系统移植工程，进行XTS子系统编译适配及应用兼容性测试分析的开发过程，以供参考">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2024-01-08T03:38:03.000Z">
-<meta property="article:modified_time" content="2024-01-08T09:31:29.488Z">
+<meta property="article:modified_time" content="2024-01-08T10:11:22.372Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -219,7 +219,7 @@
               <span class="post-meta-item-text">Posted on</span>
               
 
-              <time title="Created: 2024-01-08 03:38:03 / Modified: 09:31:29" itemprop="dateCreated datePublished" datetime="2024-01-08T03:38:03+00:00">2024-01-08</time>
+              <time title="Created: 2024-01-08 03:38:03 / Modified: 10:11:22" itemprop="dateCreated datePublished" datetime="2024-01-08T03:38:03+00:00">2024-01-08</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -306,7 +306,7 @@
 <h2 id="XTS子系统测试分析"><a href="#XTS子系统测试分析" class="headerlink" title="XTS子系统测试分析"></a>XTS子系统测试分析</h2><h2 id="规范编码以通过兼容性测试"><a href="#规范编码以通过兼容性测试" class="headerlink" title="规范编码以通过兼容性测试"></a>规范编码以通过兼容性测试</h2><ul>
 <li><p>遵循 OpenHarmony 的开发规范。OpenHarmony 提供了完善的开发规范，包括代码风格、命名规范、注释规范等</p>
 </li>
-<li><p>使用 OpenHarmony 的标准 API。OpenHarmony 提供了丰富的标准 API，可以满足轻量系统开发的大部分需求</p>
+<li><p>使用 OpenHarmony 的标准 API</p>
 </li>
 </ul>
 <h3 id="XTS是如何测试的"><a href="#XTS是如何测试的" class="headerlink" title="XTS是如何测试的"></a>XTS是如何测试的</h3><h3 id="XTS子系统测试项"><a href="#XTS子系统测试项" class="headerlink" title="XTS子系统测试项"></a>XTS子系统测试项</h3><p>轻量系统的全部测试项包含有：应用管理(Ability和Bundle)、网络通信(LwIP)、文件系统、系统参数、Wi-Fi IOT、分布式数据管理、安全、日志、事件、分布式调度、系统更新、系统引导</p>
@@ -331,7 +331,9 @@
 <li>相对于不同架构的工程，其XTS子系统源码是否也要更改？</li>
 <li>相对新移植的工程，是直接复制现有的XTS源码，还是要开发者基于移植工程、按照规范编写相关程序？</li>
 </ul>
-<h2 id="XTS子系统源码分析"><a href="#XTS子系统源码分析" class="headerlink" title="XTS子系统源码分析"></a>XTS子系统源码分析</h2><h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2><ul>
+<h2 id="XTS子系统源码分析"><a href="#XTS子系统源码分析" class="headerlink" title="XTS子系统源码分析"></a>XTS子系统源码分析</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">LITE_TEST_CASE(IntTestSuite, TestCase001, Level0) </span><br><span class="line">&#123;  </span><br><span class="line">  //do something </span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2><ul>
 <li><a target="_blank" rel="noopener" href="https://blog.csdn.net/Via6666/article/details/132093613">OpenHarmony L0级设备XTS适配经验分享</a></li>
 <li><a target="_blank" rel="noopener" href="https://bbs.huaweicloud.com/blogs/336717">移植案例与原理 - XTS子系统之应用兼容性测试套件</a></li>
 </ul>
@@ -426,20 +428,20 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">39</span>
+          <span class="site-state-item-count">37</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-count">16</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">15</span>
+        <span class="site-state-item-count">14</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
@@ -480,7 +482,7 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">1:28</span>
+    <span title="Reading time total">1:29</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
   </div>
