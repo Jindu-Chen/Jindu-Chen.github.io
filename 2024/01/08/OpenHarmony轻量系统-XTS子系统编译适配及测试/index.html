@@ -28,7 +28,7 @@
 <meta property="og:description" content="介绍基于国民技术N32G452芯片(Cortex-M4内核)的OpenHarmony-V4.0轻量系统移植工程，进行XTS子系统编译适配及应用兼容性测试分析的开发过程，以供参考">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2024-01-08T03:38:03.000Z">
-<meta property="article:modified_time" content="2024-01-08T03:57:53.897Z">
+<meta property="article:modified_time" content="2024-01-08T07:17:19.213Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -219,7 +219,7 @@
               <span class="post-meta-item-text">Posted on</span>
               
 
-              <time title="Created: 2024-01-08 03:38:03 / Modified: 03:57:53" itemprop="dateCreated datePublished" datetime="2024-01-08T03:38:03+00:00">2024-01-08</time>
+              <time title="Created: 2024-01-08 03:38:03 / Modified: 07:17:19" itemprop="dateCreated datePublished" datetime="2024-01-08T03:38:03+00:00">2024-01-08</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -241,7 +241,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>832</span>
+              <span>899</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
@@ -264,6 +264,31 @@
         <h2 id="轻量系统应用兼容性测试适配"><a href="#轻量系统应用兼容性测试适配" class="headerlink" title="轻量系统应用兼容性测试适配"></a>轻量系统应用兼容性测试适配</h2><ul>
 <li>在vendor目录下产品的config.json文件中，添加XTS子系统组件定义</li>
 </ul>
+<h3 id="如何添加XTS子系统"><a href="#如何添加XTS子系统" class="headerlink" title="如何添加XTS子系统"></a>如何添加XTS子系统</h3><p>执行编译XTS组件的指令不唯一，取决于gn构建文件内的私有工程设置</p>
+<ul>
+<li><code>hb build -b debug</code></li>
+<li><code>hb build -f -b debug --gn-args build_xts=true</code></li>
+</ul>
+<br>
+
+<p><strong>添加编译XTS子系需要执行的步骤：</strong></p>
+<ul>
+<li>在工程配置<code>target_config.h</code>宏定义中使能Test测试项<ul>
+<li>使得系统启动初始化时会进行相关函数调用</li>
+</ul>
+</li>
+<li>在<code>//kernel/liteos_m</code>中make menuconfig中，使能测试相关配置</li>
+<li>在<code>//vendor/xxx/config.json</code>添加合适的子系统配置<ul>
+<li>补全文件末尾的<code>third_patry</code>和<code>product_adapt_dir</code></li>
+</ul>
+</li>
+<li>在<code>//device/board/xxx/liteos_m/config.gni</code>添加适配的头文件路径<ul>
+<li>链接选项中增添合适的静态库链接，以实现链接测试用例相关库，其中测试静态库文件生成于<code>//out/$&#123;company&#125;//$&#123;product&#125;//libs</code></li>
+<li>还须添加源文件路径？</li>
+</ul>
+</li>
+<li>在<code>//device/board/xxx/xxx.ld</code>链接脚本中添加OpenHarmony特有的测试段</li>
+</ul>
 <h3 id="XTS子系统编译流程"><a href="#XTS子系统编译流程" class="headerlink" title="XTS子系统编译流程"></a>XTS子系统编译流程</h3><ul>
 <li>通过hb工具读取系统配置文件(即vendor目录下产品的config.json)，获取参与编译的子系统以及部件信息</li>
 <li>通过gn工具会读取XTS子系统BUILD.gn–all_features会读取轻量系统全部acts测试套件<ul>
@@ -276,27 +301,6 @@
 </ul>
 </li>
 <li>.a库链接操作</li>
-</ul>
-<h3 id="如何添加XTS子系统"><a href="#如何添加XTS子系统" class="headerlink" title="如何添加XTS子系统"></a>如何添加XTS子系统</h3><ul>
-<li><p><code>hb build -b debug</code></p>
-</li>
-<li><p>在工程配置<code>target_config.h</code>宏定义中使能Test测试项</p>
-<ul>
-<li>使能系统启动会进行相关函数调用</li>
-</ul>
-</li>
-<li><p>在<code>//kernel/liteos_m</code>中make menuconfig中，使能测试相关配置</p>
-</li>
-<li><p>在<code>//vendor/xxx/config.json</code>添加合适的子系统配置</p>
-</li>
-<li><p>在<code>//device/board/xxx/liteos_m/config.gni</code>添加适配的头文件路径</p>
-<ul>
-<li>链接选项中增添合适的静态库链接，以实现链接测试用例相关库，其中测试静态库文件生成于<code>//out/$&#123;company&#125;//$&#123;product&#125;//libs</code></li>
-<li>还须添加源文件路径？</li>
-</ul>
-</li>
-<li><p>在<code>//device/board/xxx/xxx.ld</code>链接脚本中添加OpenHarmony特有的测试段</p>
-</li>
 </ul>
 <h3 id="XTS是如何测试的"><a href="#XTS是如何测试的" class="headerlink" title="XTS是如何测试的"></a>XTS是如何测试的</h3><h3 id="XTS子系统测试项"><a href="#XTS子系统测试项" class="headerlink" title="XTS子系统测试项"></a>XTS子系统测试项</h3><p>轻量系统的全部测试项包含有：应用管理(Ability和Bundle)、网络通信(LwIP)、文件系统、系统参数、Wi-Fi IOT、分布式数据管理、安全、日志、事件、分布式调度、系统更新、系统引导</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">#//test/xts/acts/build_lite/BUILD.gn</span><br><span class="line">    if (ohos_kernel_type == &quot;liteos_m&quot;)</span><br><span class="line">      all_features += [</span><br><span class="line">        &quot;//test/xts/acts/ability_lite/ability_hal:ActsAbilityMgrTest&quot;,</span><br><span class="line">        &quot;//test/xts/acts/appexecfwk_lite/appexecfwk_hal:ActsBundleMgrTest&quot;,</span><br><span class="line">        &quot;//test/xts/acts/communication_lite/lwip_hal:ActsLwipTest&quot;,</span><br><span class="line"></span><br><span class="line">        #&quot;//test/xts/acts/communication_lite/wifiservice_hal:ActsWifiServiceTest&quot;,</span><br><span class="line">        &quot;//test/xts/acts/commonlibrary_lite/file_hal:ActsUtilsFileTest&quot;,</span><br><span class="line">        &quot;//test/xts/acts/startup_lite/syspara_hal:ActsParameterTest&quot;,</span><br><span class="line">        &quot;//test/xts/acts/iothardware_lite/peripheral_hal:ActsWifiIotTest&quot;,</span><br><span class="line">        &quot;//test/xts/acts/distributeddatamgr_lite/kv_store_hal:ActsKvStoreTest&quot;,</span><br><span class="line">        &quot;//test/xts/acts/security_lite/huks/liteos_m_adapter:ActsHuksHalFunctionTest&quot;,</span><br><span class="line">        &quot;//test/xts/acts/hiviewdfx_lite/hilog_hal:ActsDfxFuncTest&quot;,</span><br><span class="line">        &quot;//test/xts/acts/hiviewdfx_lite/hievent_hal:ActsHieventLiteTest&quot;,</span><br><span class="line">        &quot;//test/xts/acts/distributed_schedule_lite/system_ability_manager_hal:ActsSamgrTest&quot;,</span><br><span class="line">        &quot;//test/xts/acts/update_lite/dupdate_hal:ActsUpdaterFuncTest&quot;,</span><br><span class="line">        &quot;//test/xts/acts/startup_lite/bootstrap_hal:ActsBootstrapTest&quot;,</span><br><span class="line">      ]</span><br></pre></td></tr></table></figure>
@@ -397,7 +401,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BD%BB%E9%87%8F%E7%B3%BB%E7%BB%9F%E5%BA%94%E7%94%A8%E5%85%BC%E5%AE%B9%E6%80%A7%E6%B5%8B%E8%AF%95%E9%80%82%E9%85%8D"><span class="nav-number">1.</span> <span class="nav-text">轻量系统应用兼容性测试适配</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#XTS%E5%AD%90%E7%B3%BB%E7%BB%9F%E7%BC%96%E8%AF%91%E6%B5%81%E7%A8%8B"><span class="nav-number">1.1.</span> <span class="nav-text">XTS子系统编译流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E6%B7%BB%E5%8A%A0XTS%E5%AD%90%E7%B3%BB%E7%BB%9F"><span class="nav-number">1.2.</span> <span class="nav-text">如何添加XTS子系统</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#XTS%E6%98%AF%E5%A6%82%E4%BD%95%E6%B5%8B%E8%AF%95%E7%9A%84"><span class="nav-number">1.3.</span> <span class="nav-text">XTS是如何测试的</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#XTS%E5%AD%90%E7%B3%BB%E7%BB%9F%E6%B5%8B%E8%AF%95%E9%A1%B9"><span class="nav-number">1.4.</span> <span class="nav-text">XTS子系统测试项</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E7%AB%99%E7%82%B9"><span class="nav-number">2.</span> <span class="nav-text">参考站点</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BD%BB%E9%87%8F%E7%B3%BB%E7%BB%9F%E5%BA%94%E7%94%A8%E5%85%BC%E5%AE%B9%E6%80%A7%E6%B5%8B%E8%AF%95%E9%80%82%E9%85%8D"><span class="nav-number">1.</span> <span class="nav-text">轻量系统应用兼容性测试适配</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E6%B7%BB%E5%8A%A0XTS%E5%AD%90%E7%B3%BB%E7%BB%9F"><span class="nav-number">1.1.</span> <span class="nav-text">如何添加XTS子系统</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#XTS%E5%AD%90%E7%B3%BB%E7%BB%9F%E7%BC%96%E8%AF%91%E6%B5%81%E7%A8%8B"><span class="nav-number">1.2.</span> <span class="nav-text">XTS子系统编译流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#XTS%E6%98%AF%E5%A6%82%E4%BD%95%E6%B5%8B%E8%AF%95%E7%9A%84"><span class="nav-number">1.3.</span> <span class="nav-text">XTS是如何测试的</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#XTS%E5%AD%90%E7%B3%BB%E7%BB%9F%E6%B5%8B%E8%AF%95%E9%A1%B9"><span class="nav-number">1.4.</span> <span class="nav-text">XTS子系统测试项</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E7%AB%99%E7%82%B9"><span class="nav-number">2.</span> <span class="nav-text">参考站点</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -460,12 +464,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">25k</span>
+    <span title="Symbols count total">24k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">1:29</span>
+    <span title="Reading time total">1:27</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
   </div>

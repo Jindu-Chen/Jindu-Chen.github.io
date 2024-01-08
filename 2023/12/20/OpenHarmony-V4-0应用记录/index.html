@@ -28,7 +28,7 @@
 <meta property="og:description" content="参考社区的STM32之Ninja编译方式的工程范例，移植搭建基于LiteOS的N32WB452工程，记录其过程中的一些编译纠错、代码功能编写及构建、XTS子系统测试等相关信息，以供检索回溯">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2023-12-20T00:00:00.000Z">
-<meta property="article:modified_time" content="2024-01-08T03:22:50.288Z">
+<meta property="article:modified_time" content="2024-01-08T08:30:54.299Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -225,7 +225,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-01-08 03:22:50" itemprop="dateModified" datetime="2024-01-08T03:22:50+00:00">2024-01-08</time>
+                <time title="Modified: 2024-01-08 08:30:54" itemprop="dateModified" datetime="2024-01-08T08:30:54+00:00">2024-01-08</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -235,6 +235,10 @@
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
                   <a href="/categories/LiteOS/" itemprop="url" rel="index"><span itemprop="name">LiteOS</span></a>
                 </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/OpenHarmony/" itemprop="url" rel="index"><span itemprop="name">OpenHarmony</span></a>
+                </span>
             </span>
 
           <br>
@@ -243,14 +247,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>1.3k</span>
+              <span>633</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>5 mins.</span>
+              <span>2 mins.</span>
             </span>
             <div class="post-description">参考社区的STM32之Ninja编译方式的工程范例，移植搭建基于LiteOS的N32WB452工程，记录其过程中的一些编译纠错、代码功能编写及构建、XTS子系统测试等相关信息，以供检索回溯</div>
 
@@ -263,7 +267,18 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h2 id="轻量系统开发的前期流程"><a href="#轻量系统开发的前期流程" class="headerlink" title="轻量系统开发的前期流程"></a>轻量系统开发的前期流程</h2><ul>
+        <h2 id="基于命令行开发环境搭建"><a href="#基于命令行开发环境搭建" class="headerlink" title="基于命令行开发环境搭建"></a>基于命令行开发环境搭建</h2><p>复述官方文档，仅作参考，当在源码根目录下键入<code>hb help</code>，命令执行成功，基本完成前期环境的搭建</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://gitee.com/openharmony/docs/blob/master/zh-cn/device-dev/quick-start/quickstart-pkg-install-package.md">安装库和工具集</a></li>
+<li>下载OpenHarmony-V4.0 Release全量代码，可通过git拉取或者下载压缩包解压<ul>
+<li>在源码根目录下执行prebuilts脚本，安装编译器及二进制工具–<code>bash build/prebuilts_download.sh</code></li>
+</ul>
+</li>
+<li><a target="_blank" rel="noopener" href="https://gitee.com/openharmony/docs/blob/master/zh-cn/device-dev/quick-start/quickstart-pkg-install-tool.md">安装编译工具</a></li>
+<li>开发基于Cortex-M内核工程，需要安装<code>arm-none-eabi-</code>工具链，并声明工具链路径至<code>~/.bahsrc</code>。此处不过多赘述</li>
+<li>键入<code>hb set</code>选择目标开发设备，键入<code>hb build</code>执行编译，编译成功则表示环境构建无误</li>
+</ul>
+<h2 id="轻量系统开发的前期流程"><a href="#轻量系统开发的前期流程" class="headerlink" title="轻量系统开发的前期流程"></a>轻量系统开发的前期流程</h2><ul>
 <li>参考Gitee的OpenHarmony项目搭建命令行开发环境，熟悉基本的操作流程</li>
 <li>熟悉GN、ninja的文件编写、和源码构建过程，了解子系统、组件等基本概念<ul>
 <li>子系统是逻辑概念，其具体由对应的组件构成</li>
@@ -284,70 +299,8 @@
 <li><p>出现如下编译错误，在vfs_fs.c添加头文件&lt;stdbool.h&gt;包含即可</p>
   <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">[OHOS ERROR] [56/340] gcc cross compiler obj/kernel/liteos_m/components/fs/vfs/vfs.vfs_fs.o</span><br><span class="line">[OHOS ERROR] FAILED: obj/kernel/liteos_m/components/fs/vfs/vfs.vfs_fs.o </span><br><span class="line">...</span><br><span class="line">[OHOS ERROR] ../../../kernel/liteos_m/components/fs/vfs/vfs_fs.c:214:43: error: unknown type name &#x27;bool&#x27;</span><br><span class="line">[OHOS ERROR]   214 | static int VfsPathCheck(const char *path, bool isFile)</span><br><span class="line">[OHOS ERROR]       |                                           ^~~~</span><br><span class="line">[OHOS ERROR] ../../../kernel/liteos_m/components/fs/vfs/vfs_fs.c: In function &#x27;VfsOpen&#x27;:</span><br><span class="line">[OHOS ERROR] ../../../kernel/liteos_m/components/fs/vfs/vfs_fs.c:244:9: error: implicit declaration of function &#x27;VfsPathCheck&#x27; [-Werror=implicit-function-declaration]</span><br><span class="line">[OHOS ERROR]   244 |     if (VfsPathCheck(path, TRUE) != LOS_OK) </span><br><span class="line">[OHOS ERROR]       |         ^~~~~~~~~~~~</span><br><span class="line">[OHOS ERROR] cc1: all warnings being treated as errors</span><br></pre></td></tr></table></figure></li>
 </ul>
-<h2 id="添加系统引导、更新升级功能"><a href="#添加系统引导、更新升级功能" class="headerlink" title="添加系统引导、更新升级功能"></a>添加系统引导、更新升级功能</h2><h2 id="轻量系统应用兼容性测试适配"><a href="#轻量系统应用兼容性测试适配" class="headerlink" title="轻量系统应用兼容性测试适配"></a>轻量系统应用兼容性测试适配</h2><ul>
-<li>在vendor目录下产品的config.json文件中，添加XTS子系统组件定义</li>
-</ul>
-<h3 id="XTS子系统编译流程"><a href="#XTS子系统编译流程" class="headerlink" title="XTS子系统编译流程"></a>XTS子系统编译流程</h3><ul>
-<li>通过hb工具读取系统配置文件(即vendor目录下产品的config.json)，获取参与编译的子系统以及部件信息</li>
-<li>通过gn工具会读取XTS子系统BUILD.gn–all_features会读取轻量系统全部acts测试套件<ul>
-<li>判断是否debug版本<code>if (ohos_build_type == &quot;debug&quot; &amp;&amp; ohos_test_args != &quot;notest&quot;) </code>，非debug版本XTS不参与编译</li>
-</ul>
-</li>
-<li>将轻量系统全部acts测试套件与产品的config.json子系统组件对比，存在的子系统部件参与最终编译</li>
-<li>最终生成静态库.a归档路径：<code>out/.../.../libs</code><ul>
-<li>XTS子系统: libmodule_xxx.a，测试框架：libhctest.a</li>
-</ul>
-</li>
-<li>.a库链接操作</li>
-</ul>
-<h3 id="如何添加XTS子系统"><a href="#如何添加XTS子系统" class="headerlink" title="如何添加XTS子系统"></a>如何添加XTS子系统</h3><ul>
-<li><p><code>hb build -b debug</code></p>
-</li>
-<li><p>目前已知在&#x2F;&#x2F;out&#x2F;xxx&#x2F;xxx&#x2F;libs有.a库文件</p>
-<ul>
-<li>如何将其链接进bin文件，并使其得以运行呢</li>
-<li>在何处添加链接选项，添加怎样的链接选项呢？官方的链接选项会报错</li>
-<li>考虑在config.gni添加合适的链接选项，同时是否需要考虑在何处添加函数调用？</li>
-</ul>
-</li>
-<li><p>在工程配置<code>target_config.h</code>宏定义中使能Test测试项</p>
-<ul>
-<li>使能系统启动会进行相关函数调用</li>
-</ul>
-</li>
-<li><p>在<code>//kernel/liteos_m</code>中make menuconfig中，使能测试相关配置</p>
-</li>
-<li><p>在<code>//vendor/xxx/config.json</code>添加合适的子系统配置</p>
-</li>
-<li><p>在<code>//device/board/xxx/liteos_m/config.gni</code>添加适配的头文件路径</p>
-<ul>
-<li>链接选项中增添合适的静态库链接，以实现链接测试用例相关库，其中测试静态库位于<code>//out/$&#123;company&#125;//$&#123;product&#125;//libs</code></li>
-<li>还须添加源文件路径？</li>
-</ul>
-</li>
-<li><p>在<code>//device/board/xxx/xxx.ld</code>链接脚本中添加OpenHarmony特有的测试段</p>
-</li>
-</ul>
-<h3 id="XTS是如何测试的"><a href="#XTS是如何测试的" class="headerlink" title="XTS是如何测试的"></a>XTS是如何测试的</h3><h3 id="XTS子系统测试项"><a href="#XTS子系统测试项" class="headerlink" title="XTS子系统测试项"></a>XTS子系统测试项</h3><p>轻量系统的全部测试项包含有：应用管理(Ability和Bundle)、网络通信(LwIP)、文件系统、系统参数、Wi-Fi IOT、分布式数据管理、安全、日志、事件、分布式调度、系统更新、系统引导</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">#//test/xts/acts/build_lite/BUILD.gn</span><br><span class="line">    if (ohos_kernel_type == &quot;liteos_m&quot;)</span><br><span class="line">      all_features += [</span><br><span class="line">        &quot;//test/xts/acts/ability_lite/ability_hal:ActsAbilityMgrTest&quot;,</span><br><span class="line">        &quot;//test/xts/acts/appexecfwk_lite/appexecfwk_hal:ActsBundleMgrTest&quot;,</span><br><span class="line">        &quot;//test/xts/acts/communication_lite/lwip_hal:ActsLwipTest&quot;,</span><br><span class="line"></span><br><span class="line">        #&quot;//test/xts/acts/communication_lite/wifiservice_hal:ActsWifiServiceTest&quot;,</span><br><span class="line">        &quot;//test/xts/acts/commonlibrary_lite/file_hal:ActsUtilsFileTest&quot;,</span><br><span class="line">        &quot;//test/xts/acts/startup_lite/syspara_hal:ActsParameterTest&quot;,</span><br><span class="line">        &quot;//test/xts/acts/iothardware_lite/peripheral_hal:ActsWifiIotTest&quot;,</span><br><span class="line">        &quot;//test/xts/acts/distributeddatamgr_lite/kv_store_hal:ActsKvStoreTest&quot;,</span><br><span class="line">        &quot;//test/xts/acts/security_lite/huks/liteos_m_adapter:ActsHuksHalFunctionTest&quot;,</span><br><span class="line">        &quot;//test/xts/acts/hiviewdfx_lite/hilog_hal:ActsDfxFuncTest&quot;,</span><br><span class="line">        &quot;//test/xts/acts/hiviewdfx_lite/hievent_hal:ActsHieventLiteTest&quot;,</span><br><span class="line">        &quot;//test/xts/acts/distributed_schedule_lite/system_ability_manager_hal:ActsSamgrTest&quot;,</span><br><span class="line">        &quot;//test/xts/acts/update_lite/dupdate_hal:ActsUpdaterFuncTest&quot;,</span><br><span class="line">        &quot;//test/xts/acts/startup_lite/bootstrap_hal:ActsBootstrapTest&quot;,</span><br><span class="line">      ]</span><br></pre></td></tr></table></figure>
-<ul>
-<li>ActsAbilityMgrTest: 测试Ability管理器相关功能，包括Ability的启动、停止、生命周期管理等。<br></li>
-<li>ActsBundleMgrTest: 测试Bundle管理器相关功能，包括Bundle的安装、卸载、查询等。<br></li>
-<li>ActsLwipTest: 测试LwIP网络协议栈相关功能，包括TCP&#x2F;IP连接、数据传输等。<br></li>
-<li>ActsUtilsFileTest: 测试文件系统相关功能，包括文件的创建、读取、写入、删除等。<br></li>
-<li>ActsParameterTest: 测试系统参数读取和设置功能。<br></li>
-<li>ActsWifiIotTest: 测试Wi-Fi IOT相关功能，包括AP模式、Station模式、Socket连接等。<br></li>
-<li>ActsKvStoreTest: 测试分布式数据管理相关功能，包括KV存储的读写、订阅等。<br></li>
-<li>ActsHuksHalFunctionTest: 测试HUKS安全框架的HAL层功能，包括密钥管理、加解密等。<br></li>
-<li>ActsDfxFuncTest: 测试HiLog日志框架功能。<br></li>
-<li>ActsHieventLiteTest: 测试HiEvent事件框架功能。<br></li>
-<li>ActsSamgrTest: 测试分布式调度功能，包括Ability间通信、服务发布和订阅等。<br></li>
-<li>ActsUpdaterFuncTest: 测试系统更新功能。<br></li>
-<li>隐藏测试项: ActsWifiServiceTest: 测试Wi-Fi服务相关功能，但被注释掉（以#开头）。<br></li>
-<li>ActsBootstrapTest: 测试系统引导功能。<br></li>
-</ul>
-<h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2><ul>
-<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/Via6666/article/details/132093613">OpenHarmony L0级设备XTS适配经验分享</a></li>
+<h2 id="添加系统引导、更新升级功能"><a href="#添加系统引导、更新升级功能" class="headerlink" title="添加系统引导、更新升级功能"></a>添加系统引导、更新升级功能</h2><h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://gitee.com/openharmony/docs/blob/master/zh-cn/device-dev/quick-start/Readme-CN.md#/openharmony/docs/blob/master/zh-cn/device-dev/quick-start/quickstart-pkg-sourcecode.md">Gitee-OpenHarmony基于命令行入门</a></li>
 </ul>
 
     </div>
@@ -429,7 +382,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BD%BB%E9%87%8F%E7%B3%BB%E7%BB%9F%E5%BC%80%E5%8F%91%E7%9A%84%E5%89%8D%E6%9C%9F%E6%B5%81%E7%A8%8B"><span class="nav-number">1.</span> <span class="nav-text">轻量系统开发的前期流程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%AE%E6%A0%87%E5%B7%A5%E7%A8%8B%E7%9A%84%E7%BC%96%E8%AF%91%E6%9E%84%E5%BB%BA%E6%B5%81%E7%A8%8B"><span class="nav-number">2.</span> <span class="nav-text">目标工程的编译构建流程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BC%96%E8%AF%91%E7%BA%A0%E9%94%99"><span class="nav-number">3.</span> <span class="nav-text">编译纠错</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B7%BB%E5%8A%A0%E7%B3%BB%E7%BB%9F%E5%BC%95%E5%AF%BC%E3%80%81%E6%9B%B4%E6%96%B0%E5%8D%87%E7%BA%A7%E5%8A%9F%E8%83%BD"><span class="nav-number">4.</span> <span class="nav-text">添加系统引导、更新升级功能</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BD%BB%E9%87%8F%E7%B3%BB%E7%BB%9F%E5%BA%94%E7%94%A8%E5%85%BC%E5%AE%B9%E6%80%A7%E6%B5%8B%E8%AF%95%E9%80%82%E9%85%8D"><span class="nav-number">5.</span> <span class="nav-text">轻量系统应用兼容性测试适配</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#XTS%E5%AD%90%E7%B3%BB%E7%BB%9F%E7%BC%96%E8%AF%91%E6%B5%81%E7%A8%8B"><span class="nav-number">5.1.</span> <span class="nav-text">XTS子系统编译流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E6%B7%BB%E5%8A%A0XTS%E5%AD%90%E7%B3%BB%E7%BB%9F"><span class="nav-number">5.2.</span> <span class="nav-text">如何添加XTS子系统</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#XTS%E6%98%AF%E5%A6%82%E4%BD%95%E6%B5%8B%E8%AF%95%E7%9A%84"><span class="nav-number">5.3.</span> <span class="nav-text">XTS是如何测试的</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#XTS%E5%AD%90%E7%B3%BB%E7%BB%9F%E6%B5%8B%E8%AF%95%E9%A1%B9"><span class="nav-number">5.4.</span> <span class="nav-text">XTS子系统测试项</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E7%AB%99%E7%82%B9"><span class="nav-number">6.</span> <span class="nav-text">参考站点</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8E%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA"><span class="nav-number">1.</span> <span class="nav-text">基于命令行开发环境搭建</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BD%BB%E9%87%8F%E7%B3%BB%E7%BB%9F%E5%BC%80%E5%8F%91%E7%9A%84%E5%89%8D%E6%9C%9F%E6%B5%81%E7%A8%8B"><span class="nav-number">2.</span> <span class="nav-text">轻量系统开发的前期流程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%AE%E6%A0%87%E5%B7%A5%E7%A8%8B%E7%9A%84%E7%BC%96%E8%AF%91%E6%9E%84%E5%BB%BA%E6%B5%81%E7%A8%8B"><span class="nav-number">3.</span> <span class="nav-text">目标工程的编译构建流程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BC%96%E8%AF%91%E7%BA%A0%E9%94%99"><span class="nav-number">4.</span> <span class="nav-text">编译纠错</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B7%BB%E5%8A%A0%E7%B3%BB%E7%BB%9F%E5%BC%95%E5%AF%BC%E3%80%81%E6%9B%B4%E6%96%B0%E5%8D%87%E7%BA%A7%E5%8A%9F%E8%83%BD"><span class="nav-number">5.</span> <span class="nav-text">添加系统引导、更新升级功能</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E7%AB%99%E7%82%B9"><span class="nav-number">6.</span> <span class="nav-text">参考站点</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -492,12 +445,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">25k</span>
+    <span title="Symbols count total">24k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">1:29</span>
+    <span title="Reading time total">1:27</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
   </div>
