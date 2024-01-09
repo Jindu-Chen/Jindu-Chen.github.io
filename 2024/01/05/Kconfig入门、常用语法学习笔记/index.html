@@ -28,7 +28,7 @@
 <meta property="og:description" content="&emsp;&emsp;Kconfig作为一个配置管理工具，其不仅是Linux内核配置系统的一部分，也被广泛应用于其它开源项目，如Buildroot、U-Boot、OpenHarmony、BusyBox等。 &emsp;&emsp;要熟悉大型工程的配置和编译构建过程，那么需要对Kconfig有一定了解，本文为Kconfig之学习笔记，介绍Kconfig的概况、常用语法、代码示例解释、及对其于Ope">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2024-01-05T05:47:11.000Z">
-<meta property="article:modified_time" content="2024-01-05T10:22:38.629Z">
+<meta property="article:modified_time" content="2024-01-09T02:12:52.905Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -217,10 +217,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2024-01-05 05:47:11 / Modified: 10:22:38" itemprop="dateCreated datePublished" datetime="2024-01-05T05:47:11+00:00">2024-01-05</time>
+              <time title="Created: 2024-01-05 05:47:11" itemprop="dateCreated datePublished" datetime="2024-01-05T05:47:11+00:00">2024-01-05</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-01-09 02:12:52" itemprop="dateModified" datetime="2024-01-09T02:12:52+00:00">2024-01-09</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -241,7 +247,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>73</span>
+              <span>94</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
@@ -263,7 +269,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h2 id="概况"><a href="#概况" class="headerlink" title="概况"></a>概况</h2><h2 id="基本语法"><a href="#基本语法" class="headerlink" title="基本语法"></a>基本语法</h2><h2 id="进阶操作"><a href="#进阶操作" class="headerlink" title="进阶操作"></a>进阶操作</h2><h2 id="示例解释"><a href="#示例解释" class="headerlink" title="示例解释"></a>示例解释</h2><h2 id="注意项及疑惑解答"><a href="#注意项及疑惑解答" class="headerlink" title="注意项及疑惑解答"></a>注意项及疑惑解答</h2><p>make menuconfig<br>一定是生成.config文件吗，这个文件名是否可改<br>make<br>Makefile<br>gn<br>OpenHarmony<br>Kconfig.xx.xx文件类型<br>如何构建</p>
+        <h2 id="概况"><a href="#概况" class="headerlink" title="概况"></a>概况</h2><h2 id="基本语法"><a href="#基本语法" class="headerlink" title="基本语法"></a>基本语法</h2><h2 id="进阶操作"><a href="#进阶操作" class="headerlink" title="进阶操作"></a>进阶操作</h2><h2 id="示例解释"><a href="#示例解释" class="headerlink" title="示例解释"></a>示例解释</h2><h2 id="注意项及疑惑解答"><a href="#注意项及疑惑解答" class="headerlink" title="注意项及疑惑解答"></a>注意项及疑惑解答</h2><p>make menuconfig<br>一定是生成.config文件吗，这个文件名是否可改<br>.config文件的配置是如何导入到C源文件的宏定义的<br>make<br>Makefile<br>gn<br>OpenHarmony<br>Kconfig.xx.xx文件类型<br>如何构建</p>
 <ul>
 <li>.json文件的用法，其属性与Kconfig的联系？</li>
 </ul>
@@ -361,7 +367,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">37</span>
+          <span class="site-state-item-count">38</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -410,12 +416,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">24k</span>
+    <span title="Symbols count total">25k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">1:29</span>
+    <span title="Reading time total">1:30</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
   </div>

@@ -77,6 +77,27 @@
       </tags>
   </entry>
   <entry>
+    <title>IAP/OTA流程概述</title>
+    <url>/2023/11/28/IAP-OTA%E6%B5%81%E7%A8%8B%E6%A6%82%E8%BF%B0/</url>
+    <content><![CDATA[<h3 id="DCD配置"><a href="#DCD配置" class="headerlink" title="DCD配置"></a>DCD配置</h3><h3 id="注意点"><a href="#注意点" class="headerlink" title="注意点"></a>注意点</h3><ul>
+<li><p>内部Flash和片外Flash的擦除单位可能不一致，2K、4K字节不等</p>
+</li>
+<li><p>写Flash须考虑4字节对齐</p>
+</li>
+<li><p>有可能导致内核复位后触发HardFault异常的原因</p>
+<ul>
+<li>跳转前未关中断；中断控制器没复位清零；中断向量表偏移未设置正确；</li>
+</ul>
+</li>
+<li><p>同一个bootloader和app，有时上电无法跳转，程序跑飞，此时断电后马上上电，又能跳转成功？</p>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>MCU</category>
+      </categories>
+  </entry>
+  <entry>
     <title>通过VSCode + GDB 搭建WSL下的嵌入式mcu调试环境</title>
     <url>/2023/12/04/%E9%80%9A%E8%BF%87VSCode-GDB-%E6%90%AD%E5%BB%BAWSL%E4%B8%8B%E7%9A%84%E5%B5%8C%E5%85%A5%E5%BC%8Fmcu%E8%B0%83%E8%AF%95%E7%8E%AF%E5%A2%83/</url>
     <content><![CDATA[<h1 id="软件环境准备"><a href="#软件环境准备" class="headerlink" title="软件环境准备"></a>软件环境准备</h1><ul>
@@ -110,27 +131,6 @@
         <tag>GDB</tag>
         <tag>J-Link</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>IAP/OTA流程概述</title>
-    <url>/2023/11/28/IAP-OTA%E6%B5%81%E7%A8%8B%E6%A6%82%E8%BF%B0/</url>
-    <content><![CDATA[<h3 id="DCD配置"><a href="#DCD配置" class="headerlink" title="DCD配置"></a>DCD配置</h3><h3 id="注意点"><a href="#注意点" class="headerlink" title="注意点"></a>注意点</h3><ul>
-<li><p>内部Flash和片外Flash的擦除单位可能不一致，2K、4K字节不等</p>
-</li>
-<li><p>写Flash须考虑4字节对齐</p>
-</li>
-<li><p>有可能导致内核复位后触发HardFault异常的原因</p>
-<ul>
-<li>跳转前未关中断；中断控制器没复位清零；中断向量表偏移未设置正确；</li>
-</ul>
-</li>
-<li><p>同一个bootloader和app，有时上电无法跳转，程序跑飞，此时断电后马上上电，又能跳转成功？</p>
-</li>
-</ul>
-]]></content>
-      <categories>
-        <category>MCU</category>
-      </categories>
   </entry>
   <entry>
     <title>Linux U-Boot移植概述-基于I-MX6ULL</title>
@@ -277,7 +277,7 @@
 <li>嵌入式Linux开发中，配置NFS挂载根文件系统</li>
 </ul>
 <hr>
-<h4 id="远程端口流量通过SSH映射到本地"><a href="#远程端口流量通过SSH映射到本地" class="headerlink" title="远程端口流量通过SSH映射到本地"></a>远程端口流量通过SSH映射到本地</h4><p>ssh -L 4000:localhost:4000 <a href="mailto:&#x6a;&#x64;&#x5f;&#x63;&#104;&#101;&#x6e;&#x40;&#49;&#x39;&#50;&#x2e;&#49;&#54;&#56;&#x2e;&#49;&#x31;&#x32;&#x2e;&#50;&#x34;&#x30;">&#x6a;&#x64;&#x5f;&#x63;&#104;&#101;&#x6e;&#x40;&#49;&#x39;&#50;&#x2e;&#49;&#54;&#56;&#x2e;&#49;&#x31;&#x32;&#x2e;&#50;&#x34;&#x30;</a></p>
+<h4 id="远程端口流量通过SSH映射到本地"><a href="#远程端口流量通过SSH映射到本地" class="headerlink" title="远程端口流量通过SSH映射到本地"></a>远程端口流量通过SSH映射到本地</h4><p>ssh -L 4000:localhost:4000 <a href="mailto:&#106;&#100;&#95;&#99;&#104;&#x65;&#x6e;&#64;&#49;&#57;&#50;&#x2e;&#49;&#x36;&#x38;&#46;&#x31;&#49;&#x32;&#x2e;&#50;&#52;&#x30;">&#106;&#100;&#95;&#99;&#104;&#x65;&#x6e;&#64;&#49;&#57;&#50;&#x2e;&#49;&#x36;&#x38;&#46;&#x31;&#49;&#x32;&#x2e;&#50;&#52;&#x30;</a></p>
 <h4 id="Linux给根目录扩容"><a href="#Linux给根目录扩容" class="headerlink" title="Linux给根目录扩容"></a>Linux给根目录扩容</h4>]]></content>
       <categories>
         <category>Linux</category>
@@ -515,8 +515,8 @@
 
 ]]></content>
       <categories>
-        <category>嵌入式</category>
         <category>MCU</category>
+        <category>嵌入式</category>
       </categories>
       <tags>
         <tag>STM32</tag>
@@ -744,51 +744,18 @@
       </tags>
   </entry>
   <entry>
-    <title>OpenHarmony-V4.0-LiteOS-M鸿蒙轻内核开发调试</title>
-    <url>/2023/12/20/OpenHarmony-V4-0%E5%BA%94%E7%94%A8%E8%AE%B0%E5%BD%95/</url>
-    <content><![CDATA[<h2 id="基于命令行开发环境搭建"><a href="#基于命令行开发环境搭建" class="headerlink" title="基于命令行开发环境搭建"></a>基于命令行开发环境搭建</h2><p>复述官方文档，仅作参考，当在源码根目录下键入<code>hb help</code>，命令执行成功，基本完成前期环境的搭建</p>
-<ul>
-<li><a href="https://gitee.com/openharmony/docs/blob/master/zh-cn/device-dev/quick-start/quickstart-pkg-install-package.md">安装库和工具集</a></li>
-<li>下载OpenHarmony-V4.0-Release全量代码，可通过git拉取或者下载压缩包解压<ul>
-<li>在源码根目录下执行prebuilts脚本，安装编译器及二进制工具–<code>bash build/prebuilts_download.sh</code></li>
-</ul>
-</li>
-<li><a href="https://gitee.com/openharmony/docs/blob/master/zh-cn/device-dev/quick-start/quickstart-pkg-install-tool.md">安装编译工具</a></li>
-<li>开发基于Cortex-M内核工程，需要安装<code>arm-none-eabi-</code>工具链，并声明工具链路径至<code>~/.bahsrc</code>。此处不过多赘述</li>
-<li>键入<code>hb set</code>选择目标开发设备，键入<code>hb build</code>执行编译，编译成功则表示环境构建无误</li>
-</ul>
-<h2 id="轻量系统开发的前期流程"><a href="#轻量系统开发的前期流程" class="headerlink" title="轻量系统开发的前期流程"></a>轻量系统开发的前期流程</h2><ul>
-<li>参考Gitee的OpenHarmony项目搭建命令行开发环境，熟悉基本的操作流程</li>
-<li>熟悉GN、ninja的文件编写、和源码构建过程，了解子系统、组件等基本概念<ul>
-<li>子系统是逻辑概念，其具体由对应的组件构成</li>
-<li>组件是可复用的软件单元，其包含源码、配置文件、资源文件和编译脚本</li>
-<li>通过配置文件、编译链接脚本，使得同一组件可以在不同的目标架构上运行</li>
-</ul>
-</li>
-<li>参考社区的移植流程，根据其工程范例进一步了解轻量系统的构建开发原理</li>
-</ul>
-<h2 id="目标工程的编译构建流程"><a href="#目标工程的编译构建流程" class="headerlink" title="目标工程的编译构建流程"></a>目标工程的编译构建流程</h2><ul>
-<li>hb set</li>
-<li>hb build如何调用构建</li>
-</ul>
-<h2 id="子系统添加和构建"><a href="#子系统添加和构建" class="headerlink" title="子系统添加和构建"></a>子系统添加和构建</h2><h2 id="编译纠错"><a href="#编译纠错" class="headerlink" title="编译纠错"></a>编译纠错</h2><ul>
-<li><p>编译成功，但生成的可执行bin文件明显偏小，查看Kconfig配置文件是否有选项没写对，导致的没编译链接</p>
-</li>
-<li><p>提示以下信息：进入<code>kernel/liteos_m</code>，然后make menuconfig，选中兼容项，失能musl库，改为new lib。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">[OHOS ERROR] arm-none-eabi-gcc: fatal error: /home/jd_chen/Downloads/gcc-arm-none-eabi-10-2020-q4-major/bin/../lib/gcc/arm-none-eabi/10.2.1/../../../../arm-none-eabi/lib/nano.specs: attempt to rename spec &#x27;link&#x27; to already defined spec &#x27;nano_link&#x27;</span><br><span class="line">[OHOS ERROR] compilation terminated.</span><br></pre></td></tr></table></figure>
-
-
-</li>
-<li><p>出现如下编译错误，在vfs_fs.c添加头文件&lt;stdbool.h&gt;包含即可</p>
-  <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">[OHOS ERROR] [56/340] gcc cross compiler obj/kernel/liteos_m/components/fs/vfs/vfs.vfs_fs.o</span><br><span class="line">[OHOS ERROR] FAILED: obj/kernel/liteos_m/components/fs/vfs/vfs.vfs_fs.o </span><br><span class="line">...</span><br><span class="line">[OHOS ERROR] ../../../kernel/liteos_m/components/fs/vfs/vfs_fs.c:214:43: error: unknown type name &#x27;bool&#x27;</span><br><span class="line">[OHOS ERROR]   214 | static int VfsPathCheck(const char *path, bool isFile)</span><br><span class="line">[OHOS ERROR]       |                                           ^~~~</span><br><span class="line">[OHOS ERROR] ../../../kernel/liteos_m/components/fs/vfs/vfs_fs.c: In function &#x27;VfsOpen&#x27;:</span><br><span class="line">[OHOS ERROR] ../../../kernel/liteos_m/components/fs/vfs/vfs_fs.c:244:9: error: implicit declaration of function &#x27;VfsPathCheck&#x27; [-Werror=implicit-function-declaration]</span><br><span class="line">[OHOS ERROR]   244 |     if (VfsPathCheck(path, TRUE) != LOS_OK) </span><br><span class="line">[OHOS ERROR]       |         ^~~~~~~~~~~~</span><br><span class="line">[OHOS ERROR] cc1: all warnings being treated as errors</span><br></pre></td></tr></table></figure></li>
-</ul>
-<h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2><ul>
-<li><a href="https://gitee.com/openharmony/docs/blob/master/zh-cn/device-dev/quick-start/Readme-CN.md#/openharmony/docs/blob/master/zh-cn/device-dev/quick-start/quickstart-pkg-sourcecode.md">Gitee-OpenHarmony基于命令行入门</a></li>
-</ul>
-]]></content>
+    <title>无刷电机调试方法简述</title>
+    <url>/2023/12/08/%E6%97%A0%E5%88%B7%E7%94%B5%E6%9C%BA%E8%B0%83%E8%AF%95%E6%96%B9%E6%B3%95%E7%AE%80%E8%BF%B0/</url>
+    <content><![CDATA[<h2 id="前提知识基础"><a href="#前提知识基础" class="headerlink" title="前提知识基础"></a>前提知识基础</h2><ol>
+<li>需要对PID控制算法有一定了解</li>
+<li>了解FOC算法原理即可，产品开发者无需深入了解FOC算法</li>
+<li>需要熟悉高级定时器的应用</li>
+<li>熟悉电机控制基本概念，对电机极对数、反电动势、电阻采样、DQ轴等等基本知识链需要有一定的认知</li>
+</ol>
+<h2 id="电机调试流程简述"><a href="#电机调试流程简述" class="headerlink" title="电机调试流程简述"></a>电机调试流程简述</h2><p>本文主要基于峰岹科技的两种产品进行开发简述，分别是三相ASIC和MCU。</p>
+<h3 id="基于FT8215三相ASIC-–-图形化配置开发"><a href="#基于FT8215三相ASIC-–-图形化配置开发" class="headerlink" title="基于FT8215三相ASIC – 图形化配置开发"></a>基于FT8215三相ASIC – 图形化配置开发</h3><h3 id="基于FU6815的MCU-–-Keil开发"><a href="#基于FU6815的MCU-–-Keil开发" class="headerlink" title="基于FU6815的MCU – Keil开发"></a>基于FU6815的MCU – Keil开发</h3>]]></content>
       <categories>
-        <category>LiteOS</category>
-        <category>OpenHarmony</category>
+        <category>无刷电机</category>
       </categories>
   </entry>
   <entry>
@@ -804,6 +771,7 @@
 <li>四字节对齐：要求数据的存放起始地址必须是4的倍数<br>作用：<br>1、数据结构按照4字节对齐，使得处理器更有效访问，32位系统可以一次读完一个4字节长度变量<br>2、某些硬件要求数据需要在特定的边界上对齐，否则可能出现异常<br>  如STM32，Flash的写入、DMA访问、结构体成员、线程栈PSP都需要考虑字节对齐<br>3、结构体本身没有4字节对齐，进行特定的跳转读取，可能导致异常</li>
 </ul>
 <hr>
+<h2 id="非典型知识"><a href="#非典型知识" class="headerlink" title="非典型知识"></a>非典型知识</h2><h3 id="a静态库文件和-o目标文件"><a href="#a静态库文件和-o目标文件" class="headerlink" title=".a静态库文件和.o目标文件"></a>.a静态库文件和.o目标文件</h3><hr>
 <h2 id="C程序开发注意点"><a href="#C程序开发注意点" class="headerlink" title="C程序开发注意点"></a>C程序开发注意点</h2><h3 id="头文件包含"><a href="#头文件包含" class="headerlink" title="头文件包含"></a>头文件包含</h3><ul>
 <li>避免冗余的头文件包含，只有当用到时才添加其头文件</li>
 <li>头文件在预处理阶段会被复制到源文件中，过多包含不必要头文件会使得编译时间增加</li>
@@ -849,18 +817,51 @@
       </tags>
   </entry>
   <entry>
-    <title>无刷电机调试方法简述</title>
-    <url>/2023/12/08/%E6%97%A0%E5%88%B7%E7%94%B5%E6%9C%BA%E8%B0%83%E8%AF%95%E6%96%B9%E6%B3%95%E7%AE%80%E8%BF%B0/</url>
-    <content><![CDATA[<h2 id="前提知识基础"><a href="#前提知识基础" class="headerlink" title="前提知识基础"></a>前提知识基础</h2><ol>
-<li>需要对PID控制算法有一定了解</li>
-<li>了解FOC算法原理即可，产品开发者无需深入了解FOC算法</li>
-<li>需要熟悉高级定时器的应用</li>
-<li>熟悉电机控制基本概念，对电机极对数、反电动势、电阻采样、DQ轴等等基本知识链需要有一定的认知</li>
-</ol>
-<h2 id="电机调试流程简述"><a href="#电机调试流程简述" class="headerlink" title="电机调试流程简述"></a>电机调试流程简述</h2><p>本文主要基于峰岹科技的两种产品进行开发简述，分别是三相ASIC和MCU。</p>
-<h3 id="基于FT8215三相ASIC-–-图形化配置开发"><a href="#基于FT8215三相ASIC-–-图形化配置开发" class="headerlink" title="基于FT8215三相ASIC – 图形化配置开发"></a>基于FT8215三相ASIC – 图形化配置开发</h3><h3 id="基于FU6815的MCU-–-Keil开发"><a href="#基于FU6815的MCU-–-Keil开发" class="headerlink" title="基于FU6815的MCU – Keil开发"></a>基于FU6815的MCU – Keil开发</h3>]]></content>
+    <title>OpenHarmony-V4.0-LiteOS-M鸿蒙轻内核开发调试</title>
+    <url>/2023/12/20/OpenHarmony-V4-0%E5%BA%94%E7%94%A8%E8%AE%B0%E5%BD%95/</url>
+    <content><![CDATA[<h2 id="基于命令行开发环境搭建"><a href="#基于命令行开发环境搭建" class="headerlink" title="基于命令行开发环境搭建"></a>基于命令行开发环境搭建</h2><p>复述官方文档，仅作参考，当在源码根目录下键入<code>hb help</code>，命令执行成功，基本完成前期环境的搭建</p>
+<ul>
+<li><a href="https://gitee.com/openharmony/docs/blob/master/zh-cn/device-dev/quick-start/quickstart-pkg-install-package.md">安装库和工具集</a></li>
+<li>下载OpenHarmony-V4.0-Release全量代码，可通过git拉取或者下载压缩包解压<ul>
+<li>在源码根目录下执行prebuilts脚本，安装编译器及二进制工具–<code>bash build/prebuilts_download.sh</code></li>
+</ul>
+</li>
+<li><a href="https://gitee.com/openharmony/docs/blob/master/zh-cn/device-dev/quick-start/quickstart-pkg-install-tool.md">安装编译工具</a></li>
+<li>开发基于Cortex-M内核工程，需要安装<code>arm-none-eabi-</code>工具链，并声明工具链路径至<code>~/.bahsrc</code>。此处不过多赘述</li>
+<li>键入<code>hb set</code>选择目标开发设备，键入<code>hb build</code>执行编译，编译成功则表示环境构建无误</li>
+</ul>
+<h2 id="轻量系统开发的前期流程"><a href="#轻量系统开发的前期流程" class="headerlink" title="轻量系统开发的前期流程"></a>轻量系统开发的前期流程</h2><ul>
+<li>参考Gitee的OpenHarmony项目搭建命令行开发环境，熟悉基本的操作流程</li>
+<li>熟悉GN、ninja的文件编写、和源码构建过程，了解子系统、组件等基本概念<ul>
+<li>子系统是逻辑概念，其具体由对应的组件构成</li>
+<li>组件是可复用的软件单元，其包含源码、配置文件、资源文件和编译脚本</li>
+<li>通过配置文件、编译链接脚本，使得同一组件可以在不同的目标架构上运行</li>
+</ul>
+</li>
+<li>参考社区的移植流程，根据其工程范例进一步了解轻量系统的构建开发原理</li>
+</ul>
+<h2 id="目标工程的编译构建流程"><a href="#目标工程的编译构建流程" class="headerlink" title="目标工程的编译构建流程"></a>目标工程的编译构建流程</h2><ul>
+<li>hb set</li>
+<li>hb build如何调用构建</li>
+</ul>
+<h2 id="子系统添加和构建"><a href="#子系统添加和构建" class="headerlink" title="子系统添加和构建"></a>子系统添加和构建</h2><h2 id="编译纠错"><a href="#编译纠错" class="headerlink" title="编译纠错"></a>编译纠错</h2><ul>
+<li><p>编译成功，但生成的可执行bin文件明显偏小，查看Kconfig配置文件是否有选项没写对，导致的没编译链接</p>
+</li>
+<li><p>提示以下信息：进入<code>kernel/liteos_m</code>，然后make menuconfig，选中兼容项，失能musl库，改为new lib。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">[OHOS ERROR] arm-none-eabi-gcc: fatal error: /home/jd_chen/Downloads/gcc-arm-none-eabi-10-2020-q4-major/bin/../lib/gcc/arm-none-eabi/10.2.1/../../../../arm-none-eabi/lib/nano.specs: attempt to rename spec &#x27;link&#x27; to already defined spec &#x27;nano_link&#x27;</span><br><span class="line">[OHOS ERROR] compilation terminated.</span><br></pre></td></tr></table></figure>
+
+
+</li>
+<li><p>出现如下编译错误，在vfs_fs.c添加头文件&lt;stdbool.h&gt;包含即可</p>
+  <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">[OHOS ERROR] [56/340] gcc cross compiler obj/kernel/liteos_m/components/fs/vfs/vfs.vfs_fs.o</span><br><span class="line">[OHOS ERROR] FAILED: obj/kernel/liteos_m/components/fs/vfs/vfs.vfs_fs.o </span><br><span class="line">...</span><br><span class="line">[OHOS ERROR] ../../../kernel/liteos_m/components/fs/vfs/vfs_fs.c:214:43: error: unknown type name &#x27;bool&#x27;</span><br><span class="line">[OHOS ERROR]   214 | static int VfsPathCheck(const char *path, bool isFile)</span><br><span class="line">[OHOS ERROR]       |                                           ^~~~</span><br><span class="line">[OHOS ERROR] ../../../kernel/liteos_m/components/fs/vfs/vfs_fs.c: In function &#x27;VfsOpen&#x27;:</span><br><span class="line">[OHOS ERROR] ../../../kernel/liteos_m/components/fs/vfs/vfs_fs.c:244:9: error: implicit declaration of function &#x27;VfsPathCheck&#x27; [-Werror=implicit-function-declaration]</span><br><span class="line">[OHOS ERROR]   244 |     if (VfsPathCheck(path, TRUE) != LOS_OK) </span><br><span class="line">[OHOS ERROR]       |         ^~~~~~~~~~~~</span><br><span class="line">[OHOS ERROR] cc1: all warnings being treated as errors</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2><ul>
+<li><a href="https://gitee.com/openharmony/docs/blob/master/zh-cn/device-dev/quick-start/Readme-CN.md#/openharmony/docs/blob/master/zh-cn/device-dev/quick-start/quickstart-pkg-sourcecode.md">Gitee-OpenHarmony基于命令行入门</a></li>
+</ul>
+]]></content>
       <categories>
-        <category>无刷电机</category>
+        <category>LiteOS</category>
+        <category>OpenHarmony</category>
       </categories>
   </entry>
   <entry>
@@ -1510,6 +1511,11 @@
       </categories>
   </entry>
   <entry>
+    <title>嵌入式MCU的bootloader设计</title>
+    <url>/2023/11/28/%E5%B5%8C%E5%85%A5%E5%BC%8FMCU%E7%9A%84bootloader%E8%AE%BE%E8%AE%A1/</url>
+    <content><![CDATA[<h2 id="重点疑问解答"><a href="#重点疑问解答" class="headerlink" title="重点疑问解答"></a>重点疑问解答</h2><h3 id="如何保证bootloader升级失败不会导致设备变砖？"><a href="#如何保证bootloader升级失败不会导致设备变砖？" class="headerlink" title="如何保证bootloader升级失败不会导致设备变砖？"></a>如何保证bootloader升级失败不会导致设备变砖？</h3>]]></content>
+  </entry>
+  <entry>
     <title>Linux gpio子系统</title>
     <url>/2023/12/19/Linux-gpio%E5%AD%90%E7%B3%BB%E7%BB%9F/</url>
     <content><![CDATA[<h2 id="gpio子系统基本概念简述"><a href="#gpio子系统基本概念简述" class="headerlink" title="gpio子系统基本概念简述"></a>gpio子系统基本概念简述</h2><ul>
@@ -1524,11 +1530,6 @@
         <category>Linux</category>
         <category>I.MX6ULL</category>
       </categories>
-  </entry>
-  <entry>
-    <title>嵌入式MCU的bootloader设计</title>
-    <url>/2023/11/28/%E5%B5%8C%E5%85%A5%E5%BC%8FMCU%E7%9A%84bootloader%E8%AE%BE%E8%AE%A1/</url>
-    <content><![CDATA[<h2 id="重点疑问解答"><a href="#重点疑问解答" class="headerlink" title="重点疑问解答"></a>重点疑问解答</h2><h3 id="如何保证bootloader升级失败不会导致设备变砖？"><a href="#如何保证bootloader升级失败不会导致设备变砖？" class="headerlink" title="如何保证bootloader升级失败不会导致设备变砖？"></a>如何保证bootloader升级失败不会导致设备变砖？</h3>]]></content>
   </entry>
   <entry>
     <title>GN和Ninja构建工具的基础入门、进阶和应用开发</title>
@@ -1833,7 +1834,7 @@
   <entry>
     <title>Kconfig入门、常用语法学习笔记</title>
     <url>/2024/01/05/Kconfig%E5%85%A5%E9%97%A8%E3%80%81%E5%B8%B8%E7%94%A8%E8%AF%AD%E6%B3%95%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</url>
-    <content><![CDATA[<h2 id="概况"><a href="#概况" class="headerlink" title="概况"></a>概况</h2><h2 id="基本语法"><a href="#基本语法" class="headerlink" title="基本语法"></a>基本语法</h2><h2 id="进阶操作"><a href="#进阶操作" class="headerlink" title="进阶操作"></a>进阶操作</h2><h2 id="示例解释"><a href="#示例解释" class="headerlink" title="示例解释"></a>示例解释</h2><h2 id="注意项及疑惑解答"><a href="#注意项及疑惑解答" class="headerlink" title="注意项及疑惑解答"></a>注意项及疑惑解答</h2><p>make menuconfig<br>一定是生成.config文件吗，这个文件名是否可改<br>make<br>Makefile<br>gn<br>OpenHarmony<br>Kconfig.xx.xx文件类型<br>如何构建</p>
+    <content><![CDATA[<h2 id="概况"><a href="#概况" class="headerlink" title="概况"></a>概况</h2><h2 id="基本语法"><a href="#基本语法" class="headerlink" title="基本语法"></a>基本语法</h2><h2 id="进阶操作"><a href="#进阶操作" class="headerlink" title="进阶操作"></a>进阶操作</h2><h2 id="示例解释"><a href="#示例解释" class="headerlink" title="示例解释"></a>示例解释</h2><h2 id="注意项及疑惑解答"><a href="#注意项及疑惑解答" class="headerlink" title="注意项及疑惑解答"></a>注意项及疑惑解答</h2><p>make menuconfig<br>一定是生成.config文件吗，这个文件名是否可改<br>.config文件的配置是如何导入到C源文件的宏定义的<br>make<br>Makefile<br>gn<br>OpenHarmony<br>Kconfig.xx.xx文件类型<br>如何构建</p>
 <ul>
 <li>.json文件的用法，其属性与Kconfig的联系？</li>
 </ul>
@@ -1938,18 +1939,41 @@
 <li>hexo d</li>
 <li>hexo server</li>
 </ul>
-<h2 id="blog"><a href="#blog" class="headerlink" title="blog"></a>blog</h2><h3 id="RTOS内核原理深入剖析"><a href="#RTOS内核原理深入剖析" class="headerlink" title="RTOS内核原理深入剖析"></a>RTOS内核原理深入剖析</h3><p>以rt-thread为例</p>
-<ul>
-<li>核心：任务调度器的调度原理，如何切换上下文</li>
-<li>内核组件：系统时基、信号量、互斥量、消息队列、命令行调试、软件定时器</li>
-<li>移植步骤</li>
-</ul>
-<h3 id="嵌入式MCU裸机工程移植CmBacktrace"><a href="#嵌入式MCU裸机工程移植CmBacktrace" class="headerlink" title="嵌入式MCU裸机工程移植CmBacktrace"></a>嵌入式MCU裸机工程移植CmBacktrace</h3><p>原理、移植调试注意点、如何应用其打印信息来辅助排查错误、addrline2.exe工具</p>
+<h2 id="blog"><a href="#blog" class="headerlink" title="blog"></a>blog</h2><h3 id="嵌入式MCU裸机工程移植CmBacktrace"><a href="#嵌入式MCU裸机工程移植CmBacktrace" class="headerlink" title="嵌入式MCU裸机工程移植CmBacktrace"></a>嵌入式MCU裸机工程移植CmBacktrace</h3><p>原理、移植调试注意点、如何应用其打印信息来辅助排查错误、addrline2.exe工具</p>
 <h3 id="XTS子系统深入剖析"><a href="#XTS子系统深入剖析" class="headerlink" title="XTS子系统深入剖析"></a>XTS子系统深入剖析</h3><p>源码分析<br>功能、作用分析<br>测试用例分析<br>原理分析</p>
 <h3 id="Gitlab-CI-CD"><a href="#Gitlab-CI-CD" class="headerlink" title="Gitlab CI-CD"></a>Gitlab CI-CD</h3><p>自动化编译，工具链放至服务器上</p>
 <h3 id="国民技术的GCC环境搭建"><a href="#国民技术的GCC环境搭建" class="headerlink" title="国民技术的GCC环境搭建"></a>国民技术的GCC环境搭建</h3><h3 id="设计模式"><a href="#设计模式" class="headerlink" title="设计模式"></a>设计模式</h3>]]></content>
       <categories>
         <category>MISC</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>RTOS内核原理深入剖析</title>
+    <url>/2024/01/09/RTOS%E5%86%85%E6%A0%B8%E5%8E%9F%E7%90%86%E6%B7%B1%E5%85%A5%E5%89%96%E6%9E%90/</url>
+    <content><![CDATA[<h2 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h2><p>&emsp;&emsp;刚毕业那会，研究了一段时间的RT-Thread内核原理，自以为对RTOS已经有深入的理解，感觉所有的实时操作系统皆不过如此。<br><br>&emsp;&emsp;回想起来，当时只是着眼于<strong>Cortex-M内核如何切换上下文、线程&#x2F;任务的调度</strong>、汇编源码实现等原理这一小方面，而忽视了很多其它值得学习的部分，包括<strong>线程调度的代码&#x2F;算法设计</strong>、软件定时器、信号量、命令行调试控制台等核心组件的实现，另外也没有真正动手去做全新的系统移植工作。<br><br>&emsp;&emsp;转眼已过去一年多，对于RTOS的很多原理细节遗忘不少，此外也没有对其进行过系统总结；因此，本文主要以个人的角度，阐述对RTOS内核原理的理解，也包括其扩展部分，如系统移植、核心组件、部件扩展、代码设计等方面。</p>
+<h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>以rt-thread为例</p>
+<ul>
+<li><p>核心：任务调度器的调度原理，如何切换上下文</p>
+</li>
+<li><p>内核组件：系统时基、信号量、互斥量、消息队列、命令行调试、软件定时器</p>
+</li>
+<li><p>移植步骤</p>
+</li>
+<li><p>设备框架深入剖析</p>
+</li>
+</ul>
+<h2 id="移植思路"><a href="#移植思路" class="headerlink" title="移植思路"></a>移植思路</h2><ul>
+<li>CPU架构层</li>
+<li>下层API适配</li>
+<li>上层接口调用</li>
+</ul>
+<h2 id="注意项"><a href="#注意项" class="headerlink" title="注意项"></a>注意项</h2><h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2><ul>
+<li><a href="https://www.rt-thread.org/document/site/#/rt-thread-version/rt-thread-standard/README">RT-Thread文档中心</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>MCU</category>
+        <category>RTOS</category>
       </categories>
   </entry>
 </search>
