@@ -771,7 +771,7 @@
 <li>四字节对齐：要求数据的存放起始地址必须是4的倍数<br>作用：<br>1、数据结构按照4字节对齐，使得处理器更有效访问，32位系统可以一次读完一个4字节长度变量<br>2、某些硬件要求数据需要在特定的边界上对齐，否则可能出现异常<br>  如STM32，Flash的写入、DMA访问、结构体成员、线程栈PSP都需要考虑字节对齐<br>3、结构体本身没有4字节对齐，进行特定的跳转读取，可能导致异常</li>
 </ul>
 <hr>
-<h2 id="非典型知识"><a href="#非典型知识" class="headerlink" title="非典型知识"></a>非典型知识</h2><h3 id="a静态库文件和-o目标文件"><a href="#a静态库文件和-o目标文件" class="headerlink" title=".a静态库文件和.o目标文件"></a>.a静态库文件和.o目标文件</h3><hr>
+<h2 id="非典型知识"><a href="#非典型知识" class="headerlink" title="非典型知识"></a>非典型知识</h2><h3 id="a静态库文件和-o目标文件"><a href="#a静态库文件和-o目标文件" class="headerlink" title=".a静态库文件和.o目标文件"></a>.a静态库文件和.o目标文件</h3><h2 id="o文件格式："><a href="#o文件格式：" class="headerlink" title=".o文件格式："></a><strong>.o文件格式：</strong></h2><hr>
 <h2 id="C程序开发注意点"><a href="#C程序开发注意点" class="headerlink" title="C程序开发注意点"></a>C程序开发注意点</h2><h3 id="头文件包含"><a href="#头文件包含" class="headerlink" title="头文件包含"></a>头文件包含</h3><ul>
 <li>避免冗余的头文件包含，只有当用到时才添加其头文件</li>
 <li>头文件在预处理阶段会被复制到源文件中，过多包含不必要头文件会使得编译时间增加</li>
@@ -1963,7 +1963,7 @@
 </li>
 </ul>
 <h2 id="移植思路"><a href="#移植思路" class="headerlink" title="移植思路"></a>移植思路</h2><ul>
-<li>CPU架构层</li>
+<li>CPU架构层API适配</li>
 <li>下层API适配</li>
 <li>上层接口调用</li>
 </ul>
