@@ -12,7 +12,29 @@ description: 介绍基于国民技术N32G452芯片(Cortex-M4内核)的OpenHarmon
 
 ## 轻量系统应用兼容性测试适配
 
+- 前提：基于OpenHarmony-V4.0-Release全量代码仓
 - 在vendor目录下产品的config.json文件中，添加XTS子系统组件定义
+
+
+### 如何添加XTS子系统
+
+执行编译XTS组件的指令不唯一，取决于gn构建文件内的私有工程设置
+- `hb build -b debug`
+- `hb build -f -b debug --gn-args build_xts=true`
+
+<br>
+
+**添加编译XTS子系需要执行的步骤：**
+- 在工程配置`target_config.h`宏定义中使能Test测试项
+  - 使得系统启动初始化时会进行相关函数调用
+- 在`//kernel/liteos_m`中make menuconfig中，使能测试相关配置
+- 在`//vendor/xxx/config.json`添加合适的子系统配置
+  - 补全文件末尾的`third_patry`和`product_adapt_dir`
+- 在`//device/board/xxx/liteos_m/config.gni`添加适配的头文件路径
+  - 链接选项中增添合适的静态库链接，以实现链接测试用例相关库，其中测试静态库文件生成于`//out/${company}//${product}//libs`
+  - 还须添加源文件路径？
+- 在`//device/board/xxx/xxx.ld`链接脚本中添加OpenHarmony特有的测试段
+
 
 ### XTS子系统编译流程
 - 通过hb工具读取系统配置文件(即vendor目录下产品的config.json)，获取参与编译的子系统以及部件信息
@@ -24,23 +46,13 @@ description: 介绍基于国民技术N32G452芯片(Cortex-M4内核)的OpenHarmon
 - .a库链接操作
 
 
-### 如何添加XTS子系统
+## XTS子系统测试分析
 
-- `hb build -b debug`
+## 规范编码以通过兼容性测试
 
-- 目前已知在//out/xxx/xxx/libs有.a库文件
-  - 如何将其链接进bin文件，并使其得以运行呢
-  - 在何处添加链接选项，添加怎样的链接选项呢？官方的链接选项会报错
-  - 考虑在config.gni添加合适的链接选项，同时是否需要考虑在何处添加函数调用？
+- 遵循 OpenHarmony 的开发规范。OpenHarmony 提供了完善的开发规范，包括代码风格、命名规范、注释规范等
 
-- 在工程配置`target_config.h`宏定义中使能Test测试项
-  - 使能系统启动会进行相关函数调用
-- 在`//kernel/liteos_m`中make menuconfig中，使能测试相关配置
-- 在`//vendor/xxx/config.json`添加合适的子系统配置
-- 在`//device/board/xxx/liteos_m/config.gni`添加适配的头文件路径
-  - 链接选项中增添合适的静态库链接，以实现链接测试用例相关库，其中测试静态库位于`//out/${company}//${product}//libs`
-  - 还须添加源文件路径？
-- 在`//device/board/xxx/xxx.ld`链接脚本中添加OpenHarmony特有的测试段
+- 使用 OpenHarmony 的标准 API
 
 
 ### XTS是如何测试的
@@ -85,12 +97,26 @@ description: 介绍基于国民技术N32G452芯片(Cortex-M4内核)的OpenHarmon
 - 隐藏测试项: ActsWifiServiceTest: 测试Wi-Fi服务相关功能，但被注释掉（以#开头）。<br>
 - ActsBootstrapTest: 测试系统引导功能。<br>
 
+## XTS子系统的疑惑解答
 
+- 相对于不同架构的工程，其XTS子系统源码是否也要更改？
+- 相对新移植的工程，是直接复制现有的XTS源码，还是要开发者基于移植工程、按照规范编写相关程序？
+
+
+## XTS子系统源码分析
+
+
+```
+LITE_TEST_CASE(IntTestSuite, TestCase001, Level0) 
+{  
+  //do something 
+};
+```
 
 ## 参考站点
 
 - [OpenHarmony L0级设备XTS适配经验分享](https://blog.csdn.net/Via6666/article/details/132093613)
-
+- [移植案例与原理 - XTS子系统之应用兼容性测试套件](https://bbs.huaweicloud.com/blogs/336717)
 
 
 
