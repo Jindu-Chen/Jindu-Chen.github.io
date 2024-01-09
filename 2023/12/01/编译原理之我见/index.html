@@ -20,15 +20,15 @@
     var CONFIG = {"hostname":"jindu-chen.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="讲述个人对C工程编译的一些浅薄见解，不涉及深层的编译原理">
+  <meta name="description" content="讲述个人对C工程编译链接的一些浅薄见解，不涉及深层的编译原理；此外，也记录在开发中所遇到的与编译、链接相关的知识及其应用">
 <meta property="og:type" content="article">
-<meta property="og:title" content="编译原理之我见">
+<meta property="og:title" content="编译&#x2F;链接原理及其在开发中之体现">
 <meta property="og:url" content="https://jindu-chen.github.io/2023/12/01/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E4%B9%8B%E6%88%91%E8%A7%81/index.html">
 <meta property="og:site_name" content="Jindu-Chen">
-<meta property="og:description" content="讲述个人对C工程编译的一些浅薄见解，不涉及深层的编译原理">
+<meta property="og:description" content="讲述个人对C工程编译链接的一些浅薄见解，不涉及深层的编译原理；此外，也记录在开发中所遇到的与编译、链接相关的知识及其应用">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2023-12-01T00:00:00.000Z">
-<meta property="article:modified_time" content="2024-01-09T07:16:38.339Z">
+<meta property="article:modified_time" content="2024-01-09T07:45:47.384Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言">
 <meta name="twitter:card" content="summary">
@@ -46,7 +46,7 @@
   };
 </script>
 
-  <title>编译原理之我见 | Jindu-Chen</title>
+  <title>编译/链接原理及其在开发中之体现 | Jindu-Chen</title>
   
 
 
@@ -208,7 +208,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          编译原理之我见
+          编译/链接原理及其在开发中之体现
         </h1>
 
         <div class="post-meta">
@@ -225,7 +225,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-01-09 07:16:38" itemprop="dateModified" datetime="2024-01-09T07:16:38+00:00">2024-01-09</time>
+                <time title="Modified: 2024-01-09 07:45:47" itemprop="dateModified" datetime="2024-01-09T07:45:47+00:00">2024-01-09</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -243,16 +243,16 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>591</span>
+              <span>1k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>2 mins.</span>
+              <span>4 mins.</span>
             </span>
-            <div class="post-description">讲述个人对C工程编译的一些浅薄见解，不涉及深层的编译原理</div>
+            <div class="post-description">讲述个人对C工程编译链接的一些浅薄见解，不涉及深层的编译原理；此外，也记录在开发中所遇到的与编译、链接相关的知识及其应用</div>
 
         </div>
       </header>
@@ -273,7 +273,28 @@
 <li>四字节对齐：要求数据的存放起始地址必须是4的倍数<br>作用：<br>1、数据结构按照4字节对齐，使得处理器更有效访问，32位系统可以一次读完一个4字节长度变量<br>2、某些硬件要求数据需要在特定的边界上对齐，否则可能出现异常<br>  如STM32，Flash的写入、DMA访问、结构体成员、线程栈PSP都需要考虑字节对齐<br>3、结构体本身没有4字节对齐，进行特定的跳转读取，可能导致异常</li>
 </ul>
 <hr>
-<h2 id="非典型知识"><a href="#非典型知识" class="headerlink" title="非典型知识"></a>非典型知识</h2><h3 id="a静态库文件和-o目标文件"><a href="#a静态库文件和-o目标文件" class="headerlink" title=".a静态库文件和.o目标文件"></a>.a静态库文件和.o目标文件</h3><h2 id="o文件格式："><a href="#o文件格式：" class="headerlink" title=".o文件格式："></a><strong>.o文件格式：</strong></h2><hr>
+<h2 id="非典型知识"><a href="#非典型知识" class="headerlink" title="非典型知识"></a>非典型知识</h2><h3 id="a静态库文件和-o目标文件"><a href="#a静态库文件和-o目标文件" class="headerlink" title=".a静态库文件和.o目标文件"></a>.a静态库文件和.o目标文件</h3><p><strong>.o文件格式：</strong> 格式由目标体系结构决定，通常为<code>ELF</code></p>
+<ul>
+<li>文件头：记录了文件的类型、大小、目标体系结构、编译器版本等</li>
+<li>代码段：包含了函数的代码，如操作码、数据段、代码段</li>
+<li>数据段：包含了函数的静态数据，如全局变量、静态变量</li>
+<li>符号表：记录了.o文件中所有符号的名称和地址，其可以是函数、变量、常量等</li>
+<li>重定位表：记录了.o文件之间相互引用的符号的地址<blockquote>
+<p>如：如果一个.o文件中有一个函数foo()，另一个.o文件中有一个变量a，而变量a的值由函数foo()返回，则需要在两个.o文件之间建立重定位关系</p>
+</blockquote>
+</li>
+</ul>
+<p><strong>.a文件格式：</strong> 静态库文件，由多个.o文件链接而成</p>
+<ul>
+<li>.o文件的列表</li>
+<li>符号表：记录了文件中所有符号的名称和地址。符号可以是函数、变量、常量等</li>
+<li>重定位表：用于记录两个文件之间相互引用的符号的地址</li>
+</ul>
+<blockquote>
+<p>程序链接时，链接器会根据.a文件中的符号表和重定位表，将.a文件中的代码和数据链接到程序中</p>
+</blockquote>
+<p>nm命令：nm命令用于查看目标文件（.o文件）和库文件（.a文件）中的符号表<br>objdump命令：objdump命令用于反汇编目标文件（.o文件）和库文件（.a文件）<br>readelf命令：readelf命令用于查看目标文件（.o文件）和库文件（.a文件）的文件头、代码段、数据段等信息</p>
+<hr>
 <h2 id="C程序开发注意点"><a href="#C程序开发注意点" class="headerlink" title="C程序开发注意点"></a>C程序开发注意点</h2><h3 id="头文件包含"><a href="#头文件包含" class="headerlink" title="头文件包含"></a>头文件包含</h3><ul>
 <li>避免冗余的头文件包含，只有当用到时才添加其头文件</li>
 <li>头文件在预处理阶段会被复制到源文件中，过多包含不必要头文件会使得编译时间增加</li>
@@ -310,7 +331,7 @@
 <li>链接</li>
 <li>安装</li>
 </ul>
-
+<h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2>
     </div>
 
     
@@ -393,7 +414,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9E%84%E5%BB%BAC%E5%B7%A5%E7%A8%8B%E4%B8%AD%E7%9A%84%E4%B8%80%E4%BA%9B%E7%96%91%E6%83%91%E8%A7%A3%E7%AD%94"><span class="nav-number">1.</span> <span class="nav-text">构建C工程中的一些疑惑解答</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9D%9E%E5%85%B8%E5%9E%8B%E7%9F%A5%E8%AF%86"><span class="nav-number">2.</span> <span class="nav-text">非典型知识</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#a%E9%9D%99%E6%80%81%E5%BA%93%E6%96%87%E4%BB%B6%E5%92%8C-o%E7%9B%AE%E6%A0%87%E6%96%87%E4%BB%B6"><span class="nav-number">2.1.</span> <span class="nav-text">.a静态库文件和.o目标文件</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#o%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F%EF%BC%9A"><span class="nav-number">3.</span> <span class="nav-text">.o文件格式：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#C%E7%A8%8B%E5%BA%8F%E5%BC%80%E5%8F%91%E6%B3%A8%E6%84%8F%E7%82%B9"><span class="nav-number">4.</span> <span class="nav-text">C程序开发注意点</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%B4%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB"><span class="nav-number">4.1.</span> <span class="nav-text">头文件包含</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BF%AE%E6%94%B9%E7%BC%96%E8%AF%91%E4%BC%98%E5%8C%96%E7%BA%A7%E5%88%AB"><span class="nav-number">4.2.</span> <span class="nav-text">修改编译优化级别</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#C%E7%BC%96%E8%AF%91%E8%BF%87%E7%A8%8B"><span class="nav-number">5.</span> <span class="nav-text">C编译过程</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9E%84%E5%BB%BAC%E5%B7%A5%E7%A8%8B%E4%B8%AD%E7%9A%84%E4%B8%80%E4%BA%9B%E7%96%91%E6%83%91%E8%A7%A3%E7%AD%94"><span class="nav-number">1.</span> <span class="nav-text">构建C工程中的一些疑惑解答</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9D%9E%E5%85%B8%E5%9E%8B%E7%9F%A5%E8%AF%86"><span class="nav-number">2.</span> <span class="nav-text">非典型知识</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#a%E9%9D%99%E6%80%81%E5%BA%93%E6%96%87%E4%BB%B6%E5%92%8C-o%E7%9B%AE%E6%A0%87%E6%96%87%E4%BB%B6"><span class="nav-number">2.1.</span> <span class="nav-text">.a静态库文件和.o目标文件</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#C%E7%A8%8B%E5%BA%8F%E5%BC%80%E5%8F%91%E6%B3%A8%E6%84%8F%E7%82%B9"><span class="nav-number">3.</span> <span class="nav-text">C程序开发注意点</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%B4%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB"><span class="nav-number">3.1.</span> <span class="nav-text">头文件包含</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BF%AE%E6%94%B9%E7%BC%96%E8%AF%91%E4%BC%98%E5%8C%96%E7%BA%A7%E5%88%AB"><span class="nav-number">3.2.</span> <span class="nav-text">修改编译优化级别</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#C%E7%BC%96%E8%AF%91%E8%BF%87%E7%A8%8B"><span class="nav-number">4.</span> <span class="nav-text">C编译过程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E7%AB%99%E7%82%B9"><span class="nav-number">5.</span> <span class="nav-text">参考站点</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -461,7 +482,7 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">1:30</span>
+    <span title="Reading time total">1:32</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
   </div>

@@ -1,6 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>RTOS内核原理深入剖析</title>
+    <url>/2024/01/09/RTOS%E5%86%85%E6%A0%B8%E5%8E%9F%E7%90%86%E6%B7%B1%E5%85%A5%E5%89%96%E6%9E%90/</url>
+    <content><![CDATA[<h2 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h2><p>&emsp;&emsp;刚毕业那会，研究了一段时间的RT-Thread内核原理，自以为对RTOS已经有深入的理解，感觉所有的实时操作系统皆不过如此。<br><br>&emsp;&emsp;回想起来，当时只是着眼于<strong>Cortex-M内核如何切换上下文、线程&#x2F;任务的调度</strong>、汇编源码实现等原理这一小方面，而忽视了很多其它值得学习的部分，包括<strong>线程调度的代码&#x2F;算法设计</strong>、软件定时器、信号量、命令行调试控制台等核心组件的实现，另外也没有真正动手去做全新的系统移植工作。<br><br>&emsp;&emsp;转眼已过去一年多，对于RTOS的很多原理细节遗忘不少，此外也没有对其进行过系统总结；因此，本文主要以个人的角度，阐述对RTOS内核原理的理解，也包括其扩展部分，如系统移植、核心组件、部件扩展、代码设计等方面。</p>
+<h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>以rt-thread为例</p>
+<ul>
+<li><p>核心：任务调度器的调度原理，如何切换上下文</p>
+</li>
+<li><p>内核组件：系统时基、信号量、互斥量、消息队列、命令行调试、软件定时器</p>
+</li>
+<li><p>移植步骤</p>
+</li>
+<li><p>设备框架深入剖析</p>
+</li>
+</ul>
+<h2 id="移植思路"><a href="#移植思路" class="headerlink" title="移植思路"></a>移植思路</h2><ul>
+<li>CPU架构层API适配</li>
+<li>下层API适配</li>
+<li>上层接口调用</li>
+</ul>
+<h2 id="注意项"><a href="#注意项" class="headerlink" title="注意项"></a>注意项</h2><h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2><ul>
+<li><a href="https://www.rt-thread.org/document/site/#/rt-thread-version/rt-thread-standard/README">RT-Thread文档中心</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>MCU</category>
+        <category>RTOS</category>
+      </categories>
+  </entry>
+  <entry>
     <title>常用编译/链接选项说明及其应用分析</title>
     <url>/2024/01/02/%E7%BC%96%E8%AF%91%E9%93%BE%E6%8E%A5%E9%80%89%E9%A1%B9%E6%84%8F%E4%B9%89%E8%A7%A3%E9%87%8A/</url>
     <content><![CDATA[<h2 id="GCC编译选项CFLAGS参数及说明"><a href="#GCC编译选项CFLAGS参数及说明" class="headerlink" title="GCC编译选项CFLAGS参数及说明"></a>GCC编译选项CFLAGS参数及说明</h2><ul>
@@ -77,27 +106,6 @@
       </tags>
   </entry>
   <entry>
-    <title>IAP/OTA流程概述</title>
-    <url>/2023/11/28/IAP-OTA%E6%B5%81%E7%A8%8B%E6%A6%82%E8%BF%B0/</url>
-    <content><![CDATA[<h3 id="DCD配置"><a href="#DCD配置" class="headerlink" title="DCD配置"></a>DCD配置</h3><h3 id="注意点"><a href="#注意点" class="headerlink" title="注意点"></a>注意点</h3><ul>
-<li><p>内部Flash和片外Flash的擦除单位可能不一致，2K、4K字节不等</p>
-</li>
-<li><p>写Flash须考虑4字节对齐</p>
-</li>
-<li><p>有可能导致内核复位后触发HardFault异常的原因</p>
-<ul>
-<li>跳转前未关中断；中断控制器没复位清零；中断向量表偏移未设置正确；</li>
-</ul>
-</li>
-<li><p>同一个bootloader和app，有时上电无法跳转，程序跑飞，此时断电后马上上电，又能跳转成功？</p>
-</li>
-</ul>
-]]></content>
-      <categories>
-        <category>MCU</category>
-      </categories>
-  </entry>
-  <entry>
     <title>通过VSCode + GDB 搭建WSL下的嵌入式mcu调试环境</title>
     <url>/2023/12/04/%E9%80%9A%E8%BF%87VSCode-GDB-%E6%90%AD%E5%BB%BAWSL%E4%B8%8B%E7%9A%84%E5%B5%8C%E5%85%A5%E5%BC%8Fmcu%E8%B0%83%E8%AF%95%E7%8E%AF%E5%A2%83/</url>
     <content><![CDATA[<h1 id="软件环境准备"><a href="#软件环境准备" class="headerlink" title="软件环境准备"></a>软件环境准备</h1><ul>
@@ -131,6 +139,27 @@
         <tag>GDB</tag>
         <tag>J-Link</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>IAP/OTA流程概述</title>
+    <url>/2023/11/28/IAP-OTA%E6%B5%81%E7%A8%8B%E6%A6%82%E8%BF%B0/</url>
+    <content><![CDATA[<h3 id="DCD配置"><a href="#DCD配置" class="headerlink" title="DCD配置"></a>DCD配置</h3><h3 id="注意点"><a href="#注意点" class="headerlink" title="注意点"></a>注意点</h3><ul>
+<li><p>内部Flash和片外Flash的擦除单位可能不一致，2K、4K字节不等</p>
+</li>
+<li><p>写Flash须考虑4字节对齐</p>
+</li>
+<li><p>有可能导致内核复位后触发HardFault异常的原因</p>
+<ul>
+<li>跳转前未关中断；中断控制器没复位清零；中断向量表偏移未设置正确；</li>
+</ul>
+</li>
+<li><p>同一个bootloader和app，有时上电无法跳转，程序跑飞，此时断电后马上上电，又能跳转成功？</p>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>MCU</category>
+      </categories>
   </entry>
   <entry>
     <title>Linux U-Boot移植概述-基于I-MX6ULL</title>
@@ -277,7 +306,7 @@
 <li>嵌入式Linux开发中，配置NFS挂载根文件系统</li>
 </ul>
 <hr>
-<h4 id="远程端口流量通过SSH映射到本地"><a href="#远程端口流量通过SSH映射到本地" class="headerlink" title="远程端口流量通过SSH映射到本地"></a>远程端口流量通过SSH映射到本地</h4><p>ssh -L 4000:localhost:4000 <a href="mailto:&#106;&#100;&#95;&#99;&#104;&#x65;&#x6e;&#64;&#49;&#57;&#50;&#x2e;&#49;&#x36;&#x38;&#46;&#x31;&#49;&#x32;&#x2e;&#50;&#52;&#x30;">&#106;&#100;&#95;&#99;&#104;&#x65;&#x6e;&#64;&#49;&#57;&#50;&#x2e;&#49;&#x36;&#x38;&#46;&#x31;&#49;&#x32;&#x2e;&#50;&#52;&#x30;</a></p>
+<h4 id="远程端口流量通过SSH映射到本地"><a href="#远程端口流量通过SSH映射到本地" class="headerlink" title="远程端口流量通过SSH映射到本地"></a>远程端口流量通过SSH映射到本地</h4><p>ssh -L 4000:localhost:4000 <a href="mailto:&#106;&#100;&#x5f;&#x63;&#x68;&#101;&#110;&#x40;&#49;&#57;&#x32;&#46;&#49;&#x36;&#x38;&#x2e;&#x31;&#49;&#x32;&#x2e;&#50;&#x34;&#x30;">&#106;&#100;&#x5f;&#x63;&#x68;&#101;&#110;&#x40;&#49;&#57;&#x32;&#46;&#49;&#x36;&#x38;&#x2e;&#x31;&#49;&#x32;&#x2e;&#50;&#x34;&#x30;</a></p>
 <h4 id="Linux给根目录扩容"><a href="#Linux给根目录扩容" class="headerlink" title="Linux给根目录扩容"></a>Linux给根目录扩容</h4>]]></content>
       <categories>
         <category>Linux</category>
@@ -759,7 +788,7 @@
       </categories>
   </entry>
   <entry>
-    <title>编译原理之我见</title>
+    <title>编译/链接原理及其在开发中之体现</title>
     <url>/2023/12/01/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E4%B9%8B%E6%88%91%E8%A7%81/</url>
     <content><![CDATA[<h2 id="构建C工程中的一些疑惑解答"><a href="#构建C工程中的一些疑惑解答" class="headerlink" title="构建C工程中的一些疑惑解答"></a>构建C工程中的一些疑惑解答</h2><ul>
 <li>#include “.c”文件 可行吗？</li>
@@ -771,7 +800,28 @@
 <li>四字节对齐：要求数据的存放起始地址必须是4的倍数<br>作用：<br>1、数据结构按照4字节对齐，使得处理器更有效访问，32位系统可以一次读完一个4字节长度变量<br>2、某些硬件要求数据需要在特定的边界上对齐，否则可能出现异常<br>  如STM32，Flash的写入、DMA访问、结构体成员、线程栈PSP都需要考虑字节对齐<br>3、结构体本身没有4字节对齐，进行特定的跳转读取，可能导致异常</li>
 </ul>
 <hr>
-<h2 id="非典型知识"><a href="#非典型知识" class="headerlink" title="非典型知识"></a>非典型知识</h2><h3 id="a静态库文件和-o目标文件"><a href="#a静态库文件和-o目标文件" class="headerlink" title=".a静态库文件和.o目标文件"></a>.a静态库文件和.o目标文件</h3><h2 id="o文件格式："><a href="#o文件格式：" class="headerlink" title=".o文件格式："></a><strong>.o文件格式：</strong></h2><hr>
+<h2 id="非典型知识"><a href="#非典型知识" class="headerlink" title="非典型知识"></a>非典型知识</h2><h3 id="a静态库文件和-o目标文件"><a href="#a静态库文件和-o目标文件" class="headerlink" title=".a静态库文件和.o目标文件"></a>.a静态库文件和.o目标文件</h3><p><strong>.o文件格式：</strong> 格式由目标体系结构决定，通常为<code>ELF</code></p>
+<ul>
+<li>文件头：记录了文件的类型、大小、目标体系结构、编译器版本等</li>
+<li>代码段：包含了函数的代码，如操作码、数据段、代码段</li>
+<li>数据段：包含了函数的静态数据，如全局变量、静态变量</li>
+<li>符号表：记录了.o文件中所有符号的名称和地址，其可以是函数、变量、常量等</li>
+<li>重定位表：记录了.o文件之间相互引用的符号的地址<blockquote>
+<p>如：如果一个.o文件中有一个函数foo()，另一个.o文件中有一个变量a，而变量a的值由函数foo()返回，则需要在两个.o文件之间建立重定位关系</p>
+</blockquote>
+</li>
+</ul>
+<p><strong>.a文件格式：</strong> 静态库文件，由多个.o文件链接而成</p>
+<ul>
+<li>.o文件的列表</li>
+<li>符号表：记录了文件中所有符号的名称和地址。符号可以是函数、变量、常量等</li>
+<li>重定位表：用于记录两个文件之间相互引用的符号的地址</li>
+</ul>
+<blockquote>
+<p>程序链接时，链接器会根据.a文件中的符号表和重定位表，将.a文件中的代码和数据链接到程序中</p>
+</blockquote>
+<p>nm命令：nm命令用于查看目标文件（.o文件）和库文件（.a文件）中的符号表<br>objdump命令：objdump命令用于反汇编目标文件（.o文件）和库文件（.a文件）<br>readelf命令：readelf命令用于查看目标文件（.o文件）和库文件（.a文件）的文件头、代码段、数据段等信息</p>
+<hr>
 <h2 id="C程序开发注意点"><a href="#C程序开发注意点" class="headerlink" title="C程序开发注意点"></a>C程序开发注意点</h2><h3 id="头文件包含"><a href="#头文件包含" class="headerlink" title="头文件包含"></a>头文件包含</h3><ul>
 <li>避免冗余的头文件包含，只有当用到时才添加其头文件</li>
 <li>头文件在预处理阶段会被复制到源文件中，过多包含不必要头文件会使得编译时间增加</li>
@@ -808,7 +858,7 @@
 <li>链接</li>
 <li>安装</li>
 </ul>
-]]></content>
+<h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2>]]></content>
       <categories>
         <category>嵌入式</category>
       </categories>
@@ -1708,6 +1758,37 @@
       </categories>
   </entry>
   <entry>
+    <title>Kconfig入门、常用语法学习笔记</title>
+    <url>/2024/01/05/Kconfig%E5%85%A5%E9%97%A8%E3%80%81%E5%B8%B8%E7%94%A8%E8%AF%AD%E6%B3%95%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</url>
+    <content><![CDATA[<h2 id="概况"><a href="#概况" class="headerlink" title="概况"></a>概况</h2><h2 id="基本语法"><a href="#基本语法" class="headerlink" title="基本语法"></a>基本语法</h2><h2 id="进阶操作"><a href="#进阶操作" class="headerlink" title="进阶操作"></a>进阶操作</h2><h2 id="示例解释"><a href="#示例解释" class="headerlink" title="示例解释"></a>示例解释</h2><h2 id="注意项及疑惑解答"><a href="#注意项及疑惑解答" class="headerlink" title="注意项及疑惑解答"></a>注意项及疑惑解答</h2><p>make menuconfig<br>一定是生成.config文件吗，这个文件名是否可改<br>.config文件的配置是如何导入到C源文件的宏定义的<br>make<br>Makefile<br>gn<br>OpenHarmony<br>Kconfig.xx.xx文件类型<br>如何构建</p>
+<ul>
+<li>.json文件的用法，其属性与Kconfig的联系？</li>
+</ul>
+<h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2>]]></content>
+      <categories>
+        <category>Linux</category>
+        <category>LiteOS</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>杂项笔记</title>
+    <url>/2023/11/29/%E6%9D%82%E9%A1%B9%E7%AC%94%E8%AE%B0/</url>
+    <content><![CDATA[<h3 id="hexo主题相关"><a href="#hexo主题相关" class="headerlink" title="hexo主题相关"></a>hexo主题相关</h3><ul>
+<li>hexo new “xxx”</li>
+<li>hexo clean</li>
+<li>hexo g</li>
+<li>hexo d</li>
+<li>hexo server</li>
+</ul>
+<h2 id="blog"><a href="#blog" class="headerlink" title="blog"></a>blog</h2><h3 id="嵌入式MCU裸机工程移植CmBacktrace"><a href="#嵌入式MCU裸机工程移植CmBacktrace" class="headerlink" title="嵌入式MCU裸机工程移植CmBacktrace"></a>嵌入式MCU裸机工程移植CmBacktrace</h3><p>原理、移植调试注意点、如何应用其打印信息来辅助排查错误、addrline2.exe工具</p>
+<h3 id="XTS子系统深入剖析"><a href="#XTS子系统深入剖析" class="headerlink" title="XTS子系统深入剖析"></a>XTS子系统深入剖析</h3><p>源码分析<br>功能、作用分析<br>测试用例分析<br>原理分析</p>
+<h3 id="Gitlab-CI-CD"><a href="#Gitlab-CI-CD" class="headerlink" title="Gitlab CI-CD"></a>Gitlab CI-CD</h3><p>自动化编译，工具链放至服务器上</p>
+<h3 id="国民技术的GCC环境搭建"><a href="#国民技术的GCC环境搭建" class="headerlink" title="国民技术的GCC环境搭建"></a>国民技术的GCC环境搭建</h3><h3 id="设计模式"><a href="#设计模式" class="headerlink" title="设计模式"></a>设计模式</h3>]]></content>
+      <categories>
+        <category>MISC</category>
+      </categories>
+  </entry>
+  <entry>
     <title>OpenHarmony-LiteOS-M内核之GN设计编译构建过程解析</title>
     <url>/2023/12/29/Harmony-LiteOS-M%E5%86%85%E6%A0%B8%E4%B9%8BGN%E8%AE%BE%E8%AE%A1%E8%A7%A3%E6%9E%90/</url>
     <content><![CDATA[<p>阅读本文，须先参阅<a href="/2023/12/24/GN%E5%92%8Cninja%E7%9A%84%E5%8C%BA%E5%88%AB%E3%80%81%E8%81%94%E7%B3%BB%E5%92%8C%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91"><strong>GN与Ninja入门</strong></a></p>
@@ -1826,22 +1907,9 @@
 </ul>
 ]]></content>
       <categories>
-        <category>LiteOS</category>
         <category>RTOS</category>
-        <category>OpenHarmony</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>Kconfig入门、常用语法学习笔记</title>
-    <url>/2024/01/05/Kconfig%E5%85%A5%E9%97%A8%E3%80%81%E5%B8%B8%E7%94%A8%E8%AF%AD%E6%B3%95%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</url>
-    <content><![CDATA[<h2 id="概况"><a href="#概况" class="headerlink" title="概况"></a>概况</h2><h2 id="基本语法"><a href="#基本语法" class="headerlink" title="基本语法"></a>基本语法</h2><h2 id="进阶操作"><a href="#进阶操作" class="headerlink" title="进阶操作"></a>进阶操作</h2><h2 id="示例解释"><a href="#示例解释" class="headerlink" title="示例解释"></a>示例解释</h2><h2 id="注意项及疑惑解答"><a href="#注意项及疑惑解答" class="headerlink" title="注意项及疑惑解答"></a>注意项及疑惑解答</h2><p>make menuconfig<br>一定是生成.config文件吗，这个文件名是否可改<br>.config文件的配置是如何导入到C源文件的宏定义的<br>make<br>Makefile<br>gn<br>OpenHarmony<br>Kconfig.xx.xx文件类型<br>如何构建</p>
-<ul>
-<li>.json文件的用法，其属性与Kconfig的联系？</li>
-</ul>
-<h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2>]]></content>
-      <categories>
-        <category>Linux</category>
         <category>LiteOS</category>
+        <category>OpenHarmony</category>
       </categories>
   </entry>
   <entry>
@@ -1927,53 +1995,6 @@
       <categories>
         <category>LiteOS</category>
         <category>OpenHarmony</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>杂项笔记</title>
-    <url>/2023/11/29/%E6%9D%82%E9%A1%B9%E7%AC%94%E8%AE%B0/</url>
-    <content><![CDATA[<h3 id="hexo主题相关"><a href="#hexo主题相关" class="headerlink" title="hexo主题相关"></a>hexo主题相关</h3><ul>
-<li>hexo new “xxx”</li>
-<li>hexo clean</li>
-<li>hexo g</li>
-<li>hexo d</li>
-<li>hexo server</li>
-</ul>
-<h2 id="blog"><a href="#blog" class="headerlink" title="blog"></a>blog</h2><h3 id="嵌入式MCU裸机工程移植CmBacktrace"><a href="#嵌入式MCU裸机工程移植CmBacktrace" class="headerlink" title="嵌入式MCU裸机工程移植CmBacktrace"></a>嵌入式MCU裸机工程移植CmBacktrace</h3><p>原理、移植调试注意点、如何应用其打印信息来辅助排查错误、addrline2.exe工具</p>
-<h3 id="XTS子系统深入剖析"><a href="#XTS子系统深入剖析" class="headerlink" title="XTS子系统深入剖析"></a>XTS子系统深入剖析</h3><p>源码分析<br>功能、作用分析<br>测试用例分析<br>原理分析</p>
-<h3 id="Gitlab-CI-CD"><a href="#Gitlab-CI-CD" class="headerlink" title="Gitlab CI-CD"></a>Gitlab CI-CD</h3><p>自动化编译，工具链放至服务器上</p>
-<h3 id="国民技术的GCC环境搭建"><a href="#国民技术的GCC环境搭建" class="headerlink" title="国民技术的GCC环境搭建"></a>国民技术的GCC环境搭建</h3><h3 id="设计模式"><a href="#设计模式" class="headerlink" title="设计模式"></a>设计模式</h3>]]></content>
-      <categories>
-        <category>MISC</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>RTOS内核原理深入剖析</title>
-    <url>/2024/01/09/RTOS%E5%86%85%E6%A0%B8%E5%8E%9F%E7%90%86%E6%B7%B1%E5%85%A5%E5%89%96%E6%9E%90/</url>
-    <content><![CDATA[<h2 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h2><p>&emsp;&emsp;刚毕业那会，研究了一段时间的RT-Thread内核原理，自以为对RTOS已经有深入的理解，感觉所有的实时操作系统皆不过如此。<br><br>&emsp;&emsp;回想起来，当时只是着眼于<strong>Cortex-M内核如何切换上下文、线程&#x2F;任务的调度</strong>、汇编源码实现等原理这一小方面，而忽视了很多其它值得学习的部分，包括<strong>线程调度的代码&#x2F;算法设计</strong>、软件定时器、信号量、命令行调试控制台等核心组件的实现，另外也没有真正动手去做全新的系统移植工作。<br><br>&emsp;&emsp;转眼已过去一年多，对于RTOS的很多原理细节遗忘不少，此外也没有对其进行过系统总结；因此，本文主要以个人的角度，阐述对RTOS内核原理的理解，也包括其扩展部分，如系统移植、核心组件、部件扩展、代码设计等方面。</p>
-<h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>以rt-thread为例</p>
-<ul>
-<li><p>核心：任务调度器的调度原理，如何切换上下文</p>
-</li>
-<li><p>内核组件：系统时基、信号量、互斥量、消息队列、命令行调试、软件定时器</p>
-</li>
-<li><p>移植步骤</p>
-</li>
-<li><p>设备框架深入剖析</p>
-</li>
-</ul>
-<h2 id="移植思路"><a href="#移植思路" class="headerlink" title="移植思路"></a>移植思路</h2><ul>
-<li>CPU架构层API适配</li>
-<li>下层API适配</li>
-<li>上层接口调用</li>
-</ul>
-<h2 id="注意项"><a href="#注意项" class="headerlink" title="注意项"></a>注意项</h2><h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2><ul>
-<li><a href="https://www.rt-thread.org/document/site/#/rt-thread-version/rt-thread-standard/README">RT-Thread文档中心</a></li>
-</ul>
-]]></content>
-      <categories>
-        <category>MCU</category>
-        <category>RTOS</category>
       </categories>
   </entry>
 </search>
