@@ -1,0 +1,212 @@
+---
+title: STM32启动流程概述
+date: 2023-11-28 12:00:00
+tags:
+- [STM32]
+- [MCU]
+categories:
+- [嵌入式]
+- [MCU]
+description: 介绍STM32/xx32的从Flash启动流程，分别从Keil和GCC下的.s启动文件进行分析：从0x8000000到用户main()之间的初始化执行过程。
+---
+
+## 概述
+
+无论是Keil还是Gcc，对于Cortex-M内核，其从Flash启动流程都是从 0x8000000 取栈顶地址存至MSP，而后执行复位中断`Reset_Handler()`，在复位中断内执行 系统时钟初始化、将可读可写数据从 Flash 搬运到 SRAM、清零 SRAM 的 bss 段数据等，最后跳转至`main()`函数。
+<br>
+
+当然，芯片为何会从 0x8000000 开始执行，或者说芯片内部的出厂固化的ROM程序是如何执行的，此处暂不作讨论。
+<br>
+
+从源文件分析来看，Keil环境下的启动初始化源代码大多集成在库里面，用户不可见，因此本文主要从gcc环境下的源文件进行详细剖析启动流程。
+<br>
+
+另外，Keil下有所谓的`$$Super$main`/`$$Sub$main`，或者说gcc环境下.s源码最后是跳转至`main`/`entry`函数，此等都可由用户配置写就，暂不作讲解。
+<br>
+
+
+## Keil环境下的启动文件分析
+
+### 初始化栈顶指针
+
+内核从0x0800 0000读取栈顶地址，并将该地址存入MSP中。
+- 栈顶地址的值为0x2000 xxxx，工程所生成bin文件的前四个字节即为栈顶地址。（.s 启动文件中说明了程序的第一个字就是`__initial_sp`栈顶地址，第二个字是`Reset_Handler`地址）
+- 从0x2000 0000到0x2000 xxxx即为程序所运行的范围，该段内存分布为：RW段、ZI段：其中RW段为可读写的非0数据段，ZI段包括了0数据段、堆区、栈区。
+<br>
+
+从0x08000004取出复位中断函数`Reset_Handler`地址，装载至PC指针，跳转执行
+<br>
+
+### 复位中断
+
+**Keil环境代码如下：**
+- 先进行系统时钟初始化
+  >SystemInit()函数定义在system_xxx.c中，主要为初始化系统时钟RCC、重定位中断向量表
+- 跳转至_main()
+
+```
+; Reset handler
+Reset_Handler   PROC
+                EXPORT  Reset_Handler             [WEAK]  
+                IMPORT  __main
+                IMPORT  SystemInit
+                LDR     R0, =SystemInit   
+                BLX     R0               
+                LDR     R0, =__main
+                BX      R0    
+                ENDP
+```
+
+### _main()函数
+
+`__scatterload`
+- 将初始化的可读写数据段拷贝从Flash拷贝到SRAM
+- 初始化清零未初始化数据段
+<br>
+
+`__rt_entry`
+- 负责初始化堆栈，完成库函数的初始化，
+- 最后跳转至main()函数
+<br>
+
+
+## GCC编译环境下的启动文件分析
+
+**程序跳转至复位中断后，执行以下操作：**
+- 将初始化的可读写数据段拷贝从Flash拷贝到SRAM
+- 初始化清零未初始化数据段
+- 调用系统时钟初始化函数（SystemInit）
+- 调用静态构造函数（__libc_init_array） ——参考自CHATGPT
+  - 调用所有静态构造函数->调用.preinit_array段中的所有函数指针->调用.init段中的_init函数->调用.init_array段中的所有函数指针->确保在程序执行主函数 main 之前，所有需要初始化的内容都已经完成。
+  - 当然，纯C语言部分不会实际调用到相关构造函数
+  - 其在链接脚本中有体现：
+  ```
+  .preinit_array     :
+  {
+    PROVIDE_HIDDEN (__preinit_array_start = .);
+    KEEP (*(.preinit_array*))
+    PROVIDE_HIDDEN (__preinit_array_end = .);
+  } >FLASH
+  .init_array :
+  {
+    PROVIDE_HIDDEN (__init_array_start = .);
+    KEEP (*(SORT(.init_array.*)))
+    KEEP (*(.init_array*))
+    PROVIDE_HIDDEN (__init_array_end = .);
+  } >FLASH
+  ```
+  - 链接脚本中，可将用户函数指定链接到相应的init段，从而实现在main前的函数自动初始化？
+- 进入用户函数(main)<br>
+
+
+---
+
+**复位中断代码如下所示，注意：其中所用变量_sidata、_edata等等须 搭配链接脚本内容 共同参阅**
+
+### 复位中断起始
+
+```
+Reset_Handler:  
+  /* 将寄存器r1清零，作为数据段复制的偏移量 */
+  movs  r1, #0              
+  
+  /* 无条件跳转到LoopCopyDataInit标签处 */
+  b  LoopCopyDataInit       
+```
+
+### 拷贝RW-Data
+
+```
+// 实际的RW-Data拷贝工作
+CopyDataInit:
+  ldr  r3, =_sidata         /* 将_sidata的地址加载到寄存器r3，表示初始化数据段的起始地址 */
+  ldr  r3, [r3, r1]         /* 从初始化数据段中取出一个32位数据，存储在寄存器r3中。 */
+  str  r3, [r0, r1]         /* 将寄存器r3中的数据存储到数据段当前位置。 */
+  adds  r1, r1, #4         /* 增加偏移量，移动到下一个32位数据的位置。 */
+
+
+// 计算判断是否完成拷贝工作，未完成则继续拷贝，完成则跳转至清零ZI-Data部分
+LoopCopyDataInit:
+  ldr  r0, =_sdata         /* 将_sdata的地址加载到寄存器r0，表示数据段的起始地址。*/
+  ldr  r3, =_edata         /* 将_edata的地址加载到寄存器r3，表示数据段的结束地址。 */
+  adds  r2, r0, r1         /* 计算数据段当前位置的地址，存储在寄存器r2中。*/
+  cmp  r2, r3         /* 比较当前位置与数据段结束地址的大小关系 */
+  bcc  CopyDataInit         /* 如果当前位置小于结束地址，则跳转到CopyDataInit标签处 */
+```
+
+### 清零bss段
+
+```
+// 清零未初始化数据段（bss segment）
+  ldr  r2, =_sbss         /* 将_sbss的地址加载到寄存器r2，表示未初始化数据段的起始地址 */
+  b  LoopFillZerobss         /* 无条件跳转到LoopFillZerobss标签处 */
+FillZerobss:
+  movs  r3, #0      /* 将寄存器r3清零，作为未初始化数据段的填充值 */
+  str  r3, [r2], #4      /* 将寄存器r3中的数据存储到当前位置，并将当前位置向后移动4个字节 */
+    
+// 判断是否完成清零工作，是则跳转至系统时钟初始化部分
+LoopFillZerobss:         
+  ldr  r3, = _ebss        /* 将_ebss的地址加载到寄存器r3，表示未初始化数据段的结束地址 */
+  cmp  r2, r3         /* 比较当前位置与结束地址的大小关系 */
+  bcc  FillZerobss         /* 如果当前位置小于结束地址，则跳转到FillZerobss标签处 */
+```
+
+### 其它初始化及跳转至main
+
+```
+  /* 调用系统时钟初始化函数 */
+  bl  SystemInit     
+  
+  /* 调用静态构造函数 */       
+  bl __libc_init_array         
+  
+  /* 应用程序的入口函数 */
+  bl  main           
+  
+  /* 通过bx lr指令返回到Reset（通常是启动代码的入口处），当然不会执行到此处 */ 
+  bx  lr            
+```
+
+### GCC环境之复位中断源码总览
+
+```
+Reset_Handler:  
+  movs  r1, #0              /* 将寄存器r1清零，作为数据段复制的偏移量 */
+  b  LoopCopyDataInit       /* 无条件跳转到LoopCopyDataInit标签处 */
+
+CopyDataInit:
+  ldr  r3, =_sidata         /* 将_sidata的地址加载到寄存器r3，表示初始化数据段的起始地址 */
+  ldr  r3, [r3, r1]         /* 从初始化数据段中取出一个32位数据，存储在寄存器r3中。 */
+  str  r3, [r0, r1]         /* 将寄存器r3中的数据存储到数据段当前位置。 */
+  adds  r1, r1, #4         /* 增加偏移量，移动到下一个32位数据的位置。 */
+    
+LoopCopyDataInit:
+  ldr  r0, =_sdata         /* 将_sdata的地址加载到寄存器r0，表示数据段的起始地址。*/
+  ldr  r3, =_edata         /* 将_edata的地址加载到寄存器r3，表示数据段的结束地址。 */
+  adds  r2, r0, r1         /* 计算数据段当前位置的地址，存储在寄存器r2中。*/
+  cmp  r2, r3         /* 比较当前位置与数据段结束地址的大小关系 */
+  bcc  CopyDataInit         /* 如果当前位置小于结束地址，则跳转到CopyDataInit标签处 */
+  
+  /*清零未初始化数据段（bss segment）*/
+  ldr  r2, =_sbss         /* 将_sbss的地址加载到寄存器r2，表示未初始化数据段的起始地址 */
+  b  LoopFillZerobss         /* 无条件跳转到LoopFillZerobss标签处 */
+FillZerobss:
+  movs  r3, #0      /* 将寄存器r3清零，作为未初始化数据段的填充值 */
+  str  r3, [r2], #4      /* 将寄存器r3中的数据存储到当前位置，并将当前位置向后移动4个字节 */
+    
+LoopFillZerobss:         
+  ldr  r3, = _ebss        /* 将_ebss的地址加载到寄存器r3，表示未初始化数据段的结束地址 */
+  cmp  r2, r3         /* 比较当前位置与结束地址的大小关系 */
+  bcc  FillZerobss         /* 如果当前位置小于结束地址，则跳转到FillZerobss标签处 */
+
+  bl  SystemInit            /* 调用系统时钟初始化函数 */
+  bl __libc_init_array         /* 调用静态构造函数 */
+  bl  main            /* 应用程序的入口函数 */
+  bx  lr            /* 通过bx lr指令返回到调用者（通常是启动代码的入口处），当然不会执行到此处 */
+.size  Reset_Handler, .-Reset_Handler
+```
+
+
+## 参考站点
+
+
