@@ -27,12 +27,14 @@
 <meta property="og:site_name" content="Jindu-Chen">
 <meta property="og:description" content="介绍STM32&#x2F;xx32的从Flash启动流程，分别从Keil和GCC下的.s启动文件进行分析：从0x8000000到用户main()之间的初始化执行过程。">
 <meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/pictures/stm32%E5%A4%8D%E4%BD%8D%E6%B5%81%E7%A8%8B.png">
 <meta property="article:published_time" content="2023-11-28T04:00:00.000Z">
-<meta property="article:modified_time" content="2024-01-30T11:33:36.997Z">
+<meta property="article:modified_time" content="2024-02-01T10:10:38.682Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="STM32">
 <meta property="article:tag" content="MCU">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/pictures/stm32%E5%A4%8D%E4%BD%8D%E6%B5%81%E7%A8%8B.png">
 
 <link rel="canonical" href="http://example.com/2023/11/28/STM32%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B%E6%A6%82%E8%BF%B0/">
 
@@ -226,7 +228,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-01-30 19:33:36" itemprop="dateModified" datetime="2024-01-30T19:33:36+08:00">2024-01-30</time>
+                <time title="Modified: 2024-02-01 18:10:38" itemprop="dateModified" datetime="2024-02-01T18:10:38+08:00">2024-02-01</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -248,14 +250,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>2k</span>
+              <span>2.5k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>7 mins.</span>
+              <span>8 mins.</span>
             </span>
             <div class="post-description">介绍STM32/xx32的从Flash启动流程，分别从Keil和GCC下的.s启动文件进行分析：从0x8000000到用户main()之间的初始化执行过程。</div>
 
@@ -268,8 +270,8 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>无论是Keil还是Gcc，对于Cortex-M内核，其从Flash启动流程都是从 0x8000000 取栈顶地址存至MSP，而后执行复位中断<code>Reset_Handler()</code>，在复位中断内执行 系统时钟初始化、将可读可写数据从 Flash 搬运到 SRAM、清零 SRAM 的 bss 段数据等，最后跳转至<code>main()</code>函数。<br><br></p>
-<p>当然，芯片为何会从 0x8000000 开始执行，或者说芯片内部的出厂固化的ROM程序是如何执行的，此处暂不作讨论。<br><br></p>
+        <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>无论是Keil还是Gcc，对于应用了Cortex-M内核的 xx32 单片机，其从Flash启动流程都是从 0x8000000 取栈顶地址存至MSP，而后执行复位中断<code>Reset_Handler()</code>，在复位中断内执行 系统时钟初始化、将可读可写数据从 Flash 搬运到 SRAM、清零 SRAM 的 bss 段数据等，最后跳转至<code>main()</code>函数。<br><br></p>
+<p>当然，芯片为何会从 0x8000000 开始执行，或者说芯片内部的出厂固化的ROM程序是如何执行的，此处暂不过多赘述，详见下文章节。<br><br></p>
 <p>从源文件分析来看，Keil环境下的启动初始化源代码大多集成在库里面，用户不可见，因此本文主要从gcc环境下的源文件进行详细剖析启动流程。<br><br></p>
 <p>另外，Keil下有所谓的<code>$$Super$main</code>&#x2F;<code>$$Sub$main</code>，或者说gcc环境下.s源码最后是跳转至<code>main</code>&#x2F;<code>entry</code>函数，此等都可由用户配置写就，暂不作讲解。<br><br></p>
 <h2 id="Keil环境下的启动文件分析"><a href="#Keil环境下的启动文件分析" class="headerlink" title="Keil环境下的启动文件分析"></a>Keil环境下的启动文件分析</h2><h3 id="初始化栈顶指针"><a href="#初始化栈顶指针" class="headerlink" title="初始化栈顶指针"></a>初始化栈顶指针</h3><p>内核从0x0800 0000读取栈顶地址，并将该地址存入MSP中。</p>
@@ -325,7 +327,22 @@
 <h3 id="GCC环境之复位中断源码总览"><a href="#GCC环境之复位中断源码总览" class="headerlink" title="GCC环境之复位中断源码总览"></a>GCC环境之复位中断源码总览</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">Reset_Handler:  </span><br><span class="line">  movs  r1, #0              /* 将寄存器r1清零，作为数据段复制的偏移量 */</span><br><span class="line">  b  LoopCopyDataInit       /* 无条件跳转到LoopCopyDataInit标签处 */</span><br><span class="line"></span><br><span class="line">CopyDataInit:</span><br><span class="line">  ldr  r3, =_sidata         /* 将_sidata的地址加载到寄存器r3，表示初始化数据段的起始地址 */</span><br><span class="line">  ldr  r3, [r3, r1]         /* 从初始化数据段中取出一个32位数据，存储在寄存器r3中。 */</span><br><span class="line">  str  r3, [r0, r1]         /* 将寄存器r3中的数据存储到数据段当前位置。 */</span><br><span class="line">  adds  r1, r1, #4         /* 增加偏移量，移动到下一个32位数据的位置。 */</span><br><span class="line">    </span><br><span class="line">LoopCopyDataInit:</span><br><span class="line">  ldr  r0, =_sdata         /* 将_sdata的地址加载到寄存器r0，表示数据段的起始地址。*/</span><br><span class="line">  ldr  r3, =_edata         /* 将_edata的地址加载到寄存器r3，表示数据段的结束地址。 */</span><br><span class="line">  adds  r2, r0, r1         /* 计算数据段当前位置的地址，存储在寄存器r2中。*/</span><br><span class="line">  cmp  r2, r3         /* 比较当前位置与数据段结束地址的大小关系 */</span><br><span class="line">  bcc  CopyDataInit         /* 如果当前位置小于结束地址，则跳转到CopyDataInit标签处 */</span><br><span class="line">  </span><br><span class="line">  /*清零未初始化数据段（bss segment）*/</span><br><span class="line">  ldr  r2, =_sbss         /* 将_sbss的地址加载到寄存器r2，表示未初始化数据段的起始地址 */</span><br><span class="line">  b  LoopFillZerobss         /* 无条件跳转到LoopFillZerobss标签处 */</span><br><span class="line">FillZerobss:</span><br><span class="line">  movs  r3, #0      /* 将寄存器r3清零，作为未初始化数据段的填充值 */</span><br><span class="line">  str  r3, [r2], #4      /* 将寄存器r3中的数据存储到当前位置，并将当前位置向后移动4个字节 */</span><br><span class="line">    </span><br><span class="line">LoopFillZerobss:         </span><br><span class="line">  ldr  r3, = _ebss        /* 将_ebss的地址加载到寄存器r3，表示未初始化数据段的结束地址 */</span><br><span class="line">  cmp  r2, r3         /* 比较当前位置与结束地址的大小关系 */</span><br><span class="line">  bcc  FillZerobss         /* 如果当前位置小于结束地址，则跳转到FillZerobss标签处 */</span><br><span class="line"></span><br><span class="line">  bl  SystemInit            /* 调用系统时钟初始化函数 */</span><br><span class="line">  bl __libc_init_array         /* 调用静态构造函数 */</span><br><span class="line">  bl  main            /* 应用程序的入口函数 */</span><br><span class="line">  bx  lr            /* 通过bx lr指令返回到调用者（通常是启动代码的入口处），当然不会执行到此处 */</span><br><span class="line">.size  Reset_Handler, .-Reset_Handler</span><br></pre></td></tr></table></figure>
 
 
-<h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2>
+<h2 id="常见疑惑解答"><a href="#常见疑惑解答" class="headerlink" title="常见疑惑解答"></a>常见疑惑解答</h2><h3 id="为什么芯片启动时会将栈顶地址存放到-MSP，然后跳转至复位中断执行？"><a href="#为什么芯片启动时会将栈顶地址存放到-MSP，然后跳转至复位中断执行？" class="headerlink" title="为什么芯片启动时会将栈顶地址存放到 MSP，然后跳转至复位中断执行？"></a>为什么芯片启动时会将栈顶地址存放到 MSP，然后跳转至复位中断执行？</h3><p>.s 启动文件和链接脚本已经讲明了所生成的映像文件第一个字是栈顶地址，第二个字就是复位中断的地址。</p>
+<p>有些人可能会疑惑，为什么系统启动会设置栈顶地址，并且会跳转到复位中断呢？（其实，这都是 Cortex-M 内核所实现的）</p>
+<p>以下内容摘选自<code>ARM Cortex-M3与Cortex-M4权威指南</code>的第4.8节：<code>复位和复位流程</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">在复位后以及处理器开始执行程序前，Cortex-M处理器会从存储器中读出头两个字，如图4.30所示。</span><br><span class="line">向量表位于存储器的开头部分，它的头两个字为主栈指针(MSP)的初始值，以及代表复位处理起始地址的复位向量(参考本书图4.26和4.5.3节)。</span><br><span class="line">处理器读出这两个字后，就会将这些数值赋给MSP和程序计数器(PC)。</span><br></pre></td></tr></table></figure>
+<p><img src="/../pictures/stm32%E5%A4%8D%E4%BD%8D%E6%B5%81%E7%A8%8B.png" alt="stm32复位流程"></p>
+<p>由此可见，所谓的启动文件和链接脚本 都是根据 内核特性和单片机厂商的设计特性 而制定的，前者是果，后者是因。</p>
+<h3 id="芯片启动时为何都是从-0x8000000-开始？"><a href="#芯片启动时为何都是从-0x8000000-开始？" class="headerlink" title="芯片启动时为何都是从 0x8000000 开始？"></a>芯片启动时为何都是从 0x8000000 开始？</h3><p>Cortex-M 内核复位都是固定从 0x00000000 开始，而在 STM32&#x2F;xx32 中，程序通常存储在 0x8000000 地址并在此开始执行，这一点是由于芯片厂商的设计所决定的。</p>
+<p>以下内容摘选自互联网：</p>
+<p>在 STM32 等微控制器中，可以通过配置 BOOT 引脚或其他方式，将 Flash 的 0x08000000 地址重映射到 0x00000000。</p>
+<p>这样，微控制器就可以在 0x00000000 地址处找到中断向量表，同时，程序代码仍然存储在 Flash 的0x08000000 地址处</p>
+<p>这种设计使得微控制器能够在启动时正确地找到并执行存储在 Flash 中的程序，同时还能满足 ARM Cortex-M 系列微控制器的启动要求</p>
+<h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://bbs.21dianyuan.com/forum.php?mod=viewthread&tid=302606">ARM Cortex-M3与Cortex-M4权威指南</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_42231514/article/details/106178653">STM32的Flash地址是0x08000000，从0x00000000不可以？</a></li>
+</ul>
+
     </div>
 
     
@@ -409,7 +426,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Keil%E7%8E%AF%E5%A2%83%E4%B8%8B%E7%9A%84%E5%90%AF%E5%8A%A8%E6%96%87%E4%BB%B6%E5%88%86%E6%9E%90"><span class="nav-number">2.</span> <span class="nav-text">Keil环境下的启动文件分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96%E6%A0%88%E9%A1%B6%E6%8C%87%E9%92%88"><span class="nav-number">2.1.</span> <span class="nav-text">初始化栈顶指针</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%8D%E4%BD%8D%E4%B8%AD%E6%96%AD"><span class="nav-number">2.2.</span> <span class="nav-text">复位中断</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#main-%E5%87%BD%E6%95%B0"><span class="nav-number">2.3.</span> <span class="nav-text">_main()函数</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#GCC%E7%BC%96%E8%AF%91%E7%8E%AF%E5%A2%83%E4%B8%8B%E7%9A%84%E5%90%AF%E5%8A%A8%E6%96%87%E4%BB%B6%E5%88%86%E6%9E%90"><span class="nav-number">3.</span> <span class="nav-text">GCC编译环境下的启动文件分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%8D%E4%BD%8D%E4%B8%AD%E6%96%AD%E8%B5%B7%E5%A7%8B"><span class="nav-number">3.1.</span> <span class="nav-text">复位中断起始</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8B%B7%E8%B4%9DRW-Data"><span class="nav-number">3.2.</span> <span class="nav-text">拷贝RW-Data</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B8%85%E9%9B%B6bss%E6%AE%B5"><span class="nav-number">3.3.</span> <span class="nav-text">清零bss段</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B6%E5%AE%83%E5%88%9D%E5%A7%8B%E5%8C%96%E5%8F%8A%E8%B7%B3%E8%BD%AC%E8%87%B3main"><span class="nav-number">3.4.</span> <span class="nav-text">其它初始化及跳转至main</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#GCC%E7%8E%AF%E5%A2%83%E4%B9%8B%E5%A4%8D%E4%BD%8D%E4%B8%AD%E6%96%AD%E6%BA%90%E7%A0%81%E6%80%BB%E8%A7%88"><span class="nav-number">3.5.</span> <span class="nav-text">GCC环境之复位中断源码总览</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E7%AB%99%E7%82%B9"><span class="nav-number">4.</span> <span class="nav-text">参考站点</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Keil%E7%8E%AF%E5%A2%83%E4%B8%8B%E7%9A%84%E5%90%AF%E5%8A%A8%E6%96%87%E4%BB%B6%E5%88%86%E6%9E%90"><span class="nav-number">2.</span> <span class="nav-text">Keil环境下的启动文件分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96%E6%A0%88%E9%A1%B6%E6%8C%87%E9%92%88"><span class="nav-number">2.1.</span> <span class="nav-text">初始化栈顶指针</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%8D%E4%BD%8D%E4%B8%AD%E6%96%AD"><span class="nav-number">2.2.</span> <span class="nav-text">复位中断</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#main-%E5%87%BD%E6%95%B0"><span class="nav-number">2.3.</span> <span class="nav-text">_main()函数</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#GCC%E7%BC%96%E8%AF%91%E7%8E%AF%E5%A2%83%E4%B8%8B%E7%9A%84%E5%90%AF%E5%8A%A8%E6%96%87%E4%BB%B6%E5%88%86%E6%9E%90"><span class="nav-number">3.</span> <span class="nav-text">GCC编译环境下的启动文件分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%8D%E4%BD%8D%E4%B8%AD%E6%96%AD%E8%B5%B7%E5%A7%8B"><span class="nav-number">3.1.</span> <span class="nav-text">复位中断起始</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8B%B7%E8%B4%9DRW-Data"><span class="nav-number">3.2.</span> <span class="nav-text">拷贝RW-Data</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B8%85%E9%9B%B6bss%E6%AE%B5"><span class="nav-number">3.3.</span> <span class="nav-text">清零bss段</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B6%E5%AE%83%E5%88%9D%E5%A7%8B%E5%8C%96%E5%8F%8A%E8%B7%B3%E8%BD%AC%E8%87%B3main"><span class="nav-number">3.4.</span> <span class="nav-text">其它初始化及跳转至main</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#GCC%E7%8E%AF%E5%A2%83%E4%B9%8B%E5%A4%8D%E4%BD%8D%E4%B8%AD%E6%96%AD%E6%BA%90%E7%A0%81%E6%80%BB%E8%A7%88"><span class="nav-number">3.5.</span> <span class="nav-text">GCC环境之复位中断源码总览</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B8%B8%E8%A7%81%E7%96%91%E6%83%91%E8%A7%A3%E7%AD%94"><span class="nav-number">4.</span> <span class="nav-text">常见疑惑解答</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E8%8A%AF%E7%89%87%E5%90%AF%E5%8A%A8%E6%97%B6%E4%BC%9A%E5%B0%86%E6%A0%88%E9%A1%B6%E5%9C%B0%E5%9D%80%E5%AD%98%E6%94%BE%E5%88%B0-MSP%EF%BC%8C%E7%84%B6%E5%90%8E%E8%B7%B3%E8%BD%AC%E8%87%B3%E5%A4%8D%E4%BD%8D%E4%B8%AD%E6%96%AD%E6%89%A7%E8%A1%8C%EF%BC%9F"><span class="nav-number">4.1.</span> <span class="nav-text">为什么芯片启动时会将栈顶地址存放到 MSP，然后跳转至复位中断执行？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%8A%AF%E7%89%87%E5%90%AF%E5%8A%A8%E6%97%B6%E4%B8%BA%E4%BD%95%E9%83%BD%E6%98%AF%E4%BB%8E-0x8000000-%E5%BC%80%E5%A7%8B%EF%BC%9F"><span class="nav-number">4.2.</span> <span class="nav-text">芯片启动时为何都是从 0x8000000 开始？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E7%AB%99%E7%82%B9"><span class="nav-number">5.</span> <span class="nav-text">参考站点</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -479,7 +496,7 @@
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">Reading time total &asymp;</span>
-    <span title="Reading time total">2:06</span>
+    <span title="Reading time total">2:08</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
   </div>
