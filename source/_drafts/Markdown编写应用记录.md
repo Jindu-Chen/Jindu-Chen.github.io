@@ -13,6 +13,16 @@ description: |
 
 
 
+```
+<img src="../pictures/stm32复位流程.png" alt="图片标题">
+
+// 让图片居中
+<p align="center">
+  <img src="image.jpg" alt="图片" />
+</p>
+```
+
+
 
 可以在代码块的开始标记前加上语言标记来标记代码块的语言，如`c`、`bash`、`cpp`、`java`、`asm`等等
 

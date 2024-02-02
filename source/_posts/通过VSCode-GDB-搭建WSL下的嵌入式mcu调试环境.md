@@ -47,7 +47,9 @@ description: 简述在Windows中，使用VSCode登陆WSL，实现在WSL环境下
 
 
 ![GDB Server config](../pictures/2023-12-04%20J-Link.png)
+
 <br>
+
 ![J-Link GDB Server](../pictures/2023-12-04%20j-link%20GDB.png)
 
 3. 在Windows下使用VSCode登陆WSL，打开源码所在工程文件夹，作为VSCode工作区

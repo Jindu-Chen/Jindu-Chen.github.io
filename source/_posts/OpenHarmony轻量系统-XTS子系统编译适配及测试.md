@@ -1,6 +1,6 @@
 ---
 title: OpenHarmony轻量系统--XTS子系统编译适配及测试
-date: 2024-01-12
+date: 2024-02-02
 tags:
 categories:
 - [LiteOS]
