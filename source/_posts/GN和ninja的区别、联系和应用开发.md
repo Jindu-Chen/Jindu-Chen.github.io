@@ -4,6 +4,7 @@ date: 2023-12-24
 tags:
 categories:
 - [LiteOS]
+- [OpenHarmony]
 description: |
   &emsp;&emsp;GN是一个用于生成工程构建配置文件的工具，而Ninja工具用于替代Make、执行实际构建过程，其构建过程快速、高效，二者通常一起使用。<br>
   &emsp;&emsp;要移植鸿蒙LiteOS-M、了解其源码工程之构建，那么熟悉GN和Ninja的编译构建方式是必要的，本文介绍个人对GN与Ninja的学习与理解，主要目的为辅助理解OpenHarmony-LiteOS-M工程。
