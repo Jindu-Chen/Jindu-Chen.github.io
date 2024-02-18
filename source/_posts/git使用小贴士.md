@@ -93,6 +93,9 @@ description: 主要记录Git的常用命令、一些非典型操作及其意义�
 <br>
 
 **修改用户名(全局/当前项目)**
+
+此用户名即提交日志上所展示的用户名称
+
   - 修改全局用户名：`git config --global user.name "xxx"`，影响用户的所有仓库
   - 修改当前路径项目的用户名：`git config user.name "xxx"`
   - 查看全局用户名：`git config user.name`
