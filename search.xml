@@ -4,6 +4,27 @@
   
     
     <entry>
+      <title>嵌入式开发之命令行调试-Shell全剖析</title>
+      <link href="/2024/02/08/%E5%91%BD%E4%BB%A4%E8%A1%8C%E8%B0%83%E8%AF%95%E6%8E%A7%E5%88%B6%E5%8F%B0%E5%8E%9F%E7%90%86%E5%89%96%E6%9E%90/"/>
+      <url>/2024/02/08/%E5%91%BD%E4%BB%A4%E8%A1%8C%E8%B0%83%E8%AF%95%E6%8E%A7%E5%88%B6%E5%8F%B0%E5%8E%9F%E7%90%86%E5%89%96%E6%9E%90/</url>
+      
+        <content type="html"><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>本人初次接触命令行调试，还是是大学时初学正点原子 STM32 教程，其提供了这个软件组件用于调试：（只要你在串口输入相应的函数名，单片机就能执行相应的函数），当时真的惊为天人，觉得这种调试方法很神奇也很有意思。</p><p>当时我不了解什么是命令行，什么是Shell，也没有能力或者精力去了解其原理实现，而且那软件组件并不具备一个Shell的完整功能，但也足以震惊初学STM32点灯的我</p><p>随着开发经历多起来，日常Linux Shell、PowerShell、嵌入式Shell 等等各种什么 Shell 的字眼充斥耳边，本人也对 Shell 这个词有了新的理解，因此也就写下这篇文章，主要为总结和升华个人对嵌入式 Shell 的应用及理解，当然也包括其它的一些方面，或者说在研读源码过程中，能够学习到一些编程方式&#x2F;方法&#x2F;思想，那就更好不过了</p><h2 id="命令行交互概述"><a href="#命令行交互概述" class="headerlink" title="命令行交互概述"></a>命令行交互概述</h2><p>环境变量、映射关系、调用</p><p>换行，tab等 标准功能 参照Shell</p><p>串口软件之按键键值映射，参照SecureCRT</p><p>本文以 Letter-Shell 为例</p><h2 id="引出命令行函数原理"><a href="#引出命令行函数原理" class="headerlink" title="引出命令行函数原理"></a>引出命令行函数原理</h2><p>原理大致是将要声明的命令行函数指针变量 声明至一个段中，而后将这个段编译至程序中，程序运行时，可以遍历这个段的函数指针，然后指向这个指针运行即可完成 命令行对这个函数的调用</p><p>至于函数名的保存，以及多种变量的调用，则</p><p>声明函数段、<br>在GCC或者Keil环境下的链接脚本要进行不同的配置，声明相关的段不要被编译器优化</p><h3 id="命令行解析"><a href="#命令行解析" class="headerlink" title="命令行解析"></a>命令行解析</h3><h3 id="命令函数"><a href="#命令函数" class="headerlink" title="命令函数"></a>命令函数</h3><h3 id="命令表"><a href="#命令表" class="headerlink" title="命令表"></a>命令表</h3><h2 id="实时操作系统下获取当前线程运行状态"><a href="#实时操作系统下获取当前线程运行状态" class="headerlink" title="实时操作系统下获取当前线程运行状态"></a>实时操作系统下获取当前线程运行状态</h2><p>线程栈最大使用率</p><p>CPU空闲率</p><h2 id="Shell-附加功能"><a href="#Shell-附加功能" class="headerlink" title="Shell 附加功能"></a>Shell 附加功能</h2><h3 id="日志输出"><a href="#日志输出" class="headerlink" title="日志输出"></a>日志输出</h3><p>颜色的标准配置</p><h3 id="密码设置原理"><a href="#密码设置原理" class="headerlink" title="密码设置原理"></a>密码设置原理</h3><h2 id="Shell-移植适配（以Letter-Shell为例）"><a href="#Shell-移植适配（以Letter-Shell为例）" class="headerlink" title="Shell 移植适配（以Letter_Shell为例）"></a>Shell 移植适配（以Letter_Shell为例）</h2><h2 id="注意项及疑惑解答"><a href="#注意项及疑惑解答" class="headerlink" title="注意项及疑惑解答"></a>注意项及疑惑解答</h2><p>避免串口回环，导致函数陷入死循环</p><h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2><ul><li><a href="https://github.com/NevermindZZT/letter-shell/blob/master/README.md">letter shell 3.x</a></li><li><a href="https://zhuanlan.zhihu.com/p/128960695">letter-shell | 一个功能强大的嵌入式shell</a></li></ul>]]></content>
+      
+      
+      <categories>
+          
+          <category> MCU </category>
+          
+          <category> 嵌入式 </category>
+          
+      </categories>
+      
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>OpenHarmony轻量系统--XTS子系统编译适配及测试</title>
       <link href="/2024/02/02/OpenHarmony%E8%BD%BB%E9%87%8F%E7%B3%BB%E7%BB%9F-XTS%E5%AD%90%E7%B3%BB%E7%BB%9F%E7%BC%96%E8%AF%91%E9%80%82%E9%85%8D%E5%8F%8A%E6%B5%8B%E8%AF%95/"/>
       <url>/2024/02/02/OpenHarmony%E8%BD%BB%E9%87%8F%E7%B3%BB%E7%BB%9F-XTS%E5%AD%90%E7%B3%BB%E7%BB%9F%E7%BC%96%E8%AF%91%E9%80%82%E9%85%8D%E5%8F%8A%E6%B5%8B%E8%AF%95/</url>
@@ -602,18 +623,7 @@
       <link href="/about/index.html"/>
       <url>/about/index.html</url>
       
-        <content type="html"><![CDATA[<h3 id="陈进渡"><a href="#陈进渡" class="headerlink" title="陈进渡"></a>陈进渡</h3><p>男 | 24岁 | 本科 | 两年工作经验</p><p>18898517377 | <a href="mailto:&#x63;&#x68;&#x65;&#x6e;&#106;&#x69;&#110;&#100;&#x75;&#x40;&#49;&#50;&#x36;&#x2e;&#x63;&#111;&#x6d;">&#x63;&#x68;&#x65;&#x6e;&#106;&#x69;&#110;&#100;&#x75;&#x40;&#49;&#50;&#x36;&#x2e;&#x63;&#111;&#x6d;</a> | <a href="https://jindu-chen.github.io/">https://jindu-chen.github.io</a></p><p>嵌入式软件工程师</p><h3 id="教育经历"><a href="#教育经历" class="headerlink" title="教育经历"></a>教育经历</h3><p>深圳大学（2018.09 - 2022.06）</p><h3 id="工作经历"><a href="#工作经历" class="headerlink" title="工作经历"></a>工作经历</h3><p>深圳市倍轻松科技股份有限公司（2022.05 - 至今）</p><h3 id="自我评价"><a href="#自我评价" class="headerlink" title="自我评价"></a>自我评价</h3>]]></content>
-      
-    </entry>
-    
-    
-    
-    <entry>
-      <title>tags</title>
-      <link href="/tags/index.html"/>
-      <url>/tags/index.html</url>
-      
-        <content type="html"><![CDATA[]]></content>
+        <content type="html"><![CDATA[<h3 id="陈进渡"><a href="#陈进渡" class="headerlink" title="陈进渡"></a>陈进渡</h3><p>男 | 24岁 | 本科 | 两年工作经验</p><p>18898517377 | <a href="mailto:&#99;&#x68;&#101;&#110;&#x6a;&#105;&#x6e;&#x64;&#117;&#x40;&#49;&#x32;&#x36;&#x2e;&#99;&#111;&#109;">&#99;&#x68;&#101;&#110;&#x6a;&#105;&#x6e;&#x64;&#117;&#x40;&#49;&#x32;&#x36;&#x2e;&#99;&#111;&#109;</a> | <a href="https://jindu-chen.github.io/">https://jindu-chen.github.io</a></p><p>嵌入式软件工程师</p><h3 id="教育经历"><a href="#教育经历" class="headerlink" title="教育经历"></a>教育经历</h3><p>深圳大学（2018.09 - 2022.06）</p><h3 id="工作经历"><a href="#工作经历" class="headerlink" title="工作经历"></a>工作经历</h3><p>深圳市倍轻松科技股份有限公司（2022.05 - 至今）</p><h3 id="自我评价"><a href="#自我评价" class="headerlink" title="自我评价"></a>自我评价</h3>]]></content>
       
     </entry>
     
@@ -623,6 +633,17 @@
       <title>categories</title>
       <link href="/categories/index.html"/>
       <url>/categories/index.html</url>
+      
+        <content type="html"><![CDATA[]]></content>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>tags</title>
+      <link href="/tags/index.html"/>
+      <url>/tags/index.html</url>
       
         <content type="html"><![CDATA[]]></content>
       
