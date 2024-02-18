@@ -28,7 +28,7 @@
 <meta property="og:description" content="日常在嵌入式软件开发中的调试方法包括有在线调试、日志打印、Shell 交互、BackTrace 等，其中 Shell 能够以命令行交互的方式直接访问系统信息或者执行功能函数，是辅助开发的调试利器之一，本文主要记录、总结个人对嵌入式 Shell 的应用、理解及原理分析。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2024-02-07T16:00:00.000Z">
-<meta property="article:modified_time" content="2024-02-18T09:49:20.956Z">
+<meta property="article:modified_time" content="2024-02-18T09:56:26.182Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -225,7 +225,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-02-18 17:49:20" itemprop="dateModified" datetime="2024-02-18T17:49:20+08:00">2024-02-18</time>
+                <time title="Modified: 2024-02-18 17:56:26" itemprop="dateModified" datetime="2024-02-18T17:56:26+08:00">2024-02-18</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -267,8 +267,8 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>本人初次接触命令行调试，还是在大学时初学正点原子 STM32 教程，其提供了一个软件组件用于调试：（只要你在串口输入相应的函数名，单片机就能执行相应的函数），当时真的惊为天人，觉得这种调试方法很神奇也很有意思。</p>
-<p>当时我不了解什么是命令行，什么是Shell，也没有能力或者精力去了解其原理实现，即使那软件组件并不具备一个 Shell 的完整功能，但也足以震惊初学STM32点灯的我</p>
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>本人初次接触命令行调试，还是在大学时初学正点原子 STM32 教程，其提供了一个软件组件用于调试：（<strong>只要你在串口输入相应的函数名，单片机就能执行相应的函数</strong>），当时真的惊为天人，觉得这种调试方法很神奇也很有意思。</p>
+<p>那时不了解什么是命令行，什么是Shell，也没有能力或者精力去了解其原理实现，即使那软件组件并不具备一个 Shell 的完整功能，但也足以震惊初学STM32点灯的我</p>
 <p>随着开发经历多起来，日常Linux Shell、PowerShell、嵌入式Shell 等等各种什么 Shell 的字眼充斥耳边，本人也对 Shell 这个词有了新的理解，因此也就写下这篇文章，主要为总结和升华个人对嵌入式 Shell 的应用及理解，当然也包括其它的一些方面，或者说在研读源码过程中，能够学习到一些编程方式&#x2F;方法&#x2F;思想，那就更好不过了</p>
 <h2 id="命令行概述"><a href="#命令行概述" class="headerlink" title="命令行概述"></a>命令行概述</h2><p>官方百科：Shell，即命令行解释器，是计算机操作系统的一种用户界面，用户可以通过Shell与操作系统进行交互，输入命令来执行各种操作、控制系统的各种功能。Bash、Windows CMD、PowerShell等都是属于命令行解释器</p>
 <p>那么嵌入式Shell也是同理，只不过用户是使用上位机串口软件输入命令与嵌入式设备进行交互而已（通常是通过UART串口与外界交互，但其实也可以将输入输出流设置到其它外设上，如蓝牙BLE透传、TCP&#x2F;IP等）</p>
@@ -285,7 +285,7 @@
 <br>
 
 <hr>
-<p>下面主要以 Letter-Shell 为例，讲述嵌入式Shell的应用及原理分析</p>
+<p>下面主要以 Letter-Shell、RT-Thread FinSH 控制台为例，讲述嵌入式Shell的应用及原理分析</p>
 <h2 id="引出命令行函数原理"><a href="#引出命令行函数原理" class="headerlink" title="引出命令行函数原理"></a>引出命令行函数原理</h2><p>从通俗的角度来说，命令行调用就相当于：用户向设备发送一个指令，这个指令约定好跟一个指定操作有着映射关系，于是设备收到该指令后，去查询并执行其对应映射的操作。</p>
 <p>原理大致是将要声明的命令行函数指针变量 声明至一个段中，而后将这个段编译至程序中，程序运行时，可以遍历这个段的函数指针，然后指向这个指针运行即可完成 命令行对这个函数的调用</p>
 <p>至于函数名的保存，以及多种变量的调用，则</p>
