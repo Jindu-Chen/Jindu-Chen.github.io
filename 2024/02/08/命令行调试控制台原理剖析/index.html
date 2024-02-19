@@ -28,7 +28,7 @@
 <meta property="og:description" content="日常在嵌入式软件开发中的调试方法包括有在线调试、日志打印、Shell 交互、BackTrace 等，其中 Shell 能够以命令行交互的方式直接访问系统信息或者执行功能函数，是辅助开发的调试利器之一，本文主要记录、总结个人对嵌入式 Shell 的应用、理解及原理分析。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2024-02-07T16:00:00.000Z">
-<meta property="article:modified_time" content="2024-02-18T09:56:26.182Z">
+<meta property="article:modified_time" content="2024-02-19T08:40:09.486Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -225,7 +225,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-02-18 17:56:26" itemprop="dateModified" datetime="2024-02-18T17:56:26+08:00">2024-02-18</time>
+                <time title="Modified: 2024-02-19 16:40:09" itemprop="dateModified" datetime="2024-02-19T16:40:09+08:00">2024-02-19</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -247,14 +247,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>1k</span>
+              <span>1.6k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>3 mins.</span>
+              <span>5 mins.</span>
             </span>
             <div class="post-description">日常在嵌入式软件开发中的调试方法包括有在线调试、日志打印、Shell 交互、BackTrace 等，其中 Shell 能够以命令行交互的方式直接访问系统信息或者执行功能函数，是辅助开发的调试利器之一，本文主要记录、总结个人对嵌入式 Shell 的应用、理解及原理分析。</div>
 
@@ -272,7 +272,7 @@
 <p>随着开发经历多起来，日常Linux Shell、PowerShell、嵌入式Shell 等等各种什么 Shell 的字眼充斥耳边，本人也对 Shell 这个词有了新的理解，因此也就写下这篇文章，主要为总结和升华个人对嵌入式 Shell 的应用及理解，当然也包括其它的一些方面，或者说在研读源码过程中，能够学习到一些编程方式&#x2F;方法&#x2F;思想，那就更好不过了</p>
 <h2 id="命令行概述"><a href="#命令行概述" class="headerlink" title="命令行概述"></a>命令行概述</h2><p>官方百科：Shell，即命令行解释器，是计算机操作系统的一种用户界面，用户可以通过Shell与操作系统进行交互，输入命令来执行各种操作、控制系统的各种功能。Bash、Windows CMD、PowerShell等都是属于命令行解释器</p>
 <p>那么嵌入式Shell也是同理，只不过用户是使用上位机串口软件输入命令与嵌入式设备进行交互而已（通常是通过UART串口与外界交互，但其实也可以将输入输出流设置到其它外设上，如蓝牙BLE透传、TCP&#x2F;IP等）</p>
-<p>比如在Linux Shell中，用户在命令行界面输入如<code>ls cd touch gcc make</code>等这些命令，使得Shell解释器会调用相对应名称的可执行程序，当然了通常输入命令还会附带参数，这就跟C函数也有入口参数一样。</p>
+<p>比如在Linux Shell中，用户在命令行界面输入如<code>ls cd touch gcc make</code>等这些命令，使得Shell解释器会调用相对应名称的可执行程序，当然了通常输入命令还可以附带参数，这就跟C函数也有入口参数一样。</p>
 <blockquote>
 <p>换句话说，命令就是可执行程序，其就是一个被封装好的功能函数。</p>
 </blockquote>
@@ -287,17 +287,41 @@
 <hr>
 <p>下面主要以 Letter-Shell、RT-Thread FinSH 控制台为例，讲述嵌入式Shell的应用及原理分析</p>
 <h2 id="引出命令行函数原理"><a href="#引出命令行函数原理" class="headerlink" title="引出命令行函数原理"></a>引出命令行函数原理</h2><p>从通俗的角度来说，命令行调用就相当于：用户向设备发送一个指令，这个指令约定好跟一个指定操作有着映射关系，于是设备收到该指令后，去查询并执行其对应映射的操作。</p>
-<p>原理大致是将要声明的命令行函数指针变量 声明至一个段中，而后将这个段编译至程序中，程序运行时，可以遍历这个段的函数指针，然后指向这个指针运行即可完成 命令行对这个函数的调用</p>
-<p>至于函数名的保存，以及多种变量的调用，则</p>
-<p>声明函数段、<br>在GCC或者Keil环境下的链接脚本要进行不同的配置，声明相关的段不要被编译器优化</p>
-<h3 id="命令行解析"><a href="#命令行解析" class="headerlink" title="命令行解析"></a>命令行解析</h3><h3 id="命令函数"><a href="#命令函数" class="headerlink" title="命令函数"></a>命令函数</h3><h3 id="命令表"><a href="#命令表" class="headerlink" title="命令表"></a>命令表</h3><h2 id="实时操作系统下获取当前线程运行状态"><a href="#实时操作系统下获取当前线程运行状态" class="headerlink" title="实时操作系统下获取当前线程运行状态"></a>实时操作系统下获取当前线程运行状态</h2><h3 id="线程栈最大使用率"><a href="#线程栈最大使用率" class="headerlink" title="线程栈最大使用率"></a>线程栈最大使用率</h3><h3 id="CPU空闲率"><a href="#CPU空闲率" class="headerlink" title="CPU空闲率"></a>CPU空闲率</h3><h2 id="Shell-附加功能"><a href="#Shell-附加功能" class="headerlink" title="Shell 附加功能"></a>Shell 附加功能</h2><h3 id="日志输出"><a href="#日志输出" class="headerlink" title="日志输出"></a>日志输出</h3><p>颜色的标准配置</p>
+<p>就 Letter-Shell 为例（其它嵌入式Shell同理），通常移植完成后，其引出命令行的代码如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">cmd_test</span><span class="params">(<span class="type">void</span>)</span> &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Hello world ! \\n&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line">SHELL_EXPORT_CMD(SHELL_CMD_PERMISSION(<span class="number">0</span>)|SHELL_CMD_TYPE(SHELL_TYPE_CMD_FUNC), cmdTest, cmd_test, test cmd);</span><br></pre></td></tr></table></figure>
+<p>如上，当在Shell中输入<code>cmdTest</code>时，程序则会调用执行<code>cmd_test()</code>函数，而<code>test cmd</code>则是命令的说明部分。</p>
+<p>其主要是通过定义<code>SHELL_EXPORT_CMD</code>宏，将函数添加到shell的可执行命令列表中，该宏涉及预处理和链接特性，其实现如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> SHELL_EXPORT_CMD(_attr, _name, _func, _desc) \\</span></span><br><span class="line"><span class="meta">const char shellCmd##_name[] = #_name; \\</span></span><br><span class="line"><span class="meta">const char shellDesc##_name[] = #_desc; \\</span></span><br><span class="line"><span class="meta">SHELL_USED const ShellCommand \\</span></span><br><span class="line"><span class="meta">shellCommand##_name SHELL_SECTION(\<span class="string">&quot;shellCommand\&quot;) = \\</span></span></span><br><span class="line"><span class="string"><span class="meta">&#123; \\</span></span></span><br><span class="line"><span class="string"><span class="meta">    .attr.value = _attr, \\</span></span></span><br><span class="line"><span class="string"><span class="meta">    .data.cmd.name = shellCmd##_name, \\</span></span></span><br><span class="line"><span class="string"><span class="meta">    .data.cmd.function = (int (*)())_func, \\</span></span></span><br><span class="line"><span class="string"><span class="meta">    .data.cmd.desc = shellDesc##_name \\</span></span></span><br><span class="line"><span class="string"><span class="meta">&#125;</span></span></span><br></pre></td></tr></table></figure>
+<p>这个宏接受四个参数：_attr、_name、_func和_desc，分别代表命令的属性、命令名、函数和描述。这个宏的作用是生成一个 ShellCommand 类型的全局变量，这个变量会被放在一个特殊的段（shellCommand）中。</p>
+<p>上述代码详细解释如下：</p>
+<ul>
+<li><code>SHELL_USED</code>即<code>__attribute__((used))</code>，指示编译器不要优化这个变量</li>
+<li><code>SHELL_USED const ShellCommand \\</code>中的<code>ShellCommand</code>是一个结构体（联合体）变量类型，其元素包含命令的属性、命令名、函数指针、或者存放按键键值、用户名、用户密码等等信息</li>
+<li><code>SHELL_SECTION(\&quot;shellCommand\&quot;)</code>即<code>__attribute__((section(shellCommand)))</code>，指示将定义的这个结构体变量声明到这个段中</li>
+</ul>
+<p>在链接阶段，链接器会将同一段中的所有变量放在一起，形成一个数组。这样，Shell就可以通过遍历这个数组来获取所有的命令，如下：</p>
+<p>不同的编译器特性不一样，但程序都是通过获取这个段的首末地址，然后在输入命令时，轮询这个段并执行相应的命令</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">if</span> defined(__CC_ARM) || (defined(__ARMCC_VERSION) &amp;&amp; __ARMCC_VERSION &gt;= 6000000)</span></span><br><span class="line">    <span class="keyword">extern</span> <span class="type">const</span> <span class="type">unsigned</span> <span class="type">int</span> shellCommand$$Base;</span><br><span class="line">    <span class="keyword">extern</span> <span class="type">const</span> <span class="type">unsigned</span> <span class="type">int</span> shellCommand$$Limit;</span><br><span class="line"><span class="meta">#<span class="keyword">elif</span> defined(__ICCARM__) || defined(__ICCRX__)</span></span><br><span class="line">    <span class="meta">#<span class="keyword">pragma</span> section=<span class="string">&quot;shellCommand&quot;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">elif</span> defined(__GNUC__)</span></span><br><span class="line">    <span class="keyword">extern</span> <span class="type">const</span> <span class="type">unsigned</span> <span class="type">int</span> _shell_command_start;</span><br><span class="line">    <span class="keyword">extern</span> <span class="type">const</span> <span class="type">unsigned</span> <span class="type">int</span> _shell_command_end;</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">if</span> defined(__CC_ARM) || (defined(__ARMCC_VERSION) &amp;&amp; __ARMCC_VERSION &gt;= 6000000)</span></span><br><span class="line">    shell-&gt;commandList.base = (ShellCommand *)(&amp;shellCommand$$Base);</span><br><span class="line">    shell-&gt;commandList.count = ((<span class="type">unsigned</span> <span class="type">int</span>)(&amp;shellCommand$$Limit)</span><br><span class="line">                            - (<span class="type">unsigned</span> <span class="type">int</span>)(&amp;shellCommand$$Base))</span><br><span class="line">                            / <span class="keyword">sizeof</span>(ShellCommand);</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">elif</span> defined(__ICCARM__) || defined(__ICCRX__)</span></span><br><span class="line">    shell-&gt;commandList.base = (ShellCommand *)(__section_begin(<span class="string">&quot;shellCommand&quot;</span>));</span><br><span class="line">    shell-&gt;commandList.count = ((<span class="type">unsigned</span> <span class="type">int</span>)(__section_end(<span class="string">&quot;shellCommand&quot;</span>))</span><br><span class="line">                            - (<span class="type">unsigned</span> <span class="type">int</span>)(__section_begin(<span class="string">&quot;shellCommand&quot;</span>)))</span><br><span class="line">                            / <span class="keyword">sizeof</span>(ShellCommand);</span><br><span class="line"><span class="meta">#<span class="keyword">elif</span> defined(__GNUC__)</span></span><br><span class="line">    shell-&gt;commandList.base = (ShellCommand *)(&amp;_shell_command_start);</span><br><span class="line">    shell-&gt;commandList.count = ((<span class="type">unsigned</span> <span class="type">int</span>)(&amp;_shell_command_end)</span><br><span class="line">                            - (<span class="type">unsigned</span> <span class="type">int</span>)(&amp;_shell_command_start))</span><br><span class="line">                            / <span class="keyword">sizeof</span>(ShellCommand);</span><br></pre></td></tr></table></figure>
+
+<p>其中，如果是在GCC编译环境下，那么需要在链接脚本中加入以下代码，以使得C源程序能够获取<code>ShellCommand</code>的首末地址，不然程序编译会报错</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">.rodata :</span><br><span class="line">&#123;</span><br><span class="line">  . = ALIGN(4);</span><br><span class="line">  *(.rodata)         /* .rodata sections (constants, strings, etc.) */</span><br><span class="line">  *(.rodata*)        /* .rodata* sections (constants, strings, etc.) */</span><br><span class="line">  . = ALIGN(4);</span><br><span class="line"></span><br><span class="line">_shell_command_start = .;</span><br><span class="line">KEEP (*(shellCommand))</span><br><span class="line">_shell_command_end = .;</span><br><span class="line">&#125; &gt;FLASH</span><br></pre></td></tr></table></figure>
+
+
+<p>综上所述，引出命令行的原理是：通过一个宏，定义一个全局结构体变量（其包含要引出的命令函数及其相关属性信息），并将该变量声明到一个指定的段中。Shell在接受外界命令时，会轮询这个段内的所有结构体变量，找到对应的命令函数指针并执行调用。</p>
+<h3 id="命令行解析"><a href="#命令行解析" class="headerlink" title="命令行解析"></a>命令行解析</h3><p>main函数</p>
+<p>普通函数</p>
+<p>入参</p>
+<h3 id="命令函数"><a href="#命令函数" class="headerlink" title="命令函数"></a>命令函数</h3><h3 id="命令表"><a href="#命令表" class="headerlink" title="命令表"></a>命令表</h3><h3 id="键值"><a href="#键值" class="headerlink" title="键值"></a>键值</h3><h2 id="Shell-附加功能"><a href="#Shell-附加功能" class="headerlink" title="Shell 附加功能"></a>Shell 附加功能</h2><h3 id="密码设置"><a href="#密码设置" class="headerlink" title="密码设置"></a>密码设置</h3><h3 id="实时操作系统下获取当前线程运行状态"><a href="#实时操作系统下获取当前线程运行状态" class="headerlink" title="实时操作系统下获取当前线程运行状态"></a>实时操作系统下获取当前线程运行状态</h3><h3 id="线程栈最大使用率"><a href="#线程栈最大使用率" class="headerlink" title="线程栈最大使用率"></a>线程栈最大使用率</h3><h3 id="CPU空闲率"><a href="#CPU空闲率" class="headerlink" title="CPU空闲率"></a>CPU空闲率</h3><h3 id="日志输出"><a href="#日志输出" class="headerlink" title="日志输出"></a>日志输出</h3><p>颜色的标准配置</p>
 <p>日志等级</p>
-<h3 id="密码设置原理"><a href="#密码设置原理" class="headerlink" title="密码设置原理"></a>密码设置原理</h3><h2 id="Shell-移植适配（以Letter-Shell为例）"><a href="#Shell-移植适配（以Letter-Shell为例）" class="headerlink" title="Shell 移植适配（以Letter_Shell为例）"></a>Shell 移植适配（以Letter_Shell为例）</h2><h2 id="注意项及疑惑解答"><a href="#注意项及疑惑解答" class="headerlink" title="注意项及疑惑解答"></a>注意项及疑惑解答</h2><p>避免串口回环，导致函数陷入死循环</p>
-<p>换行，tab等 标准功能 参照Shell<br>串口软件之按键键值映射，参照SecureCRT</p>
+<h2 id="Shell-移植适配"><a href="#Shell-移植适配" class="headerlink" title="Shell 移植适配"></a>Shell 移植适配</h2><p>此处不过多赘述</p>
+<h2 id="注意项及疑惑解答"><a href="#注意项及疑惑解答" class="headerlink" title="注意项及疑惑解答"></a>注意项及疑惑解答</h2><p>避免串口回环，导致函数陷入死循环</p>
+<p>换行，tab等标准功能 参照Shell</p>
+<p>串口软件之按键键值映射，参照SecureCRT</p>
 <p>多端输出</p>
 <h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2><ul>
 <li><a target="_blank" rel="noopener" href="https://github.com/NevermindZZT/letter-shell/blob/master/README.md">letter shell 3.x</a></li>
 <li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/128960695">letter-shell | 一个功能强大的嵌入式shell</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/jisuanji111111/article/details/126719491">C基础 – SHELL_EXPORT_CMD(_attr, _name, _func, _desc)宏注册函数详解</a></li>
 </ul>
 
     </div>
@@ -376,7 +400,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%91%BD%E4%BB%A4%E8%A1%8C%E6%A6%82%E8%BF%B0"><span class="nav-number">2.</span> <span class="nav-text">命令行概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BC%95%E5%87%BA%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%87%BD%E6%95%B0%E5%8E%9F%E7%90%86"><span class="nav-number">3.</span> <span class="nav-text">引出命令行函数原理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%91%BD%E4%BB%A4%E8%A1%8C%E8%A7%A3%E6%9E%90"><span class="nav-number">3.1.</span> <span class="nav-text">命令行解析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%91%BD%E4%BB%A4%E5%87%BD%E6%95%B0"><span class="nav-number">3.2.</span> <span class="nav-text">命令函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%91%BD%E4%BB%A4%E8%A1%A8"><span class="nav-number">3.3.</span> <span class="nav-text">命令表</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E6%97%B6%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E4%B8%8B%E8%8E%B7%E5%8F%96%E5%BD%93%E5%89%8D%E7%BA%BF%E7%A8%8B%E8%BF%90%E8%A1%8C%E7%8A%B6%E6%80%81"><span class="nav-number">4.</span> <span class="nav-text">实时操作系统下获取当前线程运行状态</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E6%A0%88%E6%9C%80%E5%A4%A7%E4%BD%BF%E7%94%A8%E7%8E%87"><span class="nav-number">4.1.</span> <span class="nav-text">线程栈最大使用率</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CPU%E7%A9%BA%E9%97%B2%E7%8E%87"><span class="nav-number">4.2.</span> <span class="nav-text">CPU空闲率</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Shell-%E9%99%84%E5%8A%A0%E5%8A%9F%E8%83%BD"><span class="nav-number">5.</span> <span class="nav-text">Shell 附加功能</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%97%A5%E5%BF%97%E8%BE%93%E5%87%BA"><span class="nav-number">5.1.</span> <span class="nav-text">日志输出</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AF%86%E7%A0%81%E8%AE%BE%E7%BD%AE%E5%8E%9F%E7%90%86"><span class="nav-number">5.2.</span> <span class="nav-text">密码设置原理</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Shell-%E7%A7%BB%E6%A4%8D%E9%80%82%E9%85%8D%EF%BC%88%E4%BB%A5Letter-Shell%E4%B8%BA%E4%BE%8B%EF%BC%89"><span class="nav-number">6.</span> <span class="nav-text">Shell 移植适配（以Letter_Shell为例）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B3%A8%E6%84%8F%E9%A1%B9%E5%8F%8A%E7%96%91%E6%83%91%E8%A7%A3%E7%AD%94"><span class="nav-number">7.</span> <span class="nav-text">注意项及疑惑解答</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E7%AB%99%E7%82%B9"><span class="nav-number">8.</span> <span class="nav-text">参考站点</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%91%BD%E4%BB%A4%E8%A1%8C%E6%A6%82%E8%BF%B0"><span class="nav-number">2.</span> <span class="nav-text">命令行概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BC%95%E5%87%BA%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%87%BD%E6%95%B0%E5%8E%9F%E7%90%86"><span class="nav-number">3.</span> <span class="nav-text">引出命令行函数原理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%91%BD%E4%BB%A4%E8%A1%8C%E8%A7%A3%E6%9E%90"><span class="nav-number">3.1.</span> <span class="nav-text">命令行解析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%91%BD%E4%BB%A4%E5%87%BD%E6%95%B0"><span class="nav-number">3.2.</span> <span class="nav-text">命令函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%91%BD%E4%BB%A4%E8%A1%A8"><span class="nav-number">3.3.</span> <span class="nav-text">命令表</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%94%AE%E5%80%BC"><span class="nav-number">3.4.</span> <span class="nav-text">键值</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Shell-%E9%99%84%E5%8A%A0%E5%8A%9F%E8%83%BD"><span class="nav-number">4.</span> <span class="nav-text">Shell 附加功能</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AF%86%E7%A0%81%E8%AE%BE%E7%BD%AE"><span class="nav-number">4.1.</span> <span class="nav-text">密码设置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E6%97%B6%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E4%B8%8B%E8%8E%B7%E5%8F%96%E5%BD%93%E5%89%8D%E7%BA%BF%E7%A8%8B%E8%BF%90%E8%A1%8C%E7%8A%B6%E6%80%81"><span class="nav-number">4.2.</span> <span class="nav-text">实时操作系统下获取当前线程运行状态</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E6%A0%88%E6%9C%80%E5%A4%A7%E4%BD%BF%E7%94%A8%E7%8E%87"><span class="nav-number">4.3.</span> <span class="nav-text">线程栈最大使用率</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CPU%E7%A9%BA%E9%97%B2%E7%8E%87"><span class="nav-number">4.4.</span> <span class="nav-text">CPU空闲率</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%97%A5%E5%BF%97%E8%BE%93%E5%87%BA"><span class="nav-number">4.5.</span> <span class="nav-text">日志输出</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Shell-%E7%A7%BB%E6%A4%8D%E9%80%82%E9%85%8D"><span class="nav-number">5.</span> <span class="nav-text">Shell 移植适配</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B3%A8%E6%84%8F%E9%A1%B9%E5%8F%8A%E7%96%91%E6%83%91%E8%A7%A3%E7%AD%94"><span class="nav-number">6.</span> <span class="nav-text">注意项及疑惑解答</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E7%AB%99%E7%82%B9"><span class="nav-number">7.</span> <span class="nav-text">参考站点</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -440,13 +464,13 @@
       <i class="fa fa-chart-area"></i>
     </span>
       <span class="post-meta-item-text">Symbols count total: </span>
-    <span title="Symbols count total">40k</span>
+    <span title="Symbols count total">41k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">Reading time total &asymp;</span>
-    <span title="Reading time total">2:15</span>
+    <span title="Reading time total">2:17</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
   </div>
