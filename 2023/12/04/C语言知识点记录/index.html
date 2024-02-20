@@ -28,7 +28,7 @@
 <meta property="og:description" content="记录、总结在嵌入式开发中遇到的C知识点，以及一些C编程注意项">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2023-12-04T02:04:15.000Z">
-<meta property="article:modified_time" content="2024-01-30T11:54:43.221Z">
+<meta property="article:modified_time" content="2024-02-20T03:43:37.068Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -225,7 +225,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-01-30 19:54:43" itemprop="dateModified" datetime="2024-01-30T19:54:43+08:00">2024-01-30</time>
+                <time title="Modified: 2024-02-20 11:43:37" itemprop="dateModified" datetime="2024-02-20T11:43:37+08:00">2024-02-20</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -243,14 +243,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>1.2k</span>
+              <span>1.5k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>4 mins.</span>
+              <span>5 mins.</span>
             </span>
             <div class="post-description">记录、总结在嵌入式开发中遇到的C知识点，以及一些C编程注意项</div>
 
@@ -313,16 +313,25 @@
 <blockquote>
 <p>将其地址传递出去即可，因为静态变量的地址在编译时已经确定，其生存在整个程序运行期间</p>
 </blockquote>
-<h2 id="函数"><a href="#函数" class="headerlink" title="函数"></a>函数</h2><p>switch case</p>
-<blockquote>
+<h2 id="函数"><a href="#函数" class="headerlink" title="函数"></a>函数</h2><h3 id="switch-case"><a href="#switch-case" class="headerlink" title="switch case"></a>switch case</h3><blockquote>
 <p>当在case语句内定义变量时，需要在case语句内 加花括号限定变量的作用域，否则编译会报错</p>
 </blockquote>
+<h3 id="main-类型函数"><a href="#main-类型函数" class="headerlink" title="main()类型函数"></a>main()类型函数</h3><p>在单片机开发中，通常为<code>int main(void)</code>的定义形式，因为其启动源码文件已有汇编代码如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">bl  main</span><br><span class="line">bx  lr    </span><br></pre></td></tr></table></figure>
+
+<p>而常见的<code>main</code>函数定义方式为<code>int main(int argc, char *argv[])</code>，其用于处理命令行参数。在嵌入式中开发中，也可以引出<code>int function(argc, char *argv) &#123; &#125;</code>类型的命令行调试函数</p>
+<p>其中，<code>argc</code>是一个整数，表示命令行参数的数量，并且该值至少为 1。（函数的名称算作一个参数）</p>
+<p><code>argv[0]</code>是函数名字符串，<code>argv[1]</code>到<code>argv[argc-1]</code>是命令行参数，当然了这些参数都是字符串</p>
 <h3 id="格式化输入输出"><a href="#格式化输入输出" class="headerlink" title="格式化输入输出"></a>格式化输入输出</h3><p>对于<code>printf</code>、<code>sprintf</code>等格式化输出函数</p>
 <ul>
 <li>对于<code>%.2d %2d %02d</code>以及其它的数字指定宽度输出，其会在宽度不足时补足，但<strong>若宽度超出，则会按照实际宽度输出</strong></li>
 <li>对于<code>%s %2s %.2s</code>相关的字符串输出，当超出时，其中<code>%.2s</code>会截取前两位字符输出，其它按照实际宽度输出</li>
 <li>部分测试代码及输出结果如下：<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">        <span class="type">int</span> a = <span class="number">300</span>;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;a=%d\n&quot;</span>, a);</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;a=%.2d\n&quot;</span>, a);</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;a=%02d\n&quot;</span>, a);</span><br><span class="line"></span><br><span class="line">        a = <span class="number">3</span>;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;a=%d\n&quot;</span>, a);</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;a=%.2d\n&quot;</span>, a);</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;a=%02d\n&quot;</span>, a);</span><br><span class="line"></span><br><span class="line">        <span class="type">char</span> b[] = <span class="string">&quot;hello, world&quot;</span>;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;b=%s\n&quot;</span>, b);</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;b=%2s\n&quot;</span>, b);</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;b=%.2s\n&quot;</span>, b);</span><br><span class="line"></span><br><span class="line">        <span class="type">char</span> c[] = <span class="string">&quot;he&quot;</span>;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;c=%s\n&quot;</span>, c);</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;c=%4s\n&quot;</span>, c);</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;c=%.4s\n&quot;</span>, c);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 输出结果如下：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">a=300</span><br><span class="line">a=300</span><br><span class="line">a=300</span><br><span class="line">a=3</span><br><span class="line">a=03</span><br><span class="line">a=03</span><br><span class="line">b=hello, world</span><br><span class="line">b=hello, world</span><br><span class="line">b=he</span><br><span class="line">c=he</span><br><span class="line">c=  he</span><br><span class="line">c=he</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="疑惑解答"><a href="#疑惑解答" class="headerlink" title="疑惑解答"></a>疑惑解答</h2><h3 id="如果强制转换调用函数指针的入参与实际函数入参的-数量或者类型-不一致，会如何？"><a href="#如果强制转换调用函数指针的入参与实际函数入参的-数量或者类型-不一致，会如何？" class="headerlink" title="如果强制转换调用函数指针的入参与实际函数入参的 数量或者类型 不一致，会如何？"></a>如果强制转换调用函数指针的入参与实际函数入参的 数量或者类型 不一致，会如何？</h3><p>函数参数的类型检查是在编译阶段进行的，如果传入的参数类型不正确，可能会导致未定义的行为错误。</p>
+<h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://www.zhihu.com/question/385731065">c语言怎样设置一个函数，可以接受任何类型的参数并返回int型</a></li>
 </ul>
 
     </div>
@@ -404,7 +413,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9D%82%E9%A1%B9"><span class="nav-number">1.</span> <span class="nav-text">杂项</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%AE%B5%E7%9A%84%E8%AF%A6%E8%A7%A3"><span class="nav-number">1.1.</span> <span class="nav-text">段的详解</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%A2%84%E5%A4%84%E7%90%86"><span class="nav-number">2.</span> <span class="nav-text">预处理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#C%E5%BA%93%E9%9B%86%E6%88%90%E7%9A%84%E5%AE%8F%E5%AE%9A%E4%B9%89"><span class="nav-number">2.1.</span> <span class="nav-text">C库集成的宏定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#pragma-pack-n-%E6%8C%87%E4%BB%A4"><span class="nav-number">2.2.</span> <span class="nav-text">#pragma pack(n)指令</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B3%E9%94%AE%E5%AD%97"><span class="nav-number">3.</span> <span class="nav-text">关键字</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#attribute-%E5%85%B3%E9%94%AE%E5%AD%97"><span class="nav-number">3.1.</span> <span class="nav-text">__attribute__ 关键字</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%98%E9%87%8F"><span class="nav-number">4.</span> <span class="nav-text">变量</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%87%BD%E6%95%B0"><span class="nav-number">5.</span> <span class="nav-text">函数</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%BC%E5%BC%8F%E5%8C%96%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA"><span class="nav-number">5.1.</span> <span class="nav-text">格式化输入输出</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9D%82%E9%A1%B9"><span class="nav-number">1.</span> <span class="nav-text">杂项</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%AE%B5%E7%9A%84%E8%AF%A6%E8%A7%A3"><span class="nav-number">1.1.</span> <span class="nav-text">段的详解</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%A2%84%E5%A4%84%E7%90%86"><span class="nav-number">2.</span> <span class="nav-text">预处理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#C%E5%BA%93%E9%9B%86%E6%88%90%E7%9A%84%E5%AE%8F%E5%AE%9A%E4%B9%89"><span class="nav-number">2.1.</span> <span class="nav-text">C库集成的宏定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#pragma-pack-n-%E6%8C%87%E4%BB%A4"><span class="nav-number">2.2.</span> <span class="nav-text">#pragma pack(n)指令</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B3%E9%94%AE%E5%AD%97"><span class="nav-number">3.</span> <span class="nav-text">关键字</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#attribute-%E5%85%B3%E9%94%AE%E5%AD%97"><span class="nav-number">3.1.</span> <span class="nav-text">__attribute__ 关键字</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%98%E9%87%8F"><span class="nav-number">4.</span> <span class="nav-text">变量</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%87%BD%E6%95%B0"><span class="nav-number">5.</span> <span class="nav-text">函数</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#switch-case"><span class="nav-number">5.1.</span> <span class="nav-text">switch case</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#main-%E7%B1%BB%E5%9E%8B%E5%87%BD%E6%95%B0"><span class="nav-number">5.2.</span> <span class="nav-text">main()类型函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%BC%E5%BC%8F%E5%8C%96%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA"><span class="nav-number">5.3.</span> <span class="nav-text">格式化输入输出</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%96%91%E6%83%91%E8%A7%A3%E7%AD%94"><span class="nav-number">6.</span> <span class="nav-text">疑惑解答</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A6%82%E6%9E%9C%E5%BC%BA%E5%88%B6%E8%BD%AC%E6%8D%A2%E8%B0%83%E7%94%A8%E5%87%BD%E6%95%B0%E6%8C%87%E9%92%88%E7%9A%84%E5%85%A5%E5%8F%82%E4%B8%8E%E5%AE%9E%E9%99%85%E5%87%BD%E6%95%B0%E5%85%A5%E5%8F%82%E7%9A%84-%E6%95%B0%E9%87%8F%E6%88%96%E8%80%85%E7%B1%BB%E5%9E%8B-%E4%B8%8D%E4%B8%80%E8%87%B4%EF%BC%8C%E4%BC%9A%E5%A6%82%E4%BD%95%EF%BC%9F"><span class="nav-number">6.1.</span> <span class="nav-text">如果强制转换调用函数指针的入参与实际函数入参的 数量或者类型 不一致，会如何？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E7%AB%99%E7%82%B9"><span class="nav-number">7.</span> <span class="nav-text">参考站点</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -468,13 +477,13 @@
       <i class="fa fa-chart-area"></i>
     </span>
       <span class="post-meta-item-text">Symbols count total: </span>
-    <span title="Symbols count total">41k</span>
+    <span title="Symbols count total">42k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">Reading time total &asymp;</span>
-    <span title="Reading time total">2:17</span>
+    <span title="Reading time total">2:19</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
   </div>
