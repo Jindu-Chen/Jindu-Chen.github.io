@@ -28,7 +28,7 @@
 <meta property="og:description" content="记录日常辅助开发中所涉及到的杂项操作，包括运维工具、开发辅助工具、日常工具等的相关操作，为检索使用">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2023-11-28T16:00:00.000Z">
-<meta property="article:modified_time" content="2024-02-19T07:02:33.935Z">
+<meta property="article:modified_time" content="2024-02-21T03:17:46.613Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -225,7 +225,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-02-19 15:02:33" itemprop="dateModified" datetime="2024-02-19T15:02:33+08:00">2024-02-19</time>
+                <time title="Modified: 2024-02-21 11:17:46" itemprop="dateModified" datetime="2024-02-21T11:17:46+08:00">2024-02-21</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -243,14 +243,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>1.2k</span>
+              <span>1.4k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>4 mins.</span>
+              <span>5 mins.</span>
             </span>
             <div class="post-description">记录日常辅助开发中所涉及到的杂项操作，包括运维工具、开发辅助工具、日常工具等的相关操作，为检索使用</div>
 
@@ -263,11 +263,14 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h2 id="J-Link-J-Flash"><a href="#J-Link-J-Flash" class="headerlink" title="J-Link&#x2F;J-Flash"></a>J-Link&#x2F;J-Flash</h2><p><strong>J-Flash批处理脚本配置烧录：</strong>当然，前提是要添加J-Link的可执行程序路径到<code>$PATH</code>环境变量中</p>
+        <h2 id="J-Link-J-Flash"><a href="#J-Link-J-Flash" class="headerlink" title="J-Link&#x2F;J-Flash"></a>J-Link&#x2F;J-Flash</h2><h3 id="J-Flash批处理脚本配置烧录"><a href="#J-Flash批处理脚本配置烧录" class="headerlink" title="J-Flash批处理脚本配置烧录"></a>J-Flash批处理脚本配置烧录</h3><p>当然，前提是要添加J-Link的可执行程序路径到<code>$PATH</code>环境变量中</p>
 <ul>
 <li>program.bat脚本代码如下，参考修改即可：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">echo start...</span><br><span class="line"></span><br><span class="line">JLink -device N32L406CB -if swd -speed 4000 -CommanderScript &quot;C:\Users\Breo\Desktop\Wireless moxibustion\Software\program.jlink&quot;</span><br></pre></td></tr></table></figure></li>
 <li>program.jlink文件代码如下，其中目标设备、文件路径、烧录地址等根据需要配置：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">connect</span><br><span class="line">device N32L406CB</span><br><span class="line">si SWD</span><br><span class="line">speed 4000</span><br><span class="line">h         // halt-停止</span><br><span class="line">r           // 复位，可以考虑去掉</span><br><span class="line">erase           // 或 erase 0x8002800，去掉也行，但可能会出现error fail address 0x00000000错误提示</span><br><span class="line"></span><br><span class="line">loadfile app.bin 0x8002800      // loadfile app.hex 或 loadfile app.bin 0x8000000</span><br><span class="line">verifybin app.bin 0x8002800</span><br><span class="line">r</span><br><span class="line">go        // r go表示reset and run</span><br><span class="line">q     // 退出J-Link命令行工具</span><br></pre></td></tr></table></figure></li>
 </ul>
+<h3 id="J-Link-J-Flash-读取单片机内部Flash内容"><a href="#J-Link-J-Flash-读取单片机内部Flash内容" class="headerlink" title="J-Link&#x2F;J-Flash 读取单片机内部Flash内容"></a>J-Link&#x2F;J-Flash 读取单片机内部Flash内容</h3><p>打开 J-Flash.exe 程序，进行工程配置并连接成功后，选择<code>Target</code> -&gt; <code>Manual Programming</code> -&gt; <code>Read back</code> -&gt; <code>Entire chip</code> 读取整片内容，也可以选择读取指定地址区的内容</p>
+<p>选择<code>File</code> -&gt; <code>Save file as</code> 保存读取的内容，选择 J-Flash 支持的文件类型如 Hex、Bin 等等</p>
+<p>前提是，芯片需要解除读保护</p>
 <h2 id="hexo主题相关"><a href="#hexo主题相关" class="headerlink" title="hexo主题相关"></a>hexo主题相关</h2><ul>
 <li><code>hexo init</code>，在初始化本地博客时使用，创建一个空白的文件夹并进入，然后执行 hexo init，即完成初始化</li>
 <li><code>hexo new &quot;xxx&quot;</code>，新建一篇博客，相当于手动直接在<code>//source/_posts/</code>目录下新建一个<code>xxx.md</code>文件</li>
@@ -348,6 +351,7 @@
 <li>新建文件<code>xxx.plantuml</code>，即可开始编码，编码格式参考官方文档</li>
 <li>以下为示例代码，鼠标光标位于代码其中任意位置，而后点击预览即可(Alt + D)<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">@startuml filename</span><br><span class="line">Main_task -&gt; Subtask: Delivery control event</span><br><span class="line">Subtask -&gt; Main_task: Reporting internal events</span><br><span class="line">@enduml</span><br></pre></td></tr></table></figure></li>
 </ul>
+<p><strong>添加Git相关插件</strong><br>安装 GitLens 扩展</p>
 
     </div>
 
@@ -428,7 +432,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#J-Link-J-Flash"><span class="nav-number">1.</span> <span class="nav-text">J-Link&#x2F;J-Flash</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#hexo%E4%B8%BB%E9%A2%98%E7%9B%B8%E5%85%B3"><span class="nav-number">2.</span> <span class="nav-text">hexo主题相关</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#WSL-%E4%B9%8B-Ubuntu22-%E6%90%AD%E5%BB%BAHexo-NexT%E5%8D%9A%E5%AE%A2"><span class="nav-number">2.1.</span> <span class="nav-text">WSL 之 Ubuntu22 搭建Hexo NexT博客</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%90%AD%E5%BB%BA-Hexo-Github-%E5%8D%9A%E5%AE%A2%E5%B0%8F%E7%BB%93"><span class="nav-number">2.2.</span> <span class="nav-text">搭建 Hexo + Github 博客小结</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Hexo-NexT-%E5%8A%9F%E8%83%BD%E9%85%8D%E7%BD%AE"><span class="nav-number">2.3.</span> <span class="nav-text">Hexo + NexT 功能配置</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#VSCode%E7%9B%B8%E5%85%B3"><span class="nav-number">3.</span> <span class="nav-text">VSCode相关</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#J-Link-J-Flash"><span class="nav-number">1.</span> <span class="nav-text">J-Link&#x2F;J-Flash</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#J-Flash%E6%89%B9%E5%A4%84%E7%90%86%E8%84%9A%E6%9C%AC%E9%85%8D%E7%BD%AE%E7%83%A7%E5%BD%95"><span class="nav-number">1.1.</span> <span class="nav-text">J-Flash批处理脚本配置烧录</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#J-Link-J-Flash-%E8%AF%BB%E5%8F%96%E5%8D%95%E7%89%87%E6%9C%BA%E5%86%85%E9%83%A8Flash%E5%86%85%E5%AE%B9"><span class="nav-number">1.2.</span> <span class="nav-text">J-Link&#x2F;J-Flash 读取单片机内部Flash内容</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#hexo%E4%B8%BB%E9%A2%98%E7%9B%B8%E5%85%B3"><span class="nav-number">2.</span> <span class="nav-text">hexo主题相关</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#WSL-%E4%B9%8B-Ubuntu22-%E6%90%AD%E5%BB%BAHexo-NexT%E5%8D%9A%E5%AE%A2"><span class="nav-number">2.1.</span> <span class="nav-text">WSL 之 Ubuntu22 搭建Hexo NexT博客</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%90%AD%E5%BB%BA-Hexo-Github-%E5%8D%9A%E5%AE%A2%E5%B0%8F%E7%BB%93"><span class="nav-number">2.2.</span> <span class="nav-text">搭建 Hexo + Github 博客小结</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Hexo-NexT-%E5%8A%9F%E8%83%BD%E9%85%8D%E7%BD%AE"><span class="nav-number">2.3.</span> <span class="nav-text">Hexo + NexT 功能配置</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#VSCode%E7%9B%B8%E5%85%B3"><span class="nav-number">3.</span> <span class="nav-text">VSCode相关</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -498,7 +502,7 @@
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">Reading time total &asymp;</span>
-    <span title="Reading time total">2:22</span>
+    <span title="Reading time total">2:23</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
   </div>
