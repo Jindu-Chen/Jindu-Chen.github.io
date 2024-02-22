@@ -28,7 +28,7 @@
 <meta property="og:description" content="介绍基于国民技术N32G452芯片(Cortex-M4内核)的OpenHarmony-V4.0轻量系统移植工程，进行XTS子系统编译适配及应用兼容性测试分析的开发过程，以供参考">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2024-02-01T16:00:00.000Z">
-<meta property="article:modified_time" content="2024-02-02T08:38:11.584Z">
+<meta property="article:modified_time" content="2024-02-22T10:01:55.952Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -217,10 +217,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2024-02-02 00:00:00 / Modified: 16:38:11" itemprop="dateCreated datePublished" datetime="2024-02-02T00:00:00+08:00">2024-02-02</time>
+              <time title="Created: 2024-02-02 00:00:00" itemprop="dateCreated datePublished" datetime="2024-02-02T00:00:00+08:00">2024-02-02</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-02-22 18:01:55" itemprop="dateModified" datetime="2024-02-22T18:01:55+08:00">2024-02-22</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -241,14 +247,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>1.1k</span>
+              <span>1.4k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>4 mins.</span>
+              <span>5 mins.</span>
             </span>
             <div class="post-description">介绍基于国民技术N32G452芯片(Cortex-M4内核)的OpenHarmony-V4.0轻量系统移植工程，进行XTS子系统编译适配及应用兼容性测试分析的开发过程，以供参考</div>
 
@@ -274,7 +280,7 @@
 <li><code>hb build -b debug</code></li>
 <li><code>hb build -f -b debug --gn-args build_xts=true</code>，build_xts是一个变量，如果使能了该变量，则会增加相关的编译部分。另外在用户私有的BUILD.gn文件里，也应有该变量的相关依赖部分</li>
 </ul>
-<p>就目前理解而言，要添加XTS子系统，前期需要实现的几点工作如下：</p>
+<p>就本人目前理解而言，要添加XTS子系统，前期需要实现的几点工作如下：</p>
 <ul>
 <li>首先完成基于私有开发板的OpenHarmony工程移植适配工作，使得基于内核子系统的最简工程可以运行</li>
 <li>而后建议在<code>target_config.h</code>添加启动shell功能配置，同时完成串口外设调试终端的移植适配，<code>hb build</code>，并烧录须测试验证ok。当然期间内必存在各种各样的编译报错，包括依赖关系不全、代码工程的不适配等</li>
@@ -288,21 +294,26 @@
 
 <p><strong>添加编译XTS子系需要执行的步骤：</strong></p>
 <ul>
-<li>在工程配置<code>target_config.h</code>宏定义中使能Test测试项<ul>
+<li><p>在工程配置<code>target_config.h</code>宏定义中使能Test测试项</p>
+<ul>
 <li>使得系统启动初始化时会进行相关函数调用</li>
 </ul>
 </li>
-<li>在<code>//kernel/liteos_m</code>中make menuconfig中，使能测试相关配置 – 实际上为配置<code>//vendor/xxx/kernel_configs/debug.config</code>选项</li>
-<li>在<code>//vendor/xxx/config.json</code>添加合适的子系统配置<ul>
+<li><p>在<code>//kernel/liteos_m</code>中make menuconfig中，使能测试相关配置 – 实际上为配置<code>//vendor/xxx/kernel_configs/debug.config</code>选项</p>
+</li>
+<li><p>在<code>//vendor/xxx/config.json</code>添加合适的子系统配置</p>
+<ul>
 <li>补全文件末尾的<code>third_patry</code>和<code>product_adapt_dir</code></li>
 </ul>
 </li>
-<li>在<code>//device/board/xxx/liteos_m/config.gni</code>添加适配的头文件路径<ul>
+<li><p>在<code>//device/board/xxx/liteos_m/config.gni</code>添加适配的头文件路径</p>
+<ul>
 <li>链接选项中增添合适的静态库链接，以实现链接测试用例相关库，其中测试静态库文件生成于<code>//out/$&#123;company&#125;//$&#123;product&#125;//libs</code></li>
 <li>还须添加源文件路径？</li>
 </ul>
 </li>
-<li>在<code>//device/board/xxx/xxx.ld</code>链接脚本中添加OpenHarmony特有的测试段</li>
+<li><p>在<code>//device/board/xxx/xxx.ld</code>链接脚本中添加OpenHarmony特有的测试段</p>
+</li>
 </ul>
 <h3 id="XTS子系统编译流程"><a href="#XTS子系统编译流程" class="headerlink" title="XTS子系统编译流程"></a>XTS子系统编译流程</h3><ul>
 <li>通过hb工具读取系统配置文件(即vendor目录下产品的config.json)，获取参与编译的子系统以及部件信息</li>
@@ -317,20 +328,26 @@
 </li>
 <li>.a库链接操作</li>
 </ul>
-<h2 id="XTS子系统测试分析"><a href="#XTS子系统测试分析" class="headerlink" title="XTS子系统测试分析"></a>XTS子系统测试分析</h2><h2 id="规范编码以通过兼容性测试"><a href="#规范编码以通过兼容性测试" class="headerlink" title="规范编码以通过兼容性测试"></a>规范编码以通过兼容性测试</h2><ul>
+<h2 id="XTS子系统兼容性测评要求"><a href="#XTS子系统兼容性测评要求" class="headerlink" title="XTS子系统兼容性测评要求"></a>XTS子系统兼容性测评要求</h2><h3 id="规范编码以通过兼容性测试"><a href="#规范编码以通过兼容性测试" class="headerlink" title="规范编码以通过兼容性测试"></a>规范编码以通过兼容性测试</h3><ul>
 <li><p>遵循 OpenHarmony 的开发规范。OpenHarmony 提供了完善的开发规范，包括代码风格、命名规范、注释规范等</p>
 </li>
 <li><p>使用 OpenHarmony 的标准 API</p>
 </li>
 </ul>
-<h3 id="XTS是如何测试的"><a href="#XTS是如何测试的" class="headerlink" title="XTS是如何测试的"></a>XTS是如何测试的</h3><h3 id="XTS子系统测试项"><a href="#XTS子系统测试项" class="headerlink" title="XTS子系统测试项"></a>XTS子系统测试项</h3><p>轻量系统的全部测试项包含有：应用管理(Ability和Bundle)、网络通信(LwIP)、文件系统、系统参数、Wi-Fi IOT、分布式数据管理、安全、日志、事件、分布式调度、系统更新、系统引导</p>
-<h2 id="XTS子系统的疑惑解答"><a href="#XTS子系统的疑惑解答" class="headerlink" title="XTS子系统的疑惑解答"></a>XTS子系统的疑惑解答</h2><ul>
-<li>相对于不同架构的工程，其XTS子系统源码是否也要更改？</li>
-<li>相对新移植的工程，是直接复制现有的XTS源码，还是要开发者基于移植工程、按照规范编写相关程序？</li>
+<h3 id="XTS子系统测试项"><a href="#XTS子系统测试项" class="headerlink" title="XTS子系统测试项"></a>XTS子系统测试项</h3><p>轻量系统的全部测试项包含有：应用管理(Ability和Bundle)、网络通信(LwIP)、文件系统、系统参数、Wi-Fi IOT、分布式数据管理、安全、日志、事件、分布式调度、系统更新、系统引导</p>
+<h2 id="OpenHarmony轻量系统认证流程"><a href="#OpenHarmony轻量系统认证流程" class="headerlink" title="OpenHarmony轻量系统认证流程"></a>OpenHarmony轻量系统认证流程</h2><p>准备烧录镜像、相关指导文档、寄送样品及工具</p>
+<p>通常情况下，由于芯片内存大小有限，无法一次性将所有的 XTS 测试用例库链接进程序中</p>
+<p>因此，主要采用分批烧录测试验证的方式，每一个测试模块都对应一个烧录镜像文件</p>
+<p>另外，需要提供相关烧录工具以及指导文件</p>
+<ul>
+<li>如果是通过烧录口直接烧录的方式，那么寄送的样品可以把线路板暴露出来</li>
+<li>当然，也可以通过 IAP 在应用编程方式，或者空中升级方式，只要能够达到目标即可</li>
 </ul>
-<h2 id="XTS子系统源码分析"><a href="#XTS子系统源码分析" class="headerlink" title="XTS子系统源码分析"></a>XTS子系统源码分析</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">LITE_TEST_CASE(IntTestSuite, TestCase001, Level0) </span><br><span class="line">&#123;  </span><br><span class="line">  //do something </span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h2 id="XTS子系统源码分析"><a href="#XTS子系统源码分析" class="headerlink" title="XTS子系统源码分析"></a>XTS子系统源码分析</h2><h3 id="XTS子系统软件工作流程"><a href="#XTS子系统软件工作流程" class="headerlink" title="XTS子系统软件工作流程"></a>XTS子系统软件工作流程</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">LITE_TEST_CASE(IntTestSuite, TestCase001, Level0) </span><br><span class="line">&#123;  </span><br><span class="line">  //do something </span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 
-<h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2><ul>
+
+
+<h2 id="XTS子系统的疑惑解答"><a href="#XTS子系统的疑惑解答" class="headerlink" title="XTS子系统的疑惑解答"></a>XTS子系统的疑惑解答</h2><h3 id="相对于不同架构的工程，其XTS子系统源码是否也要更改？"><a href="#相对于不同架构的工程，其XTS子系统源码是否也要更改？" class="headerlink" title="相对于不同架构的工程，其XTS子系统源码是否也要更改？"></a>相对于不同架构的工程，其XTS子系统源码是否也要更改？</h3><h3 id="相对新移植的工程，是直接复制现有的XTS源码，还是要开发者基于移植工程、按照规范编写相关程序？"><a href="#相对新移植的工程，是直接复制现有的XTS源码，还是要开发者基于移植工程、按照规范编写相关程序？" class="headerlink" title="相对新移植的工程，是直接复制现有的XTS源码，还是要开发者基于移植工程、按照规范编写相关程序？"></a>相对新移植的工程，是直接复制现有的XTS源码，还是要开发者基于移植工程、按照规范编写相关程序？</h3><h3 id="在更换不同版本如-3-2-4-0-系统时，需要在哪些地方更改？更改哪些内容？"><a href="#在更换不同版本如-3-2-4-0-系统时，需要在哪些地方更改？更改哪些内容？" class="headerlink" title="在更换不同版本如 3.2 -&gt; 4.0 系统时，需要在哪些地方更改？更改哪些内容？"></a>在更换不同版本如 3.2 -&gt; 4.0 系统时，需要在哪些地方更改？更改哪些内容？</h3><h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2><ul>
 <li><a target="_blank" rel="noopener" href="https://blog.csdn.net/Via6666/article/details/132093613">OpenHarmony L0级设备XTS适配经验分享</a></li>
 <li><a target="_blank" rel="noopener" href="https://bbs.huaweicloud.com/blogs/336717">移植案例与原理 - XTS子系统之应用兼容性测试套件</a></li>
 <li><a target="_blank" rel="noopener" href="https://gitee.com/openharmony/docs/blob/master/zh-cn/device-dev/porting/porting-stm32f407-on-minisystem-eth.md">轻量系统STM32F407芯片移植案例</a></li>
@@ -415,7 +432,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BD%BB%E9%87%8F%E7%B3%BB%E7%BB%9F%E5%BA%94%E7%94%A8%E5%85%BC%E5%AE%B9%E6%80%A7%E6%B5%8B%E8%AF%95%E9%80%82%E9%85%8D"><span class="nav-number">1.</span> <span class="nav-text">轻量系统应用兼容性测试适配</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E6%B7%BB%E5%8A%A0XTS%E5%AD%90%E7%B3%BB%E7%BB%9F"><span class="nav-number">1.1.</span> <span class="nav-text">如何添加XTS子系统</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#XTS%E5%AD%90%E7%B3%BB%E7%BB%9F%E7%BC%96%E8%AF%91%E6%B5%81%E7%A8%8B"><span class="nav-number">1.2.</span> <span class="nav-text">XTS子系统编译流程</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#XTS%E5%AD%90%E7%B3%BB%E7%BB%9F%E6%B5%8B%E8%AF%95%E5%88%86%E6%9E%90"><span class="nav-number">2.</span> <span class="nav-text">XTS子系统测试分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A7%84%E8%8C%83%E7%BC%96%E7%A0%81%E4%BB%A5%E9%80%9A%E8%BF%87%E5%85%BC%E5%AE%B9%E6%80%A7%E6%B5%8B%E8%AF%95"><span class="nav-number">3.</span> <span class="nav-text">规范编码以通过兼容性测试</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#XTS%E6%98%AF%E5%A6%82%E4%BD%95%E6%B5%8B%E8%AF%95%E7%9A%84"><span class="nav-number">3.1.</span> <span class="nav-text">XTS是如何测试的</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#XTS%E5%AD%90%E7%B3%BB%E7%BB%9F%E6%B5%8B%E8%AF%95%E9%A1%B9"><span class="nav-number">3.2.</span> <span class="nav-text">XTS子系统测试项</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#XTS%E5%AD%90%E7%B3%BB%E7%BB%9F%E7%9A%84%E7%96%91%E6%83%91%E8%A7%A3%E7%AD%94"><span class="nav-number">4.</span> <span class="nav-text">XTS子系统的疑惑解答</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#XTS%E5%AD%90%E7%B3%BB%E7%BB%9F%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90"><span class="nav-number">5.</span> <span class="nav-text">XTS子系统源码分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E7%AB%99%E7%82%B9"><span class="nav-number">6.</span> <span class="nav-text">参考站点</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BD%BB%E9%87%8F%E7%B3%BB%E7%BB%9F%E5%BA%94%E7%94%A8%E5%85%BC%E5%AE%B9%E6%80%A7%E6%B5%8B%E8%AF%95%E9%80%82%E9%85%8D"><span class="nav-number">1.</span> <span class="nav-text">轻量系统应用兼容性测试适配</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E6%B7%BB%E5%8A%A0XTS%E5%AD%90%E7%B3%BB%E7%BB%9F"><span class="nav-number">1.1.</span> <span class="nav-text">如何添加XTS子系统</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#XTS%E5%AD%90%E7%B3%BB%E7%BB%9F%E7%BC%96%E8%AF%91%E6%B5%81%E7%A8%8B"><span class="nav-number">1.2.</span> <span class="nav-text">XTS子系统编译流程</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#XTS%E5%AD%90%E7%B3%BB%E7%BB%9F%E5%85%BC%E5%AE%B9%E6%80%A7%E6%B5%8B%E8%AF%84%E8%A6%81%E6%B1%82"><span class="nav-number">2.</span> <span class="nav-text">XTS子系统兼容性测评要求</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A7%84%E8%8C%83%E7%BC%96%E7%A0%81%E4%BB%A5%E9%80%9A%E8%BF%87%E5%85%BC%E5%AE%B9%E6%80%A7%E6%B5%8B%E8%AF%95"><span class="nav-number">2.1.</span> <span class="nav-text">规范编码以通过兼容性测试</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#XTS%E5%AD%90%E7%B3%BB%E7%BB%9F%E6%B5%8B%E8%AF%95%E9%A1%B9"><span class="nav-number">2.2.</span> <span class="nav-text">XTS子系统测试项</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#OpenHarmony%E8%BD%BB%E9%87%8F%E7%B3%BB%E7%BB%9F%E8%AE%A4%E8%AF%81%E6%B5%81%E7%A8%8B"><span class="nav-number">3.</span> <span class="nav-text">OpenHarmony轻量系统认证流程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#XTS%E5%AD%90%E7%B3%BB%E7%BB%9F%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90"><span class="nav-number">4.</span> <span class="nav-text">XTS子系统源码分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#XTS%E5%AD%90%E7%B3%BB%E7%BB%9F%E8%BD%AF%E4%BB%B6%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B"><span class="nav-number">4.1.</span> <span class="nav-text">XTS子系统软件工作流程</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#XTS%E5%AD%90%E7%B3%BB%E7%BB%9F%E7%9A%84%E7%96%91%E6%83%91%E8%A7%A3%E7%AD%94"><span class="nav-number">5.</span> <span class="nav-text">XTS子系统的疑惑解答</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%9B%B8%E5%AF%B9%E4%BA%8E%E4%B8%8D%E5%90%8C%E6%9E%B6%E6%9E%84%E7%9A%84%E5%B7%A5%E7%A8%8B%EF%BC%8C%E5%85%B6XTS%E5%AD%90%E7%B3%BB%E7%BB%9F%E6%BA%90%E7%A0%81%E6%98%AF%E5%90%A6%E4%B9%9F%E8%A6%81%E6%9B%B4%E6%94%B9%EF%BC%9F"><span class="nav-number">5.1.</span> <span class="nav-text">相对于不同架构的工程，其XTS子系统源码是否也要更改？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%9B%B8%E5%AF%B9%E6%96%B0%E7%A7%BB%E6%A4%8D%E7%9A%84%E5%B7%A5%E7%A8%8B%EF%BC%8C%E6%98%AF%E7%9B%B4%E6%8E%A5%E5%A4%8D%E5%88%B6%E7%8E%B0%E6%9C%89%E7%9A%84XTS%E6%BA%90%E7%A0%81%EF%BC%8C%E8%BF%98%E6%98%AF%E8%A6%81%E5%BC%80%E5%8F%91%E8%80%85%E5%9F%BA%E4%BA%8E%E7%A7%BB%E6%A4%8D%E5%B7%A5%E7%A8%8B%E3%80%81%E6%8C%89%E7%85%A7%E8%A7%84%E8%8C%83%E7%BC%96%E5%86%99%E7%9B%B8%E5%85%B3%E7%A8%8B%E5%BA%8F%EF%BC%9F"><span class="nav-number">5.2.</span> <span class="nav-text">相对新移植的工程，是直接复制现有的XTS源码，还是要开发者基于移植工程、按照规范编写相关程序？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9C%A8%E6%9B%B4%E6%8D%A2%E4%B8%8D%E5%90%8C%E7%89%88%E6%9C%AC%E5%A6%82-3-2-4-0-%E7%B3%BB%E7%BB%9F%E6%97%B6%EF%BC%8C%E9%9C%80%E8%A6%81%E5%9C%A8%E5%93%AA%E4%BA%9B%E5%9C%B0%E6%96%B9%E6%9B%B4%E6%94%B9%EF%BC%9F%E6%9B%B4%E6%94%B9%E5%93%AA%E4%BA%9B%E5%86%85%E5%AE%B9%EF%BC%9F"><span class="nav-number">5.3.</span> <span class="nav-text">在更换不同版本如 3.2 -&gt; 4.0 系统时，需要在哪些地方更改？更改哪些内容？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E7%AB%99%E7%82%B9"><span class="nav-number">6.</span> <span class="nav-text">参考站点</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
