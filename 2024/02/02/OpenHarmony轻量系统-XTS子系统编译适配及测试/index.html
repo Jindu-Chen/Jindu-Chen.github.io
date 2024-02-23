@@ -28,7 +28,7 @@
 <meta property="og:description" content="介绍基于国民技术N32G452芯片(Cortex-M4内核)的OpenHarmony-V4.0轻量系统移植工程，进行XTS子系统编译适配及应用兼容性测试分析的开发过程，以供参考">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2024-02-01T16:00:00.000Z">
-<meta property="article:modified_time" content="2024-02-22T10:15:15.311Z">
+<meta property="article:modified_time" content="2024-02-23T01:51:41.159Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -225,7 +225,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-02-22 18:15:15" itemprop="dateModified" datetime="2024-02-22T18:15:15+08:00">2024-02-22</time>
+                <time title="Modified: 2024-02-23 09:51:41" itemprop="dateModified" datetime="2024-02-23T09:51:41+08:00">2024-02-23</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -247,14 +247,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>1.4k</span>
+              <span>2.3k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>5 mins.</span>
+              <span>4 mins.</span>
             </span>
             <div class="post-description">介绍基于国民技术N32G452芯片(Cortex-M4内核)的OpenHarmony-V4.0轻量系统移植工程，进行XTS子系统编译适配及应用兼容性测试分析的开发过程，以供参考</div>
 
@@ -308,7 +308,7 @@
 <li>还须添加源文件路径？</li>
 </ul>
 </li>
-<li>在<code>//device/board/xxx/xxx.ld</code>链接脚本中添加OpenHarmony特有的测试段</li>
+<li>在<code>//device/board/xxx/xxx.ld</code>链接脚本中<strong>添加OpenHarmony特有的测试段</strong></li>
 </ul>
 <h3 id="XTS子系统编译流程"><a href="#XTS子系统编译流程" class="headerlink" title="XTS子系统编译流程"></a>XTS子系统编译流程</h3><ul>
 <li>通过hb工具读取系统配置文件(即vendor目录下产品的config.json)，获取参与编译的子系统以及部件信息</li>
@@ -338,7 +338,7 @@
 <li>如果是通过烧录口直接烧录的方式，那么寄送的样品可以把线路板暴露出来</li>
 <li>当然，也可以通过 IAP 在应用编程方式，或者空中升级方式，只要能够达到目标即可</li>
 </ul>
-<h2 id="XTS子系统源码分析"><a href="#XTS子系统源码分析" class="headerlink" title="XTS子系统源码分析"></a>XTS子系统源码分析</h2><h3 id="XTS子系统软件工作流程"><a href="#XTS子系统软件工作流程" class="headerlink" title="XTS子系统软件工作流程"></a>XTS子系统软件工作流程</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">LITE_TEST_CASE(IntTestSuite, TestCase001, Level0) </span><br><span class="line">&#123;  </span><br><span class="line">  //do something </span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h2 id="XTS子系统源码分析"><a href="#XTS子系统源码分析" class="headerlink" title="XTS子系统源码分析"></a>XTS子系统源码分析</h2><h3 id="XTS子系统软件工作流程"><a href="#XTS子系统软件工作流程" class="headerlink" title="XTS子系统软件工作流程"></a>XTS子系统软件工作流程</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">LITE_TEST_CASE(IntTestSuite, TestCase001, Level0) </span><br><span class="line">&#123;  </span><br><span class="line">  <span class="comment">//do something </span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 
 
 
@@ -491,13 +491,13 @@
       <i class="fa fa-chart-area"></i>
     </span>
       <span class="post-meta-item-text">Symbols count total: </span>
-    <span title="Symbols count total">44k</span>
+    <span title="Symbols count total">105k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">Reading time total &asymp;</span>
-    <span title="Reading time total">2:27</span>
+    <span title="Reading time total">2:55</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
   </div>
