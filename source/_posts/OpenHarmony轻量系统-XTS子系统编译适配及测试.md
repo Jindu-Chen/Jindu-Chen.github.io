@@ -45,7 +45,7 @@ description: 介绍基于国民技术N32G452芯片(Cortex-M4内核)的OpenHarmon
 - 在`//device/board/xxx/liteos_m/config.gni`添加适配的头文件路径
   - 链接选项中增添合适的静态库链接，以实现链接测试用例相关库，其中测试静态库文件生成于`//out/${company}//${product}//libs`
   - 还须添加源文件路径？
-- 在`//device/board/xxx/xxx.ld`链接脚本中添加OpenHarmony特有的测试段
+- 在`//device/board/xxx/xxx.ld`链接脚本中**添加OpenHarmony特有的测试段**
 
 
 
@@ -93,7 +93,7 @@ description: 介绍基于国民技术N32G452芯片(Cortex-M4内核)的OpenHarmon
 
 ### XTS子系统软件工作流程
 
-```
+```c
 LITE_TEST_CASE(IntTestSuite, TestCase001, Level0) 
 {  
   //do something 

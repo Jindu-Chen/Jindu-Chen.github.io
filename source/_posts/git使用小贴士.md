@@ -228,6 +228,42 @@ git push
     `git submodule update --init --recursive`
 
 
+## 非典型问题解决方案
+
+### 同一Linux主机-多github账户的权限报错问题
+
+明明已经配置好本地与 Github 云端的 SSH 密钥，但依旧报错，内容如下：
+```
+ERROR: Permission to xxx.git denied to xxx.
+fatal: 无法读取远程仓库。
+请确认您有正确的访问权限并且仓库存在。
+```
+<br>
+
+解决步骤如下：
+- 如果需要使用两个不同的 Github 账户，则需要在本地主机上生成两个相应的 SSH Key，将公钥分别添加到不同 Github 账户上
+- 由于主机有两个 SSH Key，导致 Github 无法识别对应关系，所以会报错权限问题
+- 这时，需要用户手动配置对应映射关系，给另一个 Github 账户的站点**起一个别名**，起到区分作用即可
+- 进入 .ssh 文件夹 -- `cd ~/.ssh`，创建配置文件 -- `vim config`，添加内容如下：
+```
+  #Default GitHub
+  Host github.com             # 选定一个默认账户，别名不用更改
+  HostName github.com
+  User git
+  IdentityFile ~/.ssh/id_rsa    # 对应其生成的密钥
+
+  #new github
+  Host github-alias           # 另一个账户的别名
+  HostName github.com
+  User git
+  IdentityFile ~/.ssh/id_rsa1   # 另一个账户所对应的密钥
+```
+假设现在有一个仓库，是属于另一个 Github 账户的，那么需要更改其远程仓库链接为别名即可：
+
+比如，将`git@github.com:Jindu-Chen/Jindu-Chen.github.io.git`改为`github-alias:Jindu-Chen/Jindu-Chen.github.io.git`
+
+
+
 ## 参考站点
 
 - [What does the -M mean in git branch -M main?](https://stackoverflow.com/questions/68277661/what-does-the-m-mean-in-git-branch-m-main)
