@@ -4,7 +4,7 @@ date: 2023-12-21
 tags:
 categories:
 - [Git]
-description: 主要记录Git的常用命令、一些非典型操作及其意义解析，便于检索与回顾
+description: 主要记录Git的常用命令、一些非典型操作及其意义解析，也包括在 Git 应用中所遇到的一些问题及解决方案，便于检索与回顾
 ---
 
 
@@ -267,5 +267,5 @@ fatal: 无法读取远程仓库。
 ## 参考站点
 
 - [What does the -M mean in git branch -M main?](https://stackoverflow.com/questions/68277661/what-does-the-m-mean-in-git-branch-m-main)
-
+- [Github remote permission denied](https://stackoverflow.com/questions/47465644/github-remote-permission-denied)
 

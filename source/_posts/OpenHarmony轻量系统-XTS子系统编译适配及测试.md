@@ -59,7 +59,7 @@ description: 介绍基于国民技术N32G452芯片(Cortex-M4内核)的OpenHarmon
 - .a库链接操作
 
 
-## XTS子系统兼容性测评要求
+## XTS子系统兼容性测评
 
 ### 规范编码以通过兼容性测试
 
@@ -71,6 +71,77 @@ description: 介绍基于国民技术N32G452芯片(Cortex-M4内核)的OpenHarmon
 ### XTS子系统测试项
 
 轻量系统的全部测试项包含有：应用管理(Ability和Bundle)、网络通信(LwIP)、文件系统、系统参数、Wi-Fi IOT、分布式数据管理、安全、日志、事件、分布式调度、系统更新、系统引导
+
+### XTS测试库链接报错问题
+
+#### module_ActsUpdaterFuncTest 编译链接错误
+
+
+报错信息节选如下：
+```
+reference to `HotaWrite'
+[OHOS ERROR] /home/jd_chen/Downloads/gcc-arm-none-eabi-10-2020-q4-major/bin/../lib/gcc/arm-none-eabi/10.2.1/../../../../arm-none-eabi/bin/ld: ota_func_test.c:(.text.subUpgradeAPI1000_runTest+0x64): undefined reference to `HotaCancel'
+[OHOS ERROR] /home/jd_chen/Downloads/gcc-arm-none-eabi-10-2020-q4-major/bin/../lib/gcc/arm-none-eabi/10.2.1/../../../../arm-none-eabi/bin/ld: libs/libmodule_ActsUpdaterFuncTest.a(libmodule_ActsUpdaterFuncTest.ota_func_test.o): in function `subUpgradeAPI1200_runTest':
+[OHOS ERROR] ota_func_test.c:(.text.subUpgradeAPI1200_runTest+0xe): undefined reference to `HotaCancel'
+[OHOS ERROR] /home/jd_chen/Downloads/gcc-arm-none-eabi-10-2020-q4-major/bin/../lib/gcc/arm-none-eabi/10.2.1/../../../../arm-none-eabi/bin/ld: libs/libmodule_ActsUpdaterFuncTest.a(libmodule_ActsUpdaterFuncTest.ota_func_test.o): in function `subUpgradeAPI1100_runTest':
+[OHOS ERROR] ota_func_test.c:(.text.subUpgradeAPI1100_runTest+0x14): undefined reference to `HotaGetUpdateIndex'
+[OHOS ERROR] /home/jd_chen/Downloads/gcc-arm-none-eabi-10-2020-q4-major/bin/../lib/gcc/arm-none-eabi/10.2.1/../../../../arm-none-eabi/bin/ld: ota_func_test.c:(.text.subUpgradeAPI1100_runTest+0x24): undefined reference to `HotaSetPackageType'
+[OHOS ERROR] /home/jd_chen/Downloads/gcc-arm-none-eabi-10-2020-q4-major/bin/../lib/gcc/arm-none-eabi/10.2.1/../../../../arm-none-eabi/bin/ld: ota_func_test.c:(.text.subUpgradeAPI1100_runTest+0x46): undefined reference to `HotaWrite'
+[OHOS ERROR] /home/jd_chen/Downloads/gcc-arm-none-eabi-10-2020-q4-major/bin/../lib/gcc/arm-none-eabi/10.2.1/../../../../arm-none-eabi/bin/ld: ota_func_test.c:(.text.subUpgradeAPI1100_runTest+0x64): undefined reference to `HotaRead'
+[OHOS ERROR] /home/jd_chen/Downloads/gcc-arm-none-eabi-10-2020-q4-major/bin/../lib/gcc/arm-none-eabi/10.2.1/../../../../arm-none-eabi/bin/ld: ota_func_test.c:(.text.subUpgradeAPI1100_runTest+0x84): undefined reference to `HotaCancel'
+[OHOS ERROR] collect2: error: ld returned 1 exit status
+[OHOS ERROR] Traceback (most recent call last):
+```
+
+其中，`HotaWrite`、`HotaRead`等函数实现位于文件`//base/update/sys_installer_lite/frameworks/source/updater/hota_updater.c`中。
+
+经过分析，导致编译报错的原因有如下：
+- 用户私有板的相关配置不正确，比如缺少头文件包含、或者库文件包含、或者没有指定生成相应子系统的组件部件
+- OpenHarmony V4.0 轻量系统源码工程在此方面的XTS子系统测试并未完善
+
+而在细节测试，应用 Hi3861 芯片工程编译正常，但使用 `//vendor/xxx`一些其它例程，则也是 XTS 编译不通过
+
+
+#### module_ActsHuksHalFunctionTest 编译链接错误
+
+在库链接选项里增添`"-lhuks_test_common",`即可编译链接成功
+
+但运行报错如下：
+```
+entering kernel init...
+[ERR][(null)]HalHwiDefaultHandler irqnum:53
+```
+
+
+#### module_ActsSamgrTest 运行报错堆栈溢出
+
+可能是轻量系统的堆内存默认设置的 60K 过小
+
+
+#### module_ActsBundleMgrTest 编译链接错误
+
+编译报错节选如下：
+```
+[OHOS ERROR] /home/jd_chen/Downloads/gcc-arm-none-eabi-10-2020-q4-major/bin/../lib/gcc/arm-none-eabi/10.2.1/../../../../arm-none-eabi/bin/ld: bundle_mgr_test.c:(.text.testSetElementDeviceIDIllegal_runTest+0x84): undefined reference to `ClearWant'
+
+
+[OHOS ERROR] /home/jd_chen/Downloads/gcc-arm-none-eabi-10-2020-q4-major/bin/../lib/gcc/arm-none-eabi/10.2.1/../../../../arm-none-eabi/bin/ld: libs/libmodule_ActsBundleMgrTest.a(libmodule_ActsBundleMgrTest.bundle_mgr_test.o): in function `testGetBundleInfoIllegal_runTest':
+[OHOS ERROR] bundle_mgr_test.c:(.text.testGetBundleInfoIllegal_runTest+0x28): undefined reference to `GetBundleInfo'
+[OHOS ERROR] /home/jd_chen/Downloads/gcc-arm-none-eabi-10-2020-q4-major/bin/../lib/gcc/arm-none-eabi/10.2.1/../../../../arm-none-eabi/bin/ld: bundle_mgr_test.c:(.text.testGetBundleInfoIllegal_runTest+0x36): undefined reference to `GetBundleInfo'
+[OHOS ERROR] /home/jd_chen/Downloads/gcc-arm-none-eabi-10-2020-q4-major/bin/../lib/gcc/arm-none-eabi/10.2.1/../../../../arm-none-eabi/bin/ld: bundle_mgr_test.c:(.text.testGetBundleInfoIllegal_runTest+0x4e): undefined reference to `GetBundleInfo'
+[OHOS ERROR] /home/jd_chen/Downloads/gcc-arm-none-eabi-10-2020-q4-major/bin/../lib/gcc/arm-none-eabi/10.2.1/../../../../arm-none-eabi/bin/ld: bundle_mgr_test.c:(.text.testGetBundleInfoIllegal_runTest+0x5c): undefined reference to `GetBundleInfo'
+[OHOS ERROR] /home/jd_chen/Downloads/gcc-arm-none-eabi-10-2020-q4-major/bin/../lib/gcc/arm-none-eabi/10.2.1/../../../../arm-none-eabi/bin/ld: libs/libmodule_ActsBundleMgrTest.a(libmodule_ActsBundleMgrTest.bundle_mgr_test.o): in function `testGetBundleInfosIllegal_runTest':
+[OHOS ERROR] bundle_mgr_test.c:(.text.testGetBundleInfosIllegal_runTest+0x1c): undefined reference to `GetBundleInfos'
+[OHOS ERROR] /home/jd_chen/Downloads/gcc-arm-none-eabi-10-2020-q4-major/bin/../lib/gcc/arm-none-eabi/10.2.1/../../../../arm-none-eabi/bin/ld: bundle_mgr_test.c:(.text.testGetBundleInfosIllegal_runTest+0x2a): undefined reference to `GetBundleInfos'
+[OHOS ERROR] /home/jd_chen/Downloads/gcc-arm-none-eabi-10-2020-q4-major/bin/../lib/gcc/arm-none-eabi/10.2.1/../../../../arm-none-eabi/bin/ld: bundle_mgr_test.c:(.text.testGetBundleInfosIllegal_runTest+0x42): undefined reference to `GetBundleInfos'
+[OHOS ERROR] collect2: error: ld returned 1 exit status
+```
+
+其中，`SetElementDeviceID`、`ClearElement`等函数实现位于文件`foundation/bundlemanager/bundle_framework_lite/frameworks/bundle_lite/src/element_name.cpp`中
+
+另外，提示在文件`test/xts/acts/appexecfwk_lite/appexecfwk_hal/src/bundle_mgr_test.c`中的`testGetBundleInfoIllegal_runTest`函数中找不到`GetBundleInfo`以及其它的一些函数实现
+
+
 
 
 

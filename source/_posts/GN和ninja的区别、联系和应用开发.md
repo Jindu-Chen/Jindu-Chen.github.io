@@ -402,3 +402,8 @@ include_dirs = ["/usr/include/my_headers"]
   include_dirs = ["**/*.h"]
   ```
 
+
+## 参考站点
+
+- [[gn+ninja学习 0x01]gn和ninja是什么](https://bbs.huaweicloud.com/blogs/382860)
+
