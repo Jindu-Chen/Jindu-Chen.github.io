@@ -28,7 +28,7 @@
 <meta property="og:description" content="记录下基于I.MX6ULL的u-boot移植流程，作为U-Boot移植入门的简单总结回顾，不涉及深层知识">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2023-12-04T16:00:00.000Z">
-<meta property="article:modified_time" content="2024-01-19T09:52:25.366Z">
+<meta property="article:modified_time" content="2024-02-26T11:36:47.716Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -225,7 +225,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-01-19 17:52:25" itemprop="dateModified" datetime="2024-01-19T17:52:25+08:00">2024-01-19</time>
+                <time title="Modified: 2024-02-26 19:36:47" itemprop="dateModified" datetime="2024-02-26T19:36:47+08:00">2024-02-26</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -247,14 +247,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>929</span>
+              <span>570</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>3 mins.</span>
+              <span>2 mins.</span>
             </span>
             <div class="post-description">记录下基于I.MX6ULL的u-boot移植流程，作为U-Boot移植入门的简单总结回顾，不涉及深层知识</div>
 
@@ -284,9 +284,21 @@
 <li><p>通常情况下，是参考原厂开发板做硬件，而后在原厂提供的BSP包上做修改</p>
 <br></li>
 </ol>
-<h3 id="U-Boot在I-MX6ULL中的启动流程简述"><a href="#U-Boot在I-MX6ULL中的启动流程简述" class="headerlink" title="U-Boot在I.MX6ULL中的启动流程简述"></a>U-Boot在I.MX6ULL中的启动流程简述</h3><h2 id="补充"><a href="#补充" class="headerlink" title="补充"></a>补充</h2><h3 id="u-boot对内核的参数传递示例"><a href="#u-boot对内核的参数传递示例" class="headerlink" title="u-boot对内核的参数传递示例"></a>u-boot对内核的参数传递示例</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">/* boot从网络启动 */</span><br><span class="line">setenv bootargs &#x27;console=ttymxc0,115200 root=/dev/nfs nfsroot=192.168.14.18:/home/chenjd/linux/nfs/rootfs,proto=tcp rw ip=192.168.14.99:192.168.14.18:192.168.14.1:255.255.255.0::eth0:off&#x27;</span><br><span class="line">setenv bootcmd &#x27;tftp 80800000 zImage; tftp 83000000 imx6ull-14x14-emmc-7-1024x600-c.dtb; bootz 80800000 - 83000000&#x27;</span><br><span class="line">saveenv</span><br><span class="line">boot</span><br></pre></td></tr></table></figure>
+<h3 id="基于-I-MX6ULL-的-U-Boot-移植流程简述"><a href="#基于-I-MX6ULL-的-U-Boot-移植流程简述" class="headerlink" title="基于 I.MX6ULL 的 U-Boot 移植流程简述"></a>基于 I.MX6ULL 的 U-Boot 移植流程简述</h3><p>在 U-Boot 官网中找到参考的开发平台，通常是原厂开发板，以其为模板工程，修改移植到私有板子上。</p>
+<ul>
+<li>添加私有板子配置，复制最接近的一份原厂开发板配置文件，重命名为私有板子工程配置文件（包括defconfig、头文件、板级文件夹等）</li>
+<li>添加适配图形化界面配置文件</li>
+<li>驱动适配修改，如LCD驱动、网络驱动等</li>
+</ul>
+<h3 id="U-Boot在I-MX6ULL中的启动流程简述"><a href="#U-Boot在I-MX6ULL中的启动流程简述" class="headerlink" title="U-Boot在I.MX6ULL中的启动流程简述"></a>U-Boot在I.MX6ULL中的启动流程简述</h3><h2 id="U-Boot顶层Makefile详解"><a href="#U-Boot顶层Makefile详解" class="headerlink" title="U-Boot顶层Makefile详解"></a>U-Boot顶层Makefile详解</h2><p>暂略</p>
+<h2 id="U-Boot启动流程详解"><a href="#U-Boot启动流程详解" class="headerlink" title="U-Boot启动流程详解"></a>U-Boot启动流程详解</h2><p>暂略</p>
+<h2 id="补充"><a href="#补充" class="headerlink" title="补充"></a>补充</h2><h3 id="u-boot对内核的参数传递示例"><a href="#u-boot对内核的参数传递示例" class="headerlink" title="u-boot对内核的参数传递示例"></a>u-boot对内核的参数传递示例</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">/* boot从网络启动 */</span><br><span class="line">setenv bootargs &#x27;console=ttymxc0,115200 root=/dev/nfs nfsroot=192.168.14.18:/home/chenjd/linux/nfs/rootfs,proto=tcp rw ip=192.168.14.99:192.168.14.18:192.168.14.1:255.255.255.0::eth0:off&#x27;</span><br><span class="line">setenv bootcmd &#x27;tftp 80800000 zImage; tftp 83000000 imx6ull-14x14-emmc-7-1024x600-c.dtb; bootz 80800000 - 83000000&#x27;</span><br><span class="line">saveenv</span><br><span class="line">boot</span><br></pre></td></tr></table></figure>
 
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">/* boot从emmc启动 */</span><br><span class="line">setenv bootargs &#x27;console=ttymxc0,115200 root=/dev/mmcblk1p2 rootwait rw&#x27;</span><br><span class="line">setenv bootcmd &#x27;fatload mmc 1:1 80800000 zImage; fatload mmc 1:1 83000000 imx6ull-14x14-emmc-7-1024x600-c.dtb; bootz 80800000 - 83000000&#x27;</span><br><span class="line">saveenv</span><br><span class="line">boot</span><br></pre></td></tr></table></figure>
+
+<h4 id="bootargs"><a href="#bootargs" class="headerlink" title="bootargs"></a>bootargs</h4><p>其为 U-Boot 传递给内核的参数，用于控制内核的行为，如设置控制台、指定根文件系统位置、根文件系统类型、启动哪些服务等等</p>
+<h4 id="bootcmd"><a href="#bootcmd" class="headerlink" title="bootcmd"></a>bootcmd</h4><p>其为在 U-Boot 在启动内核之前执行的命令，可以用来初始化硬件、加载内核镜像等等</p>
+
     </div>
 
     
@@ -366,7 +378,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#U-Boot%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">U-Boot简介</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8EI-MX6ULL%E7%9A%84U-Boot%E7%9A%84%E4%B8%80%E4%BA%9B%E5%BC%80%E5%8F%91%E6%A6%82%E5%BF%B5"><span class="nav-number">1.1.</span> <span class="nav-text">基于I.MX6ULL的U-Boot的一些开发概念</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#U-Boot%E5%9C%A8I-MX6ULL%E4%B8%AD%E7%9A%84%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B%E7%AE%80%E8%BF%B0"><span class="nav-number">1.2.</span> <span class="nav-text">U-Boot在I.MX6ULL中的启动流程简述</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A1%A5%E5%85%85"><span class="nav-number">2.</span> <span class="nav-text">补充</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#u-boot%E5%AF%B9%E5%86%85%E6%A0%B8%E7%9A%84%E5%8F%82%E6%95%B0%E4%BC%A0%E9%80%92%E7%A4%BA%E4%BE%8B"><span class="nav-number">2.1.</span> <span class="nav-text">u-boot对内核的参数传递示例</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#U-Boot%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">U-Boot简介</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8EI-MX6ULL%E7%9A%84U-Boot%E7%9A%84%E4%B8%80%E4%BA%9B%E5%BC%80%E5%8F%91%E6%A6%82%E5%BF%B5"><span class="nav-number">1.1.</span> <span class="nav-text">基于I.MX6ULL的U-Boot的一些开发概念</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8E-I-MX6ULL-%E7%9A%84-U-Boot-%E7%A7%BB%E6%A4%8D%E6%B5%81%E7%A8%8B%E7%AE%80%E8%BF%B0"><span class="nav-number">1.2.</span> <span class="nav-text">基于 I.MX6ULL 的 U-Boot 移植流程简述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#U-Boot%E5%9C%A8I-MX6ULL%E4%B8%AD%E7%9A%84%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B%E7%AE%80%E8%BF%B0"><span class="nav-number">1.3.</span> <span class="nav-text">U-Boot在I.MX6ULL中的启动流程简述</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#U-Boot%E9%A1%B6%E5%B1%82Makefile%E8%AF%A6%E8%A7%A3"><span class="nav-number">2.</span> <span class="nav-text">U-Boot顶层Makefile详解</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#U-Boot%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B%E8%AF%A6%E8%A7%A3"><span class="nav-number">3.</span> <span class="nav-text">U-Boot启动流程详解</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A1%A5%E5%85%85"><span class="nav-number">4.</span> <span class="nav-text">补充</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#u-boot%E5%AF%B9%E5%86%85%E6%A0%B8%E7%9A%84%E5%8F%82%E6%95%B0%E4%BC%A0%E9%80%92%E7%A4%BA%E4%BE%8B"><span class="nav-number">4.1.</span> <span class="nav-text">u-boot对内核的参数传递示例</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#bootargs"><span class="nav-number">4.1.1.</span> <span class="nav-text">bootargs</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#bootcmd"><span class="nav-number">4.1.2.</span> <span class="nav-text">bootcmd</span></a></li></ol></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -430,13 +442,13 @@
       <i class="fa fa-chart-area"></i>
     </span>
       <span class="post-meta-item-text">Symbols count total: </span>
-    <span title="Symbols count total">101k</span>
+    <span title="Symbols count total">46k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">Reading time total &asymp;</span>
-    <span title="Reading time total">5:38</span>
+    <span title="Reading time total">2:33</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
   </div>
