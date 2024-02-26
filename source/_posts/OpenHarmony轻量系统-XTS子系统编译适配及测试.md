@@ -12,12 +12,16 @@ description: 介绍基于国民技术N32G452芯片(Cortex-M4内核)的OpenHarmon
 
 本文内容为**本人在移植国民技术N32G452适配OpenHarmony轻量系统的过程中，以添油方式仓促写就，其中或有不少相互矛盾或有失偏颇之处，但对于初入此道之开发者应能有一定的启迪作用。**
 
+[国民技术-OpenHarmony轻量系统适配源码包](https://github.com/Jindu-Chen/OpenHarmony_Adaptation_Pack)
+
 ---
 
 ## 轻量系统应用兼容性测试适配
 
 - 前提：基于OpenHarmony-V4.0-Release全量代码仓
 - 在vendor目录下产品的config.json文件中，添加XTS子系统组件定义
+
+- [兼容性测评官网](https://www.openharmony.cn/certification/document/guid)
 
 
 ### 如何添加XTS子系统
@@ -77,7 +81,7 @@ description: 介绍基于国民技术N32G452芯片(Cortex-M4内核)的OpenHarmon
 #### module_ActsUpdaterFuncTest 编译链接错误
 
 
-报错信息节选如下：
+更新功能测试库链接报错信息节选如下：
 ```
 reference to `HotaWrite'
 [OHOS ERROR] /home/jd_chen/Downloads/gcc-arm-none-eabi-10-2020-q4-major/bin/../lib/gcc/arm-none-eabi/10.2.1/../../../../arm-none-eabi/bin/ld: ota_func_test.c:(.text.subUpgradeAPI1000_runTest+0x64): undefined reference to `HotaCancel'
@@ -104,6 +108,8 @@ reference to `HotaWrite'
 
 #### module_ActsHuksHalFunctionTest 编译链接错误
 
+环境硬件抽象层功能测试
+
 在库链接选项里增添`"-lhuks_test_common",`即可编译链接成功
 
 但运行报错如下：
@@ -115,12 +121,14 @@ entering kernel init...
 
 #### module_ActsSamgrTest 运行报错堆栈溢出
 
+服务管理测试运行错误
+
 可能是轻量系统的堆内存默认设置的 60K 过小
 
 
 #### module_ActsBundleMgrTest 编译链接错误
 
-编译报错节选如下：
+包管理测试库编译报错节选如下：
 ```
 [OHOS ERROR] /home/jd_chen/Downloads/gcc-arm-none-eabi-10-2020-q4-major/bin/../lib/gcc/arm-none-eabi/10.2.1/../../../../arm-none-eabi/bin/ld: bundle_mgr_test.c:(.text.testSetElementDeviceIDIllegal_runTest+0x84): undefined reference to `ClearWant'
 
@@ -141,8 +149,18 @@ entering kernel init...
 
 另外，提示在文件`test/xts/acts/appexecfwk_lite/appexecfwk_hal/src/bundle_mgr_test.c`中的`testGetBundleInfoIllegal_runTest`函数中找不到`GetBundleInfo`以及其它的一些函数实现
 
+#### module_ActsDeviceAttestTest 编译链接错误
 
+设备认证测试模块编译链接报错信息如下：
+```
+[OHOS ERROR] /home/jd_chen/Downloads/gcc-arm-none-eabi-10-2020-q4-major/bin/../lib/gcc/arm-none-eabi/10.2.1/../../../../arm-none-eabi/bin/ld: libs/libmodule_ActsDeviceAttestTest.a(libmodule_ActsDeviceAttestTest.device_attest.o): in function `subDeviceAttest0100_runTest':
+[OHOS ERROR] device_attest.c:(.text.subDeviceAttest0100_runTest+0xe): undefined reference to `StartDevAttestTask'
+[OHOS ERROR] /home/jd_chen/Downloads/gcc-arm-none-eabi-10-2020-q4-major/bin/../lib/gcc/arm-none-eabi/10.2.1/../../../../arm-none-eabi/bin/ld: libs/libmodule_ActsDeviceAttestTest.a(libmodule_ActsDeviceAttestTest.device_attest.o): in function `subDeviceAttest0200_runTest':
+[OHOS ERROR] device_attest.c:(.text.subDeviceAttest0200_runTest+0x1c): undefined reference to `GetAttestStatus'
+[OHOS ERROR] collect2: error: ld returned 1 exit status
+```
 
+其中，`StartDevAttestTask`、`GetAttestStatus`函数实现位于文件`test/xts/device_attest_lite/framework/mini/src/attest_framework_client_mini.c`中
 
 
 ## OpenHarmony轻量系统认证流程

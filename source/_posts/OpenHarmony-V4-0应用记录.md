@@ -14,6 +14,7 @@ description: 参考社区的STM32之Ninja编译方式的工程范例，移植搭
 
 - [安装库和工具集](https://gitee.com/openharmony/docs/blob/master/zh-cn/device-dev/quick-start/quickstart-pkg-install-package.md)
 - 下载OpenHarmony-V4.0-Release全量代码，可通过git拉取或者下载压缩包解压
+  - 在 Linux 输入命令`wget https://gitee.com/link?target=https%3A%2F%2Frepo.huaweicloud.com%2Fopenharmony%2Fos%2F3.2.4%2Fcode-v3.2.4-Release_20231113.tar.gz`下载OpenHarmony V3.2.4源码，其它可参考
   - 在源码根目录下执行prebuilts脚本，安装编译器及二进制工具--`bash build/prebuilts_download.sh`
 - [安装编译工具](https://gitee.com/openharmony/docs/blob/master/zh-cn/device-dev/quick-start/quickstart-pkg-install-tool.md)
 - 开发基于Cortex-M内核工程，需要安装`arm-none-eabi-`工具链，并声明工具链路径至`~/.bahsrc`。此处不过多赘述

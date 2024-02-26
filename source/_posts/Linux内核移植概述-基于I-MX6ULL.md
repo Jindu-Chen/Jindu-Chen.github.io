@@ -72,7 +72,38 @@ Linux version 4.1.15 ...
 ## Linux内核顶层Makefile详解
 
 
+### 顶层Makefile布局
+
+版本号
+
+MAKEFLAGS 变量
+
+命令输出
+
+静默输出
+
+设置编译结果输出目录
+
+代码检查
+
+模块编译
+
+设置目标架构和交叉编译器
+
+调用 scripts/Kbuild.include 文件
+
+交叉编译工具变量设置
+
+头文件路径变量
+
+导出变量
+
+### make xxx_defconfig 过程
+
 
 ## Linux内核启动流程
 
 
+
+
+## 参考站点

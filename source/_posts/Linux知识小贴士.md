@@ -23,10 +23,12 @@ description: 日常使用Linux的一些操作总结，不限定范围，涉及�
       - `systemctl enable nfs-kernel-server`配置在系统启动时自动启动NFS服务
       - `showmount -e`查看NFS共享目录
 <br>
+
   - 在Windows下配置NFS客户湍服务
     - 打开`控制面板\程序\程序和功能`，点击`启用或关闭Windows功能`，找到`NFS服务`，勾选`NFS客户端`和`管理工具`
     - 重启电脑
 <br>
+
   - 在Windows下挂载NFS目录 
     - 按下`Win+R`组合键打开运行对话框
     - 输入`mount 192.168.112.240:/home/jd_chen/nfs_share X:`
