@@ -16,6 +16,7 @@ description: 参考社区的STM32之Ninja编译方式的工程范例，移植搭
 - 下载OpenHarmony-V4.0-Release全量代码，可通过git拉取或者下载压缩包解压
   - 在 Linux 输入命令`wget https://gitee.com/link?target=https%3A%2F%2Frepo.huaweicloud.com%2Fopenharmony%2Fos%2F3.2.4%2Fcode-v3.2.4-Release_20231113.tar.gz`下载OpenHarmony V3.2.4源码，其它可参考
   - 在源码根目录下执行prebuilts脚本，安装编译器及二进制工具--`bash build/prebuilts_download.sh`
+  - 执行`pip3 install --user build/lite`安装hb工具，添加`export PATH=~/.local/bin:$PATH`到`~/.bashrc`中，并生效环境变量
 - [安装编译工具](https://gitee.com/openharmony/docs/blob/master/zh-cn/device-dev/quick-start/quickstart-pkg-install-tool.md)
 - 开发基于Cortex-M内核工程，需要安装`arm-none-eabi-`工具链，并声明工具链路径至`~/.bahsrc`。此处不过多赘述
 - 键入`hb set`选择目标开发设备，键入`hb build`执行编译，编译成功则表示环境构建无误
@@ -154,6 +155,38 @@ libs/libhal_sysparam.a libs/libhal_sys_param.a libs/libhilog_static.a libs/libpa
     ```
 
 ## 程序运行错误排查
+
+### 报错`[ERR][(null)]HalHwiDefaultHandler irqnum:`
+
+运行报错如下：
+```
+entering kernel init...
+[ERR][(null)]HalHwiDefaultHandler irqnum:53
+```
+
+查看源码得出为函数`__get_IPSR();`输出 irqnum:53，
+
+分析原因为：在未注册创建中断的时候，就使能了中断以及持续触发，导致的错误
+```c
+USART_ConfigInt(uart->uart_device, USART_INT_IDLEF, ENABLE); //使能串口空闲中断
+```
+在使能空闲中断后，须立马清除中断，代码改动增添如下，程序可正常运行：
+```c
+USART_ConfigInt(uart->uart_device, USART_INT_IDLEF, ENABLE); //使能串口空闲中断
+USART_ReceiveData(uart->uart_device);
+```
+
+
+另外，LiteOS-M 通过`ArchHwiCreate()`将中断函数注册至私有的中断向量数组中，用户端不要重复设置中断分组和使能中断函数如下：
+```c
+    // NVIC_InitStructure.NVIC_IRQChannel = uart->dma.rx_irq_ch;
+    // NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
+    // NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
+    // NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE; //使能dma中断服务函数
+    // NVIC_Init(&NVIC_InitStructure);
+```
+在跨系统移植业务代码时，需要将以上原有相关的中断库函数应用注释掉
+
 
 ### 程序运行至`hilog will init.`
 

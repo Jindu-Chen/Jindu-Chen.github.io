@@ -78,6 +78,10 @@ description: 介绍基于国民技术N32G452芯片(Cortex-M4内核)的OpenHarmon
 
 ### XTS测试库链接报错问题
 
+不同的 OpenHarmony 发布版本，其所要求的测试模块及套件有所区别，通常情况下链接相应的测试库，报错是因为没有在`vendor/xxx/xxx/config.json`配置好相应的模块和组件、部件，导致工程找不到相应的函数实现
+
+另外，用户也需要添加自己的工程对模块组件的适配
+
 #### module_ActsUpdaterFuncTest 编译链接错误
 
 
@@ -112,11 +116,7 @@ reference to `HotaWrite'
 
 在库链接选项里增添`"-lhuks_test_common",`即可编译链接成功
 
-但运行报错如下：
-```
-entering kernel init...
-[ERR][(null)]HalHwiDefaultHandler irqnum:53
-```
+
 
 
 #### module_ActsSamgrTest 运行报错堆栈溢出
@@ -163,9 +163,15 @@ entering kernel init...
 其中，`StartDevAttestTask`、`GetAttestStatus`函数实现位于文件`test/xts/device_attest_lite/framework/mini/src/attest_framework_client_mini.c`中
 
 
+### XTS子系统的兼容性测试用例适配开发
+
+针对以上编译报错，可以通过自己编写相关的缺失函数实现通过编译测试
+
+例如 UtilsFile 文件测试函数，需要编写能够符合测试用例（或者说符合API规范）的函数，例：当调用API删除不存在的文件时，函数应能返回异常
+
 ## OpenHarmony轻量系统认证流程
 
-准备烧录镜像、相关指导文档、寄送样品及工具
+准备烧录镜像、相关指导文档、XTS自测串口打印报告、PCS自检表、寄送样品及工具
 
 
 
