@@ -27,8 +27,8 @@
 <meta property="og:site_name" content="Jindu-Chen">
 <meta property="og:description" content="早就听过设计模式、也阅览过一些与设计模式相关的文章，相信即使是未曾了解过设计模式的嵌入式软件工程师，或多或少的都在日常开发中有应用到相关的设计思想，因此，写下本文，以系统总结本人在嵌入式C语言开发工作中对设计模式的理解及应用。">
 <meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2024-03-05T09:49:51.890Z">
-<meta property="article:modified_time" content="2024-03-05T09:49:51.890Z">
+<meta property="article:published_time" content="2024-03-05T10:21:40.389Z">
+<meta property="article:modified_time" content="2024-03-05T10:21:40.389Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="设计模式">
 <meta property="article:tag" content="C语言">
@@ -219,7 +219,7 @@
               </span>
               <span class="post-meta-item-text">Posted on</span>
 
-              <time title="Created: 2024-03-05 17:49:51" itemprop="dateCreated datePublished" datetime="2024-03-05T17:49:51+08:00">2024-03-05</time>
+              <time title="Created: 2024-03-05 18:21:40" itemprop="dateCreated datePublished" datetime="2024-03-05T18:21:40+08:00">2024-03-05</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -245,7 +245,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>510</span>
+              <span>524</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
@@ -268,10 +268,10 @@
         <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>刚入职时就听导师谈起设计模式，也被建议去看《设计模式》这本书，当时只觉高深莫测，兴冲冲地去买了书籍回来打算在工作之余细细研读一番，脑海里还臆想着通读完此书即可功力大成</p>
 <p>只可惜，作为一名嵌入式C语言开发小白，根本看不懂用 Java语言 写的《设计模式》，硬着头皮读了几天书也就弃下了。眼瞅着看书这条路径走不通，当然要换种思路了，总要跟设计模式扯上点关系不是？</p>
 <p>于是，又去网上搜罗拜读了一堆适宜小白阅览的文章，想着如何给私有的C业务代码应用上各种设计模式，好展示一番代码功底</p>
-<p>后来，在知乎看到了一条评论：“往往都是那些毕业一两年的小白楞头青，才会整天想着设计模式如此如此，非得本末倒置地给业务强行用上各种设计模式，仿佛只有这样才能满足其那颗躁动的心”。受此评论触动，深觉业务开发才是技术之本，应当去多研读工程业务之源码，没必要硬磕设计模式，当所了解与所开发的业务越来越繁杂的时候，那么设计模式及其相关思想的应用落地就是必然的事情了。</p>
+<p>后来，在知乎看到了一条评论：“<strong>往往都是那些毕业一两年的小白楞头青，才会整天想着设计模式如此如此，非得本末倒置地给业务强行用上各种设计模式，仿佛只有这样才能满足其那颗躁动的心</strong>”。受此评论触动，深觉业务开发才是技术之本，应当去多研读工程业务之源码，没必要硬磕设计模式，当所了解与所开发的业务越来越繁杂的时候，那么设计模式及其相关思想的应用落地也就是必然的事情了。</p>
 <hr>
-<p>不知觉已工作一年有余，</p>
-<h2 id="实际开发应用分析"><a href="#实际开发应用分析" class="headerlink" title="实际开发应用分析"></a>实际开发应用分析</h2><p>状态模式</p>
+<p>现如今，已工作一年有余，</p>
+<h2 id="设计模式概述"><a href="#设计模式概述" class="headerlink" title="设计模式概述"></a>设计模式概述</h2><h2 id="实际开发应用分析"><a href="#实际开发应用分析" class="headerlink" title="实际开发应用分析"></a>实际开发应用分析</h2><p>状态模式</p>
 <p>观察者模式</p>
 <p>适配器模式</p>
 <p>命令模式</p>
@@ -281,7 +281,8 @@
 <p>如：在按键示例中，按键事件可以当作被观察者，受按键触发的其它操作为观察者，当轮询检测到按键按下时，调用所有观察者回调函数</p>
 <p>如：温度监控</p>
 <p>如：状态变化</p>
-<h2 id="示例代码实现"><a href="#示例代码实现" class="headerlink" title="示例代码实现"></a>示例代码实现</h2><h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2>
+<h2 id="示例代码实现"><a href="#示例代码实现" class="headerlink" title="示例代码实现"></a>示例代码实现</h2><p>此处略，后续补充</p>
+<h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2>
     </div>
 
     
@@ -362,7 +363,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E9%99%85%E5%BC%80%E5%8F%91%E5%BA%94%E7%94%A8%E5%88%86%E6%9E%90"><span class="nav-number">2.</span> <span class="nav-text">实际开发应用分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0"><span class="nav-number">3.</span> <span class="nav-text">示例代码实现</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E7%AB%99%E7%82%B9"><span class="nav-number">4.</span> <span class="nav-text">参考站点</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E6%A6%82%E8%BF%B0"><span class="nav-number">2.</span> <span class="nav-text">设计模式概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E9%99%85%E5%BC%80%E5%8F%91%E5%BA%94%E7%94%A8%E5%88%86%E6%9E%90"><span class="nav-number">3.</span> <span class="nav-text">实际开发应用分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0"><span class="nav-number">4.</span> <span class="nav-text">示例代码实现</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E7%AB%99%E7%82%B9"><span class="nav-number">5.</span> <span class="nav-text">参考站点</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
