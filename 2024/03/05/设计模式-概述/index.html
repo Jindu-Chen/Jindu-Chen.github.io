@@ -20,17 +20,18 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"flat"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":"enable","trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="早就听过设计模式、也阅览过一些与设计模式相关的文章，相信即使是未曾了解过设计模式的嵌入式软件工程师，或多或少的都在日常开发中应用到相关的设计思想，因此，写下本文，以系统总结本人在嵌入式C语言开发工作中对设计模式的理解及应用。">
+  <meta name="description" content="早就听过设计模式、也阅览过一些与设计模式相关的文章，相信即使是未曾了解过设计模式的嵌入式软件工程师，或多或少的都在日常开发中有应用到相关的设计思想，因此，写下本文，以系统总结本人在嵌入式C语言开发工作中对设计模式的理解及应用。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="嵌入式单片机C语言开发之设计模式概述">
 <meta property="og:url" content="http://example.com/2024/03/05/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E6%A6%82%E8%BF%B0/index.html">
 <meta property="og:site_name" content="Jindu-Chen">
-<meta property="og:description" content="早就听过设计模式、也阅览过一些与设计模式相关的文章，相信即使是未曾了解过设计模式的嵌入式软件工程师，或多或少的都在日常开发中应用到相关的设计思想，因此，写下本文，以系统总结本人在嵌入式C语言开发工作中对设计模式的理解及应用。">
+<meta property="og:description" content="早就听过设计模式、也阅览过一些与设计模式相关的文章，相信即使是未曾了解过设计模式的嵌入式软件工程师，或多或少的都在日常开发中有应用到相关的设计思想，因此，写下本文，以系统总结本人在嵌入式C语言开发工作中对设计模式的理解及应用。">
 <meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2024-03-05T08:43:47.445Z">
-<meta property="article:modified_time" content="2024-03-05T08:43:47.445Z">
+<meta property="article:published_time" content="2024-03-05T09:05:13.202Z">
+<meta property="article:modified_time" content="2024-03-05T09:05:13.202Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="设计模式">
+<meta property="article:tag" content="C语言">
 <meta name="twitter:card" content="summary">
 
 <link rel="canonical" href="http://example.com/2024/03/05/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E6%A6%82%E8%BF%B0/">
@@ -218,13 +219,21 @@
               </span>
               <span class="post-meta-item-text">Posted on</span>
 
-              <time title="Created: 2024-03-05 16:43:47" itemprop="dateCreated datePublished" datetime="2024-03-05T16:43:47+08:00">2024-03-05</time>
+              <time title="Created: 2024-03-05 17:05:13" itemprop="dateCreated datePublished" datetime="2024-03-05T17:05:13+08:00">2024-03-05</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
               </span>
               <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/C%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index"><span itemprop="name">C语言</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">嵌入式</span></a>
+                </span>
+                  , 
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
                   <a href="/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">设计模式</span></a>
                 </span>
@@ -236,7 +245,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>136</span>
+              <span>261</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
@@ -245,7 +254,7 @@
                 <span class="post-meta-item-text">Reading time &asymp;</span>
               <span>1 mins.</span>
             </span>
-            <div class="post-description">早就听过设计模式、也阅览过一些与设计模式相关的文章，相信即使是未曾了解过设计模式的嵌入式软件工程师，或多或少的都在日常开发中应用到相关的设计思想，因此，写下本文，以系统总结本人在嵌入式C语言开发工作中对设计模式的理解及应用。</div>
+            <div class="post-description">早就听过设计模式、也阅览过一些与设计模式相关的文章，相信即使是未曾了解过设计模式的嵌入式软件工程师，或多或少的都在日常开发中有应用到相关的设计思想，因此，写下本文，以系统总结本人在嵌入式C语言开发工作中对设计模式的理解及应用。</div>
 
         </div>
       </header>
@@ -256,7 +265,10 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><h2 id="实际开发应用分析"><a href="#实际开发应用分析" class="headerlink" title="实际开发应用分析"></a>实际开发应用分析</h2><p>状态模式</p>
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>不知觉已工作一年有半，刚入职时就听导师谈起设计模式，也被建议去看《设计模式》这本书，当时只觉得高深莫测，兴冲冲地去买了书籍回来打算在工作之余细细研读一番，脑海里只想着通读完此书即可功力大成</p>
+<p>只可惜，作为一名嵌入式C语言开发小白，根本看不懂用 Java语言 写的《设计模式》，硬着头皮读了几天书也就弃下了</p>
+<p>当然，</p>
+<h2 id="实际开发应用分析"><a href="#实际开发应用分析" class="headerlink" title="实际开发应用分析"></a>实际开发应用分析</h2><p>状态模式</p>
 <p>观察者模式</p>
 <p>适配器模式</p>
 <p>命令模式</p>
@@ -276,6 +288,7 @@
       <footer class="post-footer">
           <div class="post-tags">
               <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" rel="tag"># 设计模式</a>
+              <a href="/tags/C%E8%AF%AD%E8%A8%80/" rel="tag"># C语言</a>
           </div>
 
         
@@ -410,13 +423,13 @@
       <i class="fa fa-chart-area"></i>
     </span>
       <span class="post-meta-item-text">Symbols count total: </span>
-    <span title="Symbols count total">114k</span>
+    <span title="Symbols count total">47k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">Reading time total &asymp;</span>
-    <span title="Reading time total">3:10</span>
+    <span title="Reading time total">2:35</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
   </div>
