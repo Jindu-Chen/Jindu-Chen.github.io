@@ -28,7 +28,7 @@
 <meta property="og:description" content="记录日常辅助开发中所涉及到的杂项操作，包括运维工具、开发辅助工具、日常工具等的相关操作，为检索使用">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2023-11-28T16:00:00.000Z">
-<meta property="article:modified_time" content="2024-02-21T03:17:46.613Z">
+<meta property="article:modified_time" content="2024-03-06T08:51:22.607Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -225,7 +225,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-02-21 11:17:46" itemprop="dateModified" datetime="2024-02-21T11:17:46+08:00">2024-02-21</time>
+                <time title="Modified: 2024-03-06 16:51:22" itemprop="dateModified" datetime="2024-03-06T16:51:22+08:00">2024-03-06</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -352,7 +352,7 @@
 <li>以下为示例代码，鼠标光标位于代码其中任意位置，而后点击预览即可(Alt + D)<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">@startuml filename</span><br><span class="line">Main_task -&gt; Subtask: Delivery control event</span><br><span class="line">Subtask -&gt; Main_task: Reporting internal events</span><br><span class="line">@enduml</span><br></pre></td></tr></table></figure></li>
 </ul>
 <p><strong>添加Git相关插件</strong><br>安装 GitLens 扩展</p>
-
+<h2 id="DAP下载调试方式"><a href="#DAP下载调试方式" class="headerlink" title="DAP下载调试方式"></a>DAP下载调试方式</h2>
     </div>
 
     
@@ -432,7 +432,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#J-Link-J-Flash"><span class="nav-number">1.</span> <span class="nav-text">J-Link&#x2F;J-Flash</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#J-Flash%E6%89%B9%E5%A4%84%E7%90%86%E8%84%9A%E6%9C%AC%E9%85%8D%E7%BD%AE%E7%83%A7%E5%BD%95"><span class="nav-number">1.1.</span> <span class="nav-text">J-Flash批处理脚本配置烧录</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#J-Link-J-Flash-%E8%AF%BB%E5%8F%96%E5%8D%95%E7%89%87%E6%9C%BA%E5%86%85%E9%83%A8Flash%E5%86%85%E5%AE%B9"><span class="nav-number">1.2.</span> <span class="nav-text">J-Link&#x2F;J-Flash 读取单片机内部Flash内容</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#hexo%E4%B8%BB%E9%A2%98%E7%9B%B8%E5%85%B3"><span class="nav-number">2.</span> <span class="nav-text">hexo主题相关</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#WSL-%E4%B9%8B-Ubuntu22-%E6%90%AD%E5%BB%BAHexo-NexT%E5%8D%9A%E5%AE%A2"><span class="nav-number">2.1.</span> <span class="nav-text">WSL 之 Ubuntu22 搭建Hexo NexT博客</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%90%AD%E5%BB%BA-Hexo-Github-%E5%8D%9A%E5%AE%A2%E5%B0%8F%E7%BB%93"><span class="nav-number">2.2.</span> <span class="nav-text">搭建 Hexo + Github 博客小结</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Hexo-NexT-%E5%8A%9F%E8%83%BD%E9%85%8D%E7%BD%AE"><span class="nav-number">2.3.</span> <span class="nav-text">Hexo + NexT 功能配置</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#VSCode%E7%9B%B8%E5%85%B3"><span class="nav-number">3.</span> <span class="nav-text">VSCode相关</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#J-Link-J-Flash"><span class="nav-number">1.</span> <span class="nav-text">J-Link&#x2F;J-Flash</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#J-Flash%E6%89%B9%E5%A4%84%E7%90%86%E8%84%9A%E6%9C%AC%E9%85%8D%E7%BD%AE%E7%83%A7%E5%BD%95"><span class="nav-number">1.1.</span> <span class="nav-text">J-Flash批处理脚本配置烧录</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#J-Link-J-Flash-%E8%AF%BB%E5%8F%96%E5%8D%95%E7%89%87%E6%9C%BA%E5%86%85%E9%83%A8Flash%E5%86%85%E5%AE%B9"><span class="nav-number">1.2.</span> <span class="nav-text">J-Link&#x2F;J-Flash 读取单片机内部Flash内容</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#hexo%E4%B8%BB%E9%A2%98%E7%9B%B8%E5%85%B3"><span class="nav-number">2.</span> <span class="nav-text">hexo主题相关</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#WSL-%E4%B9%8B-Ubuntu22-%E6%90%AD%E5%BB%BAHexo-NexT%E5%8D%9A%E5%AE%A2"><span class="nav-number">2.1.</span> <span class="nav-text">WSL 之 Ubuntu22 搭建Hexo NexT博客</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%90%AD%E5%BB%BA-Hexo-Github-%E5%8D%9A%E5%AE%A2%E5%B0%8F%E7%BB%93"><span class="nav-number">2.2.</span> <span class="nav-text">搭建 Hexo + Github 博客小结</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Hexo-NexT-%E5%8A%9F%E8%83%BD%E9%85%8D%E7%BD%AE"><span class="nav-number">2.3.</span> <span class="nav-text">Hexo + NexT 功能配置</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#VSCode%E7%9B%B8%E5%85%B3"><span class="nav-number">3.</span> <span class="nav-text">VSCode相关</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DAP%E4%B8%8B%E8%BD%BD%E8%B0%83%E8%AF%95%E6%96%B9%E5%BC%8F"><span class="nav-number">4.</span> <span class="nav-text">DAP下载调试方式</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
