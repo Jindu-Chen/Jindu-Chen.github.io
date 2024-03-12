@@ -220,6 +220,57 @@ c=he
 在 C89/C99/GNU89/GNU99 编译标准中，可以通过声明`int (*func)()`函数指针，调用时传入可变的参数即可，但不建议这样做。建议使用可变参数列表来声明。
 
 
+### 结构体应用指针和柔性数组将缓冲区解释为包结构的试验
+
+在对特定数据缓冲区解释的设计中，可以通过搭配柔性数组的方式进行数据类型转换，当然在此情况中，指针不可直接等同于数组（数组会直接等同于转换的缓冲数据，而指针需要先指向有效空间地址，否则会报错），以下为测试代码及结果
+```c
+typedef struct __attribute__((packed))
+{
+    uint8_t cmd;
+    uint8_t data[];
+} force_packet_1;
+
+typedef struct __attribute__((packed))
+{
+    uint8_t cmd;
+    uint8_t *data;
+} force_packet_2;
+
+static void force_pointer_convert1(uint8_t *buf)
+{
+    force_packet_1 *data = (force_packet_1 *)buf;
+    printf("convert1: cmd=[%d], data= %d %d %d %d %d\n", data->cmd, data->data[0],data->data[1],data->data[2],data->data[3],data->data[4]);
+    printf("convert1: %p %p\n", data, data->data);
+}
+
+static void force_pointer_convert2(uint8_t *buf)
+{
+    force_packet_2 data;
+    data.cmd = buf[0];
+    data.data = &buf[1];
+    printf("convert2: cmd=[%d], data= %d %d %d %d %d\n", data.cmd, data.data[0],data.data[1],data.data[2],data.data[3],data.data[4]);
+    printf("convert2: %p %p\n", data, data.data);
+}
+
+int main()
+{
+    static uint8_t data_buf[] = {1, 2, 3, 4, 5, 6};
+    printf("convert1 size=[%ld], convert2 size=[%ld]\n", sizeof(force_packet_1), sizeof(force_packet_2));
+    force_pointer_convert1(data_buf);
+    force_pointer_convert2(data_buf);
+    return 0;
+}
+```
+输出结果如下：
+```
+convert1 size=[1], convert2 size=[9]
+convert1: cmd=[1], data= 2 3 4 5 6
+convert1: 0x7f80fa331010 0x7f80fa331011
+convert2: cmd=[1], data= 2 3 4 5 6
+convert2: 0x7f80fa331011 0x7f80fa331011
+```
+
+
 ## 参考站点
 
 - [c语言怎样设置一个函数，可以接受任何类型的参数并返回int型](https://www.zhihu.com/question/385731065)
