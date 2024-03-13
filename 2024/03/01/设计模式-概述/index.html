@@ -23,18 +23,18 @@
   <meta name="description" content="早就听过设计模式、也阅览过一些与设计模式相关的文章，相信即使是未曾了解过设计模式的嵌入式软件工程师，或多或少的都在日常开发中有应用到相关的设计思想，因此，写下本文，以系统总结本人在嵌入式C语言开发工作中对设计模式的理解及应用。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="嵌入式单片机C语言开发之设计模式概述">
-<meta property="og:url" content="http://example.com/2024/03/12/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E6%A6%82%E8%BF%B0/index.html">
+<meta property="og:url" content="http://example.com/2024/03/01/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E6%A6%82%E8%BF%B0/index.html">
 <meta property="og:site_name" content="Jindu-Chen">
 <meta property="og:description" content="早就听过设计模式、也阅览过一些与设计模式相关的文章，相信即使是未曾了解过设计模式的嵌入式软件工程师，或多或少的都在日常开发中有应用到相关的设计思想，因此，写下本文，以系统总结本人在嵌入式C语言开发工作中对设计模式的理解及应用。">
 <meta property="og:locale" content="en_US">
-<meta property="article:published_time" content="2024-03-12T12:00:23.625Z">
-<meta property="article:modified_time" content="2024-03-12T12:00:23.625Z">
+<meta property="article:published_time" content="2024-02-29T16:00:00.000Z">
+<meta property="article:modified_time" content="2024-03-13T02:06:09.007Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="设计模式">
 <meta property="article:tag" content="C语言">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="http://example.com/2024/03/12/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E6%A6%82%E8%BF%B0/">
+<link rel="canonical" href="http://example.com/2024/03/01/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E6%A6%82%E8%BF%B0/">
 
 
 <script id="page-configurations">
@@ -196,7 +196,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/03/12/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E6%A6%82%E8%BF%B0/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/03/01/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E6%A6%82%E8%BF%B0/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -219,8 +219,15 @@
               </span>
               <span class="post-meta-item-text">Posted on</span>
 
-              <time title="Created: 2024-03-12 20:00:23" itemprop="dateCreated datePublished" datetime="2024-03-12T20:00:23+08:00">2024-03-12</time>
+              <time title="Created: 2024-03-01 00:00:00" itemprop="dateCreated datePublished" datetime="2024-03-01T00:00:00+08:00">2024-03-01</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-03-13 10:06:09" itemprop="dateModified" datetime="2024-03-13T10:06:09+08:00">2024-03-13</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -275,8 +282,9 @@
 <p>首先，我们需要理清<strong>设计思想</strong>与<strong>设计模式</strong>这两个概念：</p>
 <p>通常我们会说，进行软件设计，最重要的是思想，对于一个嵌入式软件工程师来说，首要的就是设计思想。当一个项目交到手上，我们会想这个工程能不能实现、其功能业务理论可行性，而<strong>探讨可行性，即是在构思软件的大致解决思路和方法，这就是软件顶层思想的具体实践</strong>了。而在正式开展编码工作之前，当然要明确下代码的架构设计，比如：如何对业务进行划分具体模块、如何对整体工程划分层次、如何设计交互接口等等，这些都是属于设计思想的范畴。</p>
 <p>当然，只有设计理论，没有编码设计实践是万万不行的。而设计模式即是设计思想的具体实践，我们说想要在代码上应用到我们的思想，最好是不要闭门造车，要多参考他人的代码设计方法，如设计模式，其是前人基于设计思想提炼出来的经过无数验证的成熟模型。参考使用设计模式可以帮助更好地组织代码、提高可维护性、保证软件的可靠性。</p>
-<p>以上纯属废话，鄙人对设计模式其实也没明确的概念，也不建议事事都要扯上设计模式，私以为如果一个软件模块的可读性良好、逻辑层次清晰明了、方便进行扩展设计和维护、能够很好地实现目标业务功能，那么其即属于优秀的软件设计。</p>
+<p>以上纯属废话，鄙人对设计模式其实也没明确的概念，也不建议事事都要扯上设计模式，私以为如果<strong>一个软件模块的可读性良好、逻辑层次清晰明了、方便进行扩展设计和维护、能够很好地实现目标业务功能</strong>，那么其即属于优秀的软件设计。</p>
 <h2 id="实际开发应用分析"><a href="#实际开发应用分析" class="headerlink" title="实际开发应用分析"></a>实际开发应用分析</h2><p>硬件访问接口设计</p>
+<p>中介<br>代理</p>
 <h3 id="状态模式及其应用分析"><a href="#状态模式及其应用分析" class="headerlink" title="状态模式及其应用分析"></a>状态模式及其应用分析</h3><h3 id="观察者模式及其应用分析"><a href="#观察者模式及其应用分析" class="headerlink" title="观察者模式及其应用分析"></a>观察者模式及其应用分析</h3><p>观察者模式：</p>
 <p>如：在按键示例中，按键事件可以当作被观察者，受按键触发的其它操作为观察者，当轮询检测到按键按下时，调用所有观察者回调函数</p>
 <p>如：温度监控</p>
@@ -305,7 +313,10 @@
     <a href="/2024/02/08/%E5%91%BD%E4%BB%A4%E8%A1%8C%E8%B0%83%E8%AF%95%E6%8E%A7%E5%88%B6%E5%8F%B0%E5%8E%9F%E7%90%86%E5%89%96%E6%9E%90/" rel="prev" title="嵌入式开发之命令行调试-Shell全剖析">
       <i class="fa fa-chevron-left"></i> 嵌入式开发之命令行调试-Shell全剖析
     </a></div>
-      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/2024/03/13/%E4%B8%B2%E8%A1%8C%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE%E5%BC%80%E5%8F%91%E5%8F%8A%E5%85%B6%E5%BA%94%E7%94%A8/" rel="next" title="私有通信协议栈的开发设计与应用">
+      私有通信协议栈的开发设计与应用 <i class="fa fa-chevron-right"></i>
+    </a></div>
     </div>
       </footer>
     
@@ -378,7 +389,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">29</span>
+          <span class="site-state-item-count">30</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -434,7 +445,7 @@
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">Reading time total &asymp;</span>
-    <span title="Reading time total">2:40</span>
+    <span title="Reading time total">2:41</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
   </div>
