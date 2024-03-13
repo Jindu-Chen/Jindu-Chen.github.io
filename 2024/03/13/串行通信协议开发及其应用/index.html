@@ -20,15 +20,15 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"flat"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":"enable","trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="通信协议是设备间协同工作的关键，当然此处所说的通信协议并不是指硬件层的 UART、IIC、SPI 等通信接口，也不是指 BLE、WI-FI、USB 此类数据传输协议，其是特指在已经实现设备间数据透明传输通路的基础上，再封装的一层私有协议，用于规范设备间业务数据&#x2F;功能&#x2F;命令等的交互，从而实现稳定可靠的多设备多模块间协同工作。本文主要讲述私有串口通信协议的设计、软件开发与应用。">
+  <meta name="description" content="通信协议是设备间协同工作的关键，当然此处所说的通信协议并不是指硬件层的 UART、IIC、SPI 等通信接口，也不是指 BLE、WI-FI、USB 此类数据传输协议，其是特指在已经实现设备间数据透明传输通路的基础上，再封装的一层私有协议，用于规范设备间业务数据&#x2F;功能&#x2F;命令等的交互，从而实现稳定可靠的多设备多模块间协同工作。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="私有通信协议栈的开发设计与应用">
 <meta property="og:url" content="http://example.com/2024/03/13/%E4%B8%B2%E8%A1%8C%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE%E5%BC%80%E5%8F%91%E5%8F%8A%E5%85%B6%E5%BA%94%E7%94%A8/index.html">
 <meta property="og:site_name" content="Jindu-Chen">
-<meta property="og:description" content="通信协议是设备间协同工作的关键，当然此处所说的通信协议并不是指硬件层的 UART、IIC、SPI 等通信接口，也不是指 BLE、WI-FI、USB 此类数据传输协议，其是特指在已经实现设备间数据透明传输通路的基础上，再封装的一层私有协议，用于规范设备间业务数据&#x2F;功能&#x2F;命令等的交互，从而实现稳定可靠的多设备多模块间协同工作。本文主要讲述私有串口通信协议的设计、软件开发与应用。">
+<meta property="og:description" content="通信协议是设备间协同工作的关键，当然此处所说的通信协议并不是指硬件层的 UART、IIC、SPI 等通信接口，也不是指 BLE、WI-FI、USB 此类数据传输协议，其是特指在已经实现设备间数据透明传输通路的基础上，再封装的一层私有协议，用于规范设备间业务数据&#x2F;功能&#x2F;命令等的交互，从而实现稳定可靠的多设备多模块间协同工作。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2024-03-12T16:00:00.000Z">
-<meta property="article:modified_time" content="2024-03-13T02:06:11.501Z">
+<meta property="article:modified_time" content="2024-03-13T02:12:12.362Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -219,7 +219,7 @@
               <span class="post-meta-item-text">Posted on</span>
               
 
-              <time title="Created: 2024-03-13 00:00:00 / Modified: 10:06:11" itemprop="dateCreated datePublished" datetime="2024-03-13T00:00:00+08:00">2024-03-13</time>
+              <time title="Created: 2024-03-13 00:00:00 / Modified: 10:12:12" itemprop="dateCreated datePublished" datetime="2024-03-13T00:00:00+08:00">2024-03-13</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -237,7 +237,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>313</span>
+              <span>326</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
@@ -246,7 +246,7 @@
                 <span class="post-meta-item-text">Reading time &asymp;</span>
               <span>1 mins.</span>
             </span>
-            <div class="post-description">通信协议是设备间协同工作的关键，当然此处所说的通信协议并不是指硬件层的 UART、IIC、SPI 等通信接口，也不是指 BLE、WI-FI、USB 此类数据传输协议，其是特指在已经实现设备间数据透明传输通路的基础上，再封装的一层私有协议，用于规范设备间业务数据/功能/命令等的交互，从而实现稳定可靠的多设备多模块间协同工作。本文主要讲述私有串口通信协议的设计、软件开发与应用。</div>
+            <div class="post-description">通信协议是设备间协同工作的关键，当然此处所说的通信协议并不是指硬件层的 UART、IIC、SPI 等通信接口，也不是指 BLE、WI-FI、USB 此类数据传输协议，其是特指在已经实现设备间数据透明传输通路的基础上，再封装的一层私有协议，用于规范设备间业务数据/功能/命令等的交互，从而实现稳定可靠的多设备多模块间协同工作。</div>
 
         </div>
       </header>
@@ -271,7 +271,10 @@
 <p>间隔设计</p>
 <p>最大最小包限制设计</p>
 <h3 id="解包设计"><a href="#解包设计" class="headerlink" title="解包设计"></a>解包设计</h3><p>提供多个接口包括：逐个字节解包，多个字节解包</p>
-<h3 id="组包设计"><a href="#组包设计" class="headerlink" title="组包设计"></a>组包设计</h3><h3 id="容错设计"><a href="#容错设计" class="headerlink" title="容错设计"></a>容错设计</h3><h2 id="串行通信业务软件设计"><a href="#串行通信业务软件设计" class="headerlink" title="串行通信业务软件设计"></a>串行通信业务软件设计</h2><h3 id="初始化软件设计"><a href="#初始化软件设计" class="headerlink" title="初始化软件设计"></a>初始化软件设计</h3><h3 id="业务处理软件设计"><a href="#业务处理软件设计" class="headerlink" title="业务处理软件设计"></a>业务处理软件设计</h3><h2 id="疑惑解答"><a href="#疑惑解答" class="headerlink" title="疑惑解答"></a>疑惑解答</h2><h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2>
+<h3 id="组包设计"><a href="#组包设计" class="headerlink" title="组包设计"></a>组包设计</h3><h3 id="容错设计"><a href="#容错设计" class="headerlink" title="容错设计"></a>容错设计</h3><h2 id="串行通信业务软件设计"><a href="#串行通信业务软件设计" class="headerlink" title="串行通信业务软件设计"></a>串行通信业务软件设计</h2><h3 id="初始化软件设计"><a href="#初始化软件设计" class="headerlink" title="初始化软件设计"></a>初始化软件设计</h3><h3 id="业务处理软件设计"><a href="#业务处理软件设计" class="headerlink" title="业务处理软件设计"></a>业务处理软件设计</h3><h2 id="疑惑解答"><a href="#疑惑解答" class="headerlink" title="疑惑解答"></a>疑惑解答</h2><h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/ybhuangfugui/article/details/123143683">通信教程 | 自定义串口通信协议</a></li>
+</ul>
+
     </div>
 
     
