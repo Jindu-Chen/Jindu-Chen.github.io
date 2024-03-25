@@ -67,6 +67,12 @@ OpenHarmony轻量系统下的子系统主要分为三部分：基础子系统、
   shell：命令行接口
   
 
+### 添加 LittleFS 文件子系统
+
+- [LiteOS-M小型系统内核——LittleFS](https://ost.51cto.com/posts/7171)
+
+
+
 ## 轻量系统编程开发
 
 ### 系统初始化函数
@@ -280,4 +286,5 @@ CORE_INIT_PRI(HiLogInit, 0);
 
 - [Gitee-OpenHarmony基于命令行入门](https://gitee.com/openharmony/docs/blob/master/zh-cn/device-dev/quick-start/Readme-CN.md#/openharmony/docs/blob/master/zh-cn/device-dev/quick-start/quickstart-pkg-sourcecode.md)
 - [轻量系统STM32F407芯片移植案例](https://gitee.com/openharmony/docs/blob/master/zh-cn/device-dev/porting/porting-stm32f407-on-minisystem-eth.md)
+- [LiteOS-M小型系统内核——LittleFS](https://ost.51cto.com/posts/7171)
 

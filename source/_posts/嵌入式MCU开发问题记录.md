@@ -9,6 +9,104 @@ description: 记录、总结嵌入式开发中遇到的一些小问题，包括�
 ---
 
 
+### 自定义打印函数，通过命令行调用能打印，但在中断函数执行却没有打印
+
+如下函数源码：
+```c
+#define logPrintln(format, ...) \
+        logWrite(LOG_ALL_OBJ, LOG_NONE, format "\r\n", ##__VA_ARGS__)
+
+#define logPrinttext(format, ...) \
+        logWrite(LOG_ALL_OBJ, LOG_NONE, format, ##__VA_ARGS__)
+
+void drv_adc_read_total(void)
+{
+    logPrintln("aaa %d", drv_adc_read(1));
+    logPrinttext("bbb");
+    logPrintln("aaa %d", drv_adc_read(1));
+}
+SHELL_EXPORT_CMD(SHELL_CMD_PERMISSION(0)|SHELL_CMD_TYPE(SHELL_TYPE_CMD_FUNC)|SHELL_CMD_DISABLE_RETURN, drv_adc_read_total, drv_adc_read_total, drv_adc_read_total);
+
+void DMA_Channel6_IRQHandler(void)
+{
+    DMA_ClearFlag(DMA_FLAG_GL6, DMA);
+    logDebug("read start");
+    drv_adc_read_total();
+    logDebug("read end");
+}
+```
+在DMA_Channel6_IRQHandler中执行，仅没有 logPrinttext("bbb"); 这个输出
+通过命令行调用drv_adc_read_total函数则有 logPrinttext("bbb"); 打印
+```
+中断函数执行结果如下：
+D [0:11:49,025] DMA_Channel6_IRQHandler [208]: read start
+aaa 65533
+aaa 65533
+D [0:11:49,025] DMA_Channel6_IRQHandler [210]: read end
+
+
+命令行执行结果如下：
+root:/$ drv_adc_read_total
+aaa 65533
+bbbaaa 65533
+```
+
+**问题调试分析：**
+- 如果将`"\r\n"`同样加到 `logPrinttext`函数的宏定义中，那么在中断中也能打印此函数内容
+- 在命令行中调用，无论怎样更改宏定义，都能完整打印。区别在于一个在正常环境，一个在中断环境中；一个带了`\r\n`拼接字符串，一个没带
+- 同时把中断服务函数引出命令行调用，执行结果对比如下：
+```
+root:/$ DMA_Channel6_IRQHandler // 手动执行命令行调用，能够完整打印
+D [0:00:17,989] DMA_Channel6_IRQHandler [210]: read start
+aaa 65533
+bbb 65533bbb
+aaa 65533
+D [0:00:17,989] DMA_Channel6_IRQHandler [212]: read end
+
+// 中断执行
+D [0:00:18,040] DMA_Channel6_IRQHandler [210]: read start
+aaa 65533
+bbb
+aaa 65533
+D [0:00:18,040] DMA_Channel6_IRQHandler [212]: read end
+```
+
+**问题解决：**
+为尾行模式问题
+
+由于使能了尾行模式，所以每次在调用`logWrite`函数输出时，都会紧接着将光标移到行首，而后输出终端用户等字符，覆盖当前行。**如果当前内容后面没有接上换行符，则会被覆盖。**
+
+而当用户通过命令行调用函数时，由于是当前shell状态为执行命令行函数，所以不会启用尾行输出，因而不会覆盖当前行的内容。
+
+---
+
+### Switch Case语句里面定义的静态变量会自己变化
+
+在一个case里面定义了一个`{}`作用域，而后定义一个静态变量，但有时发现其中某个for循环函数，明明没有对此变量进行修改，但是此变量的值却一直在变化。
+
+**排查：**
+考虑编译器优化等级、数据类型 u8 u16转换不当、等原因
+
+**原因：**
+最后发现为在 for 循环函数中有 循环给一个 数组进行赋值，然后**该数组下标越界**了，正好内存越界到 此静态变量的地址中
+
+
+---
+
+
+### 配置ADC-DMA的发送完成中断触发无效
+
+**现象：**
+- DMA、ADC皆已配置完成，adc能够正常采集，dma也能够正常地将adc的数据采集存放到指定的缓冲区中。此时添加使能相应的DMA-ADC通道发送完成中断，发现无效。
+
+**原因：**
+为初始化顺序不符合，正常的配置顺序应为： 初始化ADC外设及相应的复用IO->初始化DMA外设通道->配置DMA-ADC通道映射->清除DMA标志位->配置使能DMA通道标志触发中断->使能ADC-DMA访问请求->使能相应的DMA通道->配置NVIC使能DMA通道中断
+
+以上，特别注意：ADC-DMA使能、DMA通断使能、DMA通道使能中断要放到最后.
+
+另外，编写中断服务函数时，须要在其内清除相应的中断标志位，否则可能会无限重入中断，程序运行出现问题。
+
+
 ### 添加了bootloader的LiteOS应用程序没能跑起来
 **原因分析：**
 - 首先检查bootloader和app的链接脚本是否有误，确认bootloader跳转地址为0x8004000，而app链接脚本的FLASH起始地址为0x8004000无误
@@ -236,9 +334,4 @@ struct drv_uart_dev
 
 ---
 
-
-### 硬件调试
-
-- 不同批次、相同原理的板子调试时，出现异常
-    烧录相同程序，如果结果不一，则首先排查硬件问题 -- 板厂的模块芯片有无贴错、元件贴错等
 
