@@ -88,11 +88,28 @@ D [0:00:18,040] DMA_Channel6_IRQHandler [212]: read end
 考虑编译器优化等级、数据类型 u8 u16转换不当、等原因
 
 **原因：**
-最后发现为在 for 循环函数中有 循环给一个 数组进行赋值，然后**该数组下标越界**了，正好内存越界到 此静态变量的地址中
+最后发现为在 for 循环函数中有 循环给一个 数组进行赋值，然后**该数组下标越界**了，正好内存越界到 此静态变量的地址中。在对数组进行赋值操作或者对数组指针进行操作时，一定要注意可能的内存越界问题。
+
+---
+### 32MCU库函数应用问题
+
+在本例中使用到 PB4引脚 复用为 USART2 的 TX 引脚，但是配置却不生效。最后发现，查看芯片数据手册得知：该引脚默认使能功能为 SW-JTAG 的烧录调试引脚之一，需要关闭此功能，代码如下：
+```c
+    RCC_EnableAPB2PeriphClk(RCC_APB2_PERIPH_AFIO, ENABLE);
+    GPIO_ConfigPinRemap(GPIO_RMP3_USART2, ENABLE);              
+    GPIO_ConfigPinRemap(GPIO_RMP_SW_JTAG_SW_ENABLE, ENABLE);    // 需要配置引脚重映射，增加此项配置
+    RCC_EnableAPB2PeriphClk(RCC_APB2_PERIPH_GPIOB, ENABLE);
+    GPIO_InitCtlStruct.GPIO_Mode = GPIO_Mode_AF_PP;
+    GPIO_InitCtlStruct.Pin = GPIO_PIN_4;
+    GPIO_InitPeripheral(GPIOB, &GPIO_InitCtlStruct);
+    GPIO_InitCtlStruct.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+    GPIO_InitCtlStruct.Pin = GPIO_PIN_5;
+    GPIO_InitPeripheral(GPIOB, &GPIO_InitCtlStruct);
+```
+另外，在进行库函数开发时，特别要注意查看函数功能注释，比如`GPIO_ConfigPinRemap`该库函数，并不支持一次同时输入多个值如`GPIO_RMP3_USART2 | GPIO_RMP_SW_JTAG_SW_ENABLE`。
 
 
 ---
-
 
 ### 配置ADC-DMA的发送完成中断触发无效
 
