@@ -28,7 +28,7 @@
 <meta property="og:description" content="早就听过设计模式、也阅览过一些与设计模式相关的文章，相信即使是未曾了解过设计模式的嵌入式软件工程师，或多或少的都在日常开发中有应用到相关的设计思想，因此，写下本文，以系统总结本人在嵌入式C语言开发工作中对设计模式的理解及应用。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2024-02-29T16:00:00.000Z">
-<meta property="article:modified_time" content="2024-03-19T11:38:41.632Z">
+<meta property="article:modified_time" content="2024-04-07T02:05:58.752Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="设计模式">
 <meta property="article:tag" content="C语言">
@@ -226,7 +226,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-03-19 19:38:41" itemprop="dateModified" datetime="2024-03-19T19:38:41+08:00">2024-03-19</time>
+                <time title="Modified: 2024-04-07 10:05:58" itemprop="dateModified" datetime="2024-04-07T10:05:58+08:00">2024-04-07</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -252,7 +252,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>1.1k</span>
+              <span>1.2k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
@@ -289,9 +289,18 @@
 <p>如：在按键示例中，按键事件可以当作被观察者，受按键触发的其它操作为观察者，当轮询检测到按键按下时，调用所有观察者回调函数</p>
 <p>如：温度监控</p>
 <p>如：状态变化</p>
-<h3 id="适配器模式及其应用分析"><a href="#适配器模式及其应用分析" class="headerlink" title="适配器模式及其应用分析"></a>适配器模式及其应用分析</h3><h3 id="命令模式及其应用分析"><a href="#命令模式及其应用分析" class="headerlink" title="命令模式及其应用分析"></a>命令模式及其应用分析</h3><h3 id="外观模式及其应用分析"><a href="#外观模式及其应用分析" class="headerlink" title="外观模式及其应用分析"></a>外观模式及其应用分析</h3><h3 id="访问者模式及其应用分析"><a href="#访问者模式及其应用分析" class="headerlink" title="访问者模式及其应用分析"></a>访问者模式及其应用分析</h3><p> —— 不同通信协议的处理</p>
+<h3 id="适配器模式及其应用分析"><a href="#适配器模式及其应用分析" class="headerlink" title="适配器模式及其应用分析"></a>适配器模式及其应用分析</h3><h3 id="命令模式及其应用分析"><a href="#命令模式及其应用分析" class="headerlink" title="命令模式及其应用分析"></a>命令模式及其应用分析</h3><p>命令模式，通俗点理解就是通过一层转换，将输入的命令码对应成相应的执行操作。（ps：有大神说该模式的核心在于把命令下达与命令执行在时间上进行分离）</p>
+<p>一个代码实例如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">tiny_ev_map_func</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  <span class="type">uint16_t</span> cmd;</span><br><span class="line">  <span class="type">void</span> (*func)(<span class="type">void</span>);  </span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">tiny_ev_map_func</span> <span class="title">main_ev_func_list</span>[] =</span></span><br><span class="line">&#123;</span><br><span class="line">    &#123;MAIN_EV_CHARGER_INSERT, func_ev_pm_charge_insert&#125;,</span><br><span class="line">    &#123;MAIN_EV_CHARGER_FINISH, func_ev_pm_charge_finish&#125;,</span><br><span class="line">    &#123;MAIN_EV_BAT_ELE_QUANTITY, func_ev_pm_ele_quantity&#125;,</span><br><span class="line">    &#123;MAIN_EV_BAT_TEMPERATURE, func_ev_pm_temperture&#125;,</span><br><span class="line">    &#123;MAIN_EV_BAT_TEMP_ABNORMAL, func_ev_pm_temp_abnormal&#125;,</span><br><span class="line">    &#123;MAIN_EV_BTN_FIRST, func_ev_btn_first&#125;,</span><br><span class="line">    &#123;MAIN_EV_BTN_SECOND, func_ev_btn_second&#125;,</span><br><span class="line">    &#123;MAIN_EV_HEATER_COMPLEX, func_ev_heater_complex&#125;,</span><br><span class="line">    &#123;MAIN_EV_HEATER_SWITCH, func_ev_heater_switch&#125;,</span><br><span class="line">    &#123;MAIN_EV_HEATER_TEMP_USER, func_ev_heater_temp_user&#125;,</span><br><span class="line">    &#123;MAIN_EV_HEATER_TEMP_RT, func_ev_heater_temp_rt&#125;,</span><br><span class="line">    &#123;MAIN_EV_HEATER_ERROR, func_ev_heater_error&#125;,</span><br><span class="line">    &#123;MAIN_EV_MASSAGE_EV_SWITCH, func_ev_massage_switch&#125;,</span><br><span class="line">    &#123;MAIN_EV_MASSAGE_EV_MODE, func_ev_massage_mode&#125;,</span><br><span class="line">    &#123;MAIN_EV_MASSAGE_EV_ERROR, func_ev_massage_error&#125;,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">module_func_map_cmd</span><span class="params">(<span class="type">uint16_t</span> cmd)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; ARRAY_SIZE(main_ev_func_list); ++i)</span><br><span class="line">        <span class="keyword">if</span> (main_ev_func_list[i].cmd == cmd)</span><br><span class="line">            main_ev_func_list[i].func();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="外观模式及其应用分析"><a href="#外观模式及其应用分析" class="headerlink" title="外观模式及其应用分析"></a>外观模式及其应用分析</h3><h3 id="访问者模式及其应用分析"><a href="#访问者模式及其应用分析" class="headerlink" title="访问者模式及其应用分析"></a>访问者模式及其应用分析</h3><p> —— 不同通信协议的处理</p>
 <h2 id="示例代码实现"><a href="#示例代码实现" class="headerlink" title="示例代码实现"></a>示例代码实现</h2><p>此处略，后续文章补充</p>
-<h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2>
+<h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/104212509">C常用设计模式——命令模式</a></li>
+</ul>
+
     </div>
 
     
