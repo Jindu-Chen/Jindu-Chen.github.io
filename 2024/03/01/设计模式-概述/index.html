@@ -28,7 +28,7 @@
 <meta property="og:description" content="早就听过设计模式、也阅览过一些与设计模式相关的文章，相信即使是未曾了解过设计模式的嵌入式软件工程师，或多或少的都在日常开发中有应用到相关的设计思想，因此，写下本文，以系统总结本人在嵌入式C语言开发工作中对设计模式的理解及应用。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2024-02-29T16:00:00.000Z">
-<meta property="article:modified_time" content="2024-04-07T02:05:58.752Z">
+<meta property="article:modified_time" content="2024-04-07T02:37:06.227Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="设计模式">
 <meta property="article:tag" content="C语言">
@@ -226,7 +226,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-04-07 10:05:58" itemprop="dateModified" datetime="2024-04-07T10:05:58+08:00">2024-04-07</time>
+                <time title="Modified: 2024-04-07 10:37:06" itemprop="dateModified" datetime="2024-04-07T10:37:06+08:00">2024-04-07</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -252,14 +252,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>1.2k</span>
+              <span>1.6k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>4 mins.</span>
+              <span>5 mins.</span>
             </span>
             <div class="post-description">早就听过设计模式、也阅览过一些与设计模式相关的文章，相信即使是未曾了解过设计模式的嵌入式软件工程师，或多或少的都在日常开发中有应用到相关的设计思想，因此，写下本文，以系统总结本人在嵌入式C语言开发工作中对设计模式的理解及应用。</div>
 
@@ -283,13 +283,23 @@
 <p>通常我们会说，进行软件设计，最重要的是思想，对于一个嵌入式软件工程师来说，首要的就是设计思想。当一个项目交到手上，我们会想这个工程能不能实现、其功能业务理论可行性，而<strong>探讨可行性，即是在构思软件的大致解决思路和方法，这就是软件顶层思想的具体实践</strong>了。而在正式开展编码工作之前，当然要明确下代码的架构设计，比如：如何对业务进行划分具体模块、如何对整体工程划分层次、如何设计交互接口等等，这些都是属于设计思想的范畴。</p>
 <p>当然，只有设计理论，没有编码设计实践是万万不行的。而设计模式即是设计思想的具体实践，我们说想要在代码上应用到我们的思想，最好是不要闭门造车，要多参考他人的代码设计方法，如设计模式，其是前人基于设计思想提炼出来的经过无数验证的成熟模型。参考使用设计模式可以帮助更好地组织代码、提高可维护性、保证软件的可靠性。</p>
 <p>以上纯属废话，鄙人对设计模式其实也没明确的概念，也不建议事事都要扯上设计模式，私以为如果<strong>一个软件模块的可读性良好、逻辑层次清晰明了、方便进行扩展设计和维护、能够很好地实现目标业务功能</strong>，那么其即属于优秀的软件设计。</p>
-<h2 id="实际开发应用分析"><a href="#实际开发应用分析" class="headerlink" title="实际开发应用分析"></a>实际开发应用分析</h2><p>硬件访问接口设计</p>
-<p>中介<br>代理</p>
-<h3 id="状态模式及其应用分析"><a href="#状态模式及其应用分析" class="headerlink" title="状态模式及其应用分析"></a>状态模式及其应用分析</h3><h3 id="观察者模式及其应用分析"><a href="#观察者模式及其应用分析" class="headerlink" title="观察者模式及其应用分析"></a>观察者模式及其应用分析</h3><p>观察者模式：</p>
+<h2 id="实际开发应用分析"><a href="#实际开发应用分析" class="headerlink" title="实际开发应用分析"></a>实际开发应用分析</h2><p>未完待续。。。。。。</p>
+<h3 id="状态模式及其应用分析"><a href="#状态模式及其应用分析" class="headerlink" title="状态模式及其应用分析"></a>状态模式及其应用分析</h3><p>状态机广泛应用于嵌入式业务开发中</p>
+<ul>
+<li>设备状态机：整机设备在其工作周期中存在不同的状态，每个状态下接收到不同的事件，会有不同的响应操作，此时在整个设备顶层业务开发中可以应用状态模式。</li>
+<li>通信协议封包、解包设计：解包时，可以定义当前对 缓存数据 的解包状态，如获取到起始位、包头解析、数据解析、包校验等等、通过状态机设计，可以实现高效严谨通用的解包库函数设计。</li>
+<li>通信协议应用业务：在通信协议处理中，也存在状态的切换和不同状态下的处理回复，比如握手、握手回复、获取相关信息、等等，可以应用状态模式来设计 设备间通信协议的交互。</li>
+</ul>
+<p>当然模块内业务根据需要也可以应用状态模式，在不同的状态下接收到不同的事件，从而执行相应的操作</p>
+<h3 id="观察者模式及其应用分析"><a href="#观察者模式及其应用分析" class="headerlink" title="观察者模式及其应用分析"></a>观察者模式及其应用分析</h3><p>观察者模式：</p>
 <p>如：在按键示例中，按键事件可以当作被观察者，受按键触发的其它操作为观察者，当轮询检测到按键按下时，调用所有观察者回调函数</p>
 <p>如：温度监控</p>
 <p>如：状态变化</p>
-<h3 id="适配器模式及其应用分析"><a href="#适配器模式及其应用分析" class="headerlink" title="适配器模式及其应用分析"></a>适配器模式及其应用分析</h3><h3 id="命令模式及其应用分析"><a href="#命令模式及其应用分析" class="headerlink" title="命令模式及其应用分析"></a>命令模式及其应用分析</h3><p>命令模式，通俗点理解就是通过一层转换，将输入的命令码对应成相应的执行操作。（ps：有大神说该模式的核心在于把命令下达与命令执行在时间上进行分离）</p>
+<h3 id="适配器模式及其应用分析"><a href="#适配器模式及其应用分析" class="headerlink" title="适配器模式及其应用分析"></a>适配器模式及其应用分析</h3><p>用于将一个接口转换成另一个接口，从而实现更好的模块层级间调用、接口兼容、解耦</p>
+<ul>
+<li>硬件驱动：上层业务应用调用统一的接口，能够操作驱动相应的底层硬件，而无须关心底层硬件的实现。更换硬件平台时，也无须变动上层业务</li>
+</ul>
+<h3 id="命令模式及其应用分析"><a href="#命令模式及其应用分析" class="headerlink" title="命令模式及其应用分析"></a>命令模式及其应用分析</h3><p>命令模式，通俗点理解就是通过一层转换，将输入的命令码对应成相应的执行操作。（<strong>ps：有大神说该模式的核心在于把命令下达与命令执行在时间上进行分离</strong>）</p>
 <p>一个代码实例如下：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">tiny_ev_map_func</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  <span class="type">uint16_t</span> cmd;</span><br><span class="line">  <span class="type">void</span> (*func)(<span class="type">void</span>);  </span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">tiny_ev_map_func</span> <span class="title">main_ev_func_list</span>[] =</span></span><br><span class="line">&#123;</span><br><span class="line">    &#123;MAIN_EV_CHARGER_INSERT, func_ev_pm_charge_insert&#125;,</span><br><span class="line">    &#123;MAIN_EV_CHARGER_FINISH, func_ev_pm_charge_finish&#125;,</span><br><span class="line">    &#123;MAIN_EV_BAT_ELE_QUANTITY, func_ev_pm_ele_quantity&#125;,</span><br><span class="line">    &#123;MAIN_EV_BAT_TEMPERATURE, func_ev_pm_temperture&#125;,</span><br><span class="line">    &#123;MAIN_EV_BAT_TEMP_ABNORMAL, func_ev_pm_temp_abnormal&#125;,</span><br><span class="line">    &#123;MAIN_EV_BTN_FIRST, func_ev_btn_first&#125;,</span><br><span class="line">    &#123;MAIN_EV_BTN_SECOND, func_ev_btn_second&#125;,</span><br><span class="line">    &#123;MAIN_EV_HEATER_COMPLEX, func_ev_heater_complex&#125;,</span><br><span class="line">    &#123;MAIN_EV_HEATER_SWITCH, func_ev_heater_switch&#125;,</span><br><span class="line">    &#123;MAIN_EV_HEATER_TEMP_USER, func_ev_heater_temp_user&#125;,</span><br><span class="line">    &#123;MAIN_EV_HEATER_TEMP_RT, func_ev_heater_temp_rt&#125;,</span><br><span class="line">    &#123;MAIN_EV_HEATER_ERROR, func_ev_heater_error&#125;,</span><br><span class="line">    &#123;MAIN_EV_MASSAGE_EV_SWITCH, func_ev_massage_switch&#125;,</span><br><span class="line">    &#123;MAIN_EV_MASSAGE_EV_MODE, func_ev_massage_mode&#125;,</span><br><span class="line">    &#123;MAIN_EV_MASSAGE_EV_ERROR, func_ev_massage_error&#125;,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">module_func_map_cmd</span><span class="params">(<span class="type">uint16_t</span> cmd)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; ARRAY_SIZE(main_ev_func_list); ++i)</span><br><span class="line">        <span class="keyword">if</span> (main_ev_func_list[i].cmd == cmd)</span><br><span class="line">            main_ev_func_list[i].func();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
@@ -448,13 +458,13 @@
       <i class="fa fa-chart-area"></i>
     </span>
       <span class="post-meta-item-text">Symbols count total: </span>
-    <span title="Symbols count total">50k</span>
+    <span title="Symbols count total">51k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">Reading time total &asymp;</span>
-    <span title="Reading time total">2:48</span>
+    <span title="Reading time total">2:49</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
   </div>
