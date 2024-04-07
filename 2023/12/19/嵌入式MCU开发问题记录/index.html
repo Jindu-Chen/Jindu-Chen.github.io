@@ -236,7 +236,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>3.6k</span>
+              <span>3.7k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
@@ -286,6 +286,9 @@
 <p><strong>原因：</strong><br>为初始化顺序不符合，正常的配置顺序应为： 初始化ADC外设及相应的复用IO-&gt;初始化DMA外设通道-&gt;配置DMA-ADC通道映射-&gt;清除DMA标志位-&gt;配置使能DMA通道标志触发中断-&gt;使能ADC-DMA访问请求-&gt;使能相应的DMA通道-&gt;配置NVIC使能DMA通道中断</p>
 <p>以上，特别注意：ADC-DMA使能、DMA通断使能、DMA通道使能中断要放到最后.</p>
 <p>另外，编写中断服务函数时，须要在其内清除相应的中断标志位，否则可能会无限重入中断，程序运行出现问题。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">DMA_ConfigInt(DMA1_CH1, DMA_INT_TXC, ENABLE);   <span class="comment">// 配置使能中断要放在使能通道之前，不然无法生效，配置流程要严谨参考芯片手册，不可凭感觉配置</span></span><br><span class="line">DMA_EnableChannel(DMA1_CH1,ENABLE);</span><br></pre></td></tr></table></figure>
+
+
 <h3 id="添加了bootloader的LiteOS应用程序没能跑起来"><a href="#添加了bootloader的LiteOS应用程序没能跑起来" class="headerlink" title="添加了bootloader的LiteOS应用程序没能跑起来"></a>添加了bootloader的LiteOS应用程序没能跑起来</h3><p><strong>原因分析：</strong></p>
 <ul>
 <li>首先检查bootloader和app的链接脚本是否有误，确认bootloader跳转地址为0x8004000，而app链接脚本的FLASH起始地址为0x8004000无误</li>
