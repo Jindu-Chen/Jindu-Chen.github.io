@@ -123,6 +123,11 @@ D [0:00:18,040] DMA_Channel6_IRQHandler [212]: read end
 
 另外，编写中断服务函数时，须要在其内清除相应的中断标志位，否则可能会无限重入中断，程序运行出现问题。
 
+```c
+    DMA_ConfigInt(DMA1_CH1, DMA_INT_TXC, ENABLE);   // 配置使能中断要放在使能通道之前，不然无法生效，配置流程要严谨参考芯片手册，不可凭感觉配置
+    DMA_EnableChannel(DMA1_CH1,ENABLE);
+```
+
 
 ### 添加了bootloader的LiteOS应用程序没能跑起来
 **原因分析：**

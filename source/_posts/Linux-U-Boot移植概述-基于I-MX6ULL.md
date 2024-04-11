@@ -82,3 +82,8 @@ boot
 其为在 U-Boot 在启动内核之前执行的命令，可以用来初始化硬件、加载内核镜像等等
 
 
+
+## 参考站点
+
+- [完全理解ARM启动流程：Uboot-Kernel](https://mp.weixin.qq.com/s/B02akrfXbU85OjAn2mBpcA)
+
