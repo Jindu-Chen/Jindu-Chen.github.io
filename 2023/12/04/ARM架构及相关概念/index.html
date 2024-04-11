@@ -28,7 +28,7 @@
 <meta property="og:description" content="记录ARM架构体系、指令集、寄存器等相关的一些概念知识">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2023-12-03T16:00:00.000Z">
-<meta property="article:modified_time" content="2024-01-22T06:12:08.515Z">
+<meta property="article:modified_time" content="2024-04-10T10:00:33.027Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -225,7 +225,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-01-22 14:12:08" itemprop="dateModified" datetime="2024-01-22T14:12:08+08:00">2024-01-22</time>
+                <time title="Modified: 2024-04-10 18:00:33" itemprop="dateModified" datetime="2024-04-10T18:00:33+08:00">2024-04-10</time>
               </span>
 
           <br>
@@ -234,14 +234,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>745</span>
+              <span>986</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>1 mins.</span>
+              <span>3 mins.</span>
             </span>
             <div class="post-description">记录ARM架构体系、指令集、寄存器等相关的一些概念知识</div>
 
@@ -255,7 +255,30 @@
 
       
         <h2 id="ARM指令集"><a href="#ARM指令集" class="headerlink" title="ARM指令集"></a>ARM指令集</h2><h3 id="Thumb指令集"><a href="#Thumb指令集" class="headerlink" title="Thumb指令集"></a>Thumb指令集</h3><p>其是ARM指令集的一个子集，16位的代码宽度</p>
-<h2 id="哈佛架构与冯诺依曼架构"><a href="#哈佛架构与冯诺依曼架构" class="headerlink" title="哈佛架构与冯诺依曼架构"></a>哈佛架构与冯诺依曼架构</h2><h2 id="CPU寄存器"><a href="#CPU寄存器" class="headerlink" title="CPU寄存器"></a>CPU寄存器</h2><h2 id="Cortex-M内核"><a href="#Cortex-M内核" class="headerlink" title="Cortex-M内核"></a>Cortex-M内核</h2><p>在 Cortex-M 内核中，中断和异常都由 NVIC（Nested Vectored Interrupt Controller）来管理。NVIC 是一个硬件模块，负责处理来自外部或内部的所有中断和异常<br><br></p>
+<h2 id="哈佛架构与冯诺依曼架构"><a href="#哈佛架构与冯诺依曼架构" class="headerlink" title="哈佛架构与冯诺依曼架构"></a>哈佛架构与冯诺依曼架构</h2><h2 id="CPU寄存器"><a href="#CPU寄存器" class="headerlink" title="CPU寄存器"></a>CPU寄存器</h2><p><strong>通用寄存器：</strong>R0-R15</p>
+<ul>
+<li>R0-R3：在函数调用时，用于传递前四个参数；函数调用结束后，R0通常用于存储函数返回值</li>
+<li>R4-R11：主要用于存储局部变量。触发OS PendSV&#x2F;SVC 异常时，Cortex-M内核并不会自动压栈弹栈此部分寄存器值，须由用户RTOS程序手动压栈弹栈</li>
+<li>R12：用于存储函数的帧指针，R12会保存当前堆栈指针的值，然后将堆栈指针向下调整，为新的堆栈帧分配空间。函数返回时，R12会将堆栈指针恢复到调用函数的堆栈帧</li>
+<li>R13（SP）：用作堆栈指针</li>
+<li>R14（LR）：存储函数返回地址，当函数被调用时，LR保存调用函数的返回地址。函数返回时，R14会将返回地址写入程序计数器，使程序返回到调用函数</li>
+<li>R15（PC）：指向下一条要执行指令的地址</li>
+</ul>
+<p><strong>特殊寄存器：</strong></p>
+<ul>
+<li>程序状态字寄存器组（PSRs）：</li>
+<li>中断屏蔽寄存器组（PRIMASK、FAULTMASK、BASEPRI）</li>
+<li>控制寄存器（CONTROL）：</li>
+<li>浮点寄存器</li>
+</ul>
+<h3 id="ARM不同内核架构的CPU寄存器组异同"><a href="#ARM不同内核架构的CPU寄存器组异同" class="headerlink" title="ARM不同内核架构的CPU寄存器组异同"></a>ARM不同内核架构的CPU寄存器组异同</h3><p>如：Cortex-M系列只有两种运行模式：特权模式和非特权模式，其中通用寄存器组是共用的，但堆栈指针 R13（PSP、MSP）是各模式独有的</p>
+<p>如：Cortex-A7 有 9 种运行模式，每一种运行模式都有一组与之对应的寄存器组。</p>
+<ul>
+<li>每一种模式可见的寄存器包括 15 个通用寄存器(R0~R14)、一两个程序状态寄存器和一个程序计数器 PC</li>
+<li>在这些寄存器中，有些是所有模式所共用的同一个物理寄存器，有一些是各模式自己所独立拥有的</li>
+<li>Cortex-A系列内核的各模式下的所有CPU寄存器总计：34个通用寄存器、8个状态寄存器、Hyp 模式下独有一个 ELR_Hyp 寄存器</li>
+</ul>
+<h2 id="Cortex-M内核"><a href="#Cortex-M内核" class="headerlink" title="Cortex-M内核"></a>Cortex-M内核</h2><p>在 Cortex-M 内核中，中断和异常都由 NVIC（Nested Vectored Interrupt Controller）来管理。NVIC 是一个硬件模块，负责处理来自外部或内部的所有中断和异常<br><br></p>
 <p>中断是指来自外部或内部事件的请求，如定时器超时、外部引脚中断<br><br></p>
 <p>异常是CPU执行程序发生的错误处理（如：内存访问非法、除零）或者主动软件触发异常，包括PendSV、HardFault等异常<br><br></p>
 <h2 id="杂项"><a href="#杂项" class="headerlink" title="杂项"></a>杂项</h2><h4 id="glue-7、glue-7t-和-eh-frame"><a href="#glue-7、glue-7t-和-eh-frame" class="headerlink" title="glue_7、glue_7t 和 eh_frame"></a>glue_7、glue_7t 和 eh_frame</h4><ul>
@@ -352,7 +375,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#ARM%E6%8C%87%E4%BB%A4%E9%9B%86"><span class="nav-number">1.</span> <span class="nav-text">ARM指令集</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Thumb%E6%8C%87%E4%BB%A4%E9%9B%86"><span class="nav-number">1.1.</span> <span class="nav-text">Thumb指令集</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%93%88%E4%BD%9B%E6%9E%B6%E6%9E%84%E4%B8%8E%E5%86%AF%E8%AF%BA%E4%BE%9D%E6%9B%BC%E6%9E%B6%E6%9E%84"><span class="nav-number">2.</span> <span class="nav-text">哈佛架构与冯诺依曼架构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CPU%E5%AF%84%E5%AD%98%E5%99%A8"><span class="nav-number">3.</span> <span class="nav-text">CPU寄存器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Cortex-M%E5%86%85%E6%A0%B8"><span class="nav-number">4.</span> <span class="nav-text">Cortex-M内核</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9D%82%E9%A1%B9"><span class="nav-number">5.</span> <span class="nav-text">杂项</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#glue-7%E3%80%81glue-7t-%E5%92%8C-eh-frame"><span class="nav-number">5.0.1.</span> <span class="nav-text">glue_7、glue_7t 和 eh_frame</span></a></li></ol></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#ARM%E6%8C%87%E4%BB%A4%E9%9B%86"><span class="nav-number">1.</span> <span class="nav-text">ARM指令集</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Thumb%E6%8C%87%E4%BB%A4%E9%9B%86"><span class="nav-number">1.1.</span> <span class="nav-text">Thumb指令集</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%93%88%E4%BD%9B%E6%9E%B6%E6%9E%84%E4%B8%8E%E5%86%AF%E8%AF%BA%E4%BE%9D%E6%9B%BC%E6%9E%B6%E6%9E%84"><span class="nav-number">2.</span> <span class="nav-text">哈佛架构与冯诺依曼架构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CPU%E5%AF%84%E5%AD%98%E5%99%A8"><span class="nav-number">3.</span> <span class="nav-text">CPU寄存器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#ARM%E4%B8%8D%E5%90%8C%E5%86%85%E6%A0%B8%E6%9E%B6%E6%9E%84%E7%9A%84CPU%E5%AF%84%E5%AD%98%E5%99%A8%E7%BB%84%E5%BC%82%E5%90%8C"><span class="nav-number">3.1.</span> <span class="nav-text">ARM不同内核架构的CPU寄存器组异同</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Cortex-M%E5%86%85%E6%A0%B8"><span class="nav-number">4.</span> <span class="nav-text">Cortex-M内核</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9D%82%E9%A1%B9"><span class="nav-number">5.</span> <span class="nav-text">杂项</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#glue-7%E3%80%81glue-7t-%E5%92%8C-eh-frame"><span class="nav-number">5.0.1.</span> <span class="nav-text">glue_7、glue_7t 和 eh_frame</span></a></li></ol></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -416,13 +439,13 @@
       <i class="fa fa-chart-area"></i>
     </span>
       <span class="post-meta-item-text">Symbols count total: </span>
-    <span title="Symbols count total">125k</span>
+    <span title="Symbols count total">53k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">Reading time total &asymp;</span>
-    <span title="Reading time total">3:28</span>
+    <span title="Reading time total">2:56</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
   </div>

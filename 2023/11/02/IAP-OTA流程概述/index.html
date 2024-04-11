@@ -28,7 +28,7 @@
 <meta property="og:description" content="讲述在MCU开发中的几种 IAP 固件升级软件设计方法、具体工作流程及应用相关事项，也包含个人于实际产品开发中的 IAP&#x2F;OTA 案例及代码设计、注意项分析">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2023-11-01T16:00:00.000Z">
-<meta property="article:modified_time" content="2024-01-31T10:16:55.254Z">
+<meta property="article:modified_time" content="2024-04-11T06:32:05.142Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -225,7 +225,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-01-31 18:16:55" itemprop="dateModified" datetime="2024-01-31T18:16:55+08:00">2024-01-31</time>
+                <time title="Modified: 2024-04-11 14:32:05" itemprop="dateModified" datetime="2024-04-11T14:32:05+08:00">2024-04-11</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -243,14 +243,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>5.9k</span>
+              <span>3.5k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>10 mins.</span>
+              <span>12 mins.</span>
             </span>
             <div class="post-description">讲述在MCU开发中的几种 IAP 固件升级软件设计方法、具体工作流程及应用相关事项，也包含个人于实际产品开发中的 IAP/OTA 案例及代码设计、注意项分析</div>
 
@@ -349,8 +349,13 @@
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">void reboot(void)</span><br><span class="line">&#123;</span><br><span class="line">    __set_FAULTMASK(1);     // 关闭所有中断</span><br><span class="line">    NVIC_SystemReset();     // 系统复位，以上两个函数位于 core_cm3.h 文件或 core_cm4.h</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <h4 id="内核复位"><a href="#内核复位" class="headerlink" title="内核复位"></a>内核复位</h4><p>内核复位，主要包括内存、NVIC、Systick等内核部分，而不会复位外设，即当程序复位到 0x8000000 重新执行时，外设比如GPIO引脚、定时器等还保留为 APP 运行时的状态，可以利用这点实现特殊的业务设计：<strong>允许复位，但对外设又有特殊要求：某一个IO状态不能因为复位而改变，某一个定时器计数值不能改变等。</strong></p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">void kernel_reset(void)</span><br><span class="line">&#123;</span><br><span class="line">    __DSB(); // ARM汇编语言中的一条指令，用于确保在指令执行期间对内存的访问顺序</span><br><span class="line">    __disable_irq();</span><br><span class="line"></span><br><span class="line">    // 可选择在此设置看门狗</span><br><span class="line">    // 关闭或者设置有可能影响 Bootloader 程序运行的外设</span><br><span class="line"></span><br><span class="line">    SCB-&gt;AIRCR = ((0x5FA &lt;&lt; SCB_AIRCR_VECTKEY_Pos)      |</span><br><span class="line">                  (SCB-&gt;AIRCR &amp; SCB_AIRCR_PRIGROUP_Msk) |</span><br><span class="line">                   SCB_AIRCR_VECTRESET_Msk);</span><br><span class="line">    __DSB();</span><br><span class="line">    while(1);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">kernel_reset</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    __DSB(); <span class="comment">// ARM汇编语言中的一条指令，用于确保在指令执行期间对内存的访问顺序</span></span><br><span class="line">    __disable_irq();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 可选择在此设置看门狗</span></span><br><span class="line">    <span class="comment">// 关闭或者设置有可能影响 Bootloader 程序运行的外设</span></span><br><span class="line"></span><br><span class="line">    SCB-&gt;AIRCR = ((<span class="number">0x5FA</span> &lt;&lt; SCB_AIRCR_VECTKEY_Pos)      |</span><br><span class="line">                  (SCB-&gt;AIRCR &amp; SCB_AIRCR_PRIGROUP_Msk) |</span><br><span class="line">                   SCB_AIRCR_VECTRESET_Msk);</span><br><span class="line">    __DSB();</span><br><span class="line">    <span class="keyword">while</span>(<span class="number">1</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
+<p>当然，使用内核复位要谨慎注意外设状态可能对系统运行状态的影响，如下：</p>
+<ul>
+<li>应用了DMA的外设，要注意可能的问题</li>
+<li>部分外设初始化流程不甚合规的，可能会导致复位后外设初始化失败，建议在配置初始化外设时首先先复位此外设。比如：ADC外设在初始化时，并没有先<code>DeInit</code>进行外设复位，而且在内核复位时也没有复位此外设，那么在内核复位后再次初始化ADC外设可能会失败。</li>
+</ul>
 <h4 id="跳转复位"><a href="#跳转复位" class="headerlink" title="跳转复位"></a>跳转复位</h4><p>设置好中断向量以及配置好栈顶指针后，直接跳转至 Bootloader 的复位中断开始运行，<strong>在这过程中内核及外设都不会自动复位，可由用户根据业务需要进行配置</strong></p>
 <p>示例代码参考如下：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">typedef void (*iapfun)(void);</span><br><span class="line"></span><br><span class="line">iapfun jump2bootloader;</span><br><span class="line"></span><br><span class="line">void app_jump2_bootloader(void)</span><br><span class="line">&#123;</span><br><span class="line">    // 可设置看门狗</span><br><span class="line"></span><br><span class="line">    u32 bootxaddr = 0x08000000;</span><br><span class="line">    if(((*(vu32*)bootxaddr)&amp;0x2FFE0000)==0x20000000) //检查栈顶地址是否合法</span><br><span class="line">    &#123;</span><br><span class="line">        __disable_irq();</span><br><span class="line">		SysTick-&gt;CTRL = 0;</span><br><span class="line">		SysTick-&gt;LOAD = 0;</span><br><span class="line">		SysTick-&gt;VAL = 0;</span><br><span class="line">        for (int i = 0; i &lt; 8; i++)</span><br><span class="line">		&#123;</span><br><span class="line">			NVIC-&gt;ICER[i] = 0xFFFFFFFF;</span><br><span class="line">			NVIC-&gt;ICPR[i] = 0xFFFFFFFF;</span><br><span class="line">		&#125;</span><br><span class="line">        </span><br><span class="line">        // 可配置必要外设  RCC_DeInit();</span><br><span class="line">        </span><br><span class="line">        SCB-&gt;VTOR = 0x08000000;  // 设置中断向量表基地址</span><br><span class="line"></span><br><span class="line">        __set_CONTROL(0);   // 设置使用MSP主堆栈指针</span><br><span class="line">        // __set_PSP(*(volatile unsigned int*) bootxaddr);</span><br><span class="line"></span><br><span class="line">        jump2bootloader = (iapfun)*(vu32*)(bootxaddr+4);      //代码区第二个字为程序开始地址(复位地址)</span><br><span class="line">        MSR_MSP(*(vu32*)bootxaddr);                  //初始化boot堆栈指针(代码区的第一个字用于存放栈顶地址)</span><br><span class="line"></span><br><span class="line">        jump2bootloader();                                 //跳转到bootloader.</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
@@ -546,13 +551,13 @@
       <i class="fa fa-chart-area"></i>
     </span>
       <span class="post-meta-item-text">Symbols count total: </span>
-    <span title="Symbols count total">125k</span>
+    <span title="Symbols count total">53k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">Reading time total &asymp;</span>
-    <span title="Reading time total">3:28</span>
+    <span title="Reading time total">2:56</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
   </div>
