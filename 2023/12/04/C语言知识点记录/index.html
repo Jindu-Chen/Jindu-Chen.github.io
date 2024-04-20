@@ -28,7 +28,7 @@
 <meta property="og:description" content="记录、总结在嵌入式开发中遇到的C知识点，以及一些C编程注意项">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2023-12-04T02:04:15.000Z">
-<meta property="article:modified_time" content="2024-04-11T06:58:35.329Z">
+<meta property="article:modified_time" content="2024-04-20T02:48:51.372Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -225,7 +225,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-04-11 14:58:35" itemprop="dateModified" datetime="2024-04-11T14:58:35+08:00">2024-04-11</time>
+                <time title="Modified: 2024-04-20 10:48:51" itemprop="dateModified" datetime="2024-04-20T10:48:51+08:00">2024-04-20</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -243,14 +243,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>2.5k</span>
+              <span>2.6k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>8 mins.</span>
+              <span>9 mins.</span>
             </span>
             <div class="post-description">记录、总结在嵌入式开发中遇到的C知识点，以及一些C编程注意项</div>
 
@@ -273,7 +273,12 @@
 <li>宏定义的本质是替换，如果同一个宏名定义了两个不同的量，则在编译时可能会替换两次，最终输出的为最后一次宏定义处理的值</li>
 </ul>
 <p>像<code>#if</code>、<code>#include</code>属于预处理指令</p>
-<h3 id="C库集成的宏定义"><a href="#C库集成的宏定义" class="headerlink" title="C库集成的宏定义"></a>C库集成的宏定义</h3><p><code>__DATE__</code>：字符串，为编译时的当前系统日期、时间<br><code>__FILE__</code>：打印处的.c文件名<br><code>__LINE__</code>：整型变量，为打印处的行号<br><code>__TIME__</code>：字符串，编译时的系统时间<br><code>__func__</code>：打印处的函数名</p>
+<h3 id="C库集成的宏定义"><a href="#C库集成的宏定义" class="headerlink" title="C库集成的宏定义"></a>C库集成的宏定义</h3><p><code>__VA_ARGS__</code> 是 C 和 C++ 语言中用于处理可变参数宏的一种特殊占位符，用来表示传递给该宏的所有可变参数。</p>
+<ul>
+<li>这个占位符允许宏接收任意数量和类型的参数，并在宏展开时将这些参数原封不动地传递到宏体中的相应位置。</li>
+<li>可变参数宏通常用于定义需要处理不定数量参数的宏函数，如常见的日志打印、调试输出等场合。</li>
+</ul>
+<p><code>__DATE__</code>：字符串，为编译时的当前系统日期、时间<br><code>__FILE__</code>：打印处的.c文件名<br><code>__LINE__</code>：整型变量，为打印处的行号<br><code>__TIME__</code>：字符串，编译时的系统时间<br><code>__func__</code>：打印处的函数名</p>
 <p>如下：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;[%s %s] %s: %s: %d\n&quot;</span>, __DATE__, __TIME__, __FILE__, __func__, __LINE__);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>编译运行，将会输出：<code>[2024-01-29 14:54:25] [14:54:25] main.c:main: 12</code></p>
@@ -450,7 +455,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">32</span>
+          <span class="site-state-item-count">33</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -500,13 +505,13 @@
       <i class="fa fa-chart-area"></i>
     </span>
       <span class="post-meta-item-text">Symbols count total: </span>
-    <span title="Symbols count total">57k</span>
+    <span title="Symbols count total">58k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">Reading time total &asymp;</span>
-    <span title="Reading time total">3:10</span>
+    <span title="Reading time total">3:14</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
   </div>

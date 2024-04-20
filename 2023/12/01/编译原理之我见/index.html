@@ -28,7 +28,7 @@
 <meta property="og:description" content="讲述个人对C工程编译链接的一些浅薄见解，不涉及深层的编译原理；此外，也记录在开发中所遇到的与编译、链接相关的知识及其应用">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2023-11-30T16:00:00.000Z">
-<meta property="article:modified_time" content="2024-02-19T07:47:26.683Z">
+<meta property="article:modified_time" content="2024-04-20T07:38:35.930Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言">
 <meta name="twitter:card" content="summary">
@@ -225,7 +225,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-02-19 15:47:26" itemprop="dateModified" datetime="2024-02-19T15:47:26+08:00">2024-02-19</time>
+                <time title="Modified: 2024-04-20 15:38:35" itemprop="dateModified" datetime="2024-04-20T15:38:35+08:00">2024-04-20</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -243,7 +243,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>1.1k</span>
+              <span>1.3k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
@@ -273,6 +273,15 @@
 <li>四字节对齐：要求数据的存放起始地址必须是4的倍数<br>作用：<br>1、数据结构按照4字节对齐，使得处理器更有效访问，32位系统可以一次读完一个4字节长度变量<br>2、某些硬件要求数据需要在特定的边界上对齐，否则可能出现异常<br>  如STM32，Flash的写入、DMA访问、结构体成员、线程栈PSP、<strong>指针变量</strong>都需要考虑字节对齐<br>3、结构体本身没有4字节对齐，进行特定的跳转读取，可能导致异常</li>
 </ul>
 <hr>
+<h2 id="与编译链接相关之实用小知识"><a href="#与编译链接相关之实用小知识" class="headerlink" title="与编译链接相关之实用小知识"></a>与编译链接相关之实用小知识</h2><h3 id="printf重定向至串口"><a href="#printf重定向至串口" class="headerlink" title="printf重定向至串口"></a>printf重定向至串口</h3><p>开发调试时可以通过printf进行信息打印输出，但是通常编译器默认将printf重定向至屏幕，可以通过重定向至串口来输出：</p>
+<ul>
+<li><code>printf</code>是C标准库用于格式化输出到标准输出(stdout)的函数，其在<strong>C标准库里内会调用到接口<code>_write</code>，该接口是个弱函数，默认实现是输出至屏幕</strong>。</li>
+<li>那么用户可以自行实现<code>_write</code>函数，将数据输出至串口。编译器链接时会链接到用户自行实现的<code>_write</code>函数，而非默认的弱符号修饰的<code>_write</code>函数。</li>
+</ul>
+<p>当然，不同C库的实现方式也不同，这里以<code>gcc nano</code>为例。（其它C库如 ARM-microlib，或者 newlib 等，其重定向时不一定为重写<code>_write</code>函数，可能是<code>_io_putchar</code>函数、<code>_putchar</code>函数等）</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> _write(<span class="type">int</span> fd, <span class="type">char</span>* data, <span class="type">int</span> len)</span><br><span class="line">&#123;</span><br><span class="line">    drv_uart_write(DEV_UART1, (<span class="type">uint8_t</span> *)data, len);    <span class="comment">// 由开发者自行实现此接口</span></span><br><span class="line">    <span class="keyword">return</span> len;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
 <h2 id="非典型知识"><a href="#非典型知识" class="headerlink" title="非典型知识"></a>非典型知识</h2><h3 id="a静态库文件和-o目标文件"><a href="#a静态库文件和-o目标文件" class="headerlink" title=".a静态库文件和.o目标文件"></a>.a静态库文件和.o目标文件</h3><p><strong>.o文件格式：</strong> 格式由目标体系结构决定，通常为<code>ELF</code></p>
 <ul>
 <li>文件头：记录了文件的类型、大小、目标体系结构、编译器版本等</li>
@@ -425,7 +434,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9E%84%E5%BB%BAC%E5%B7%A5%E7%A8%8B%E4%B8%AD%E7%9A%84%E4%B8%80%E4%BA%9B%E7%96%91%E6%83%91%E8%A7%A3%E7%AD%94"><span class="nav-number">1.</span> <span class="nav-text">构建C工程中的一些疑惑解答</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9D%9E%E5%85%B8%E5%9E%8B%E7%9F%A5%E8%AF%86"><span class="nav-number">2.</span> <span class="nav-text">非典型知识</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#a%E9%9D%99%E6%80%81%E5%BA%93%E6%96%87%E4%BB%B6%E5%92%8C-o%E7%9B%AE%E6%A0%87%E6%96%87%E4%BB%B6"><span class="nav-number">2.1.</span> <span class="nav-text">.a静态库文件和.o目标文件</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#C%E7%A8%8B%E5%BA%8F%E5%BC%80%E5%8F%91%E6%B3%A8%E6%84%8F%E7%82%B9"><span class="nav-number">3.</span> <span class="nav-text">C程序开发注意点</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%B4%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB"><span class="nav-number">3.1.</span> <span class="nav-text">头文件包含</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BF%AE%E6%94%B9%E7%BC%96%E8%AF%91%E4%BC%98%E5%8C%96%E7%BA%A7%E5%88%AB"><span class="nav-number">3.2.</span> <span class="nav-text">修改编译优化级别</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#C%E7%BC%96%E8%AF%91%E8%BF%87%E7%A8%8B"><span class="nav-number">4.</span> <span class="nav-text">C编译过程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E7%AB%99%E7%82%B9"><span class="nav-number">5.</span> <span class="nav-text">参考站点</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9E%84%E5%BB%BAC%E5%B7%A5%E7%A8%8B%E4%B8%AD%E7%9A%84%E4%B8%80%E4%BA%9B%E7%96%91%E6%83%91%E8%A7%A3%E7%AD%94"><span class="nav-number">1.</span> <span class="nav-text">构建C工程中的一些疑惑解答</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%8E%E7%BC%96%E8%AF%91%E9%93%BE%E6%8E%A5%E7%9B%B8%E5%85%B3%E4%B9%8B%E5%AE%9E%E7%94%A8%E5%B0%8F%E7%9F%A5%E8%AF%86"><span class="nav-number">2.</span> <span class="nav-text">与编译链接相关之实用小知识</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#printf%E9%87%8D%E5%AE%9A%E5%90%91%E8%87%B3%E4%B8%B2%E5%8F%A3"><span class="nav-number">2.1.</span> <span class="nav-text">printf重定向至串口</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9D%9E%E5%85%B8%E5%9E%8B%E7%9F%A5%E8%AF%86"><span class="nav-number">3.</span> <span class="nav-text">非典型知识</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#a%E9%9D%99%E6%80%81%E5%BA%93%E6%96%87%E4%BB%B6%E5%92%8C-o%E7%9B%AE%E6%A0%87%E6%96%87%E4%BB%B6"><span class="nav-number">3.1.</span> <span class="nav-text">.a静态库文件和.o目标文件</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#C%E7%A8%8B%E5%BA%8F%E5%BC%80%E5%8F%91%E6%B3%A8%E6%84%8F%E7%82%B9"><span class="nav-number">4.</span> <span class="nav-text">C程序开发注意点</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%B4%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB"><span class="nav-number">4.1.</span> <span class="nav-text">头文件包含</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BF%AE%E6%94%B9%E7%BC%96%E8%AF%91%E4%BC%98%E5%8C%96%E7%BA%A7%E5%88%AB"><span class="nav-number">4.2.</span> <span class="nav-text">修改编译优化级别</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#C%E7%BC%96%E8%AF%91%E8%BF%87%E7%A8%8B"><span class="nav-number">5.</span> <span class="nav-text">C编译过程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E7%AB%99%E7%82%B9"><span class="nav-number">6.</span> <span class="nav-text">参考站点</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -439,7 +448,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">32</span>
+          <span class="site-state-item-count">33</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -489,13 +498,13 @@
       <i class="fa fa-chart-area"></i>
     </span>
       <span class="post-meta-item-text">Symbols count total: </span>
-    <span title="Symbols count total">57k</span>
+    <span title="Symbols count total">58k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">Reading time total &asymp;</span>
-    <span title="Reading time total">3:10</span>
+    <span title="Reading time total">3:14</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
   </div>

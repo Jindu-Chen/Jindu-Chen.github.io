@@ -368,6 +368,7 @@
 <li>重复比对初始化步骤,以及断点调试,查看DMA的寄存器配置信息,发现DMA寄存器没有被正确初始化</li>
 <li>确定为驱动初始化的原因, 再次重复确认DMA-UART的结构体初始化信息,发现为信息结构体的位置错位了<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">drv_uart_dev</span> <span class="title">uart2</span> =</span></span><br><span class="line">&#123;</span><br><span class="line">    USART2,</span><br><span class="line">    USART2_IRQn,</span><br><span class="line">    &#123;</span><br><span class="line">        DMA1_CH6,</span><br><span class="line">        DMA1,</span><br><span class="line">        DMA1_FLAG_GL6,</span><br><span class="line">        DMA1_Channel6_IRQn,</span><br><span class="line">        <span class="number">0</span>,                      <span class="comment">// 此处缺少一个 0 变量,导致下面的变量错位</span></span><br><span class="line">        DMA1_CH7,</span><br><span class="line">        DMA1,</span><br><span class="line">    &#125;,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">drv_uart_dev</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    USART_Module *uart_device;</span><br><span class="line">    IRQn_Type irq;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">drv_uart_dma</span></span></span><br><span class="line"><span class="class">    &#123;</span></span><br><span class="line">        DMA_ChannelType *rx_ch;</span><br><span class="line">        DMA_Module *rx_dma_type;</span><br><span class="line">        <span class="type">uint32_t</span> rx_gl_flag;</span><br><span class="line">        <span class="type">uint8_t</span> rx_irq_ch;</span><br><span class="line">        <span class="type">uint32_t</span> setting_dma_flag;</span><br><span class="line">        <span class="type">uint16_t</span> last_recv_index;</span><br><span class="line"></span><br><span class="line">        DMA_ChannelType *tx_ch;</span><br><span class="line">        DMA_Module *tx_dma_type;</span><br><span class="line">    &#125; dma;</span><br><span class="line">    <span class="type">void</span> (*user_cb)(<span class="keyword">enum</span> uart_dev_name uart_num, <span class="type">uint16_t</span> length);</span><br><span class="line">    structUsertData rx_buf_dev;</span><br><span class="line">    structUserTxData tx_buf_dev;</span><br><span class="line">    <span class="class"><span class="keyword">enum</span> <span class="title">uart_dev_name</span> <span class="title">uart_num</span>;</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></li>
 </ul>
+<p>另外，需要注意串口空闲中断接收时不一定接收的是整包数据，也可能是半包数据即触发了空闲中断，设计中需要考虑规避此现象可能导致的问题</p>
 <hr>
 <h3 id="移植letter-shell组件和LiteOS-开机上电立即打印了letter-shell版本信息-但其后的打印信息阻塞延时了几秒钟-在这期间内-shell完全没任何反应"><a href="#移植letter-shell组件和LiteOS-开机上电立即打印了letter-shell版本信息-但其后的打印信息阻塞延时了几秒钟-在这期间内-shell完全没任何反应" class="headerlink" title="移植letter_shell组件和LiteOS, 开机上电立即打印了letter_shell版本信息, 但其后的打印信息阻塞延时了几秒钟, 在这期间内, shell完全没任何反应"></a>移植letter_shell组件和LiteOS, 开机上电立即打印了letter_shell版本信息, 但其后的打印信息阻塞延时了几秒钟, 在这期间内, shell完全没任何反应</h3><p><strong>现象分析:</strong></p>
 <ul>
@@ -479,7 +480,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">32</span>
+          <span class="site-state-item-count">33</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -529,13 +530,13 @@
       <i class="fa fa-chart-area"></i>
     </span>
       <span class="post-meta-item-text">Symbols count total: </span>
-    <span title="Symbols count total">57k</span>
+    <span title="Symbols count total">58k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">Reading time total &asymp;</span>
-    <span title="Reading time total">3:10</span>
+    <span title="Reading time total">3:14</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
   </div>
