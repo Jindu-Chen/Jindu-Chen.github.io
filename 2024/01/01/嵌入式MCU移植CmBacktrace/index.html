@@ -28,7 +28,7 @@
 <meta property="og:description" content="CmBacktrace是针对Cortex-M内核芯片提供程序运行异常时的堆栈回溯工具&#x2F;中间件，将其移植到单片机中，可以在程序异常时打印相应的故障信息包括函数调用链、变量值、寄存器值等，大大缩短bug排查时间。本文介绍CmBacktrace的移植适配过程、原理解析、实际应用以及一些扩展问题思考等。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2023-12-31T16:00:00.000Z">
-<meta property="article:modified_time" content="2024-04-20T09:33:25.512Z">
+<meta property="article:modified_time" content="2024-04-22T02:38:36.923Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -225,7 +225,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-04-20 17:33:25" itemprop="dateModified" datetime="2024-04-20T17:33:25+08:00">2024-04-20</time>
+                <time title="Modified: 2024-04-22 10:38:36" itemprop="dateModified" datetime="2024-04-22T10:38:36+08:00">2024-04-22</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -247,7 +247,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>291</span>
+              <span>323</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
@@ -274,8 +274,10 @@
 <p><strong>调用其初始化接口</strong></p>
 <p>Demo应用</p>
 <p>addrline2工具解析栈帧</p>
-<h2 id="原理解析"><a href="#原理解析" class="headerlink" title="原理解析"></a>原理解析</h2><p>要理清CmBacktrace的实现原理，首先要了解<code>ARM Cortex-M</code>内核的堆栈布局与管理、以及该内核对异常的处理流程。</p>
+<p>addr2line -e app.elf -a -f 080154c2 0800a3b2 08009092</p>
+<h2 id="原理解析"><a href="#原理解析" class="headerlink" title="原理解析"></a>原理解析</h2><p>要理清CmBacktrace的实现原理，首先要<strong>了解<code>ARM Cortex-M</code>内核的堆栈布局与管理、以及该内核对异常的处理流程</strong>。</p>
 <p>而CmBacktrace即是根据C语言的栈帧结构、以及Cortex-M内核的工作&#x2F;异常处理的原理，当触发异常时，对堆栈进行解析实现回溯，而后将信息输出至终端，如串口。</p>
+<p>如何通过cortex-m4内核的cpu寄存器值分析当前的栈帧调用链</p>
 <h3 id="堆栈布局与管理"><a href="#堆栈布局与管理" class="headerlink" title="堆栈布局与管理"></a>堆栈布局与管理</h3><h3 id="异常处理与上下文保存"><a href="#异常处理与上下文保存" class="headerlink" title="异常处理与上下文保存"></a>异常处理与上下文保存</h3><h3 id="CmBacktrace的工作原理"><a href="#CmBacktrace的工作原理" class="headerlink" title="CmBacktrace的工作原理"></a>CmBacktrace的工作原理</h3><h2 id="注意点与扩展思考"><a href="#注意点与扩展思考" class="headerlink" title="注意点与扩展思考"></a>注意点与扩展思考</h2><h3 id="其它如Cortex-A内核如何回溯的？"><a href="#其它如Cortex-A内核如何回溯的？" class="headerlink" title="其它如Cortex-A内核如何回溯的？"></a>其它如Cortex-A内核如何回溯的？</h3><h3 id="RTOS下移植CmBacktrace有何不同？"><a href="#RTOS下移植CmBacktrace有何不同？" class="headerlink" title="RTOS下移植CmBacktrace有何不同？"></a>RTOS下移植CmBacktrace有何不同？</h3><h3 id="程序崩溃跳转至HardFault状态了，为何还能正常控制外设如DMA-UART打印故障信息？"><a href="#程序崩溃跳转至HardFault状态了，为何还能正常控制外设如DMA-UART打印故障信息？" class="headerlink" title="程序崩溃跳转至HardFault状态了，为何还能正常控制外设如DMA-UART打印故障信息？"></a>程序崩溃跳转至HardFault状态了，为何还能正常控制外设如DMA-UART打印故障信息？</h3><h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2>
     </div>
 
@@ -370,7 +372,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">33</span>
+          <span class="site-state-item-count">34</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -420,13 +422,13 @@
       <i class="fa fa-chart-area"></i>
     </span>
       <span class="post-meta-item-text">Symbols count total: </span>
-    <span title="Symbols count total">58k</span>
+    <span title="Symbols count total">59k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">Reading time total &asymp;</span>
-    <span title="Reading time total">3:14</span>
+    <span title="Reading time total">3:18</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
   </div>

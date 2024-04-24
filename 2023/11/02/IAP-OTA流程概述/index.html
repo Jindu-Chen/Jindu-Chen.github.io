@@ -28,7 +28,7 @@
 <meta property="og:description" content="讲述在MCU开发中的几种 IAP 固件升级软件设计方法、具体工作流程及应用相关事项，也包含个人于实际产品开发中的 IAP&#x2F;OTA 案例及代码设计、注意项分析">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2023-11-01T16:00:00.000Z">
-<meta property="article:modified_time" content="2024-04-20T09:17:07.278Z">
+<meta property="article:modified_time" content="2024-04-24T02:43:11.332Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -225,7 +225,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-04-20 17:17:07" itemprop="dateModified" datetime="2024-04-20T17:17:07+08:00">2024-04-20</time>
+                <time title="Modified: 2024-04-24 10:43:11" itemprop="dateModified" datetime="2024-04-24T10:43:11+08:00">2024-04-24</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -243,7 +243,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>4.2k</span>
+              <span>4.3k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
@@ -397,18 +397,33 @@
 <li>系统时钟配置不一致，bootloader与APP的系统时钟初始化应该保持一致</li>
 <li>可能的原因：bootloader与APP的编译链接选项尽可能保持一致，如硬件浮点、函数&#x2F;数据编译分小节、所用C库、优化选项等<br></li>
 </ul>
+<hr>
 <p>在实际应用上述<strong>思路四</strong>的IAP升级时，使用内核复位至 bootloader 搬运更新 APP 程序，而后跳转至 APP 程序，在此过程中程序跑飞，未能成功升级，排查初步分析如下：</p>
 <ul>
 <li>程序内核复位至bootloader后，能够正常擦除原有APP，并已将新APP写入APP运行区。所以推测认为是<strong>bootloader程序在跳转至新APP时，跑飞，导致升级失败</strong>。</li>
-<li>有时发现测试IAP能够成功，发现如果原有APP跟升级APP的<code>text</code>代码段大小一样，则升级成功。如果原有APP跟升级AAPP的<code>text</code>段大小不一样，则升级失败。（若代码段发生变化必会失败，但<strong>常量字符串大小变化即.rodata变化</strong>仍能够升级成功）</li>
+<li>有时发现测试IAP能够成功，发现如果原有APP跟升级APP的<code>text</code>代码段大小一样，则升级成功。如果原有APP跟升级APP的<code>text</code>段大小不一样，则升级失败。（若代码段发生变化必会失败，但<strong>常量字符串大小变化即.rodata变化</strong>仍能够升级成功）</li>
 <li>如果是完全的系统复位至bootloader则能升级成功，所以初步认为是<strong>原APP对运行环境的影响导致的升级后跳转失败</strong>。</li>
 <li>在bootloader跳转后并无任何信息打印，可以得出<strong>新APP在串口初始化时或之前已经跑飞</strong>。</li>
 <li>有可能是：向量中断偏移错误导致，需要在bootloader跳转前就将向量中断偏移更新，APP代码段的变化会导致出错，因为代码段的变化会导致实际的中断服务函数地址变化</li>
 <li>跟中断应该无关，内核复位时已经复位所有中断，且bootloader能够正常编程。所以有可能是外设或者某些代码片段重复初始化，且会涉及到代码段以及flash，从而才导致异常。</li>
 <li><strong>可能是系统时钟设置不一致问题</strong>，目前APP初始化时会重新设置系统时钟，如果没有这部分设置，会导致程序异常。</li>
 <li>不同存储区跳转运行，需要关闭ICACHE</li>
-<li>对比NeckD5此前已成功实现内核复位升级的工程，有何区别？</li>
+<li>对比此前已成功实现内核复位升级的工程，有何区别？</li>
+<li>移植CmBacktrace至bootloader，查看具体跑飞原因</li>
+<li>用GDB在线调试运行bootloader查看hardfault时候的寄存器值，PC指针在何处，LR指针</li>
 </ul>
+<p>问题排查解决分析：</p>
+<ul>
+<li><p>通过此前已成功实现内核复位升级的rt-thread业务工程，进行对比删减，排查问题</p>
+</li>
+<li><p>当注释掉其大部分的业务设计后，发现此可行工程也无法正常内核复位升级</p>
+</li>
+<li><p>初步规律为：原有工程能够内核复位升级至删减后的工程、删减后的工程却无法内核复位升级至原有的工程</p>
+</li>
+<li><p>在测试过程中，跳转至bootloader时，串口有非预期的信息打印，并非代码指示。</p>
+</li>
+</ul>
+<hr>
 <h3 id="如何保证bootloader升级失败不会导致设备变砖？"><a href="#如何保证bootloader升级失败不会导致设备变砖？" class="headerlink" title="如何保证bootloader升级失败不会导致设备变砖？"></a>如何保证bootloader升级失败不会导致设备变砖？</h3><p>保证接收到的新APP是正确的，传输完毕后校验文件无误</p>
 <p>保证在搬运编程过程中，即使是突然断电或者复位后，也能继续搬运至完成</p>
 <h3 id="在实时操作系统环境中，如何执行跳转操作？"><a href="#在实时操作系统环境中，如何执行跳转操作？" class="headerlink" title="在实时操作系统环境中，如何执行跳转操作？"></a>在实时操作系统环境中，如何执行跳转操作？</h3><p>操作系统在线程中使用PSP堆栈指针，在中断中使用MSP主堆栈指针</p>
@@ -511,7 +526,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">33</span>
+          <span class="site-state-item-count">34</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -561,13 +576,13 @@
       <i class="fa fa-chart-area"></i>
     </span>
       <span class="post-meta-item-text">Symbols count total: </span>
-    <span title="Symbols count total">58k</span>
+    <span title="Symbols count total">59k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">Reading time total &asymp;</span>
-    <span title="Reading time total">3:14</span>
+    <span title="Reading time total">3:18</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
   </div>

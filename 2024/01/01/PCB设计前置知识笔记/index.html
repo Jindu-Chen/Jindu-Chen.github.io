@@ -28,7 +28,7 @@
 <meta property="og:description" content="记录PCB设计的基础知识，包括PCB结构、PCB制作流程、制作工艺以及设计流程等。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2023-12-31T16:00:00.000Z">
-<meta property="article:modified_time" content="2024-04-18T04:13:19.674Z">
+<meta property="article:modified_time" content="2024-04-22T04:06:58.702Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -225,7 +225,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-04-18 12:13:19" itemprop="dateModified" datetime="2024-04-18T12:13:19+08:00">2024-04-18</time>
+                <time title="Modified: 2024-04-22 12:06:58" itemprop="dateModified" datetime="2024-04-22T12:06:58+08:00">2024-04-22</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -243,7 +243,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>3.2k</span>
+              <span>3.4k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
@@ -273,15 +273,21 @@
 <p>PCB电路板的本质如一幅二维图画：黑色地方是镂空的，红色的地方是不透光的，其叫GERBER文件（光绘文件），每一层电路板都会有一个GERBER文件。生产厂会通过GERBER文件生产出胶片，从而制作电路板</p>
 <h2 id="PCB的制作流程"><a href="#PCB的制作流程" class="headerlink" title="PCB的制作流程"></a>PCB的制作流程</h2><p>PCB的整体制作流程如下：</p>
 <p>设计电路图-&gt;生成GERBER文件-&gt;制作印刷胶片-&gt;制作基板（完整的三明治PCB结构板）-&gt;光刻（在铜泊表面覆盖光刻胶，用紫外光曝光融化光刻胶，把不需要的铜泊暴露出来）-&gt;蚀刻（将未被光刻胶保护的铜箔部分蚀掉，形成电路导线）-&gt;去除光刻胶-&gt;层压-&gt;钻孔（根据GERBER文件，在需要连接的位置钻孔）-&gt;金属化处理（沉铜、镀锡、镀金、镀银、镀镍等）-&gt;喷涂防焊层（阻焊层）-&gt;字符标识（加丝印）-&gt;表面处理</p>
-<h3 id="基础工艺指标"><a href="#基础工艺指标" class="headerlink" title="基础工艺指标"></a>基础工艺指标</h3><p>板厚: 指电路板的整体厚度，单位通常为毫米（mm）。板厚的选择应考虑机械强度、散热需求、成本、与外部接口的配合等因素。常见的板厚范围为0.4mm至3.2mm。 典型值如：1.6mm<br><br></p>
-<p>走线宽度: 单根导线的宽度，典型值0.1mm，线宽度直接影响电路的电流承载能力、阻抗特性以及信号传输质量。在高速信号设计中，需控制走线的特性阻抗以保证信号完整性。<br><br></p>
-<p>钻孔内径: 0.3mm，过孔（via）内部金属化的孔径，单位通常为毫米（mm）或微米（μm）。钻孔内径决定了电流通过过孔的面积，影响电流容量和阻抗<br><br></p>
-<p>钻孔外径: 0.4mm，过孔在电路板两面露出的孔径，主要影响焊接时焊料的填充情况以及与元器件引脚的接触面积。一般钻孔外径略大于钻孔内径，以确保良好的焊接效果。<br><br></p>
-<p>走线间距: 0.1mm，走线间距决定了电路板的绝缘性能，影响电压等级、耐压能力以及抗串扰能力。走线间距一般等于走线宽度<br><br></p>
-<p>铜厚: 电路板上铜箔的厚度，常用单位为盎司（oz，表示每平方英尺铜箔的重量），铜厚决定了电路的载流能力和散热性能。常见的铜厚规格有1oz（约35μm）、2oz（约70μm）等<br><br></p>
-<p>丝印字符: 0.15mm，丝印字符包括元件标识符、测试点标记、装配指示等信息，应确保清晰可读，但又不妨碍元器件的放置和焊接。<br><br></p>
+<p>设计者只需要将 GERBER 文件、BOM表以及位号表交到厂家即可。</p>
+<h3 id="基础工艺指标"><a href="#基础工艺指标" class="headerlink" title="基础工艺指标"></a>基础工艺指标</h3><p>板厚: 指电路板的整体厚度，单位通常为毫米（mm）。板厚的选择应考虑机械强度、散热需求、成本、与外部接口的配合等因素。常见的板厚范围为0.4mm至3.2mm。 典型值如：1.0mm</p>
+<p>走线宽度: 单根导线的宽度，典型值0.1mm，线宽度直接影响电路的电流承载能力、阻抗特性以及信号传输质量。在高速信号设计中，需控制走线的特性阻抗以保证信号完整性。</p>
+<p>钻孔内径: 0.3mm，过孔（via）内部金属化的孔径，单位通常为毫米（mm）或微米（μm）。钻孔内径决定了电流通过过孔的面积，影响电流容量和阻抗</p>
+<p>钻孔外径: 0.4mm，过孔在电路板两面露出的孔径，主要影响焊接时焊料的填充情况以及与元器件引脚的接触面积。一般钻孔外径略大于钻孔内径，以确保良好的焊接效果。</p>
+<p>走线间距: 0.1mm，走线间距决定了电路板的绝缘性能，影响电压等级、耐压能力以及抗串扰能力。走线间距一般等于走线宽度</p>
+<p>铜厚: 电路板上铜箔的厚度，常用单位为盎司（oz，表示每平方英尺铜箔的重量），铜厚决定了电路的载流能力和散热性能。常见的铜厚规格有1oz（约35μm）、2oz（约70μm）等</p>
+<p>丝印字符: 0.15mm，丝印字符包括元件标识符、测试点标记、装配指示等信息，应确保清晰可读，但又不妨碍元器件的放置和焊接。</p>
 <h2 id="PCB的设计依据–原理图设计"><a href="#PCB的设计依据–原理图设计" class="headerlink" title="PCB的设计依据–原理图设计"></a>PCB的设计依据–原理图设计</h2><p>原理图展示了电路中元器件之间的连接关系和信号流向，通过原理图，使得在PCB设计中可以确定元件的位置、引脚的连接方式、信号传输路径等，从而准确地布局元件、绘制连线。</p>
-<p>原理图封装：用于表示电路中元件的图形符号，包含元件的引脚标记、形状和其它信息。通常在原理图编辑器中绘制原理图封装，其与原理图库（SCHLIB）相关联，以便在电路原理图中使用</p>
+<p><strong>原理图封装：</strong>用于表示电路中元件的图形符号，包含元件的引脚标记、形状和其它信息。通常在原理图编辑器中绘制原理图封装，其与原理图库（SCHLIB）相关联，以便在电路原理图中使用</p>
+<ul>
+<li>在建立原理图封装的时候，可以将其与器件料号关联起来。如用 PartNum 标识料号，便于物料管理</li>
+<li>当然，器件规格描述也要按照规范填写，使得导出BOM表时，板厂可以识别出器件类型，从而进行贴片</li>
+<li>通过在原理图封装中设置<code>Footprint</code>属性，在建PCB封装时此字段保持一致，则使得原理图封装与PCB封装相关联<br></li>
+</ul>
 <p>原理图的每一个网络都能在PCB中找到映射的铜线，每一个元件都能在PCBA中找到映射的器件或者焊盘（PCB封装）</p>
 <h3 id="网表"><a href="#网表" class="headerlink" title="网表"></a>网表</h3><p>网表：网表文件包含了电路中的元器件、引脚和连接信息，用于PCB布局和布线工作。其是通过电路仿真工具或者PCB设计工具根据原理图生成的元件连接网络的文字表达形式，是连接原理图与PCB Layout的桥梁。</p>
 <p>网络表由元件表和连接网络表组成：</p>
@@ -290,6 +296,11 @@
 <li>连接网络表包含原理图中所有电气连接网络，包含网络名称、网络中的节点信息、网络连接描述等<br></li>
 </ul>
 <p>原理图网表用于在PCB Layout时导入对应元器件的封装与所有的电气连接网络</p>
+<h2 id="BOM管理"><a href="#BOM管理" class="headerlink" title="BOM管理"></a>BOM管理</h2><p>BOM表可以直接从原理图导出，跟PCB布局前后不直接相关</p>
+<p>原理图设计时，确定所需的元器件和材料</p>
+<p>PCB设计时，确定元器件的位置和引脚连接，同时还记录了元器件的规格、封装和数量</p>
+<p>生产根据BOM配置进行贴片</p>
+<p>有利于维护和售后</p>
 <h2 id="PCB-Layout概述"><a href="#PCB-Layout概述" class="headerlink" title="PCB Layout概述"></a>PCB Layout概述</h2><p>在PCB Layout前可能需要结构图文件：用于指示PCB板外形、安装孔、元件布局设计等，保证与结构不会互相干涉</p>
 <p>拥有了结构以及原理图网表，即可开展PCB Layout设计</p>
 <p>PCB Layout设计，主要涉及以下步骤：</p>
@@ -454,7 +465,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#PCB%E7%BB%93%E6%9E%84%E6%A6%82%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">PCB结构概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#PCB%E7%9A%84%E5%88%B6%E4%BD%9C%E6%B5%81%E7%A8%8B"><span class="nav-number">2.</span> <span class="nav-text">PCB的制作流程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E7%A1%80%E5%B7%A5%E8%89%BA%E6%8C%87%E6%A0%87"><span class="nav-number">2.1.</span> <span class="nav-text">基础工艺指标</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#PCB%E7%9A%84%E8%AE%BE%E8%AE%A1%E4%BE%9D%E6%8D%AE%E2%80%93%E5%8E%9F%E7%90%86%E5%9B%BE%E8%AE%BE%E8%AE%A1"><span class="nav-number">3.</span> <span class="nav-text">PCB的设计依据–原理图设计</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BD%91%E8%A1%A8"><span class="nav-number">3.1.</span> <span class="nav-text">网表</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#PCB-Layout%E6%A6%82%E8%BF%B0"><span class="nav-number">4.</span> <span class="nav-text">PCB Layout概述</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#PCB%E5%B0%81%E8%A3%85%E5%88%9B%E5%BB%BA"><span class="nav-number">4.1.</span> <span class="nav-text">PCB封装创建</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%83%E4%BB%B6%E6%94%BE%E7%BD%AE%EF%BC%88%E5%B8%83%E5%B1%80%E8%AE%BE%E8%AE%A1%EF%BC%89"><span class="nav-number">4.2.</span> <span class="nav-text">元件放置（布局设计）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B8%83%E7%BA%BF%E8%AE%BE%E8%AE%A1"><span class="nav-number">4.3.</span> <span class="nav-text">布线设计</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#PCB%E8%AE%BE%E8%AE%A1%E7%9B%B8%E5%85%B3%E5%9F%BA%E7%A1%80%E6%9C%AF%E8%AF%AD%E6%88%96%E8%AF%8D%E8%AF%AD%E8%A7%A3%E6%9E%90"><span class="nav-number">5.</span> <span class="nav-text">PCB设计相关基础术语或词语解析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#PCB-Layout%E5%9F%BA%E7%A1%80%E8%AF%8D%E8%AF%AD"><span class="nav-number">5.1.</span> <span class="nav-text">PCB Layout基础词语</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#EMC%EF%BC%88%E7%94%B5%E7%A3%81%E5%85%BC%E5%AE%B9%E6%80%A7%EF%BC%89"><span class="nav-number">5.2.</span> <span class="nav-text">EMC（电磁兼容性）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#PCB%E6%95%B4%E4%BD%93%E8%AE%BE%E8%AE%A1%E6%B5%81%E7%A8%8B%E6%80%BB%E7%BB%93"><span class="nav-number">6.</span> <span class="nav-text">PCB整体设计流程总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E7%AB%99%E7%82%B9"><span class="nav-number">7.</span> <span class="nav-text">参考站点</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#PCB%E7%BB%93%E6%9E%84%E6%A6%82%E8%BF%B0"><span class="nav-number">1.</span> <span class="nav-text">PCB结构概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#PCB%E7%9A%84%E5%88%B6%E4%BD%9C%E6%B5%81%E7%A8%8B"><span class="nav-number">2.</span> <span class="nav-text">PCB的制作流程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E7%A1%80%E5%B7%A5%E8%89%BA%E6%8C%87%E6%A0%87"><span class="nav-number">2.1.</span> <span class="nav-text">基础工艺指标</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#PCB%E7%9A%84%E8%AE%BE%E8%AE%A1%E4%BE%9D%E6%8D%AE%E2%80%93%E5%8E%9F%E7%90%86%E5%9B%BE%E8%AE%BE%E8%AE%A1"><span class="nav-number">3.</span> <span class="nav-text">PCB的设计依据–原理图设计</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BD%91%E8%A1%A8"><span class="nav-number">3.1.</span> <span class="nav-text">网表</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#BOM%E7%AE%A1%E7%90%86"><span class="nav-number">4.</span> <span class="nav-text">BOM管理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#PCB-Layout%E6%A6%82%E8%BF%B0"><span class="nav-number">5.</span> <span class="nav-text">PCB Layout概述</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#PCB%E5%B0%81%E8%A3%85%E5%88%9B%E5%BB%BA"><span class="nav-number">5.1.</span> <span class="nav-text">PCB封装创建</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%83%E4%BB%B6%E6%94%BE%E7%BD%AE%EF%BC%88%E5%B8%83%E5%B1%80%E8%AE%BE%E8%AE%A1%EF%BC%89"><span class="nav-number">5.2.</span> <span class="nav-text">元件放置（布局设计）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B8%83%E7%BA%BF%E8%AE%BE%E8%AE%A1"><span class="nav-number">5.3.</span> <span class="nav-text">布线设计</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#PCB%E8%AE%BE%E8%AE%A1%E7%9B%B8%E5%85%B3%E5%9F%BA%E7%A1%80%E6%9C%AF%E8%AF%AD%E6%88%96%E8%AF%8D%E8%AF%AD%E8%A7%A3%E6%9E%90"><span class="nav-number">6.</span> <span class="nav-text">PCB设计相关基础术语或词语解析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#PCB-Layout%E5%9F%BA%E7%A1%80%E8%AF%8D%E8%AF%AD"><span class="nav-number">6.1.</span> <span class="nav-text">PCB Layout基础词语</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#EMC%EF%BC%88%E7%94%B5%E7%A3%81%E5%85%BC%E5%AE%B9%E6%80%A7%EF%BC%89"><span class="nav-number">6.2.</span> <span class="nav-text">EMC（电磁兼容性）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#PCB%E6%95%B4%E4%BD%93%E8%AE%BE%E8%AE%A1%E6%B5%81%E7%A8%8B%E6%80%BB%E7%BB%93"><span class="nav-number">7.</span> <span class="nav-text">PCB整体设计流程总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E7%AB%99%E7%82%B9"><span class="nav-number">8.</span> <span class="nav-text">参考站点</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -468,7 +479,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">33</span>
+          <span class="site-state-item-count">34</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -518,13 +529,13 @@
       <i class="fa fa-chart-area"></i>
     </span>
       <span class="post-meta-item-text">Symbols count total: </span>
-    <span title="Symbols count total">58k</span>
+    <span title="Symbols count total">59k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">Reading time total &asymp;</span>
-    <span title="Reading time total">3:14</span>
+    <span title="Reading time total">3:18</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
   </div>
