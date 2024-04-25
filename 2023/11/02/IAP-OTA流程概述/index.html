@@ -28,7 +28,7 @@
 <meta property="og:description" content="讲述在MCU开发中的几种 IAP 固件升级软件设计方法、具体工作流程及应用相关事项，也包含个人于实际产品开发中的 IAP&#x2F;OTA 案例及代码设计、注意项分析">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2023-11-01T16:00:00.000Z">
-<meta property="article:modified_time" content="2024-04-24T02:43:11.332Z">
+<meta property="article:modified_time" content="2024-04-24T10:10:49.356Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -225,7 +225,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-04-24 10:43:11" itemprop="dateModified" datetime="2024-04-24T10:43:11+08:00">2024-04-24</time>
+                <time title="Modified: 2024-04-24 18:10:49" itemprop="dateModified" datetime="2024-04-24T18:10:49+08:00">2024-04-24</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -243,14 +243,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>4.3k</span>
+              <span>7.1k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>14 mins.</span>
+              <span>12 mins.</span>
             </span>
             <div class="post-description">讲述在MCU开发中的几种 IAP 固件升级软件设计方法、具体工作流程及应用相关事项，也包含个人于实际产品开发中的 IAP/OTA 案例及代码设计、注意项分析</div>
 
@@ -412,16 +412,9 @@
 <li>移植CmBacktrace至bootloader，查看具体跑飞原因</li>
 <li>用GDB在线调试运行bootloader查看hardfault时候的寄存器值，PC指针在何处，LR指针</li>
 </ul>
-<p>问题排查解决分析：</p>
+<p>问题排查解决分析结论：</p>
 <ul>
-<li><p>通过此前已成功实现内核复位升级的rt-thread业务工程，进行对比删减，排查问题</p>
-</li>
-<li><p>当注释掉其大部分的业务设计后，发现此可行工程也无法正常内核复位升级</p>
-</li>
-<li><p>初步规律为：原有工程能够内核复位升级至删减后的工程、删减后的工程却无法内核复位升级至原有的工程</p>
-</li>
-<li><p>在测试过程中，跳转至bootloader时，串口有非预期的信息打印，并非代码指示。</p>
-</li>
+<li>跟芯片型号有关系，此前实现内核复位升级成功的型号为N32L406，而现型号为N32G452RC，后续与原厂FAE进行沟通联系</li>
 </ul>
 <hr>
 <h3 id="如何保证bootloader升级失败不会导致设备变砖？"><a href="#如何保证bootloader升级失败不会导致设备变砖？" class="headerlink" title="如何保证bootloader升级失败不会导致设备变砖？"></a>如何保证bootloader升级失败不会导致设备变砖？</h3><p>保证接收到的新APP是正确的，传输完毕后校验文件无误</p>
@@ -533,7 +526,7 @@
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-count">15</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
@@ -576,13 +569,13 @@
       <i class="fa fa-chart-area"></i>
     </span>
       <span class="post-meta-item-text">Symbols count total: </span>
-    <span title="Symbols count total">59k</span>
+    <span title="Symbols count total">136k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">Reading time total &asymp;</span>
-    <span title="Reading time total">3:18</span>
+    <span title="Reading time total">3:46</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
   </div>

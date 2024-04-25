@@ -28,7 +28,7 @@
 <meta property="og:description" content="通信协议是设备间协同工作的关键，当然此处所说的通信协议并不是指硬件层的 UART、IIC、SPI 等通信接口，也不是指 BLE、WI-FI、USB 此类数据传输协议，其是特指在已经实现设备间数据透明传输通路的基础上，再封装的一层私有协议，用于规范设备间业务数据&#x2F;功能&#x2F;命令等的交互，从而实现稳定可靠的多设备多模块间协同工作。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2024-03-12T16:00:00.000Z">
-<meta property="article:modified_time" content="2024-04-12T08:54:24.827Z">
+<meta property="article:modified_time" content="2024-04-25T07:49:20.229Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -225,7 +225,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-04-12 16:54:24" itemprop="dateModified" datetime="2024-04-12T16:54:24+08:00">2024-04-12</time>
+                <time title="Modified: 2024-04-25 15:49:20" itemprop="dateModified" datetime="2024-04-25T15:49:20+08:00">2024-04-25</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -243,14 +243,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>1.6k</span>
+              <span>1.8k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>5 mins.</span>
+              <span>3 mins.</span>
             </span>
             <div class="post-description">通信协议是设备间协同工作的关键，当然此处所说的通信协议并不是指硬件层的 UART、IIC、SPI 等通信接口，也不是指 BLE、WI-FI、USB 此类数据传输协议，其是特指在已经实现设备间数据透明传输通路的基础上，再封装的一层私有协议，用于规范设备间业务数据/功能/命令等的交互，从而实现稳定可靠的多设备多模块间协同工作。</div>
 
@@ -319,6 +319,7 @@
 <p>分包设计</p>
 <p>发送间隔设计</p>
 <p>最大最小包限制设计</p>
+<p><strong>应用状态机进行解包设计</strong></p>
 <h4 id="容错设计"><a href="#容错设计" class="headerlink" title="容错设计"></a>容错设计</h4><p>滑动窗口设计：一次传入的并不是整包，而是半包，后面再递进传入后半包。<br>每个通信接口实现都维护有一个私有句柄，其中包含私有的Buffer，当一次性传入半包数据时，将包数据拷贝到私有Buffer中，而后会停留在解包状态中，而不会认为此包数据无效</p>
 <p>粘包：一次读取到两个包<br>根据Buffer顺序递增解包，解完一包后触发回调函数，返回后接着解Buffer中剩下的包</p>
 <h3 id="宏定义及数据类型设计"><a href="#宏定义及数据类型设计" class="headerlink" title="宏定义及数据类型设计"></a>宏定义及数据类型设计</h3><h3 id="私有句柄结构设计"><a href="#私有句柄结构设计" class="headerlink" title="私有句柄结构设计"></a>私有句柄结构设计</h3><p>注册回调函数和硬件层的发送驱动</p>
@@ -428,7 +429,7 @@
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-count">15</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
@@ -471,13 +472,13 @@
       <i class="fa fa-chart-area"></i>
     </span>
       <span class="post-meta-item-text">Symbols count total: </span>
-    <span title="Symbols count total">59k</span>
+    <span title="Symbols count total">136k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">Reading time total &asymp;</span>
-    <span title="Reading time total">3:18</span>
+    <span title="Reading time total">3:46</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
   </div>
