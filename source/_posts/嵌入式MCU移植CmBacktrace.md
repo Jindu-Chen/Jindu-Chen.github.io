@@ -9,10 +9,14 @@ description: CmBacktrace是针对Cortex-M内核芯片提供程序运行异常时
 ---
 
 
+工程源码移植见：[CmBacktrace源码移植教程](https://github.com/Jindu-Chen/CmBacktrace_Adapt)
+
+
 ## 前言
 
 
 ## 移植适配与应用
+
 
 **将相关源码加入工程**
 
@@ -20,15 +24,24 @@ description: CmBacktrace是针对Cortex-M内核芯片提供程序运行异常时
 
 注释掉原有的HardFault中断服务函数
 
-链接脚本中也要增加适配其宏定义（如果没有的话），如栈的起始结束地址、代码段的起始结束地址等
+链接脚本中也要增加适配其宏定义（如果没有的话），如栈的起始结束地址`_bss`、代码段`__text_end`的起始结束地址等
 
 **调用其初始化接口**
 
 Demo应用
 
-addrline2工具解析栈帧
+### 程序报错及解析
 
 addr2line -e app.elf -a -f 080154c2 0800a3b2 08009092
+
+
+### addrline2工具
+
+`addr2line` 是一个用于将程序地址转换为源代码文件名及行号的工具，其属于`GNU Binutils`工具包中的一部分。
+> `GNU Binutils`是GNU项目的一部分，是一套用于创建、修改和分析二进制文件的工具集合。其包括：汇编器（as）、链接器（ld）、反汇编器（objdump）、调试器、库管理器、对象查看器、地址转换工具（addr2line）等。
+> 如WSL安装了GCC，则会包含整个GNU Binutils工具集。 如安装了`arm-none-eabi-`工具链，则会包含`arm-none-eabi-addr2line`。
+
+
 
 ## 原理解析
 

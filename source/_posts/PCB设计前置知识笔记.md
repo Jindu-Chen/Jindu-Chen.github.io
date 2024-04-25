@@ -3,8 +3,9 @@ title: PCB设计前置知识学习笔记
 date: 2024-01-01
 tags:
 categories:
+- [硬件]
 - [MISC]
-description: 记录PCB设计的基础知识，包括PCB结构、PCB制作流程、制作工艺以及设计流程等。
+description: 记录PCB设计的基础知识，包括PCB结构、PCB制作流程、制作工艺以及设计流程中所涉及的各项要素概念之解析等。
 ---
 
 
@@ -165,6 +166,10 @@ PCB布线是整个PCB设计中工作量最大的环节，直接影响着PCB板�
 EMC（Electromagnetic Compatibility），指设备能够在电磁环境中正常工作且不对该环境中任何其他设备造成不可接受的电磁干扰的能力
 
 其包含电磁干扰（EMI, Electromagnetic Interference）和电磁抗扰度（EMS，Electromagnetic Suitability）两个概念。
+
+### ESD
+
+增加静电抑制器件，防静电
 
 ## PCB整体设计流程总结
 
