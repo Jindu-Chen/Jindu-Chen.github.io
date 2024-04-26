@@ -1,6 +1,6 @@
 ---
 title: 嵌入式单片机移植CmBacktrace
-date: 2024-01-01
+date: 2024-02-01
 tags:
 categories:
 - [嵌入式]
@@ -9,7 +9,12 @@ description: CmBacktrace是针对Cortex-M内核芯片提供程序运行异常时
 ---
 
 
-工程源码移植见：[CmBacktrace源码移植教程](https://github.com/Jindu-Chen/CmBacktrace_Adapt)
+工程源码移植见：[CmBacktrace源码移植教程-github](https://github.com/Jindu-Chen/CmBacktrace_Adapt)
+
+官方源码地址 : https://github.com/armink/CmBacktrace
+
+
+**未完待续...**
 
 
 ## 前言
@@ -58,14 +63,26 @@ addr2line -e app.elf -a -f 080154c2 0800a3b2 08009092
 
 ### CmBacktrace的工作原理
 
+如何根据CPU寄存器的值获取栈帧？
+
+如何通过栈帧获取函数调用链？
+
 
 ## 注意点与扩展思考
 
+
 ### 其它如Cortex-A内核如何回溯的？
 
-### RTOS下移植CmBacktrace有何不同？
+
+### RTOS与裸机下的CmBacktrace有何不同？
+
+裸机：只需关注当前执行流的堆栈跟踪，不需要考虑多线程或任务切换
+
+RTOS：需要考虑多线程或任务切换，需要考虑线程切换时的堆栈跟踪。要捕获当前运行任务的堆栈回溯信息，还要获取其他任务的堆栈信息。涉及到与 RTOS 内核的API交互，获取当前任务指针、任务堆栈基址、栈顶指针等信息
+
 
 ### 程序崩溃跳转至HardFault状态了，为何还能正常控制外设如DMA-UART打印故障信息？
+
 
 ## 参考站点
 

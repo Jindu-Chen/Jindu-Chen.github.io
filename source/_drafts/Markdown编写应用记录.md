@@ -22,6 +22,7 @@ description: |
 </p>
 ```
 
+在markdown添加gif动态图的语法与图片语法类似
 
 
 可以在代码块的开始标记前加上语言标记来标记代码块的语言，如`c`、`bash`、`cpp`、`java`、`asm`等等
