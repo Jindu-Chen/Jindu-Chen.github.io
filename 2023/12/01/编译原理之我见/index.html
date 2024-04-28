@@ -28,7 +28,7 @@
 <meta property="og:description" content="讲述个人对C工程编译链接的一些浅薄见解，不涉及深层的编译原理；此外，也记录在开发中所遇到的与编译、链接相关的知识及其应用">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2023-11-30T16:00:00.000Z">
-<meta property="article:modified_time" content="2024-04-20T07:38:35.930Z">
+<meta property="article:modified_time" content="2024-04-26T08:01:25.258Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言">
 <meta name="twitter:card" content="summary">
@@ -225,7 +225,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-04-20 15:38:35" itemprop="dateModified" datetime="2024-04-20T15:38:35+08:00">2024-04-20</time>
+                <time title="Modified: 2024-04-26 16:01:25" itemprop="dateModified" datetime="2024-04-26T16:01:25+08:00">2024-04-26</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -243,14 +243,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>1.3k</span>
+              <span>1.4k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>4 mins.</span>
+              <span>5 mins.</span>
             </span>
             <div class="post-description">讲述个人对C工程编译链接的一些浅薄见解，不涉及深层的编译原理；此外，也记录在开发中所遇到的与编译、链接相关的知识及其应用</div>
 
@@ -278,7 +278,7 @@
 <li><code>printf</code>是C标准库用于格式化输出到标准输出(stdout)的函数，其在<strong>C标准库里内会调用到接口<code>_write</code>，该接口是个弱函数，默认实现是输出至屏幕</strong>。</li>
 <li>那么用户可以自行实现<code>_write</code>函数，将数据输出至串口。编译器链接时会链接到用户自行实现的<code>_write</code>函数，而非默认的弱符号修饰的<code>_write</code>函数。</li>
 </ul>
-<p>当然，不同C库的实现方式也不同，这里以<code>gcc nano</code>为例。（其它C库如 ARM-microlib，或者 newlib 等，其重定向时不一定为重写<code>_write</code>函数，可能是<code>_io_putchar</code>函数、<code>_putchar</code>函数等）</p>
+<p>当然，不同C库的实现方式也不同，这里以<code>gcc nano</code>为例。（其它C库如 ARM-microlib，或者 newlib 等，其重定向时不一定为重写<code>_write</code>函数，可能是<code>_io_putchar</code>函数、<code>_putchar</code>、<code>fputc</code>函数等）</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> _write(<span class="type">int</span> fd, <span class="type">char</span>* data, <span class="type">int</span> len)</span><br><span class="line">&#123;</span><br><span class="line">    drv_uart_write(DEV_UART1, (<span class="type">uint8_t</span> *)data, len);    <span class="comment">// 由开发者自行实现此接口</span></span><br><span class="line">    <span class="keyword">return</span> len;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 
@@ -448,7 +448,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">35</span>
+          <span class="site-state-item-count">34</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -498,13 +498,13 @@
       <i class="fa fa-chart-area"></i>
     </span>
       <span class="post-meta-item-text">Symbols count total: </span>
-    <span title="Symbols count total">61k</span>
+    <span title="Symbols count total">60k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">Reading time total &asymp;</span>
-    <span title="Reading time total">3:23</span>
+    <span title="Reading time total">3:21</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
   </div>
