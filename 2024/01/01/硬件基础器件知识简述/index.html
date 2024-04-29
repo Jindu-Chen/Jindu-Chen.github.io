@@ -28,7 +28,7 @@
 <meta property="og:description" content="记录在硬件设计中所涉及的基础元器件概念及知识，当然，此部分内容在大学书本均可找到，因此记录本文之目的主要为回顾大学所学硬件基础知识，辅助提升个人对软硬的系统性认知。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2023-12-31T16:00:00.000Z">
-<meta property="article:modified_time" content="2024-04-26T08:22:14.526Z">
+<meta property="article:modified_time" content="2024-04-29T07:56:02.231Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -225,7 +225,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-04-26 16:22:14" itemprop="dateModified" datetime="2024-04-26T16:22:14+08:00">2024-04-26</time>
+                <time title="Modified: 2024-04-29 15:56:02" itemprop="dateModified" datetime="2024-04-29T15:56:02+08:00">2024-04-29</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -247,14 +247,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>678</span>
+              <span>1.6k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>2 mins.</span>
+              <span>5 mins.</span>
             </span>
             <div class="post-description">记录在硬件设计中所涉及的基础元器件概念及知识，当然，此部分内容在大学书本均可找到，因此记录本文之目的主要为回顾大学所学硬件基础知识，辅助提升个人对软硬的系统性认知。</div>
 
@@ -270,7 +270,7 @@
         <p><strong>未完待续…</strong></p>
 <hr>
 <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>本文并非专于器件相关概念，仅于工作时接触到或者兴致到来时，随手记录而已</p>
-<h2 id="电路基础元件"><a href="#电路基础元件" class="headerlink" title="电路基础元件"></a>电路基础元件</h2><p>电阻：R<br>电感：L<br>电容：C</p>
+<h2 id="电路基础元件概念"><a href="#电路基础元件概念" class="headerlink" title="电路基础元件概念"></a>电路基础元件概念</h2><p>电阻：R<br>电感：L<br>电容：C</p>
 <h3 id="二极管"><a href="#二极管" class="headerlink" title="二极管"></a>二极管</h3><p>简写为：D</p>
 <p>注意压降的影响</p>
 <h3 id="三极管（双极型晶体管）"><a href="#三极管（双极型晶体管）" class="headerlink" title="三极管（双极型晶体管）"></a>三极管（双极型晶体管）</h3><p>NPN型：简写为 Q 或 QN，在开关电路、放大电路、数字逻辑电路以及各种电子设备的接口驱动等方面更为常见。</p>
@@ -280,23 +280,63 @@
 <h3 id="TVS管"><a href="#TVS管" class="headerlink" title="TVS管"></a>TVS管</h3><h3 id="晶振（XTAL）"><a href="#晶振（XTAL）" class="headerlink" title="晶振（XTAL）"></a>晶振（XTAL）</h3><p>不起振的原因</p>
 <h3 id="集成电路（IC）"><a href="#集成电路（IC）" class="headerlink" title="集成电路（IC）"></a>集成电路（IC）</h3><p>数字IC：</p>
 <p>模拟IC：</p>
-<h3 id="传感器"><a href="#传感器" class="headerlink" title="传感器"></a>传感器</h3><h3 id="其它在PCB设计中的基础元件"><a href="#其它在PCB设计中的基础元件" class="headerlink" title="其它在PCB设计中的基础元件"></a>其它在PCB设计中的基础元件</h3><p>连接器（CN或CONN）：板对板、线对板、FPC&#x2F;FFC连接器</p>
+<p>混合信号集成电路：音频解码器</p>
+<h2 id="PCB设计中的基础器件-模块-电路"><a href="#PCB设计中的基础器件-模块-电路" class="headerlink" title="PCB设计中的基础器件&#x2F;模块&#x2F;电路"></a>PCB设计中的基础器件&#x2F;模块&#x2F;电路</h2><h3 id="充电、稳压器件"><a href="#充电、稳压器件" class="headerlink" title="充电、稳压器件"></a>充电、稳压器件</h3><p>稳压器（线性稳压器、开关稳压器）：将输入电压稳定到所需的输出电压。线性稳压器和开关稳压器都可以以独立元件的形式存在，也可以集成在IC之中</p>
+<p>升压电路、降压电路或者升降压型电路等都是属于稳压器件的范畴。</p>
+<p>Boost（升压）：将输入电压升高到所需的输出电压</p>
+<p>Buck（降压）：将输入电压降低到所需的输出电压</p>
+<p>DC-DC转换器：包括Boost、Buck和Buck-Boost（升降压）、反相等，具有高效率、高输出电流、较低静态电流等特点，但同时开关噪音大、成本高。现在通常都把开关型稳压器称作DC-DC，把低压差线性稳定器单独地称作LDO。</p>
+<p>LDO（低压降线性稳压器）：不使用开关器件，成本低、噪音低，静态电流小，外接元件少。</p>
+<blockquote>
+<p>适用于输入电压和输出电压很接近的场景，如3.7V锂电池到3.3V负载，从原理可知LDO的输入电流基本上等于输出电流，所以压降越大，效率越低。</p>
+</blockquote>
+<br>
+
+<p>SGM62112-ADJ、SGM61020</p>
+<p>线性稳压器通常由分立元件（如晶体管、电阻、电容）组成，也有集成化的线性稳压器IC（如LM7805、LM317等），它们将所有必要的功能集成在一个封装内，简化了电路设计和组装</p>
+<hr>
+<p>充电模块：当施加到电池的外界电压大于电池电压时，则外界向电池充电</p>
+<p>开关型充电器：通常高频开关操作（可以说是PWM调制），将输入电压稳定到一个给电池充电的输出电压，大幅度提升效率、减少热损耗，宽范围输入</p>
+<p>线性充电器：基于使用一个或多个晶体管作为可变电阻来调节流向电池的充电电流。效率低、损耗大、低噪声、体积小</p>
+<p>通常原理图布置在电源模块上可以预留并多几路 RC串联的NC电路，后续EMC时可以进行调节</p>
+<p>SGM40661 过流保护<br>SGM41524YTDC8G</p>
+<h3 id="功率放大器"><a href="#功率放大器" class="headerlink" title="功率放大器"></a>功率放大器</h3><p>功放可以是集成IC（集成电路），也可以是基于分立元件（如晶体管、电子管）构建的。<br>集成IC功放，是将放大电路中的多个元件，如晶体管、电阻、电容等，集成在同一块硅片上，形成一个完整的放大器电路。<br><br></p>
+<p>A类功放（甲类功放）：</p>
+<ul>
+<li>A类功放的输出晶体管在整个信号周期内始终处于导电状态，即使在没有音频信号输入时，也会有恒定的电流流过输出级，这保证了极低的失真，但效率很低，因为大部分能量转化为热量。</li>
+<li>优点：音质纯净，失真低。</li>
+<li>缺点：效率低（一般小于50%），发热严重，需要大型散热器<br></li>
+</ul>
+<p>B类功放（乙类功放）：</p>
+<ul>
+<li>B类功放的输出晶体管仅在信号的半个周期内导通，分别处理正半周和负半周信号，从而提高了效率，但存在交越失真问题，即在信号过零点附近两个晶体管切换时产生的非线性失真。</li>
+<li>优点：效率较高（约为78%）。</li>
+<li>缺点：存在交越失真，音质不如A类。<br></li>
+</ul>
+<p>AB类功放（甲乙类功放）：</p>
+<ul>
+<li>AB类功放是A类和B类的折衷方案，通过轻微偏置输出晶体管，使其在没有信号时仍有一点导通，减少了B类功放的交越失真，同时保持了较高的效率。</li>
+<li>优点：结合了A类的音质和B类的效率，失真低，效率比A类高。</li>
+<li>缺点：相比B类功放，效率略低，发热仍较明显。<br></li>
+</ul>
+<p>D类功放（丁类功放）：</p>
+<ul>
+<li>D类功放是一种开关放大器，它将音频信号转换为高频脉冲序列，通过晶体管快速开关来控制输出，效率极高（可达90%以上）。</li>
+<li>其<strong>信号在输出级被调制成PWM（脉冲宽度调制）或PFM（脉冲频率调制）信号。</strong></li>
+<li>优点：极高效率，发热少，体积小，适合便携式应用。</li>
+<li>缺点：需要额外的滤波器来恢复原始音频信号，对电源和地线噪声敏感，可能影响音质。<br></li>
+</ul>
+<h2 id="其它在PCB设计中的基础器件"><a href="#其它在PCB设计中的基础器件" class="headerlink" title="其它在PCB设计中的基础器件"></a>其它在PCB设计中的基础器件</h2><p>连接器（CN或CONN）：板对板、线对板、FPC&#x2F;FFC连接器</p>
 <p>电位器</p>
 <p>编码器</p>
-<h4 id="保护与控制元件"><a href="#保护与控制元件" class="headerlink" title="保护与控制元件"></a>保护与控制元件</h4><p>熔断器、保险丝</p>
+<h3 id="传感器"><a href="#传感器" class="headerlink" title="传感器"></a>传感器</h3><h3 id="保护与控制元件"><a href="#保护与控制元件" class="headerlink" title="保护与控制元件"></a>保护与控制元件</h3><p>熔断器、保险丝</p>
 <p>热敏开关、过温保护器</p>
 <p>压敏电阻</p>
-<h3 id="其它在PCB设计中的基础模块及电路"><a href="#其它在PCB设计中的基础模块及电路" class="headerlink" title="其它在PCB设计中的基础模块及电路"></a>其它在PCB设计中的基础模块及电路</h3><p>电源模块（AC-DC、DC-DC转换器）：提供稳定的直流电源</p>
-<p>稳压器（线性稳压器、开关稳压器）：维持输出电压在设定值，不受输入电压波动或负载变化的影响。线性稳压器和开关稳压器都可以以独立元件的形式存在，也可以集成在IC之中</p>
-<p>线性稳压器通常由分立元件（如晶体管、电阻、电容）组成，也有集成化的线性稳压器IC（如LM7805、LM317等），它们将所有必要的功能集成在一个封装内，简化了电路设计和组装</p>
-<p>开关稳压器控制器通常以IC形式存在，如PWM控制器、同步整流控制器等，它们负责产生控制信号来驱动开关器件。有些开关稳压器则是高度集成的，将控制器、开关器件、甚至部分外围元件（如电感）都集成在同一颗芯片上，形成所谓的“开关电源模块”或“电源管理IC（PMIC）”。</p>
-<p>LDO：</p>
-<p>充电模块：<br>充电之开关与线性充电</p>
-<p>电源滤波器</p>
 <h3 id="EMC相关设计"><a href="#EMC相关设计" class="headerlink" title="EMC相关设计"></a>EMC相关设计</h3><p>屏蔽罩</p>
 <p>磁珠</p>
 <p>共模电感</p>
 <p>滤波电容</p>
+<h2 id="注意点及扩展思考"><a href="#注意点及扩展思考" class="headerlink" title="注意点及扩展思考"></a>注意点及扩展思考</h2><p>在器件选型时，一定要详细查看规格书，当然也可以查看下IC模块内的组成</p>
 <h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2><ul>
 <li><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/XhCeTT007Is_M5pU00NaeQ">一篇文章说清楚TVS管</a></li>
 <li><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/l7-WHBXccLOAm4gO4N8_Bw">实用角度解读MOS管：功能特点与实际应用</a></li>
@@ -383,7 +423,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%94%B5%E8%B7%AF%E5%9F%BA%E7%A1%80%E5%85%83%E4%BB%B6"><span class="nav-number">2.</span> <span class="nav-text">电路基础元件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8C%E6%9E%81%E7%AE%A1"><span class="nav-number">2.1.</span> <span class="nav-text">二极管</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%89%E6%9E%81%E7%AE%A1%EF%BC%88%E5%8F%8C%E6%9E%81%E5%9E%8B%E6%99%B6%E4%BD%93%E7%AE%A1%EF%BC%89"><span class="nav-number">2.2.</span> <span class="nav-text">三极管（双极型晶体管）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MOS%E7%AE%A1%EF%BC%88%E5%9C%BA%E6%95%88%E5%BA%94%E6%99%B6%E4%BD%93%E7%AE%A1%EF%BC%89"><span class="nav-number">2.3.</span> <span class="nav-text">MOS管（场效应晶体管）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TVS%E7%AE%A1"><span class="nav-number">2.4.</span> <span class="nav-text">TVS管</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%99%B6%E6%8C%AF%EF%BC%88XTAL%EF%BC%89"><span class="nav-number">2.5.</span> <span class="nav-text">晶振（XTAL）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%EF%BC%88IC%EF%BC%89"><span class="nav-number">2.6.</span> <span class="nav-text">集成电路（IC）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BC%A0%E6%84%9F%E5%99%A8"><span class="nav-number">2.7.</span> <span class="nav-text">传感器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B6%E5%AE%83%E5%9C%A8PCB%E8%AE%BE%E8%AE%A1%E4%B8%AD%E7%9A%84%E5%9F%BA%E7%A1%80%E5%85%83%E4%BB%B6"><span class="nav-number">2.8.</span> <span class="nav-text">其它在PCB设计中的基础元件</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BF%9D%E6%8A%A4%E4%B8%8E%E6%8E%A7%E5%88%B6%E5%85%83%E4%BB%B6"><span class="nav-number">2.8.1.</span> <span class="nav-text">保护与控制元件</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B6%E5%AE%83%E5%9C%A8PCB%E8%AE%BE%E8%AE%A1%E4%B8%AD%E7%9A%84%E5%9F%BA%E7%A1%80%E6%A8%A1%E5%9D%97%E5%8F%8A%E7%94%B5%E8%B7%AF"><span class="nav-number">2.9.</span> <span class="nav-text">其它在PCB设计中的基础模块及电路</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#EMC%E7%9B%B8%E5%85%B3%E8%AE%BE%E8%AE%A1"><span class="nav-number">2.10.</span> <span class="nav-text">EMC相关设计</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E7%AB%99%E7%82%B9"><span class="nav-number">3.</span> <span class="nav-text">参考站点</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%94%B5%E8%B7%AF%E5%9F%BA%E7%A1%80%E5%85%83%E4%BB%B6%E6%A6%82%E5%BF%B5"><span class="nav-number">2.</span> <span class="nav-text">电路基础元件概念</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8C%E6%9E%81%E7%AE%A1"><span class="nav-number">2.1.</span> <span class="nav-text">二极管</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%89%E6%9E%81%E7%AE%A1%EF%BC%88%E5%8F%8C%E6%9E%81%E5%9E%8B%E6%99%B6%E4%BD%93%E7%AE%A1%EF%BC%89"><span class="nav-number">2.2.</span> <span class="nav-text">三极管（双极型晶体管）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MOS%E7%AE%A1%EF%BC%88%E5%9C%BA%E6%95%88%E5%BA%94%E6%99%B6%E4%BD%93%E7%AE%A1%EF%BC%89"><span class="nav-number">2.3.</span> <span class="nav-text">MOS管（场效应晶体管）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TVS%E7%AE%A1"><span class="nav-number">2.4.</span> <span class="nav-text">TVS管</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%99%B6%E6%8C%AF%EF%BC%88XTAL%EF%BC%89"><span class="nav-number">2.5.</span> <span class="nav-text">晶振（XTAL）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%EF%BC%88IC%EF%BC%89"><span class="nav-number">2.6.</span> <span class="nav-text">集成电路（IC）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#PCB%E8%AE%BE%E8%AE%A1%E4%B8%AD%E7%9A%84%E5%9F%BA%E7%A1%80%E5%99%A8%E4%BB%B6-%E6%A8%A1%E5%9D%97-%E7%94%B5%E8%B7%AF"><span class="nav-number">3.</span> <span class="nav-text">PCB设计中的基础器件&#x2F;模块&#x2F;电路</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%85%E7%94%B5%E3%80%81%E7%A8%B3%E5%8E%8B%E5%99%A8%E4%BB%B6"><span class="nav-number">3.1.</span> <span class="nav-text">充电、稳压器件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8A%9F%E7%8E%87%E6%94%BE%E5%A4%A7%E5%99%A8"><span class="nav-number">3.2.</span> <span class="nav-text">功率放大器</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B6%E5%AE%83%E5%9C%A8PCB%E8%AE%BE%E8%AE%A1%E4%B8%AD%E7%9A%84%E5%9F%BA%E7%A1%80%E5%99%A8%E4%BB%B6"><span class="nav-number">4.</span> <span class="nav-text">其它在PCB设计中的基础器件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BC%A0%E6%84%9F%E5%99%A8"><span class="nav-number">4.1.</span> <span class="nav-text">传感器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BF%9D%E6%8A%A4%E4%B8%8E%E6%8E%A7%E5%88%B6%E5%85%83%E4%BB%B6"><span class="nav-number">4.2.</span> <span class="nav-text">保护与控制元件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#EMC%E7%9B%B8%E5%85%B3%E8%AE%BE%E8%AE%A1"><span class="nav-number">4.3.</span> <span class="nav-text">EMC相关设计</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B3%A8%E6%84%8F%E7%82%B9%E5%8F%8A%E6%89%A9%E5%B1%95%E6%80%9D%E8%80%83"><span class="nav-number">5.</span> <span class="nav-text">注意点及扩展思考</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E7%AB%99%E7%82%B9"><span class="nav-number">6.</span> <span class="nav-text">参考站点</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -447,13 +487,13 @@
       <i class="fa fa-chart-area"></i>
     </span>
       <span class="post-meta-item-text">Symbols count total: </span>
-    <span title="Symbols count total">60k</span>
+    <span title="Symbols count total">61k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">Reading time total &asymp;</span>
-    <span title="Reading time total">3:21</span>
+    <span title="Reading time total">3:24</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
   </div>
