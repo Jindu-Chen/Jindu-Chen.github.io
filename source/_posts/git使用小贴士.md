@@ -106,11 +106,49 @@ description: 主要记录Git的常用命令、一些非典型操作及其意义�
 - **变基：** 执行`git pull --rebase`，相当于`git fetch`+`git rebase`，此过程不会创建合并提交，仅会把远端的提交和本地的提交重写成一个线性的提交历史。
   > 如果存在修改冲突的话，git会停止变基过程，提示用户打开文件手动解决冲突。此时用户修改完冲突后，执行`git add <file>`，再执行`git rebase --continue`，git则会继续执行变基过程。
 
-### git commmit之编辑器切换
+### git commmit相关扩展
 
 当使用`git commit`时，会进入nano编辑器，此时可以编辑文本，按`ctrl + x`退出，按`y`保存，选择保存时会再次提示确认文件名，直接按`Enter`即可保存提交。
 
 当然，可以执行`git config --global core.editor vim`切换为vim编辑器。
+
+#### git commit提交规范
+
+- [git commit 代码提交规范](https://www.cnblogs.com/anly95/p/13163384.html)
+
+基于Angular团队的Git提交指南如下：
+```
+<type>(<scope>): <subject>
+<BLANK LINE>
+<body>
+<BLANK LINE>
+<footer>
+```
+
+**type（类型）**：描述提交的类别，如 feat（新特性）、fix（修复bug）、docs（文档更新）、style（代码格式改变）、refactor（代码重构）、perf（性能优化）、test（添加或修改测试）、chore（其他不修改src或test的更改）等。
+**scope（范围）**：描述提交影响的代码模块或功能，如 api、auth、ui 等。
+**subject（主题）**：简洁明了地描述所做的更改，通常不超过50个字符，并且使用现在时态，如“Fix bug”而不是“Fixed bug”。
+**body（正文）**：更详细地描述更改的内容、原因和影响，如果需要的话。可以分成多行，但每行不超过72个字符。
+**footer（页脚）**：提交信息的最后一部分，可以包含关闭的issue、关联的pull request或breaking changes等信息。
+<br>
+
+一个具体的提交信息示例如下：
+```
+fix(auth): 修复登录时的空指针异常
+
+在用户尝试使用null邮箱地址登录时，系统会抛出空指针异常。这次更改通过在调用登录方法之前检查邮箱地址是否为空来修复这个问题。
+
+此外，这次更改还增加了一个警告日志，以便于监控系统在用户尝试使用无效数据登录时的行为。
+
+Closes #123
+```
+解释如下：
+- type 是 fix，表示这是一个bug修复
+- scope 是 auth，表示更改影响的是认证模块
+- subject 是 “修复登录时的空指针异常”，简洁地描述了更改的内容
+- body 提供了更详细的更改描述和上下文，包括为什么进行这个更改以及它的影响
+- footer 包含了一个关联的issue编号 #123，表示这个提交解决了该issue
+
 
 ## 基础非典型操作
 
