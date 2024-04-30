@@ -106,7 +106,11 @@ description: 主要记录Git的常用命令、一些非典型操作及其意义�
 - **变基：** 执行`git pull --rebase`，相当于`git fetch`+`git rebase`，此过程不会创建合并提交，仅会把远端的提交和本地的提交重写成一个线性的提交历史。
   > 如果存在修改冲突的话，git会停止变基过程，提示用户打开文件手动解决冲突。此时用户修改完冲突后，执行`git add <file>`，再执行`git rebase --continue`，git则会继续执行变基过程。
 
+### git commmit之编辑器切换
 
+当使用`git commit`时，会进入nano编辑器，此时可以编辑文本，按`ctrl + x`退出，按`y`保存，选择保存时会再次提示确认文件名，直接按`Enter`即可保存提交。
+
+当然，可以执行`git config --global core.editor vim`切换为vim编辑器。
 
 ## 基础非典型操作
 
