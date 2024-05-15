@@ -27,11 +27,13 @@
 <meta property="og:site_name" content="Jindu-Chen">
 <meta property="og:description" content="记录在硬件设计中所涉及的基础元器件概念及知识，当然，此部分内容在大学书本均可找到，因此记录本文之目的主要为回顾大学所学硬件基础知识，辅助提升个人对软硬的系统性认知。">
 <meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/pictures/%E4%B8%89%E6%9E%81%E7%AE%A1-MOS%E7%AE%A1%E5%AF%B9%E6%AF%94.png">
 <meta property="article:published_time" content="2023-12-31T16:00:00.000Z">
-<meta property="article:modified_time" content="2024-04-29T07:56:02.231Z">
+<meta property="article:modified_time" content="2024-05-15T09:43:54.516Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/pictures/%E4%B8%89%E6%9E%81%E7%AE%A1-MOS%E7%AE%A1%E5%AF%B9%E6%AF%94.png">
 
 <link rel="canonical" href="http://example.com/2024/01/01/%E7%A1%AC%E4%BB%B6%E5%9F%BA%E7%A1%80%E5%99%A8%E4%BB%B6%E7%9F%A5%E8%AF%86%E7%AE%80%E8%BF%B0/">
 
@@ -225,7 +227,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-04-29 15:56:02" itemprop="dateModified" datetime="2024-04-29T15:56:02+08:00">2024-04-29</time>
+                <time title="Modified: 2024-05-15 17:43:54" itemprop="dateModified" datetime="2024-05-15T17:43:54+08:00">2024-05-15</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -247,14 +249,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>1.6k</span>
+              <span>2.6k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>5 mins.</span>
+              <span>9 mins.</span>
             </span>
             <div class="post-description">记录在硬件设计中所涉及的基础元器件概念及知识，当然，此部分内容在大学书本均可找到，因此记录本文之目的主要为回顾大学所学硬件基础知识，辅助提升个人对软硬的系统性认知。</div>
 
@@ -273,10 +275,26 @@
 <h2 id="电路基础元件概念"><a href="#电路基础元件概念" class="headerlink" title="电路基础元件概念"></a>电路基础元件概念</h2><p>电阻：R<br>电感：L<br>电容：C</p>
 <h3 id="二极管"><a href="#二极管" class="headerlink" title="二极管"></a>二极管</h3><p>简写为：D</p>
 <p>注意压降的影响</p>
-<h3 id="三极管（双极型晶体管）"><a href="#三极管（双极型晶体管）" class="headerlink" title="三极管（双极型晶体管）"></a>三极管（双极型晶体管）</h3><p>NPN型：简写为 Q 或 QN，在开关电路、放大电路、数字逻辑电路以及各种电子设备的接口驱动等方面更为常见。</p>
-<p>PNP型：简写为 Q 或 QP，更多出现在需要与负电源配合、需要电流反向传输、需要与NPN型晶体管互补工作的场合，如某些电源控制电路、模拟电路的反相级、推挽放大器以及某些特殊的逻辑电路中。</p>
-<h3 id="MOS管（场效应晶体管）"><a href="#MOS管（场效应晶体管）" class="headerlink" title="MOS管（场效应晶体管）"></a>MOS管（场效应晶体管）</h3><p>NMOS</p>
-<p>PMOS</p>
+<h3 id="三极管（双极型晶体管）"><a href="#三极管（双极型晶体管）" class="headerlink" title="三极管（双极型晶体管）"></a>三极管（双极型晶体管）</h3><p>三极管由三层半导体材料组成，分别是发射极（Emitter, E）、基极（Base, B）和集电极（Collector, C）。发射极和集电极之间通过基极连接。</p>
+<p>三极管分为两种类型，NPN型和PNP型，区别在于它们的掺杂类型和电流方向：</p>
+<p>NPN型：发射极和集电极是N型半导体，基极是P型半导体。<strong>电流主要是电子流，电子从发射极向集电极流动（即电流为集电极流向发射极）</strong>。简写为 Q 或 QN，在开关电路、放大电路、数字逻辑电路以及各种电子设备的接口驱动等方面更为常见。</p>
+<p>PNP型：发射极和集电极是P型半导体，基极是N型半导体。<strong>电流主要是空穴流，电流方向与NPN型相反</strong>。简写为 Q 或 QP，更多出现在需要与负电源配合、需要电流反向传输、需要与NPN型晶体管互补工作的场合，如某些电源控制电路、模拟电路的反相级、推挽放大器以及某些特殊的逻辑电路中。</p>
+<p><strong>放大作用：</strong> 将三极管的基极连接到控制DAC引脚，可以实现所需的放大作用。也可以串联一个电容接到PWM-IO，通过方波占空比控制电容的电压，从而驱动基极。<br><strong>开关作用：</strong> 将三极管的基极连接到控制IO口，可以实现开关作用。通常需要串联电阻，当然硬件上一般采用<strong>数字三极管</strong>，里面已经集成了串联电阻。</p>
+<p>截止状态：当基极-发射极之间的电压为零或反向偏置时，三极管处于截止状态，几乎没有电流流过<br>对于NPN型，Vb &lt; Ve，集电极电流Ic接近于零。<br>对于PNP型，Vb &gt; Ve，集电极电流Ic接近于零。</p>
+<p>放大状态：当基极-发射极之间的电压足够大，使得发射极的多数载流子大量注入基极区，并被集电区收集时，三极管处于饱和状态，集电极电流达到最大<br>对于NPN型，Vc &gt; Vb &gt; Ve，基极电流Ib控制Ic，Ic与Ib之间的关系是放大关系。<br>对于PNP型，Vc &lt; Vb &lt; Ve，同样存在放大关系。</p>
+<p>饱和状态：<br>对于NPN型，Vb &gt; Ve，Vc不再随着Vb的增加而增加，Ic达到最大值。<br>对于PNP型，Vb &lt; Ve，Vc不再随着Vb的减小而减小，Ic也达到最大值。</p>
+<h3 id="MOS管（场效应晶体管）"><a href="#MOS管（场效应晶体管）" class="headerlink" title="MOS管（场效应晶体管）"></a>MOS管（场效应晶体管）</h3><p>MOSFET（金属-氧化物-半导体场效应晶体管）的工作原理基于电场对半导体表面通道的控制。MOSFET有三个电极：栅极（Gate）、源极（Source）和漏极（Drain），以及一个衬底</p>
+<p>NMOS和PMOS的区别在于沟道类型和控制电流的载流子类型，<strong>对于NMOS，载流子是电子，对于PMOS，载流子是空穴对</strong></p>
+<p>当栅极G与源级S之间的电压足够大时，衬底中的少子会聚集到衬底与栅极G绝缘层的边界，形成源级S和漏级D之间的导电沟道。载流子可以通过这个沟道从源级S流向漏级D。此时栅源GS之间的电压就是阈值电压，记作Vth。通常为0.8V以上。</p>
+<p>VGS为栅极-源极电压，即VGS &#x3D; Vg - Vs</p>
+<p><strong>N沟道MOSFET：（NMOS管）</strong> <em>VGS&gt;阈值电压（Vth）时，导通；VGS&lt;&#x3D;阈值电压（Vth）时，截止*。用于控制近地端的开关，如CJ3400，此时S极接负极<br>**P沟道MOSFET：（PMOS管）** *VGS&lt;阈值电压（Vth）时，导通；VGS&gt;&#x3D;阈值电压（Vth）时，截止</em>。用于控制近源端的开关，如CJ3401，此时S极接正极</p>
+<p>VGS绝对值越大，MOSFET的导通程度越强，导通电阻越小，漏极电流越大。当MOSFET进入深度饱和区后，漏极电流的增加速率会放缓，最终达到一个饱和点。</p>
+<p>另外，MOS管的电流方向是双向的。但通常情况下，NMOS的电流流向为 D-&gt;S。栅极-源极电压起到控制通断作用。</p>
+<blockquote>
+<p>由于衬底和D、S的掺杂导致的NMOS存在方向为S-&gt;D的体效应二极管<br>如果把S接高位电压，D接低位电压，此时NMOS相当于导通二极管，但此时栅极就失去了控制作用，没有意义了<br>PMOS管同理，电流流向通常为 S-&gt;D</p>
+</blockquote>
+<p>在实际应用中，一般在栅极和源极之间串个100K电阻，提供电压偏置、抑制振荡等。通过程序控制栅极的电压变化，与硬件电路确定的源极电压，从而控制MOS导通或截止。栅极的电压要能够控制实现大于或小于源极电压。</p>
+<p><img src="/../pictures/%E4%B8%89%E6%9E%81%E7%AE%A1-MOS%E7%AE%A1%E5%AF%B9%E6%AF%94.png" alt="alt text"></p>
 <h3 id="TVS管"><a href="#TVS管" class="headerlink" title="TVS管"></a>TVS管</h3><h3 id="晶振（XTAL）"><a href="#晶振（XTAL）" class="headerlink" title="晶振（XTAL）"></a>晶振（XTAL）</h3><p>不起振的原因</p>
 <h3 id="集成电路（IC）"><a href="#集成电路（IC）" class="headerlink" title="集成电路（IC）"></a>集成电路（IC）</h3><p>数字IC：</p>
 <p>模拟IC：</p>
@@ -487,13 +505,13 @@
       <i class="fa fa-chart-area"></i>
     </span>
       <span class="post-meta-item-text">Symbols count total: </span>
-    <span title="Symbols count total">63k</span>
+    <span title="Symbols count total">65k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">Reading time total &asymp;</span>
-    <span title="Reading time total">3:31</span>
+    <span title="Reading time total">3:36</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
   </div>
