@@ -29,7 +29,7 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://example.com/pictures/%E4%B8%89%E6%9E%81%E7%AE%A1-MOS%E7%AE%A1%E5%AF%B9%E6%AF%94.png">
 <meta property="article:published_time" content="2023-12-31T16:00:00.000Z">
-<meta property="article:modified_time" content="2024-05-15T09:43:54.516Z">
+<meta property="article:modified_time" content="2024-05-15T10:01:47.533Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -227,7 +227,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-05-15 17:43:54" itemprop="dateModified" datetime="2024-05-15T17:43:54+08:00">2024-05-15</time>
+                <time title="Modified: 2024-05-15 18:01:47" itemprop="dateModified" datetime="2024-05-15T18:01:47+08:00">2024-05-15</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -249,14 +249,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>2.6k</span>
+              <span>4k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>9 mins.</span>
+              <span>7 mins.</span>
             </span>
             <div class="post-description">记录在硬件设计中所涉及的基础元器件概念及知识，当然，此部分内容在大学书本均可找到，因此记录本文之目的主要为回顾大学所学硬件基础知识，辅助提升个人对软硬的系统性认知。</div>
 
@@ -274,7 +274,17 @@
 <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>本文并非专于器件相关概念，仅于工作时接触到或者兴致到来时，随手记录而已</p>
 <h2 id="电路基础元件概念"><a href="#电路基础元件概念" class="headerlink" title="电路基础元件概念"></a>电路基础元件概念</h2><p>电阻：R<br>电感：L<br>电容：C</p>
 <h3 id="二极管"><a href="#二极管" class="headerlink" title="二极管"></a>二极管</h3><p>简写为：D</p>
-<p>注意压降的影响</p>
+<p>二极管的主要功能包括整流（将交流电转换为直流电）、稳压、钳位、开关和频率选择等。</p>
+<p>在电路中，二极管通常用于保护电路免受反向电压的影响，使得电流在一个方向流动，即所谓的单向导电性。</p>
+<p>其基本原理是基于P型半导体和N型半导体形成的P-N结：</p>
+<ol>
+<li>P-N结的形成：P型半导体含有较多的空穴（正电荷载流子），而N型半导体含有较多的电子（负电荷载流子）。当P型和N型半导体接触时，电子从N型材料向P型材料移动，空穴从P型材料向N型材料移动，形成一个叫做空间电荷区的区域，也称为耗尽层</li>
+<li>电平衡：耗尽层两侧的电荷分布产生一个自建电场，阻止更多的电子和空穴继续穿越P-N结，使得扩散电流与漂移电流达到平衡，二极管处于截止状态</li>
+<li>正向偏置：当在P端施加正电压（阳极），在N端施加负电压（阴极）时，P-N结正向偏置。当正向电压达到一定阈值（正向导通电压，通常为0.6V到0.7V左右对于硅二极管）克服自建电场，空间电荷区变窄，允许大量的电子和空穴再次流动，形成较大的正向电流</li>
+<li>反向偏置：当在P端施加负电压，N端施加正电压时，P-N结反向偏置。反向电压增强自建电场，空间电荷区扩大，只有少量的反向漏电流（I0）通过，通常很小，二极管基本上截止</li>
+<li>击穿：如果反向电压过高，P-N结可能会发生雪崩击穿或齐纳击穿，导致电流突然大幅度增加，击穿后，二极管可能失去单向导电性，变为导通状态。</li>
+</ol>
+<p>注意压降的影响，导致电压的降低或者功率损耗</p>
 <h3 id="三极管（双极型晶体管）"><a href="#三极管（双极型晶体管）" class="headerlink" title="三极管（双极型晶体管）"></a>三极管（双极型晶体管）</h3><p>三极管由三层半导体材料组成，分别是发射极（Emitter, E）、基极（Base, B）和集电极（Collector, C）。发射极和集电极之间通过基极连接。</p>
 <p>三极管分为两种类型，NPN型和PNP型，区别在于它们的掺杂类型和电流方向：</p>
 <p>NPN型：发射极和集电极是N型半导体，基极是P型半导体。<strong>电流主要是电子流，电子从发射极向集电极流动（即电流为集电极流向发射极）</strong>。简写为 Q 或 QN，在开关电路、放大电路、数字逻辑电路以及各种电子设备的接口驱动等方面更为常见。</p>
@@ -505,13 +515,13 @@
       <i class="fa fa-chart-area"></i>
     </span>
       <span class="post-meta-item-text">Symbols count total: </span>
-    <span title="Symbols count total">65k</span>
+    <span title="Symbols count total">66k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">Reading time total &asymp;</span>
-    <span title="Reading time total">3:36</span>
+    <span title="Reading time total">1:50</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
   </div>
