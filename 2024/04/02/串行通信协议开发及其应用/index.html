@@ -28,7 +28,7 @@
 <meta property="og:description" content="通信协议是设备间协同工作的关键，当然此处所说的通信协议并不是指硬件层的 UART、IIC、SPI 等通信接口，也不是指 BLE、WI-FI、USB 此类数据传输协议，其是特指在已经实现设备间数据透明传输通路的基础上，再封装的一层私有协议，用于规范设备间业务数据&#x2F;功能&#x2F;命令等的交互，从而实现稳定可靠的多设备多模块间协同工作。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2024-04-01T16:00:00.000Z">
-<meta property="article:modified_time" content="2024-05-10T10:33:44.839Z">
+<meta property="article:modified_time" content="2024-05-21T10:16:49.720Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -225,7 +225,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-05-10 18:33:44" itemprop="dateModified" datetime="2024-05-10T18:33:44+08:00">2024-05-10</time>
+                <time title="Modified: 2024-05-21 18:16:49" itemprop="dateModified" datetime="2024-05-21T18:16:49+08:00">2024-05-21</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -250,7 +250,7 @@
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>3 mins.</span>
+              <span>6 mins.</span>
             </span>
             <div class="post-description">通信协议是设备间协同工作的关键，当然此处所说的通信协议并不是指硬件层的 UART、IIC、SPI 等通信接口，也不是指 BLE、WI-FI、USB 此类数据传输协议，其是特指在已经实现设备间数据透明传输通路的基础上，再封装的一层私有协议，用于规范设备间业务数据/功能/命令等的交互，从而实现稳定可靠的多设备多模块间协同工作。</div>
 
@@ -328,7 +328,8 @@
 
 
 <h3 id="组包函数设计"><a href="#组包函数设计" class="headerlink" title="组包函数设计"></a>组包函数设计</h3><h2 id="串行通信业务软件设计"><a href="#串行通信业务软件设计" class="headerlink" title="串行通信业务软件设计"></a>串行通信业务软件设计</h2><h3 id="初始化软件设计"><a href="#初始化软件设计" class="headerlink" title="初始化软件设计"></a>初始化软件设计</h3><h3 id="业务处理软件设计"><a href="#业务处理软件设计" class="headerlink" title="业务处理软件设计"></a>业务处理软件设计</h3><p>可以应用命令模式，在业务上层将接收到的串口命令与执行函数建立一个映射执行关系</p>
-<h2 id="疑惑解答"><a href="#疑惑解答" class="headerlink" title="疑惑解答"></a>疑惑解答</h2><h3 id="复杂度分析及软件方案取舍"><a href="#复杂度分析及软件方案取舍" class="headerlink" title="复杂度分析及软件方案取舍"></a>复杂度分析及软件方案取舍</h3><p>包含所有容错的软件设计，时间复杂度：O(n^2)</p>
+<h2 id="疑惑解答"><a href="#疑惑解答" class="headerlink" title="疑惑解答"></a>疑惑解答</h2><h3 id="复杂度分析及软件方案取舍"><a href="#复杂度分析及软件方案取舍" class="headerlink" title="复杂度分析及软件方案取舍"></a>复杂度分析及软件方案取舍</h3><p>包含所有容错的软件设计，对接收到的包逐字节分析，时间复杂度：O(n^2)</p>
+<p>在迭代循环里判断，空间复杂度为：O(1)</p>
 <h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2><ul>
 <li><a target="_blank" rel="noopener" href="https://blog.csdn.net/ybhuangfugui/article/details/123143683">通信教程 | 自定义串口通信协议</a></li>
 </ul>
@@ -479,7 +480,7 @@
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">Reading time total &asymp;</span>
-    <span title="Reading time total">1:50</span>
+    <span title="Reading time total">3:41</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
   </div>
