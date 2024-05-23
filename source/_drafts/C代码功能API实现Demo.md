@@ -15,15 +15,15 @@ description:
 /*
 * 将HSV颜色转换为RGB颜色
 * hue,色调:0-360; saturation,纯度:0-1; value,明度:0-1
-* r,g,b,RGB颜色，此值范围为0-255，但外界传入时的变量须是int类型
+* r,g,b,RGB颜色，此值范围为0-255
 */
-void hsv_to_rgb(float h, float s, float v, int *r, int *g, int *b)
+void hsv_to_rgb(float h, float s, float v, uint8_t *r, uint8_t *g, uint8_t *b)
 {
    float f, x, y, z;
    int i;
    v *= 255.0;
    if (s == 0.0) {
-      *r = *g = *b = (int)v;
+      *r = *g = *b = (uint8_t)v;
    } else {
       while (h < 0)
       h += 360;
@@ -49,7 +49,7 @@ void hsv_to_rgb(float h, float s, float v, int *r, int *g, int *b)
 ```c
 void led_set_poll(void)
 {    
-    int red,green,blue;
+    uint8_t red,green,blue;
     
     static float hue = 0;
     hue = fmodf(hue + 1.0, 360.0);  // 0-360 色调循环
