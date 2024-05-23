@@ -28,7 +28,7 @@
 <meta property="og:description" content="CmBacktrace是针对Cortex-M内核芯片提供程序运行异常时的堆栈回溯工具&#x2F;中间件，将其移植到单片机中，可以在程序异常时打印相应的故障信息包括函数调用链、变量值、寄存器值等，大大缩短bug排查时间。本文介绍CmBacktrace的移植适配过程、原理解析、实际应用以及一些扩展问题思考等。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2024-01-31T16:00:00.000Z">
-<meta property="article:modified_time" content="2024-04-25T10:13:16.251Z">
+<meta property="article:modified_time" content="2024-05-23T12:08:36.214Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -225,7 +225,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-04-25 18:13:16" itemprop="dateModified" datetime="2024-04-25T18:13:16+08:00">2024-04-25</time>
+                <time title="Modified: 2024-05-23 20:08:36" itemprop="dateModified" datetime="2024-05-23T20:08:36+08:00">2024-05-23</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -247,14 +247,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>645</span>
+              <span>984</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>2 mins.</span>
+              <span>3 mins.</span>
             </span>
             <div class="post-description">CmBacktrace是针对Cortex-M内核芯片提供程序运行异常时的堆栈回溯工具/中间件，将其移植到单片机中，可以在程序异常时打印相应的故障信息包括函数调用链、变量值、寄存器值等，大大缩短bug排查时间。本文介绍CmBacktrace的移植适配过程、原理解析、实际应用以及一些扩展问题思考等。</div>
 
@@ -270,13 +270,22 @@
         <p>工程源码移植见：<a target="_blank" rel="noopener" href="https://github.com/Jindu-Chen/CmBacktrace_Adapt">CmBacktrace源码移植教程-github</a></p>
 <p>官方源码地址 : <a target="_blank" rel="noopener" href="https://github.com/armink/CmBacktrace">https://github.com/armink/CmBacktrace</a></p>
 <p><strong>未完待续…</strong></p>
-<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><h2 id="移植适配与应用"><a href="#移植适配与应用" class="headerlink" title="移植适配与应用"></a>移植适配与应用</h2><p><strong>将相关源码加入工程</strong></p>
-<p><strong>适配信息打印接口，如串口</strong></p>
-<p>注释掉原有的HardFault中断服务函数</p>
-<p>链接脚本中也要增加适配其宏定义（如果没有的话），如栈的起始结束地址<code>_bss</code>、代码段<code>__text_end</code>的起始结束地址等</p>
-<p><strong>调用其初始化接口</strong></p>
-<p>Demo应用</p>
-<h3 id="程序报错及解析"><a href="#程序报错及解析" class="headerlink" title="程序报错及解析"></a>程序报错及解析</h3><p>addr2line -e app.elf -a -f 080154c2 0800a3b2 08009092</p>
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>暂略</p>
+<h2 id="移植适配与应用"><a href="#移植适配与应用" class="headerlink" title="移植适配与应用"></a>移植适配与应用</h2><ul>
+<li><p>将相关源码加入工程</p>
+</li>
+<li><p>适配信息打印接口，如串口，将<code>printf</code>输出重定向至串口</p>
+</li>
+<li><p>注释掉原有的HardFault中断服务函数，避免与CmBacktrace源码的HardFault中断服务函数冲突</p>
+</li>
+<li><p>链接脚本中也要增加适配其宏定义（如果没有的话），如栈的起始结束地址<code>_bss</code>、代码段<code>__text_end</code>的起始结束地址等</p>
+</li>
+<li><p>在程序初始化时，调用CmBacktrace的初始化接口</p>
+</li>
+</ul>
+<h3 id="程序报错及解析"><a href="#程序报错及解析" class="headerlink" title="程序报错及解析"></a>程序报错及解析</h3><p>当程序运行错误时，CmBacktrace会轮询栈空间，将其中指向的内容（为falsh代码区间的函数地址部分）打印出来，此即函数地址调用链。</p>
+<p>用户使用 addr2line 工具，配合 elf 文件，将函数地址转换为函数名，则可知函数调用链。</p>
+<p>如：<code>addr2line -e app.elf -a -f 080154c2 0800a3b2 08009092</code></p>
 <h3 id="addrline2工具"><a href="#addrline2工具" class="headerlink" title="addrline2工具"></a>addrline2工具</h3><p><code>addr2line</code> 是一个用于将程序地址转换为源代码文件名及行号的工具，其属于<code>GNU Binutils</code>工具包中的一部分。</p>
 <blockquote>
 <p><code>GNU Binutils</code>是GNU项目的一部分，是一套用于创建、修改和分析二进制文件的工具集合。其包括：汇编器（as）、链接器（ld）、反汇编器（objdump）、调试器、库管理器、对象查看器、地址转换工具（addr2line）等。<br>如WSL安装了GCC，则会包含整个GNU Binutils工具集。 如安装了<code>arm-none-eabi-</code>工具链，则会包含<code>arm-none-eabi-addr2line</code>。</p>
@@ -284,11 +293,15 @@
 <h2 id="原理解析"><a href="#原理解析" class="headerlink" title="原理解析"></a>原理解析</h2><p>要理清CmBacktrace的实现原理，首先要<strong>了解<code>ARM Cortex-M</code>内核的堆栈布局与管理、以及该内核对异常的处理流程</strong>。</p>
 <p>而CmBacktrace即是根据C语言的栈帧结构、以及Cortex-M内核的工作&#x2F;异常处理的原理，当触发异常时，对堆栈进行解析实现回溯，而后将信息输出至终端，如串口。</p>
 <p>如何通过cortex-m4内核的cpu寄存器值分析当前的栈帧调用链</p>
-<h3 id="堆栈布局与管理"><a href="#堆栈布局与管理" class="headerlink" title="堆栈布局与管理"></a>堆栈布局与管理</h3><h3 id="异常处理与上下文保存"><a href="#异常处理与上下文保存" class="headerlink" title="异常处理与上下文保存"></a>异常处理与上下文保存</h3><h3 id="CmBacktrace的工作原理"><a href="#CmBacktrace的工作原理" class="headerlink" title="CmBacktrace的工作原理"></a>CmBacktrace的工作原理</h3><p>如何根据CPU寄存器的值获取栈帧？</p>
-<p>如何通过栈帧获取函数调用链？</p>
+<h3 id="堆栈布局与管理"><a href="#堆栈布局与管理" class="headerlink" title="堆栈布局与管理"></a>堆栈布局与管理</h3><h3 id="异常处理与上下文保存"><a href="#异常处理与上下文保存" class="headerlink" title="异常处理与上下文保存"></a>异常处理与上下文保存</h3><h3 id="CmBacktrace的工作原理"><a href="#CmBacktrace的工作原理" class="headerlink" title="CmBacktrace的工作原理"></a>CmBacktrace的工作原理</h3><p>核心代码如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">size_t</span> <span class="title function_">cm_backtrace_call_stack</span><span class="params">(<span class="type">uint32_t</span> *buffer, <span class="type">size_t</span> size, <span class="type">uint32_t</span> sp)</span> &#123;</span><br><span class="line">    <span class="type">uint32_t</span> stack_start_addr = main_stack_start_addr, pc;</span><br><span class="line">    <span class="type">size_t</span> depth = <span class="number">0</span>, stack_size = main_stack_size;</span><br><span class="line">    <span class="type">bool</span> regs_saved_lr_is_valid = <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line">    ......</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* copy called function address */</span></span><br><span class="line">    <span class="keyword">for</span> (; sp &lt; stack_start_addr + stack_size; sp += <span class="keyword">sizeof</span>(<span class="type">size_t</span>)) &#123;</span><br><span class="line">        <span class="comment">/* the *sp value may be LR, so need decrease a word to PC */</span></span><br><span class="line">        pc = *((<span class="type">uint32_t</span> *) sp) - <span class="keyword">sizeof</span>(<span class="type">size_t</span>);</span><br><span class="line">        <span class="comment">/* the Cortex-M using thumb instruction, so the pc must be an odd number */</span></span><br><span class="line">        <span class="keyword">if</span> (pc % <span class="number">2</span> == <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">/* fix the PC address in thumb mode */</span></span><br><span class="line">        pc = *((<span class="type">uint32_t</span> *) sp) - <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">if</span> ((pc &gt;= code_start_addr + <span class="keyword">sizeof</span>(<span class="type">size_t</span>)) &amp;&amp; (pc &lt;= code_start_addr + code_size) &amp;&amp; (depth &lt; CMB_CALL_STACK_MAX_DEPTH)</span><br><span class="line">                <span class="comment">/* check the the instruction before PC address is &#x27;BL&#x27; or &#x27;BLX&#x27; */</span></span><br><span class="line">                &amp;&amp; disassembly_ins_is_bl_blx(pc - <span class="keyword">sizeof</span>(<span class="type">size_t</span>)) &amp;&amp; (depth &lt; size)) &#123;</span><br><span class="line">            <span class="comment">/* the second depth function may be already saved, so need ignore repeat */</span></span><br><span class="line">            <span class="keyword">if</span> ((depth == <span class="number">2</span>) &amp;&amp; regs_saved_lr_is_valid &amp;&amp; (pc == buffer[<span class="number">1</span>])) &#123;</span><br><span class="line">                <span class="keyword">continue</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            buffer[depth++] = pc;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> depth;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>以上函数传入 栈顶SP 地址，而后主要进入一个循环，从栈顶往栈底回溯，每4个字节读取一次，<strong>如果其存放的数据是属于代码区的</strong>（说明此是一个函数地址，大概率是函数调用链的地址，当然也可能是函数中的一个函数指针），则将其地址存入数组，并继续回溯。</p>
 <h2 id="注意点与扩展思考"><a href="#注意点与扩展思考" class="headerlink" title="注意点与扩展思考"></a>注意点与扩展思考</h2><h3 id="其它如Cortex-A内核如何回溯的？"><a href="#其它如Cortex-A内核如何回溯的？" class="headerlink" title="其它如Cortex-A内核如何回溯的？"></a>其它如Cortex-A内核如何回溯的？</h3><h3 id="RTOS与裸机下的CmBacktrace有何不同？"><a href="#RTOS与裸机下的CmBacktrace有何不同？" class="headerlink" title="RTOS与裸机下的CmBacktrace有何不同？"></a>RTOS与裸机下的CmBacktrace有何不同？</h3><p>裸机：只需关注当前执行流的堆栈跟踪，不需要考虑多线程或任务切换</p>
 <p>RTOS：需要考虑多线程或任务切换，需要考虑线程切换时的堆栈跟踪。要捕获当前运行任务的堆栈回溯信息，还要获取其他任务的堆栈信息。涉及到与 RTOS 内核的API交互，获取当前任务指针、任务堆栈基址、栈顶指针等信息</p>
-<h3 id="程序崩溃跳转至HardFault状态了，为何还能正常控制外设如DMA-UART打印故障信息？"><a href="#程序崩溃跳转至HardFault状态了，为何还能正常控制外设如DMA-UART打印故障信息？" class="headerlink" title="程序崩溃跳转至HardFault状态了，为何还能正常控制外设如DMA-UART打印故障信息？"></a>程序崩溃跳转至HardFault状态了，为何还能正常控制外设如DMA-UART打印故障信息？</h3><h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2>
+<h3 id="程序崩溃跳转至HardFault状态了，为何还能正常控制外设如DMA-UART打印故障信息？"><a href="#程序崩溃跳转至HardFault状态了，为何还能正常控制外设如DMA-UART打印故障信息？" class="headerlink" title="程序崩溃跳转至HardFault状态了，为何还能正常控制外设如DMA-UART打印故障信息？"></a>程序崩溃跳转至HardFault状态了，为何还能正常控制外设如DMA-UART打印故障信息？</h3><h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/512902251">STM32上的backtrace原理与分析</a></li>
+</ul>
+
     </div>
 
     
@@ -438,7 +451,7 @@
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">Reading time total &asymp;</span>
-    <span title="Reading time total">3:42</span>
+    <span title="Reading time total">3:43</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
   </div>

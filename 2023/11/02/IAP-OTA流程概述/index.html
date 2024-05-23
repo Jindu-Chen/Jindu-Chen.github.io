@@ -28,7 +28,7 @@
 <meta property="og:description" content="讲述在MCU开发中的几种 IAP 固件升级软件设计方法、具体工作流程及应用相关事项，也包含个人于实际产品开发中的 IAP&#x2F;OTA 案例及代码设计、注意项分析">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2023-11-01T16:00:00.000Z">
-<meta property="article:modified_time" content="2024-04-28T09:24:49.949Z">
+<meta property="article:modified_time" content="2024-05-23T11:28:06.922Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -225,7 +225,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-04-28 17:24:49" itemprop="dateModified" datetime="2024-04-28T17:24:49+08:00">2024-04-28</time>
+                <time title="Modified: 2024-05-23 19:28:06" itemprop="dateModified" datetime="2024-05-23T19:28:06+08:00">2024-05-23</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -243,7 +243,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>4.4k</span>
+              <span>4.5k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
@@ -279,7 +279,7 @@
 <h3 id="在Bootloader应用编程"><a href="#在Bootloader应用编程" class="headerlink" title="在Bootloader应用编程"></a>在Bootloader应用编程</h3><p><strong>思路一：</strong> 程序正常工作在 App 工程中，此时收到上位机的升级指令，MCU 通过复位或者直接跳转的方式回到 Bootloader，在 Bootloader 中直接擦除当前 APP 程序，然后接收新的 APP 并直接写入 APP 运行区中，最后检验通过则跳转至 APP 运行区执行程序。</p>
 <p><strong>优缺点分析：</strong> </p>
 <ul>
-<li>更适用于内存资源小的情况，只使用一个 Bootloader 区和 APP 运行区</li>
+<li>更适用于内存资源小的情况，只使用<strong>一个 Bootloader 区和 一个 APP 运行区</strong></li>
 <li>可用性差，一般建议只用于内部产测或者专用的串口调试升级，不能用于消费者产品端上，当升级过程突然中断，那就代表着只有 Bootloader 程序了，只能一直处于等待升级中</li>
 <li>兼容性、通用性差，如果要做空中 OTA 升级，则要在 Bootloader 工程支持产品的无线连接、传输协议等业务</li>
 </ul>
@@ -289,7 +289,7 @@
 <ul>
 <li>需要占用额外的空间，使用内部的 Flash 或者外部的空间来作为存储区都可</li>
 <li>安全稳定可靠，无论是传输中断或者是在 Bootloader 搬运过程中断电，都可保障能升级成功。（接收传输中断了，原有 APP 继续工作；即使Bootloader 在搬运过程中断电了，但存储区程序还在，下次上电后 Bootloader 会继续从存储区搬运新程序）</li>
-<li>适用于串口 IAP 升级，可移植性强；不建议做专用空中 OTA 升级，或者说是不建议把跟业务相关的功能做到 Bootloader</li>
+<li>适用于串口 IAP 升级，可移植性强；不建议用于空中 OTA 升级，那意味着bootloader需要开发无线通信相关的逻辑，换种说法是：不建议把跟业务相关的功能做到 Bootloader</li>
 </ul>
 <hr>
 <p><strong>思路三：</strong> 程序正常工作在 APP1 运行区中，收到上位机的指令，则回到 Bootloader 中，此时并不会擦除 APP1 运行区程序，而是首先擦除 APP2 运行区（内部Flash的另一块预设空间），然后接收新 APP 并将其写入到 APP2 运行区中，等接收完毕并校验无误后，设置 APP2 运行标志位，擦除 APP1 运行标志位，最后跳转至 APP2 运行区中执行程序。（同理：下次则是擦除 APP1 程序，接收新程序到 APP1 运行区中并设置 APP1 标志位，清除 APP2 标志，最后跳转执行 APP1）</p>
@@ -331,9 +331,9 @@
 
 <p><strong>注意：</strong> 上述所说，是基于 MCU 的产品角度，IAP 升级是指产品应用串口 + Ymodem 协议与上位机连接进行升级，OTA 升级特指通过蓝牙或者WiFi与终端建立无线连接后，再通过私有的协议栈与终端交互进行传输升级</p>
 <h2 id="IAP具体设计"><a href="#IAP具体设计" class="headerlink" title="IAP具体设计"></a>IAP具体设计</h2><h3 id="IAP环境及工具配置"><a href="#IAP环境及工具配置" class="headerlink" title="IAP环境及工具配置"></a>IAP环境及工具配置</h3><ul>
-<li><p>Ymodem：通常串口的IAP升级传输都是应用 Ymodem 协议，具体为何，此处暂不作解释，后续补充</p>
+<li><p>Ymodem：通常串口的IAP升级传输都是应用 Ymodem 协议，该协议成熟稳定可靠，且支持单文件传输，多文件传输，断点续传，文件校验等功能，另外重要的一点是许多串口通信软件都内置了对 Ymodem 的支持，而无须开发者自行实现上位机，具有良好的易用性兼容性。</p>
 </li>
-<li><p>上位机软件的应用：SecureCRT，自带 Ymodem 协议，也支持脚本，非常适用自动化升级使用，不过要收费</p>
+<li><p>上位机软件的应用：SecureCRT，自带 Ymodem 协议，也支持脚本，非常适用自动化升级使用，不过要收费；Windterm ，支持 Ymodem 协议，但是不支持脚本；XShell等</p>
 </li>
 </ul>
 <h3 id="升级详细设计流程"><a href="#升级详细设计流程" class="headerlink" title="升级详细设计流程"></a>升级详细设计流程</h3><p>以思路四为例：</p>
@@ -421,7 +421,7 @@
 </ul>
 <hr>
 <h3 id="如何保证bootloader升级失败不会导致设备变砖？"><a href="#如何保证bootloader升级失败不会导致设备变砖？" class="headerlink" title="如何保证bootloader升级失败不会导致设备变砖？"></a>如何保证bootloader升级失败不会导致设备变砖？</h3><p>保证接收到的新APP是正确的，传输完毕后校验文件无误</p>
-<p>保证在搬运编程过程中，即使是突然断电或者复位后，也能继续搬运至完成</p>
+<p>保证在搬运编程过程中，即使是突然断电或者复位后，也能继续搬运或者重新搬运至完成</p>
 <h3 id="在实时操作系统环境中，如何执行跳转操作？"><a href="#在实时操作系统环境中，如何执行跳转操作？" class="headerlink" title="在实时操作系统环境中，如何执行跳转操作？"></a>在实时操作系统环境中，如何执行跳转操作？</h3><p>操作系统在线程中使用PSP堆栈指针，在中断中使用MSP主堆栈指针</p>
 <p>设置CONTROL寄存器的<code>bit[1]</code>选择使用哪个堆栈指针。<code>CONTROL[1]=0</code>选择主堆栈指针；<code>CONTROL[1]=1</code>选择进程堆栈指针</p>
 <p>直接PC跳转复位，实际上内核并不会自动切换MSP和PSP，因为此过程没有触发内核Handler模式，需要用户手动切换</p>
@@ -578,7 +578,7 @@
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">Reading time total &asymp;</span>
-    <span title="Reading time total">3:42</span>
+    <span title="Reading time total">3:43</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
   </div>
