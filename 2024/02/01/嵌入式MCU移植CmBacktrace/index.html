@@ -28,7 +28,7 @@
 <meta property="og:description" content="CmBacktrace是针对Cortex-M内核芯片提供程序运行异常时的堆栈回溯工具&#x2F;中间件，将其移植到单片机中，可以在程序异常时打印相应的故障信息包括函数调用链、变量值、寄存器值等，大大缩短bug排查时间。本文介绍CmBacktrace的移植适配过程、原理解析、实际应用以及一些扩展问题思考等。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2024-01-31T16:00:00.000Z">
-<meta property="article:modified_time" content="2024-05-23T12:08:36.214Z">
+<meta property="article:modified_time" content="2024-05-23T12:13:00.944Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -225,7 +225,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-05-23 20:08:36" itemprop="dateModified" datetime="2024-05-23T20:08:36+08:00">2024-05-23</time>
+                <time title="Modified: 2024-05-23 20:13:00" itemprop="dateModified" datetime="2024-05-23T20:13:00+08:00">2024-05-23</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -247,7 +247,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>984</span>
+              <span>985</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
@@ -283,7 +283,7 @@
 <li><p>在程序初始化时，调用CmBacktrace的初始化接口</p>
 </li>
 </ul>
-<h3 id="程序报错及解析"><a href="#程序报错及解析" class="headerlink" title="程序报错及解析"></a>程序报错及解析</h3><p>当程序运行错误时，CmBacktrace会轮询栈空间，将其中指向的内容（为falsh代码区间的函数地址部分）打印出来，此即函数地址调用链。</p>
+<h3 id="程序报错及解析"><a href="#程序报错及解析" class="headerlink" title="程序报错及解析"></a>程序报错及解析</h3><p>当程序运行错误时，CmBacktrace会轮询栈空间，将其中指向的内容（为falsh代码段区间的函数地址部分）打印出来，此即函数地址调用链。</p>
 <p>用户使用 addr2line 工具，配合 elf 文件，将函数地址转换为函数名，则可知函数调用链。</p>
 <p>如：<code>addr2line -e app.elf -a -f 080154c2 0800a3b2 08009092</code></p>
 <h3 id="addrline2工具"><a href="#addrline2工具" class="headerlink" title="addrline2工具"></a>addrline2工具</h3><p><code>addr2line</code> 是一个用于将程序地址转换为源代码文件名及行号的工具，其属于<code>GNU Binutils</code>工具包中的一部分。</p>
@@ -451,7 +451,7 @@
       <i class="fa fa-coffee"></i>
     </span>
       <span class="post-meta-item-text">Reading time total &asymp;</span>
-    <span title="Reading time total">3:43</span>
+    <span title="Reading time total">3:44</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
   </div>
