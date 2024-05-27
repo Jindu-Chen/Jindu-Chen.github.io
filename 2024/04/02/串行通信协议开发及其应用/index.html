@@ -28,7 +28,7 @@
 <meta property="og:description" content="通信协议是设备间协同工作的关键，当然此处所说的通信协议并不是指硬件层的 UART、IIC、SPI 等通信接口，也不是指 BLE、WI-FI、USB 此类数据传输协议，其是特指在已经实现设备间数据透明传输通路的基础上，再封装的一层私有协议，用于规范设备间业务数据&#x2F;功能&#x2F;命令等的交互，从而实现稳定可靠的多设备多模块间协同工作。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2024-04-01T16:00:00.000Z">
-<meta property="article:modified_time" content="2024-05-27T09:25:57.334Z">
+<meta property="article:modified_time" content="2024-05-27T09:54:20.949Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -225,7 +225,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-05-27 17:25:57" itemprop="dateModified" datetime="2024-05-27T17:25:57+08:00">2024-05-27</time>
+                <time title="Modified: 2024-05-27 17:54:20" itemprop="dateModified" datetime="2024-05-27T17:54:20+08:00">2024-05-27</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -264,7 +264,7 @@
 
       
         <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>如果日常的工作开发中，经常涉及到多设备&#x2F;多模块协同工作的软件设计，那么定义一个基于硬件通信接口之上的私有通信协议规范是必不可少的。</p>
-<p>稳定、可靠、规范的通用通信协议，有利于模块化、提高复用、抗干扰能力强、方便做扩展设计等等，本文以私有串口通信协议为例，分享个人对自定义协议的理解、中间层软件设计以及业务设计等内容。</p>
+<p>稳定、可靠、规范的通用通信协议，有利于模块化、提高复用、抗干扰能力强、方便做扩展设计等等，本文以私有串口通信协议为例，分享个人对自定义协议的理解、中间层组件库软件（句柄数据结构、组包解包函数）设计以及业务设计等内容。</p>
 <h2 id="协议格式"><a href="#协议格式" class="headerlink" title="协议格式"></a>协议格式</h2><p>通信协议通常表现为数据包的格式定义，其可以概括为 <strong>起始位、包头部分、数据部分、检验位、结束位</strong> 这几项。</p>
 <h3 id="包的构成要素"><a href="#包的构成要素" class="headerlink" title="包的构成要素"></a>包的构成要素</h3><p>首先，在通信协议中，定义一个数据包的起始位和结束位是必要的，由此来识别收到一个完整的数据包。以下为一个包的常见构成要素：<br><strong>协议版本、包序号、包类型、控制位、保留位、数据长度、指令、数据、检验位</strong></p>
 <p>注意：多设备设计时需要设计地址，本文主要讲述两设备间的串口通信协议，不涉及多设备间的通信。</p>
