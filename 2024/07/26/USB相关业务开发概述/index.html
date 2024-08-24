@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":"enable","trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="讲述个人对USB知识体系的认知，以及USB在业务开发中的应用等。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="USB原理及应用开发概述">
+<meta property="og:url" content="http://example.com/2024/07/26/USB%E7%9B%B8%E5%85%B3%E4%B8%9A%E5%8A%A1%E5%BC%80%E5%8F%91%E6%A6%82%E8%BF%B0/index.html">
+<meta property="og:site_name" content="Jindu-Chen">
+<meta property="og:description" content="讲述个人对USB知识体系的认知，以及USB在业务开发中的应用等。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2024-07-25T16:00:00.000Z">
+<meta property="article:modified_time" content="2024-08-24T06:19:15.110Z">
+<meta property="article:author" content="cjd">
+<meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2024/07/26/USB%E7%9B%B8%E5%85%B3%E4%B8%9A%E5%8A%A1%E5%BC%80%E5%8F%91%E6%A6%82%E8%BF%B0/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>USB原理及应用开发概述 | Jindu-Chen</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Jindu-Chen</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">风物长宜放眼量</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/07/26/USB%E7%9B%B8%E5%85%B3%E4%B8%9A%E5%8A%A1%E5%BC%80%E5%8F%91%E6%A6%82%E8%BF%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="cjd">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jindu-Chen">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          USB原理及应用开发概述
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-07-26 00:00:00" itemprop="dateCreated datePublished" datetime="2024-07-26T00:00:00+08:00">2024-07-26</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-08-24 14:19:15" itemprop="dateModified" datetime="2024-08-24T14:19:15+08:00">2024-08-24</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">嵌入式</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>3.5k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>12 mins.</span>
+            </span>
+            <div class="post-description">讲述个人对USB知识体系的认知，以及USB在业务开发中的应用等。</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="USB设备导论"><a href="#USB设备导论" class="headerlink" title="USB设备导论"></a>USB设备导论</h2><p>USB（通用串行总线）设备是一种广泛使用的接口设备，支持即插即用和热插拔功能。</p>
+<h3 id="USB硬件接口类型"><a href="#USB硬件接口类型" class="headerlink" title="USB硬件接口类型"></a>USB硬件接口类型</h3><h3 id="常见的USB设备应用"><a href="#常见的USB设备应用" class="headerlink" title="常见的USB设备应用"></a>常见的USB设备应用</h3><p><strong>存储设备：</strong> </p>
+<p><strong>输入设备：</strong> </p>
+<p><strong>音频设备：</strong> </p>
+<p><strong>网络设备：</strong> </p>
+<p><strong>通信设备：</strong> </p>
+<p><strong>多媒体设备：</strong> </p>
+<p><strong>扩展和集线器：</strong> </p>
+<p><strong>电源设备：</strong> </p>
+<p><strong>USB虚拟设备：</strong> </p>
+<h2 id="USB基本原理介绍"><a href="#USB基本原理介绍" class="headerlink" title="USB基本原理介绍"></a>USB基本原理介绍</h2><h3 id="从接入到使用"><a href="#从接入到使用" class="headerlink" title="从接入到使用"></a>从接入到使用</h3><p>USB设备分为两类：主机（Host）和从机（Device）。</p>
+<blockquote>
+<p>同一USB网络中，只能存在一个主机。USB OTG允许设备在主机和从机之间切换角色。<br>比如：音箱作为USB主机时，可以读取U盘音乐；作为USB从机时，接受电脑的USB音频输入。</p>
+</blockquote>
+<br>
+
+<p><strong>USB拔插：</strong> 主机通过检测USB D+&#x2F;D- 的电平变化感知从机的接入或者拔出</p>
+<ul>
+<li>主机端D+&#x2F;D-下拉15KΩ电阻到GND（0V），从机端D+&#x2F;D-上拉1.5KΩ电阻到3.3V。</li>
+<li>当从机接入主机时，D+&#x2F;D-上的电压变为3V，双方通过电平变化就可以发现USB的拔插事件</li>
+<li>USB拔插事件会触发主机的中断（或回调），执行从机的加载、释放过程。</li>
+</ul>
+<p><strong>USB枚举：</strong> 主机通过获取设备的描述符集合来识别USB设备</p>
+<ul>
+<li>USB连接后，主机通过访问描述符集合来识别从机并配置从机</li>
+<li>每个USB设备都必须有遵循相应格式的描述符集合介绍自身的功能和用途，包含设备描述符、配置描述符、接口描述符、端点描述符、字符串描述符、其它特殊描述符等。</li>
+</ul>
+<br>
+
+<p><strong>USB使用：</strong> 主机以轮询的方式发数据，从机以中断的方式接收数据</p>
+<ul>
+<li>USB的数据传输过程描述以及主机端为主</li>
+</ul>
+<br>
+
+<h3 id="USB通信构建过程概述"><a href="#USB通信构建过程概述" class="headerlink" title="USB通信构建过程概述"></a>USB通信构建过程概述</h3><p><strong>主机访问指定USB设备：</strong> 主机为所有从机分配唯一的设备地址，通过地址访问从机</p>
+<ul>
+<li>主机给所有已连接的设备分配地址，并确保不会重复（Addr1-AddrN）</li>
+<li>对刚接入没分配地址的从机，主机使用默认地址<code>Addr0</code>与其通信，握手后分配新地址</li>
+</ul>
+<br>
+
+<p><strong>主机访问指定USB设备的指定功能：</strong> 主机通过<code>（设备地址，设备端点）</code>访问指定从机的指定接口&#x2F;功能。</p>
+<ul>
+<li>用端点（Endpoint，EP）区分USB从机的不同功能（如一个从机同时具有HID、CDC等复合功能，通过端点区分，避免冲突）</li>
+<li>端点具有唯一性，其和从机的功能用途一一对应，主机按<strong>照端点的属性构建专用的端点通道进行通信</strong>；端点还标识了特定用途的数据传输方向</li>
+<li>初次接入时，主从双方通过<code>（Addr0, EP0）</code>进行通信</li>
+</ul>
+<br>
+
+<p><strong>主从双方构建读&#x2F;写通信过程：</strong> 主机用默认端点0（EP0）创建通道枚举从机，根据描述符集中的其他端点创建对应通道访问其他功能</p>
+<ul>
+<li>从机必须支持默认控制端点EP0，用于处理设备的配置和状态令牌，此外用其它端点来处理数据传输，如：批量（Bulk）、中断（Interrupt）、等时（Isochronous）或控制（Control）类型的端点。</li>
+<li>初接入时，主机通过<code>（Addr0, EP0）</code>访问从机，创建EP0的端点通道，枚举并分配地址</li>
+<li>而后主机使用<code>（Addr1, EP0）</code>重新枚举从机；根据从机提供的信息（端点、属性）创建相应的数据通道，定义通道读写方式。</li>
+</ul>
+<br>
+
+<p><strong>主从双方通信过程：</strong> 一次完整的通信分为三个过程：请求过程（令牌包）、数据过程（数据包）和状态过程（握手包），没有数据要传输时，则跳过数据过程。每一次帧轮询周期，有以下三种通信过程情况：</p>
+<ul>
+<li>主机发送令牌包（Token）开始请求过程，从机数据输入至主机，主机发送状态过程至从机</li>
+<li>主机发送令牌包（Token）开始请求过程，主机数据输出至从机，从机回复状态过程至主机</li>
+<li>主机发送令牌包（Token）开始请求过程，无数据传输，从机回复状态过程至主机</li>
+</ul>
+<h3 id="USB主从详细通信过程"><a href="#USB主从详细通信过程" class="headerlink" title="USB主从详细通信过程"></a>USB主从详细通信过程</h3><p>在USB通信中，每个USB数据包开始之前，会发送前导码和同步码，确保接收方能够正确地同步并准备接收随后的数据。</p>
+<p>每秒被分为1000个帧（Frame），主机在每帧开始前，会向所有从机广播<strong>帧起始令牌包</strong>（SOF包）</p>
+<ul>
+<li><p>通知所有从机，主机的USB总线正常工作</p>
+</li>
+<li><p>使得从机可以同步主机的时序</p>
+</li>
+<li><p>USB高速设备主机将帧进一步等分为8个微帧，同一帧内，8个微帧的帧号都等于当前SOF包的帧号。</p>
+</li>
+<li><p>PID (Packet Identifier) 字段是每个包中的重要部分，用于标识数据包的类型和状态，通常位于数据包的头部，设计考虑了错误检测，其中高四位是低四位的二进制补码。</p>
+</li>
+</ul>
+<p>以下为SOF包结构：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">pragma</span> data_alignment=1    <span class="comment">//对齐方式为Byte</span></span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">USB_Token_SOF_t</span>&#123;</span></span><br><span class="line">    <span class="type">uint8_t</span>  bPID;          <span class="comment">// 0xA5, SOF（0101B）</span></span><br><span class="line">    <span class="type">uint16_t</span> b11FrameID:<span class="number">11</span>; <span class="comment">// 帧号</span></span><br><span class="line">    <span class="type">uint16_t</span> b5CRC:<span class="number">5</span>;       <span class="comment">// wFrameID字段（11bit）的CRC校验码</span></span><br><span class="line">&#125;USB_Token_SOF_t;</span><br></pre></td></tr></table></figure>
+
+<h4 id="请求过程"><a href="#请求过程" class="headerlink" title="请求过程"></a>请求过程</h4><p>主机广播SOF包之后，会发送带有地址和端点信息的令牌包（Token） 来指定要访问的从机，分别有：建立令牌包（SETUP）、输出令牌包（OUT）、输入令牌包（IN）。</p>
+<p>这三种令牌包统称为请求包，结构如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">pragma</span> data_alignment=1    <span class="comment">//对齐方式为Byte</span></span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">USB_Token_t</span>&#123;</span></span><br><span class="line">    <span class="type">uint8_t</span> bPID;           <span class="comment">// 0xE1, OUT    (0001B);</span></span><br><span class="line">                               <span class="number">0x69</span>, IN     (<span class="number">1001B</span>);</span><br><span class="line">                               <span class="number">0x2D</span>, SETUP  (<span class="number">1101B</span>);</span><br><span class="line">    <span class="type">uint16_t</span> b7Addr:<span class="number">7</span>;      <span class="comment">// 要访问的设备地址</span></span><br><span class="line">    <span class="type">uint16_t</span> b4Endpoint:<span class="number">4</span>;  <span class="comment">// 要访问的端点号</span></span><br><span class="line">    <span class="type">uint16_t</span> b5CRC:<span class="number">5</span>;       <span class="comment">// wFrameID字段（11bit）的CRC校验码</span></span><br><span class="line">&#125;USB_Token_t;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>主机可以通过请求包指定要访问的从机，发起请求过程，配置从机或指示从机准备发送&#x2F;接收数据。在枚举过程中，主机使用SETUP包请求从机的信息。枚举成功后，主机使用IN包请求输入数据，OUT包请求输出数据。<br>    枚举时，在SETUP包的后面会紧跟一个8B长度的请求（Request），用于描述主机的具体意图，结构如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">pragma</span> data_alignment=1    <span class="comment">//对齐方式为Byte</span></span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">USB_Request_t</span>&#123;</span></span><br><span class="line">    <span class="type">uint8_t</span>  bmRequestType; <span class="comment">// 请求类型</span></span><br><span class="line">    <span class="type">uint8_t</span>  bRequest;      <span class="comment">// 具体请求，参考USB 2.0 Spec Chapter 9.4</span></span><br><span class="line">    <span class="type">uint16_t</span> wValue;        <span class="comment">// 内容和Request有关</span></span><br><span class="line">    <span class="type">uint16_t</span> wIndex;        <span class="comment">// 内容和Request有关</span></span><br><span class="line">    <span class="type">uint16_t</span> wLength;       <span class="comment">// 数据过程可传输的最大字节数</span></span><br><span class="line">&#125;USB_Request_t;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">bmRequestType_t</span>&#123;</span></span><br><span class="line">    <span class="type">uint8_t</span> b5Recipient:<span class="number">5</span>;  <span class="comment">// 0 = Device, 1 = Interface</span></span><br><span class="line">                               <span class="number">2</span> = Endpoint, <span class="number">3</span> = Other</span><br><span class="line">                               <span class="number">4.</span><span class="number">.31</span> = Reserved</span><br><span class="line">    <span class="type">uint8_t</span> b2Type:<span class="number">2</span>;       <span class="comment">// 0 = Standard, 1 = Class</span></span><br><span class="line">                               <span class="number">2</span> = Vendor, <span class="number">3</span> = Reserved</span><br><span class="line">    <span class="type">uint8_t</span> b1Direction:<span class="number">1</span>;  <span class="comment">// 0 = Host-to-device</span></span><br><span class="line">                               <span class="number">1</span> = Device-to-host</span><br><span class="line">&#125;bmRequestType_t;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+<h4 id="数据过程"><a href="#数据过程" class="headerlink" title="数据过程"></a>数据过程</h4><p>请求的bmRequestType字段中，Direction标志位声明了数据要传输的方向。<br>    当请求为输出（Data OUT，Direction &#x3D; 1）时，从机接收不超过wLength字段中声明长度的数据，并根据请求的内容解析接收到的数据；当请求为输入时（Data IN，Direction &#x3D; 0）时，从机根据请求的内容发送对应的数据（不超过wLength中声明的长度）。<br>    数据包（Data Packets）的结构如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">pragma</span> data_alignment=1    <span class="comment">//对齐方式为Byte</span></span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">USB_Data_Packet_t</span>&#123;</span></span><br><span class="line">    <span class="type">uint8_t</span> bPID;           <span class="comment">// 0xC3, DATA0 (0011B); even</span></span><br><span class="line">                               <span class="number">0x4B</span>, DATA1 (<span class="number">1011B</span>); odd</span><br><span class="line">                               <span class="number">0x87</span>, DATA2 (<span class="number">0111B</span>); <span class="keyword">for</span> usb high speed</span><br><span class="line">                               <span class="number">0x0F</span>, MDATA (<span class="number">1111B</span>); <span class="keyword">for</span> usb high speed</span><br><span class="line">    <span class="type">uint8_t</span> bData[];        <span class="comment">// 0 ~ 8192B</span></span><br><span class="line">    <span class="type">uint16_t</span> wCRC16;        <span class="comment">// bData字段的CRC校验码</span></span><br><span class="line">&#125;USB_Data_Packet_t;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>在USB全速设备中，数据包以DATA0、DATA1的PID交替发送。当接收方连续收到两个PID相同的DATA包时，就知道丢包了。DATA2与MDATA是USB高速设备所使用的PID</p>
+<h4 id="状态过程"><a href="#状态过程" class="headerlink" title="状态过程"></a>状态过程</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">pragma</span> data_alignment=1    <span class="comment">//对齐方式为Byte</span></span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">USB_Handshake_t</span>&#123;</span></span><br><span class="line">    <span class="type">uint8_t</span> bPID;           <span class="comment">// 0xD2, ACK    (0010B); 确认接收</span></span><br><span class="line">                               <span class="number">0x5A</span>, NAK    (<span class="number">1010B</span>); 没有数据要返回</span><br><span class="line">                               <span class="number">0x1E</span>, STALL  (<span class="number">1110B</span>); 无法执行的请求</span><br><span class="line">                               <span class="number">0x96</span>, NYET   (<span class="number">0110B</span>); 接收成功但无法</span><br><span class="line">                            接收下一次数据，仅在usb高速设备中使用。下</span><br><span class="line">                            次主机发送数据需要先发送PING包试探设备。</span><br><span class="line">&#125;USB_Handshake_t;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>通信异常<br>    当从机还没准备好时主机请求数据；从机收到未知请求；端点通信数据量溢出；主机不应发送的请求；或没有数据要发送等情况时，本轮通信会直接进入状态过程，从机发送NYET&#x2F;ERR&#x2F;STALL&#x2F;NAK包。<br>    当数据传输出错时，数据的发送方停止发送数据，直到本次通信超时。</p>
+<h4 id="USB通信过程小结"><a href="#USB通信过程小结" class="headerlink" title="USB通信过程小结"></a>USB通信过程小结</h4><p>USB的帧结构允许主机在同一帧内与多个从机进行通信。</p>
+<p>每个USB帧以一个SOF（Start Of Frame）包开始，它标志着一个新的帧周期的开始，帧周期通常是1毫秒。</p>
+<p>在一个帧内，主机可以与多个从机进行通信，通过令牌包（Token Packet）来发起数据传输。<br>指定 地址、端点</p>
+<h3 id="从机属性（USB描述符）"><a href="#从机属性（USB描述符）" class="headerlink" title="从机属性（USB描述符）"></a>从机属性（USB描述符）</h3><p>描述符集描述了从机的所有功能细节，包含唯一的设备描述符，至少一个配置描述符和接口描述符，每个接口描述符至少包含一个端点描述符，此外还有其他可选的特殊描述符进行补充。</p>
+<p>USB描述符是用来描述USB设备特性的数据结构：<br>设备描述符（Device Descriptor）</p>
+<blockquote>
+<p>描述整个USB设备的基本信息，如设备类型、版本号、制造商和产品信息等。</p>
+</blockquote>
+<p>配置描述符（Configuration Descriptor）</p>
+<blockquote>
+<p>描述设备的一个配置，包括设备如何被配置和使用的信息。一个配置描述符可以包含多个接口描述符。</p>
+</blockquote>
+<p>接口描述符（Interface Descriptor）</p>
+<blockquote>
+<p>描述设备的一个功能接口，如音频接口或HID接口。一个接口描述符可以包含多个端点描述符。</p>
+</blockquote>
+<p>端点描述符（Endpoint Descriptor）</p>
+<blockquote>
+<p>描述数据传输的端点，包括端点的地址、类型（如控制、批量、中断或同步流）和最大数据包大小等。<br>端点0通常用于控制传输，其他端点用于数据传输。</p>
+</blockquote>
+<h3 id="枚举的详细过程"><a href="#枚举的详细过程" class="headerlink" title="枚举的详细过程"></a>枚举的详细过程</h3><p>USB设备接入后，主机复位从机，使用&lt;addr0, EP0&gt;构建端点通道（Pipe）请求设备描述符，从机发送完整的设备描述符或只发送前8B内容（当EP0最大包长度只有8B）；</p>
+<p>主机分配唯一的设备地址并发送Set Address请求，收到应答后再次复位从机；</p>
+<p>主机再次请求完整的设备描述符，当一次请求不足以获取完整的描述符，主机会请求多次；</p>
+<p>主机请求完整的配置描述符；</p>
+<p>根据设备描述符和配置描述符中声明的字符串描述符索引号，请求所有字符串描述符；<br>    <br>（可选）主机请求限定符描述符，当描述符中声明了支持更高速的USB协议时，主机复位从机，用新的USB协议重新枚举从机，当获取描述符失败时，认为从机不支持此功能，按原协议重新枚举并跳过此步骤；<br>    <br>根据配置描述符中声明的集合长度，请求配置集合。其中配置集合包括配置描述符、接口描述符、端点描述符以及特殊类描述符。当从机包含多个配置描述符集合时，会多次请求。<br>    <br>主机请求选择配置（Set Configuration）；<br>    <br>主机选择接口，请求接口空闲状态（Set Idle），此时接口生效。根据接口描述符，可能会请求其他的特殊描述符（一般这些描述符是对接口描述符的补充描述）。如果从机包含多个接口，此步骤会重复多次；<br>    <br>主机知道USB设备的类型、通信方式和工作方式后，采用恰当的对策轮询USB设备。在Windows平台，主机完成枚举后会给从机派发相应的驱动（符合官方支持的设备标准）或者不派发驱动（找不到对应驱动，需要手动安装）。</p>
+<h2 id="USB设备类别与业务应用"><a href="#USB设备类别与业务应用" class="headerlink" title="USB设备类别与业务应用"></a>USB设备类别与业务应用</h2><h3 id="PD快充协议"><a href="#PD快充协议" class="headerlink" title="PD快充协议"></a>PD快充协议</h3><p>用到专用标识快充的 引脚</p>
+<h3 id="HID设备"><a href="#HID设备" class="headerlink" title="HID设备"></a>HID设备</h3><p>人机交互设备，最早起源于USB，后面也扩展到 蓝牙、Wi-Fi等领域概念中</p>
+<h3 id="UAC"><a href="#UAC" class="headerlink" title="UAC"></a>UAC</h3><p>SPK、MIC</p>
+<h3 id="CDC"><a href="#CDC" class="headerlink" title="CDC"></a>CDC</h3><p><code>//apps/soundbox/task</code></p>
+<p>app-USB设备事件 》 从机事件 》 cdc处理</p>
+<h2 id="疑惑解答及扩展思考"><a href="#疑惑解答及扩展思考" class="headerlink" title="疑惑解答及扩展思考"></a>疑惑解答及扩展思考</h2><h4 id="端点与描述符的区别与联系？"><a href="#端点与描述符的区别与联系？" class="headerlink" title="端点与描述符的区别与联系？"></a>端点与描述符的区别与联系？</h4><ul>
+<li><p>端点是USB设备中用于数据传输的实际逻辑通道。</p>
+</li>
+<li><p>描述符则是用来描述端点以及其他USB设备特性的数据结构。</p>
+</li>
+</ul>
+<p>USB描述符在USB通信的不同阶段都会被用到，如：<br>在设备枚举时，读取设备描述符；<br>配置设置时，通过读取配置描述符，并进行配置；<br>读取接口描述符，例如HID接口、UAC接口，可以激活或禁用特定接口；<br>端点配置，根据端点描述符配置数据传输；在数据传输过程中，主机使用端点描述符中提供的信息来控制数据的发送和接收。</p>
+<h4 id="雷电接口与USB接口的区别、联系？"><a href="#雷电接口与USB接口的区别、联系？" class="headerlink" title="雷电接口与USB接口的区别、联系？"></a>雷电接口与USB接口的区别、联系？</h4><p>USB：由多家公司合作开发，包括英特尔、微软、IBM等，目的是创建一个通用的接口标准<br>雷电接口：由英特尔和苹果公司合作开发，旨在提供一种高速数据传输接口</p>
+<p>雷电接口：可以兼容USB设备，但提供了额外的功能和更高的性能。</p>
+<h4 id="USB接口的端点数受到什么限制？"><a href="#USB接口的端点数受到什么限制？" class="headerlink" title="USB接口的端点数受到什么限制？"></a>USB接口的端点数受到什么限制？</h4><p>为什么有些USB设备端点数有限？</p>
+<h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/jimaofu0494/article/details/109233087">USB原理：从零基础入门到放弃</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2024/07/26/%E8%93%9D%E7%89%99%E5%BA%94%E7%94%A8%E4%B8%9A%E5%8A%A1%E5%BC%80%E5%8F%91/" rel="prev" title="蓝牙协议栈及基础业务应用概念简述">
+      <i class="fa fa-chevron-left"></i> 蓝牙协议栈及基础业务应用概念简述
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2024/08/03/%E4%BD%8E%E5%8A%9F%E8%80%97%E8%93%9D%E7%89%99BLE-Profile%E4%BB%8B%E7%BB%8D/" rel="next" title="BLE Profile概述">
+      BLE Profile概述 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#USB%E8%AE%BE%E5%A4%87%E5%AF%BC%E8%AE%BA"><span class="nav-number">1.</span> <span class="nav-text">USB设备导论</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#USB%E7%A1%AC%E4%BB%B6%E6%8E%A5%E5%8F%A3%E7%B1%BB%E5%9E%8B"><span class="nav-number">1.1.</span> <span class="nav-text">USB硬件接口类型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B8%B8%E8%A7%81%E7%9A%84USB%E8%AE%BE%E5%A4%87%E5%BA%94%E7%94%A8"><span class="nav-number">1.2.</span> <span class="nav-text">常见的USB设备应用</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#USB%E5%9F%BA%E6%9C%AC%E5%8E%9F%E7%90%86%E4%BB%8B%E7%BB%8D"><span class="nav-number">2.</span> <span class="nav-text">USB基本原理介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%8E%E6%8E%A5%E5%85%A5%E5%88%B0%E4%BD%BF%E7%94%A8"><span class="nav-number">2.1.</span> <span class="nav-text">从接入到使用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#USB%E9%80%9A%E4%BF%A1%E6%9E%84%E5%BB%BA%E8%BF%87%E7%A8%8B%E6%A6%82%E8%BF%B0"><span class="nav-number">2.2.</span> <span class="nav-text">USB通信构建过程概述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#USB%E4%B8%BB%E4%BB%8E%E8%AF%A6%E7%BB%86%E9%80%9A%E4%BF%A1%E8%BF%87%E7%A8%8B"><span class="nav-number">2.3.</span> <span class="nav-text">USB主从详细通信过程</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%AF%B7%E6%B1%82%E8%BF%87%E7%A8%8B"><span class="nav-number">2.3.1.</span> <span class="nav-text">请求过程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E8%BF%87%E7%A8%8B"><span class="nav-number">2.3.2.</span> <span class="nav-text">数据过程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%8A%B6%E6%80%81%E8%BF%87%E7%A8%8B"><span class="nav-number">2.3.3.</span> <span class="nav-text">状态过程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#USB%E9%80%9A%E4%BF%A1%E8%BF%87%E7%A8%8B%E5%B0%8F%E7%BB%93"><span class="nav-number">2.3.4.</span> <span class="nav-text">USB通信过程小结</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%8E%E6%9C%BA%E5%B1%9E%E6%80%A7%EF%BC%88USB%E6%8F%8F%E8%BF%B0%E7%AC%A6%EF%BC%89"><span class="nav-number">2.4.</span> <span class="nav-text">从机属性（USB描述符）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9E%9A%E4%B8%BE%E7%9A%84%E8%AF%A6%E7%BB%86%E8%BF%87%E7%A8%8B"><span class="nav-number">2.5.</span> <span class="nav-text">枚举的详细过程</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#USB%E8%AE%BE%E5%A4%87%E7%B1%BB%E5%88%AB%E4%B8%8E%E4%B8%9A%E5%8A%A1%E5%BA%94%E7%94%A8"><span class="nav-number">3.</span> <span class="nav-text">USB设备类别与业务应用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#PD%E5%BF%AB%E5%85%85%E5%8D%8F%E8%AE%AE"><span class="nav-number">3.1.</span> <span class="nav-text">PD快充协议</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#HID%E8%AE%BE%E5%A4%87"><span class="nav-number">3.2.</span> <span class="nav-text">HID设备</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#UAC"><span class="nav-number">3.3.</span> <span class="nav-text">UAC</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CDC"><span class="nav-number">3.4.</span> <span class="nav-text">CDC</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%96%91%E6%83%91%E8%A7%A3%E7%AD%94%E5%8F%8A%E6%89%A9%E5%B1%95%E6%80%9D%E8%80%83"><span class="nav-number">4.</span> <span class="nav-text">疑惑解答及扩展思考</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%AB%AF%E7%82%B9%E4%B8%8E%E6%8F%8F%E8%BF%B0%E7%AC%A6%E7%9A%84%E5%8C%BA%E5%88%AB%E4%B8%8E%E8%81%94%E7%B3%BB%EF%BC%9F"><span class="nav-number">4.0.1.</span> <span class="nav-text">端点与描述符的区别与联系？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%9B%B7%E7%94%B5%E6%8E%A5%E5%8F%A3%E4%B8%8EUSB%E6%8E%A5%E5%8F%A3%E7%9A%84%E5%8C%BA%E5%88%AB%E3%80%81%E8%81%94%E7%B3%BB%EF%BC%9F"><span class="nav-number">4.0.2.</span> <span class="nav-text">雷电接口与USB接口的区别、联系？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#USB%E6%8E%A5%E5%8F%A3%E7%9A%84%E7%AB%AF%E7%82%B9%E6%95%B0%E5%8F%97%E5%88%B0%E4%BB%80%E4%B9%88%E9%99%90%E5%88%B6%EF%BC%9F"><span class="nav-number">4.0.3.</span> <span class="nav-text">USB接口的端点数受到什么限制？</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E7%AB%99%E7%82%B9"><span class="nav-number">5.</span> <span class="nav-text">参考站点</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">cjd</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">40</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">cjd</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="Symbols count total">90k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">5:02</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":"enable","trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="&emsp;&emsp;GN是一个用于生成工程构建配置文件的工具，而Ninja工具用于替代Make、执行实际构建过程，其构建过程快速、高效，二者通常一起使用。 &emsp;&emsp;要移植鸿蒙LiteOS-M、了解其源码工程之构建，那么熟悉GN和Ninja的编译构建方式是必要的，本文介绍个人对GN与Ninja的学习与理解，主要目的为辅助理解OpenHarmony-LiteOS-M工程。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="GN和Ninja构建工具的基础入门、进阶和应用开发">
+<meta property="og:url" content="http://example.com/2023/12/24/GN%E5%92%8Cninja%E7%9A%84%E5%8C%BA%E5%88%AB%E3%80%81%E8%81%94%E7%B3%BB%E5%92%8C%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/index.html">
+<meta property="og:site_name" content="Jindu-Chen">
+<meta property="og:description" content="&emsp;&emsp;GN是一个用于生成工程构建配置文件的工具，而Ninja工具用于替代Make、执行实际构建过程，其构建过程快速、高效，二者通常一起使用。 &emsp;&emsp;要移植鸿蒙LiteOS-M、了解其源码工程之构建，那么熟悉GN和Ninja的编译构建方式是必要的，本文介绍个人对GN与Ninja的学习与理解，主要目的为辅助理解OpenHarmony-LiteOS-M工程。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2023-12-23T16:00:00.000Z">
+<meta property="article:modified_time" content="2024-08-24T06:19:15.107Z">
+<meta property="article:author" content="cjd">
+<meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2023/12/24/GN%E5%92%8Cninja%E7%9A%84%E5%8C%BA%E5%88%AB%E3%80%81%E8%81%94%E7%B3%BB%E5%92%8C%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>GN和Ninja构建工具的基础入门、进阶和应用开发 | Jindu-Chen</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Jindu-Chen</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">风物长宜放眼量</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/12/24/GN%E5%92%8Cninja%E7%9A%84%E5%8C%BA%E5%88%AB%E3%80%81%E8%81%94%E7%B3%BB%E5%92%8C%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="cjd">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jindu-Chen">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          GN和Ninja构建工具的基础入门、进阶和应用开发
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-12-24 00:00:00" itemprop="dateCreated datePublished" datetime="2023-12-24T00:00:00+08:00">2023-12-24</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-08-24 14:19:15" itemprop="dateModified" datetime="2024-08-24T14:19:15+08:00">2024-08-24</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/LiteOS/" itemprop="url" rel="index"><span itemprop="name">LiteOS</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/OpenHarmony/" itemprop="url" rel="index"><span itemprop="name">OpenHarmony</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>2.8k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>9 mins.</span>
+            </span>
+            <div class="post-description">&emsp;&emsp;GN是一个用于生成工程构建配置文件的工具，而Ninja工具用于替代Make、执行实际构建过程，其构建过程快速、高效，二者通常一起使用。<br>
+&emsp;&emsp;要移植鸿蒙LiteOS-M、了解其源码工程之构建，那么熟悉GN和Ninja的编译构建方式是必要的，本文介绍个人对GN与Ninja的学习与理解，主要目的为辅助理解OpenHarmony-LiteOS-M工程。
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <ul>
+<li>本文是个人对GN文件的理解，可能知识体系上有些凌乱分散，与官方表述上有些许出入</li>
+<li>文章主要为谈及GN文件的常见重要概念，并基于此引申出代码示例及解释</li>
+</ul>
+<h2 id="基本介绍"><a href="#基本介绍" class="headerlink" title="基本介绍"></a>基本介绍</h2><p>GN文件使用GN语言编写，其是一种基于脚本的语言，用于定义构建系统的规则和目标</p>
+<ul>
+<li>gn即Generate ninja，gn与ninja的关系 类似于 cmake与make</li>
+<li>GN文件可以用于构建各种类型的项目，包括C++、Java、Python项目<br></li>
+</ul>
+<p>ninja用于执行GN文件定义的规则和目标，其是一个C++编写的构建工具，可以生成高效的构建命令，提高构建速度<br><br></p>
+<h2 id="基本概念与语法"><a href="#基本概念与语法" class="headerlink" title="基本概念与语法"></a>基本概念与语法</h2><p>.gn是源文件，.gni是头文件，源文件可通过import引用头文件，也可使用import导入源文件</p>
+<blockquote>
+<p>如：<code>import(&quot;//build/config/c++/c++.gni&quot;)</code><br><br></p>
+</blockquote>
+<p>GN的基本概念包括：<strong>变量、函数、目标、规则、配置项、模块</strong></p>
+<ul>
+<li>变量：用于存储值</li>
+<li>函数：用于执行操作</li>
+<li>目标：用于表示构建过程中的某个对象，例如文件、库或可执行文件；<strong>目标是GN构建系统的基本单位</strong></li>
+<li>规则：用于定义目标的构建方式</li>
+<li>配置项：用于控制构建过程的行为</li>
+<li>模块：一种组织和管理代码的方式，可以包含变量、函数、目标、规则等，便于模块化地管理和复用构建配置</li>
+</ul>
+<h3 id="变量"><a href="#变量" class="headerlink" title="变量"></a>变量</h3><p>GN中的变量可以使用set_default_variable()函数进行定义。变量的值可以是字符串、数字、布尔值或列表</p>
+<ul>
+<li>变量可以存储构建过程中使用的常量值，如 参数、目标类型、选项</li>
+<li>如<code>set_default_variable(&quot;target_os&quot;, &quot;linux&quot;)</code>，设置操作系统为linux</li>
+</ul>
+<br>
+
+<p><strong>内置变量：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">target_os：当前目标的操作系统</span><br><span class="line">target_cpu：当前目标的处理器架构</span><br><span class="line">target_toolchain：当前目标的工具链</span><br><span class="line">target_out_dir：当前目标的输出目录，默认值是//out/target_name/</span><br><span class="line">target_gen_dir：当前目标的生成目录</span><br><span class="line">root_build_dir：构建系统的根目录</span><br><span class="line">buildconfig：构建系统的配置文件</span><br></pre></td></tr></table></figure>
+<br>
+
+<p><strong>变量类型：数字、字符串、布尔值、列表、映射</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">x = &quot;Hello, world!&quot;</span><br><span class="line">y = 10</span><br><span class="line">z = true</span><br><span class="line"></span><br><span class="line">// 定义一个名为 list 的列表变量</span><br><span class="line">list = [ &quot;a&quot;, &quot;b&quot;, &quot;c&quot; ]</span><br><span class="line"></span><br><span class="line">// 定义一个名为 map 的映射变量</span><br><span class="line">map = &#123;</span><br><span class="line">&quot;key1&quot; = &quot;value1&quot;,</span><br><span class="line">&quot;key2&quot; = &quot;value2&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<br>
+
+<p><strong><code>$&#123;&#125;</code>–字符串插值操作符用于在字符串中插入变量、表达式或函数调用的值，如：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">x = 10</span><br><span class="line">println(&quot;The value of x is $&#123;x&#125;&quot;)</span><br></pre></td></tr></table></figure>
+
+<h3 id="函数"><a href="#函数" class="headerlink" title="函数"></a>函数</h3><p>GN的函数形式与C语言的类似，由函数名、参数列表和函数体组成</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">function_name(parameter_list) &#123;</span><br><span class="line">// 函数体</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>用户可以使用内置函数或自定义函数</p>
+<p>内置函数包括有如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">assert()：断言函数，如果条件不成立，则抛出异常</span><br><span class="line">concat()：字符串拼接函数</span><br><span class="line">defined()：判断变量是否定义了的函数</span><br><span class="line">dirname()：获取目录名的函数</span><br><span class="line">file()：获取文件名的函数</span><br><span class="line">join()：字符串连接函数</span><br><span class="line">path()：获取路径名的函数</span><br><span class="line">read_file()：读取文件的函数</span><br><span class="line">write_file()：写入文件的函数</span><br></pre></td></tr></table></figure>
+<br>
+
+<p><strong>其中，read_file()示例如下：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"># config.json</span><br><span class="line">&#123;</span><br><span class="line">&quot;product_name&quot;: &quot;My Product&quot;,</span><br><span class="line">&quot;product_version&quot;: &quot;1.0.0&quot;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">---</span><br><span class="line"># 读取product_config_path目录下的config.json文件，并将其内容以JSON格式返回</span><br><span class="line">product_cfg = read_file(&quot;$&#123;product_config_path&#125;/config.json&quot;, &quot;json&quot;)</span><br><span class="line"></span><br><span class="line"># 将product_name属性的值赋值给变量product_name</span><br><span class="line">product_name = product_cfg[&quot;product_name&quot;]</span><br></pre></td></tr></table></figure>
+<br>
+
+<p>用户自定义函数以及调用，示例如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">// a.gn</span><br><span class="line">function add(x, y) &#123;</span><br><span class="line">return x + y;</span><br><span class="line">&#125;</span><br><span class="line">---</span><br><span class="line">// b.gn</span><br><span class="line">import(&quot;a.gn&quot;)</span><br><span class="line"></span><br><span class="line">println(&quot;The sum of 1 and 2 is $&#123;add(1, 2)&#125;&quot;)</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="目标"><a href="#目标" class="headerlink" title="目标"></a>目标</h3><p>目标是构建系统要生成的文件或目录，其可以是可执行文件、库、源代码文件、文档等</p>
+<ul>
+<li>BUILD.gn是GN构建系统默认使用的文件名</li>
+<li>目标使用<code>target()</code>语句定义，语法如下：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">target(target_name) &#123;</span><br><span class="line">// 目标配置</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<br></li>
+</ul>
+<p>目标名称必须唯一，可以有以下属性配置项定义：deps-依赖关系、type-目标类型、output-目标输出、public-目标是否公开、configs-目标配置</p>
+<ul>
+<li>子目标可以使用deps属性指定<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">target(&quot;my_executable&quot;) &#123;</span><br><span class="line">type = &quot;executable&quot;       // 指定目标类型为可执行文件</span><br><span class="line">sources = [&quot;main.cc&quot;]     // 指定目标所需要的源文件列表</span><br><span class="line">deps = [&quot;my_library&quot;]     // 依赖关系，系统先构建此子目标</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<br></li>
+</ul>
+<p>GN目标可以使用<code>build</code>命令构建</p>
+<ul>
+<li>如：在当前路径下有BUILD.gn文件，其定义了名为<code>my_executable</code>的目标</li>
+<li>则在命令行输入<code>gn build my_executable</code>表示构建该目标</li>
+<li><code>gn build</code>表示构建所有目标</li>
+<li><code>gn build my_executable:my_sub</code>表示构建目标的子目标my_sub</li>
+</ul>
+<h3 id="配置项"><a href="#配置项" class="headerlink" title="配置项"></a>配置项</h3><p>配置项用于配置GN构建系统的行为，其可以控制：构建目标的类型和输出、构建规则的行为、构建系统的环境</p>
+<ul>
+<li>其可以分为：<strong>目标配置项、规则配置项、环境配置项</strong></li>
+<li>其与目标的联系为：配置项用于定义目标的行为，<strong>目标的配置项可以定义在目标的gn配置文件中</strong><br></li>
+</ul>
+<p>常用的配置项如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">target_type：定义目标的类型</span><br><span class="line">output：定义目标的输出</span><br><span class="line">deps：定义目标的依赖关系</span><br><span class="line">public：定义目标是否公开</span><br><span class="line">configs：定义目标的配置</span><br><span class="line">rule_type：定义规则的类型</span><br><span class="line">deps：定义规则的依赖关系</span><br><span class="line">inputs：定义规则的输入</span><br><span class="line">outputs：定义规则的输出</span><br><span class="line">action：定义规则的操作</span><br><span class="line">script：定义规则的脚本</span><br><span class="line">args：定义规则的参数</span><br><span class="line">vars：定义规则的变量</span><br></pre></td></tr></table></figure>
+
+<p><code>config()</code>函数用于创建配置，其可以指定<strong>配置名称、编译选项、链接选项、依赖关系、宏定义、头文件目录、公开的配置、可见性</strong>等<br></p>
+<p>代码应用示例如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">config(name) &#123;</span><br><span class="line">  options = []</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">config(&quot;my_config&quot;) &#123;</span><br><span class="line">  cflags = [&quot;-Wall&quot;]</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"># 将 my_config 配置应用于 my_target 目标</span><br><span class="line">executable(&quot;my_target&quot;) &#123;</span><br><span class="line">  configs = [&quot;my_config&quot;]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="规则"><a href="#规则" class="headerlink" title="规则"></a>规则</h3><p>GN中的规则可以使用rule()函数进行定义。规则可以指定以下属性：</p>
+<ul>
+<li>inputs：规则需要的输入文件。</li>
+<li>outputs：规则的输出文件。</li>
+<li>action：规则执行的操作。<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">rule(&quot;my_rule&quot;) &#123;</span><br><span class="line">inputs = [&quot;input.txt&quot;]</span><br><span class="line">outputs = [&quot;output.txt&quot;]</span><br><span class="line">action = &quot;echo &#x27;Hello, world!&#x27; &gt; $out&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="模块"><a href="#模块" class="headerlink" title="模块"></a>模块</h3><p>模块可以是任何类型的代码，其可以包含源文件、头文件、库文件等，GN使用模块来组织代码和构建文件。</p>
+<ul>
+<li>如：一个模块可以包含一个应用程序的所有源文件，另一个模块可以包含一个库的所有源文件<br></li>
+</ul>
+<p>GN可使用模块来表示构建过程中的依赖关系</p>
+<ul>
+<li>如：一个模块可以依赖另一个模块的源文件或者库文件<br></li>
+</ul>
+<p>GN中的模块可以分为几种类型：<strong>executable(可执行文件)、library(库文件)、test(测试文件)、group(组模块)、action(动作模块)</strong></p>
+<ul>
+<li>模块可以应用在GN构建系统的任何地方，包括但不限于组织代码、表示依赖关系、执行操作等</li>
+<li>以下示例创建了一个名为my_module的模块，其包含源文件my_module.c，而后创建了一个名为my_executable的可执行文件，其依赖my_module模块<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">module(&quot;my_module&quot;) &#123;</span><br><span class="line">  sources = [&quot;my_module.c&quot;]</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">executable(&quot;my_executable&quot;) &#123;</span><br><span class="line">  sources = [&quot;my_executable.c&quot;]</span><br><span class="line">  deps = [&quot;:my_module&quot;]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<br></li>
+</ul>
+<p>kernel_module() 函数用于创建内核模块。内核模块是运行在操作系统内核中的模块。<br>module() 函数用于创建普通模块。普通模块可以运行在操作系统内核中，也可以运行在操作系统用户空间中</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">kernel_module(name) &#123;</span><br><span class="line">  sources = []</span><br><span class="line">  deps = []</span><br><span class="line">  ldflags = []</span><br><span class="line">  cflags = []</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">module(name) &#123;</span><br><span class="line">  sources = []</span><br><span class="line">  deps = []</span><br><span class="line">  ldflags = []</span><br><span class="line">  cflags = []</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="基本语法"><a href="#基本语法" class="headerlink" title="基本语法"></a>基本语法</h3><ul>
+<li><p>注释：在注释句子的行首加上<code>#</code>即可</p>
+</li>
+<li><p>条件语句</p>
+</li>
+<li><p>循环语句</p>
+</li>
+</ul>
+<h2 id="应用实践范例"><a href="#应用实践范例" class="headerlink" title="应用实践范例"></a>应用实践范例</h2><p>在构建项目时，GN会首先解析GN文件，并将工程的根目录作为起点，开始构建项目</p>
+<ul>
+<li>目录路径中<code>//xxx/xxx/xxx</code>中双斜杠表示工程源码的根</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">rule my_rule &#123;</span><br><span class="line"># 定义规则的输入</span><br><span class="line">input: &quot;input.cpp&quot;</span><br><span class="line"># 定义规则的输出</span><br><span class="line">output: &quot;output.o&quot;</span><br><span class="line"></span><br><span class="line"># 定义规则的执行逻辑</span><br><span class="line">action &#123;</span><br><span class="line">    command: &quot;gcc -c input.cpp -o output.o&quot;</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="GN进阶操作"><a href="#GN进阶操作" class="headerlink" title="GN进阶操作"></a>GN进阶操作</h2><h3 id="自定义模板"><a href="#自定义模板" class="headerlink" title="自定义模板"></a>自定义模板</h3><ul>
+<li>模板是用于重复使用代码的工具。模板可以用于创建目标、配置、或其他 GN 对象</li>
+<li>自定义模板使用<code>template()</code>语句<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">template(name) &#123;</span><br><span class="line">  options = []</span><br><span class="line">  output = &quot;&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li>template() 函数的输出是模板的配置<br></li>
+</ul>
+<p>代码应用示例如下：</p>
+<ul>
+<li>名为 my_executable 的可执行文件，其使用 my_template 模板，包含其模板的所有配置（源文件、依赖）<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">template(&quot;my_template&quot;) &#123;</span><br><span class="line">  sources = [&quot;my_template.c&quot;]</span><br><span class="line">  deps = [&quot;:my_module&quot;]</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">executable(&quot;my_executable&quot;) &#123;</span><br><span class="line">  sources = [&quot;my_executable.c&quot;]</span><br><span class="line">  template = &quot;:my_template&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="group元目标"><a href="#group元目标" class="headerlink" title="group元目标"></a>group元目标</h3><p>group不是目标，目标是指可以生成可执行文件、库文件或其它产物的构建单元。<br><br>group是gn工具提供的一种元目标，其可以用于组织其它目标，但它本身并不生成任何产物。<br></p>
+<p><strong>其用途包括：</strong></p>
+<ul>
+<li>组织具有相同功能或目的的目标：例如，可以将所有驱动程序目标组织到一个group中，将所有库文件目标组织到另一个group中</li>
+<li>定义依赖关系：例如，可以将一个group定义为另一个group的依赖，这样，如果第一个group中的任何一个目标被编译，则第二个group中的所有目标也会被编译</li>
+<li>提供文档：group可以包含文档，这些文档将在gn工具生成的输出中显示。</li>
+</ul>
+<p><strong>一个应用示例如下：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">group(&quot;drivers&quot;) &#123;</span><br><span class="line">  deps = [</span><br><span class="line">    &quot;//drivers/usb/host&quot;,</span><br><span class="line">    &quot;//drivers/ethernet&quot;,</span><br><span class="line">    &quot;//drivers/storage&quot;,</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">group(&quot;libraries&quot;) &#123;</span><br><span class="line">  deps = [</span><br><span class="line">    &quot;//libraries/lib1&quot;,</span><br><span class="line">    &quot;//libraries/lib2&quot;,</span><br><span class="line">    &quot;//libraries/lib3&quot;,</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>以上代码定义了两个group，drivers目标依赖于&#x2F;&#x2F;drivers&#x2F;usb&#x2F;host、&#x2F;&#x2F;drivers&#x2F;ethernet和&#x2F;&#x2F;drivers&#x2F;storage三个目标。libraries目标依赖于&#x2F;&#x2F;libraries&#x2F;lib1、&#x2F;&#x2F;libraries&#x2F;lib2和&#x2F;&#x2F;libraries&#x2F;lib3三个目标</li>
+<li>在gn工具生成的输出中，drivers和libraries两个group将显示为一个单独的目标</li>
+</ul>
+<h2 id="补充说明以及疑惑解答"><a href="#补充说明以及疑惑解答" class="headerlink" title="补充说明以及疑惑解答"></a>补充说明以及疑惑解答</h2><h3 id="config-“public”-的应用"><a href="#config-“public”-的应用" class="headerlink" title="config(“public”)的应用"></a>config(“public”)的应用</h3><p>在gn文件中，如果多个文件都定义了config(“public”)的include_dirs属性，那么它们的这个属性值将会叠加，而不是互相覆盖<br><br></p>
+<p>config(“public”)是一个用来定义公共配置的语法。公共配置可以被其他模块引用，以便共享相同的设置</p>
+<ul>
+<li>当然，config(“public”)并不表示其一定是整个工程公开的，其需要配置，可以通过configs属性来引用</li>
+<li>如果一个模块的configs属性中包含了config(“public”)，则其会继承config(“public”)的所有设置，并且该模块的设置将会公开可见</li>
+<li>通常做法为：在GN文件中包含统一的头文件，而后在此头文件中包含config(“public”)属性</li>
+</ul>
+<h3 id="GN文件中如何包含工程源码的头文件路径？"><a href="#GN文件中如何包含工程源码的头文件路径？" class="headerlink" title="GN文件中如何包含工程源码的头文件路径？"></a>GN文件中如何包含工程源码的头文件路径？</h3><p>可以使用<code>include_dirs</code>属性指定C头文件的路径，此属性是一个列表，代码示例如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">target(&quot;my_executable&quot;) &#123;</span><br><span class="line">type = &quot;executable&quot;</span><br><span class="line">sources = [&quot;main.c&quot;]</span><br><span class="line">include_dirs = [&quot;/usr/include/my_headers&quot;]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>也可使用<code>public_configs</code>属性，此属性列表包含了<code>include_dirs</code>属性的配置</p>
+<ul>
+<li>以下代码示例，指示构建系统在<code>//configs:my_config</code>配置中搜索<code>include_dirs</code>配置<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">target(&quot;my_executable&quot;) &#123;</span><br><span class="line">type = &quot;executable&quot;</span><br><span class="line">sources = [&quot;main.c&quot;]</span><br><span class="line">public_configs = [&quot;//configs:my_config&quot;]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+<li><code>include_dirs</code>属性应用示例如下：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">// 指定一个目录：</span><br><span class="line">include_dirs = [&quot;/usr/include/my_headers&quot;]</span><br><span class="line">// 指定多个目录：</span><br><span class="line">include_dirs = [&quot;/usr/include/my_headers&quot;, &quot;/usr/include/other_headers&quot;]</span><br><span class="line">// 指定相对路径：</span><br><span class="line">include_dirs = [&quot;../include&quot;]</span><br><span class="line">// 指定通配符：</span><br><span class="line">include_dirs = [&quot;**/*.h&quot;]</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://bbs.huaweicloud.com/blogs/382860">[gn+ninja学习 0x01]gn和ninja是什么</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/12/22/%E5%B5%8C%E5%85%A5%E5%BC%8FMCU%E8%87%AA%E5%8A%A8%E5%88%9D%E5%A7%8B%E5%8C%96/" rel="prev" title="嵌入式自动初始化">
+      <i class="fa fa-chevron-left"></i> 嵌入式自动初始化
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2023/12/29/Harmony-LiteOS-M%E5%86%85%E6%A0%B8%E4%B9%8BGN%E8%AE%BE%E8%AE%A1%E8%A7%A3%E6%9E%90/" rel="next" title="OpenHarmony-LiteOS-M内核之编译构建及移植适配过程解析">
+      OpenHarmony-LiteOS-M内核之编译构建及移植适配过程解析 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E4%BB%8B%E7%BB%8D"><span class="nav-number">1.</span> <span class="nav-text">基本介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5%E4%B8%8E%E8%AF%AD%E6%B3%95"><span class="nav-number">2.</span> <span class="nav-text">基本概念与语法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%98%E9%87%8F"><span class="nav-number">2.1.</span> <span class="nav-text">变量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%87%BD%E6%95%B0"><span class="nav-number">2.2.</span> <span class="nav-text">函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%9B%AE%E6%A0%87"><span class="nav-number">2.3.</span> <span class="nav-text">目标</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE%E9%A1%B9"><span class="nav-number">2.4.</span> <span class="nav-text">配置项</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A7%84%E5%88%99"><span class="nav-number">2.5.</span> <span class="nav-text">规则</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A8%A1%E5%9D%97"><span class="nav-number">2.6.</span> <span class="nav-text">模块</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E8%AF%AD%E6%B3%95"><span class="nav-number">2.7.</span> <span class="nav-text">基本语法</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BA%94%E7%94%A8%E5%AE%9E%E8%B7%B5%E8%8C%83%E4%BE%8B"><span class="nav-number">3.</span> <span class="nav-text">应用实践范例</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#GN%E8%BF%9B%E9%98%B6%E6%93%8D%E4%BD%9C"><span class="nav-number">4.</span> <span class="nav-text">GN进阶操作</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%87%AA%E5%AE%9A%E4%B9%89%E6%A8%A1%E6%9D%BF"><span class="nav-number">4.1.</span> <span class="nav-text">自定义模板</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#group%E5%85%83%E7%9B%AE%E6%A0%87"><span class="nav-number">4.2.</span> <span class="nav-text">group元目标</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A1%A5%E5%85%85%E8%AF%B4%E6%98%8E%E4%BB%A5%E5%8F%8A%E7%96%91%E6%83%91%E8%A7%A3%E7%AD%94"><span class="nav-number">5.</span> <span class="nav-text">补充说明以及疑惑解答</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#config-%E2%80%9Cpublic%E2%80%9D-%E7%9A%84%E5%BA%94%E7%94%A8"><span class="nav-number">5.1.</span> <span class="nav-text">config(“public”)的应用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#GN%E6%96%87%E4%BB%B6%E4%B8%AD%E5%A6%82%E4%BD%95%E5%8C%85%E5%90%AB%E5%B7%A5%E7%A8%8B%E6%BA%90%E7%A0%81%E7%9A%84%E5%A4%B4%E6%96%87%E4%BB%B6%E8%B7%AF%E5%BE%84%EF%BC%9F"><span class="nav-number">5.2.</span> <span class="nav-text">GN文件中如何包含工程源码的头文件路径？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E7%AB%99%E7%82%B9"><span class="nav-number">6.</span> <span class="nav-text">参考站点</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">cjd</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">40</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">cjd</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="Symbols count total">90k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">5:02</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

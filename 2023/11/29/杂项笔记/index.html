@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":"enable","trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="记录日常辅助开发中所涉及到的杂项操作，包括运维工具、开发辅助工具、日常工具等的相关操作，为检索使用">
+<meta property="og:type" content="article">
+<meta property="og:title" content="杂项笔记">
+<meta property="og:url" content="http://example.com/2023/11/29/%E6%9D%82%E9%A1%B9%E7%AC%94%E8%AE%B0/index.html">
+<meta property="og:site_name" content="Jindu-Chen">
+<meta property="og:description" content="记录日常辅助开发中所涉及到的杂项操作，包括运维工具、开发辅助工具、日常工具等的相关操作，为检索使用">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2023-11-28T16:00:00.000Z">
+<meta property="article:modified_time" content="2024-08-24T06:19:15.115Z">
+<meta property="article:author" content="cjd">
+<meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2023/11/29/%E6%9D%82%E9%A1%B9%E7%AC%94%E8%AE%B0/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>杂项笔记 | Jindu-Chen</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Jindu-Chen</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">风物长宜放眼量</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/11/29/%E6%9D%82%E9%A1%B9%E7%AC%94%E8%AE%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="cjd">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jindu-Chen">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          杂项笔记
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-11-29 00:00:00" itemprop="dateCreated datePublished" datetime="2023-11-29T00:00:00+08:00">2023-11-29</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-08-24 14:19:15" itemprop="dateModified" datetime="2024-08-24T14:19:15+08:00">2024-08-24</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/MISC/" itemprop="url" rel="index"><span itemprop="name">MISC</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>1.4k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>5 mins.</span>
+            </span>
+            <div class="post-description">记录日常辅助开发中所涉及到的杂项操作，包括运维工具、开发辅助工具、日常工具等的相关操作，为检索使用</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="J-Link-J-Flash"><a href="#J-Link-J-Flash" class="headerlink" title="J-Link&#x2F;J-Flash"></a>J-Link&#x2F;J-Flash</h2><h3 id="J-Flash批处理脚本配置烧录"><a href="#J-Flash批处理脚本配置烧录" class="headerlink" title="J-Flash批处理脚本配置烧录"></a>J-Flash批处理脚本配置烧录</h3><p>当然，前提是要添加J-Link的可执行程序路径到<code>$PATH</code>环境变量中</p>
+<ul>
+<li>program.bat脚本代码如下，参考修改即可：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">echo start...</span><br><span class="line"></span><br><span class="line">JLink -device N32L406CB -if swd -speed 4000 -CommanderScript &quot;C:\Users\Breo\Desktop\Wireless moxibustion\Software\program.jlink&quot;</span><br></pre></td></tr></table></figure></li>
+<li>program.jlink文件代码如下，其中目标设备、文件路径、烧录地址等根据需要配置：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">connect</span><br><span class="line">device N32L406CB</span><br><span class="line">si SWD</span><br><span class="line">speed 4000</span><br><span class="line">h         // halt-停止</span><br><span class="line">r           // 复位，可以考虑去掉</span><br><span class="line">erase           // 或 erase 0x8002800，去掉也行，但可能会出现error fail address 0x00000000错误提示</span><br><span class="line"></span><br><span class="line">loadfile app.bin 0x8002800      // loadfile app.hex 或 loadfile app.bin 0x8000000</span><br><span class="line">verifybin app.bin 0x8002800</span><br><span class="line">r</span><br><span class="line">go        // r go表示reset and run</span><br><span class="line">q     // 退出J-Link命令行工具</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="J-Link-J-Flash-读取单片机内部Flash内容"><a href="#J-Link-J-Flash-读取单片机内部Flash内容" class="headerlink" title="J-Link&#x2F;J-Flash 读取单片机内部Flash内容"></a>J-Link&#x2F;J-Flash 读取单片机内部Flash内容</h3><p>打开 J-Flash.exe 程序，进行工程配置并连接成功后，选择<code>Target</code> -&gt; <code>Manual Programming</code> -&gt; <code>Read back</code> -&gt; <code>Entire chip</code> 读取整片内容，也可以选择读取指定地址区的内容</p>
+<p>选择<code>File</code> -&gt; <code>Save file as</code> 保存读取的内容，选择 J-Flash 支持的文件类型如 Hex、Bin 等等</p>
+<p>前提是，芯片需要解除读保护</p>
+<h2 id="hexo主题相关"><a href="#hexo主题相关" class="headerlink" title="hexo主题相关"></a>hexo主题相关</h2><ul>
+<li><code>hexo init</code>，在初始化本地博客时使用，创建一个空白的文件夹并进入，然后执行 hexo init，即完成初始化</li>
+<li><code>hexo new &quot;xxx&quot;</code>，新建一篇博客，相当于手动直接在<code>//source/_posts/</code>目录下新建一个<code>xxx.md</code>文件</li>
+<li><code>hexo clean</code>，用于清理生成的静态网站文件，通常在更新时或者是重新生成网站前会使用</li>
+<li><code>hexo g</code>，生成静态网站文件</li>
+<li><code>hexo d</code>，用于部署静态网站到远程服务器，使得网站可以通过互联网访问</li>
+<li><code>hexo server</code>，用于启动本地服务器以预览生成的静态网站</li>
+<li>若要隐藏某篇博客，屏蔽该文章的渲染，在该文章名称前加个<code>_</code>下划线即可</li>
+</ul>
+<p><strong>草稿编辑：</strong></p>
+<ul>
+<li><code>hexo new draft &quot;xxx&quot;</code>在<code>source/_drafts</code>目录下创建一个新的草稿</li>
+<li><code>hexo server --draft</code>预览草稿</li>
+<li><code>hexo publish &lt;title&gt;</code>发布为博客文章<br>当然，也可以直接手动操作，直接将草稿拖移到<code>source/_posts</code>目录下即可转为博客</li>
+</ul>
+<h3 id="WSL-之-Ubuntu22-搭建Hexo-NexT博客"><a href="#WSL-之-Ubuntu22-搭建Hexo-NexT博客" class="headerlink" title="WSL 之 Ubuntu22 搭建Hexo NexT博客"></a>WSL 之 Ubuntu22 搭建Hexo NexT博客</h3><p>安装Node.JS和npm，通过<code>nodejs --version</code>和<code>npm --version</code>查看是否安装成功，另外版本要尽量高，以下为安装Node.JS命令，作参考用，当然实际过程中可能会遇到各种各样的安装报错问题，自行解决</p>
+<ul>
+<li><code>curl -sL https://deb.nodesource.com/setup_20.x | sudo -E bash -</code></li>
+<li><code>sudo apt-get install -y nodejs</code></li>
+<li><code>sudo apt-get install npm</code><br></li>
+</ul>
+<p>安装Hexo，而后创建一个新的目录&#x2F;新的博客，拉取next主题</p>
+<ul>
+<li><code>sudo npm install hexo-cli -g</code></li>
+<li><code>mkdir blog</code></li>
+<li><code>cd blog</code></li>
+<li><code>hexo init</code></li>
+<li><code>npm install hexo-deployer-git --save</code></li>
+<li><code>git clone https://github.com/theme-next/hexo-theme-next themes/next</code><br></li>
+</ul>
+<p>重新关联已有的远端仓库</p>
+<ul>
+<li>前提，已经添加远端与本地的ssh连接</li>
+<li>git初始化本地工程，并关联远端仓库即可，具体操作此处不重复阐述</li>
+<li>全新的初始化流程为：远端创建一个以用户名为名称的仓库，然后将本地初始化为一个git工程，建立与远端仓库的关联关系</li>
+</ul>
+<br>
+
+<p>配置博客站点及功能</p>
+<ul>
+<li>在<code>//_config.yml</code>添加部署的仓库站点，以及配置相应的界面功能</li>
+<li>在<code>//themes/next/_config.yml</code>配置相应的主题功能</li>
+</ul>
+<br>
+
+
+<p>配置本地搜索、标签、目录、字数统计、分页、浏览进度百分比、主题样式、代码块复制等功能，用户自行搜索添加即可</p>
+<p>如：在配置文件中使能搜索功能、字数统计功能前，需要先安装以下插件</p>
+<ul>
+<li><code>npm install hexo-word-counter</code></li>
+<li><code>npm install hexo-generator-search --save</code></li>
+<li>参考<a target="_blank" rel="noopener" href="https://hexo-next.readthedocs.io/zh-cn/latest/next/advanced/%E5%AD%97%E6%95%B0%E7%BB%9F%E8%AE%A1/">Hexo-NexT官方站点</a></li>
+</ul>
+<blockquote>
+<p>其中添加搜索功能时，无论怎么样操作，Hexo NexT的搜索都无内容无效，最后发现是search.xml文件格式有误，于是本人另辟蹊径，将<code>//_config.yml</code>的search.xml改为search.json，重新生成即可。可能是该工程配置有问题，建议另起目录，重新初始化生成并配置可能更为省事</p>
+</blockquote>
+<br>
+
+<h3 id="Windows环境下搭建Hexo博客"><a href="#Windows环境下搭建Hexo博客" class="headerlink" title="Windows环境下搭建Hexo博客"></a>Windows环境下搭建Hexo博客</h3><ul>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_31061615/article/details/80743125?spm=1001.2101.3001.6650.3&utm_medium=distribute.pc_relevant.none-task-blog-2~default~BlogCommendFromBaidu~Rate-3-80743125-blog-107513019.235%5Ev43%5Epc_blog_bottom_relevance_base1&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2~default~BlogCommendFromBaidu~Rate-3-80743125-blog-107513019.235%5Ev43%5Epc_blog_bottom_relevance_base1&utm_relevant_index=4">点击参考博客即可</a></li>
+</ul>
+<h3 id="搭建-Hexo-Github-博客小结"><a href="#搭建-Hexo-Github-博客小结" class="headerlink" title="搭建 Hexo + Github 博客小结"></a>搭建 Hexo + Github 博客小结</h3><ul>
+<li>本地安装 Nodejs，npm，hexo 等必要软件</li>
+<li>使用 hexo 本地初始化配置</li>
+<li>在 Github 上创建与用户名同名加指定后缀的仓库，即<code>username.github.io</code>，比如用户名是<code>Chen</code>，则创建仓库名为<code>Chen.github.io</code></li>
+<li>在本地工程的<code>//config.yml</code>文件中进行配置，将要部署的站点设置为<code>username.github.io</code>此仓库对应的站点地址即可</li>
+</ul>
+<h3 id="Hexo-NexT-功能配置"><a href="#Hexo-NexT-功能配置" class="headerlink" title="Hexo + NexT 功能配置"></a>Hexo + NexT 功能配置</h3><p><strong>添加搜索功能：</strong></p>
+<ul>
+<li>在<code>//_config.yml</code>新增片段或片段修改为如下：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">search:</span><br><span class="line">  path: search.xml    # 或者search.json</span><br><span class="line">  field: post</span><br><span class="line">  content: true</span><br><span class="line">  format: html</span><br><span class="line">  limit: 10000</span><br></pre></td></tr></table></figure></li>
+<li>在<code>//themes/next/_config.yml</code>新增片段或片段修改为如下：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">local_search:</span><br><span class="line">  enable: true</span><br><span class="line">  # If auto, trigger search by changing input.</span><br><span class="line">  # If manual, trigger search by pressing enter key or search button.</span><br><span class="line">  trigger: auto</span><br><span class="line">  # Show top n results per article, show all results by setting to -1</span><br><span class="line">  top_n_per_article: 1</span><br><span class="line">  # Unescape html strings to the readable one.</span><br><span class="line">  unescape: false</span><br><span class="line">  # Preload the search data when the page loads.</span><br><span class="line">  preload: false</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="VSCode相关"><a href="#VSCode相关" class="headerlink" title="VSCode相关"></a>VSCode相关</h2><p><strong>绘制流程图：</strong></p>
+<ul>
+<li>安装<code>Draw.io Integration</code>扩展插件</li>
+<li>新建文件<code>xxx.drawio</code>，即可开始编辑<br></li>
+</ul>
+<p><strong>代码绘图：</strong></p>
+<ul>
+<li>安装<code>PlantUML、PlantUML Previewer</code>扩展</li>
+<li>新建文件<code>xxx.plantuml</code>，即可开始编码，编码格式参考官方文档</li>
+<li>以下为示例代码，鼠标光标位于代码其中任意位置，而后点击预览即可(Alt + D)<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">@startuml filename</span><br><span class="line">Main_task -&gt; Subtask: Delivery control event</span><br><span class="line">Subtask -&gt; Main_task: Reporting internal events</span><br><span class="line">@enduml</span><br></pre></td></tr></table></figure></li>
+</ul>
+<p><strong>添加Git相关插件</strong><br>安装 GitLens 扩展</p>
+<h2 id="DAP下载调试方式"><a href="#DAP下载调试方式" class="headerlink" title="DAP下载调试方式"></a>DAP下载调试方式</h2>
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/11/28/STM32%E5%90%AF%E5%8A%A8%E6%B5%81%E7%A8%8B%E6%A6%82%E8%BF%B0/" rel="prev" title="STM32启动流程概述">
+      <i class="fa fa-chevron-left"></i> STM32启动流程概述
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2023/11/29/%E5%BF%83%E5%BE%97%EF%BC%9ALiteOS%E5%88%9D%E4%BD%93%E9%AA%8C/" rel="next" title="LiteOS适配及开发笔记">
+      LiteOS适配及开发笔记 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#J-Link-J-Flash"><span class="nav-number">1.</span> <span class="nav-text">J-Link&#x2F;J-Flash</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#J-Flash%E6%89%B9%E5%A4%84%E7%90%86%E8%84%9A%E6%9C%AC%E9%85%8D%E7%BD%AE%E7%83%A7%E5%BD%95"><span class="nav-number">1.1.</span> <span class="nav-text">J-Flash批处理脚本配置烧录</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#J-Link-J-Flash-%E8%AF%BB%E5%8F%96%E5%8D%95%E7%89%87%E6%9C%BA%E5%86%85%E9%83%A8Flash%E5%86%85%E5%AE%B9"><span class="nav-number">1.2.</span> <span class="nav-text">J-Link&#x2F;J-Flash 读取单片机内部Flash内容</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#hexo%E4%B8%BB%E9%A2%98%E7%9B%B8%E5%85%B3"><span class="nav-number">2.</span> <span class="nav-text">hexo主题相关</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#WSL-%E4%B9%8B-Ubuntu22-%E6%90%AD%E5%BB%BAHexo-NexT%E5%8D%9A%E5%AE%A2"><span class="nav-number">2.1.</span> <span class="nav-text">WSL 之 Ubuntu22 搭建Hexo NexT博客</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Windows%E7%8E%AF%E5%A2%83%E4%B8%8B%E6%90%AD%E5%BB%BAHexo%E5%8D%9A%E5%AE%A2"><span class="nav-number">2.2.</span> <span class="nav-text">Windows环境下搭建Hexo博客</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%90%AD%E5%BB%BA-Hexo-Github-%E5%8D%9A%E5%AE%A2%E5%B0%8F%E7%BB%93"><span class="nav-number">2.3.</span> <span class="nav-text">搭建 Hexo + Github 博客小结</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Hexo-NexT-%E5%8A%9F%E8%83%BD%E9%85%8D%E7%BD%AE"><span class="nav-number">2.4.</span> <span class="nav-text">Hexo + NexT 功能配置</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#VSCode%E7%9B%B8%E5%85%B3"><span class="nav-number">3.</span> <span class="nav-text">VSCode相关</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DAP%E4%B8%8B%E8%BD%BD%E8%B0%83%E8%AF%95%E6%96%B9%E5%BC%8F"><span class="nav-number">4.</span> <span class="nav-text">DAP下载调试方式</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">cjd</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">40</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">cjd</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="Symbols count total">90k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">5:02</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":"enable","trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="参考社区的STM32之Ninja编译方式的工程范例，移植搭建基于LiteOS的N32WB452工程，记录其过程中的一些编译纠错、代码功能编写及构建、XTS子系统测试等相关信息，以供检索回溯">
+<meta property="og:type" content="article">
+<meta property="og:title" content="OpenHarmony-V4.0-LiteOS-M鸿蒙轻内核开发调试">
+<meta property="og:url" content="http://example.com/2023/12/20/OpenHarmony-V4-0%E5%BA%94%E7%94%A8%E8%AE%B0%E5%BD%95/index.html">
+<meta property="og:site_name" content="Jindu-Chen">
+<meta property="og:description" content="参考社区的STM32之Ninja编译方式的工程范例，移植搭建基于LiteOS的N32WB452工程，记录其过程中的一些编译纠错、代码功能编写及构建、XTS子系统测试等相关信息，以供检索回溯">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2023-12-19T16:00:00.000Z">
+<meta property="article:modified_time" content="2024-08-24T06:19:15.109Z">
+<meta property="article:author" content="cjd">
+<meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2023/12/20/OpenHarmony-V4-0%E5%BA%94%E7%94%A8%E8%AE%B0%E5%BD%95/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>OpenHarmony-V4.0-LiteOS-M鸿蒙轻内核开发调试 | Jindu-Chen</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Jindu-Chen</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">风物长宜放眼量</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/12/20/OpenHarmony-V4-0%E5%BA%94%E7%94%A8%E8%AE%B0%E5%BD%95/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="cjd">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jindu-Chen">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          OpenHarmony-V4.0-LiteOS-M鸿蒙轻内核开发调试
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-12-20 00:00:00" itemprop="dateCreated datePublished" datetime="2023-12-20T00:00:00+08:00">2023-12-20</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-08-24 14:19:15" itemprop="dateModified" datetime="2024-08-24T14:19:15+08:00">2024-08-24</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/LiteOS/" itemprop="url" rel="index"><span itemprop="name">LiteOS</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/OpenHarmony/" itemprop="url" rel="index"><span itemprop="name">OpenHarmony</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>2.5k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>8 mins.</span>
+            </span>
+            <div class="post-description">参考社区的STM32之Ninja编译方式的工程范例，移植搭建基于LiteOS的N32WB452工程，记录其过程中的一些编译纠错、代码功能编写及构建、XTS子系统测试等相关信息，以供检索回溯</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="基于命令行开发环境搭建"><a href="#基于命令行开发环境搭建" class="headerlink" title="基于命令行开发环境搭建"></a>基于命令行开发环境搭建</h2><p>复述官方文档，仅作参考，当在源码根目录下键入<code>hb help</code>，命令执行成功，基本完成前期环境的搭建</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://gitee.com/openharmony/docs/blob/master/zh-cn/device-dev/quick-start/quickstart-pkg-install-package.md">安装库和工具集</a></li>
+<li>下载OpenHarmony-V4.0-Release全量代码，可通过git拉取或者下载压缩包解压<ul>
+<li>在 Linux 输入命令<code>wget https://gitee.com/link?target=https%3A%2F%2Frepo.huaweicloud.com%2Fopenharmony%2Fos%2F3.2.4%2Fcode-v3.2.4-Release_20231113.tar.gz</code>下载OpenHarmony V3.2.4源码，其它可参考</li>
+<li>在源码根目录下执行prebuilts脚本，安装编译器及二进制工具–<code>bash build/prebuilts_download.sh</code></li>
+<li>执行<code>pip3 install --user build/lite</code>安装hb工具，添加<code>export PATH=~/.local/bin:$PATH</code>到<code>~/.bashrc</code>中，并生效环境变量</li>
+</ul>
+</li>
+<li><a target="_blank" rel="noopener" href="https://gitee.com/openharmony/docs/blob/master/zh-cn/device-dev/quick-start/quickstart-pkg-install-tool.md">安装编译工具</a></li>
+<li>开发基于Cortex-M内核工程，需要安装<code>arm-none-eabi-</code>工具链，并声明工具链路径至<code>~/.bahsrc</code>。此处不过多赘述</li>
+<li>键入<code>hb set</code>选择目标开发设备，键入<code>hb build</code>执行编译，编译成功则表示环境构建无误</li>
+</ul>
+<h2 id="轻量系统开发的前期流程"><a href="#轻量系统开发的前期流程" class="headerlink" title="轻量系统开发的前期流程"></a>轻量系统开发的前期流程</h2><ul>
+<li>参考Gitee的OpenHarmony项目搭建命令行开发环境，熟悉基本的操作流程</li>
+<li>熟悉GN、ninja的文件编写、和源码构建过程，了解子系统、组件等基本概念<ul>
+<li>子系统是逻辑概念，其具体由对应的组件构成</li>
+<li>组件是可复用的软件单元，其包含源码、配置文件、资源文件和编译脚本</li>
+<li>通过配置文件、编译链接脚本，使得同一组件可以在不同的目标架构上运行</li>
+</ul>
+</li>
+<li>参考社区的移植流程，根据其工程范例进一步了解轻量系统的构建开发原理</li>
+</ul>
+<h2 id="目标工程的编译构建流程"><a href="#目标工程的编译构建流程" class="headerlink" title="目标工程的编译构建流程"></a>目标工程的编译构建流程</h2><ul>
+<li>hb set</li>
+<li>hb build如何调用构建</li>
+</ul>
+<h3 id="debug-config配置"><a href="#debug-config配置" class="headerlink" title="debug.config配置"></a>debug.config配置</h3><p>debug.config文件位于<code>//vendor/$&#123;company&#125;/$&#123;company_product&#125;/kernel_configs</code>目录下，该文件配置由用户在<code>//kernel/liteos_m/</code>目录下<code>make menuconfig</code>生成，当然用户也可以直接修改debug.config进行工程的宏定义配置<br><br></p>
+<h2 id="子系统添加和构建"><a href="#子系统添加和构建" class="headerlink" title="子系统添加和构建"></a>子系统添加和构建</h2><p>参考OpenHarmony-v4.0源码工程下的<code>//vendor/talkweb/niobe407</code>、<code>//device/board/talkweb</code>、<code>//device/soc/st/stm32f4xx</code>，此部分是基于stm32的厂商工程范例<br><br></p>
+<p>此处重复讲述几个与子系统相关的概念：以便在添加子系统时清楚所需要添加和编译链接的子系统<br>OpenHarmony轻量系统下的子系统主要分为三部分：基础子系统、功能子系统、应用子系统</p>
+<ul>
+<li>基础子系统<br>即<code>//foundation</code>，包括bootstrap（系统启动和关闭）、hal_sysparam（负责管理系统参数）、systemabilitymgr（负责管理系统服务）、commonlibrary（提供通用库）等，当然内核子系统是必须的</li>
+</ul>
+<br>
+
+<ul>
+<li>功能子系统<br>HiViewDFX ：为图形框架应用子系统<br>HiViewDFX ：为图形框架应用子系统<br>hdf：驱动层框架</li>
+</ul>
+<br>
+
+<ul>
+<li>应用子系统<br>shell：命令行接口</li>
+</ul>
+<h3 id="添加-LittleFS-文件子系统"><a href="#添加-LittleFS-文件子系统" class="headerlink" title="添加 LittleFS 文件子系统"></a>添加 LittleFS 文件子系统</h3><ul>
+<li><a target="_blank" rel="noopener" href="https://ost.51cto.com/posts/7171">LiteOS-M小型系统内核——LittleFS</a></li>
+</ul>
+<h2 id="轻量系统编程开发"><a href="#轻量系统编程开发" class="headerlink" title="轻量系统编程开发"></a>轻量系统编程开发</h2><h3 id="系统初始化函数"><a href="#系统初始化函数" class="headerlink" title="系统初始化函数"></a>系统初始化函数</h3><p><strong>LOS_KernelInit()函数</strong><br><br></p>
+<p><strong>OHOS_SystemInit()函数</strong></p>
+<ul>
+<li>主要为隐式执行各种初始化函数，包含用户声明的自定义初始化函数</li>
+<li>如执行通过<code>SYS_RUN(OHOS_Main);</code>声明的OHOS_Main函数<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">void OHOS_SystemInit(void)</span><br><span class="line">&#123;</span><br><span class="line">    MODULE_INIT(bsp);</span><br><span class="line">    MODULE_INIT(device);</span><br><span class="line">    MODULE_INIT(core);</span><br><span class="line">    SYS_INIT(service);</span><br><span class="line">    SYS_INIT(feature);</span><br><span class="line">    MODULE_INIT(run);</span><br><span class="line">    SAMGR_Bootstrap();</span><br><span class="line">    LiteParamService();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<br></li>
+</ul>
+<p><strong>LOS_Start()函数</strong><br><br></p>
+<h2 id="编译纠错"><a href="#编译纠错" class="headerlink" title="编译纠错"></a>编译纠错</h2><ul>
+<li><p>编译成功，但生成的可执行bin文件明显偏小，查看Kconfig配置文件是否有选项没写对，导致的没编译链接</p>
+</li>
+<li><p>提示以下报错，考虑为 g++编译时 extern C {}的嵌套引用的编译错误，根据编译报错提示，一步步查找，其嵌套包含的头文件其里的<code>#ifdef __cplusplus &#125; #endif</code>是否一一匹配</p>
+</li>
+<li><p>此处最终发现为国民技术n32g45x.h包含的n32g45x_conf.h包含的n32g45x_dvp.h缺少了ifdef cplusplus 的右大括号</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[OHOS ERROR] [13/365] gcc CXX obj/base/hiviewdfx/hilog_lite/frameworks/featured/libhilog_static.hilog.o</span><br><span class="line">[OHOS ERROR] FAILED: obj/base/hiviewdfx/hilog_lite/frameworks/featured/libhilog_static.hilog.o </span><br><span class="line">[OHOS ERROR] ccache arm-none-eabi-g++ -D_XOPEN_SOURCE=700 -DOHOS_DEBUG -D__LITEOS__ -D__LITEOS_M__ -DSECUREC_IN_KERNEL=0 -I../../../device/soc/n32/n32g452/liteos_m -I../../../device/soc/n32/CMSIS/core -I../../../device/soc/n32/CMSIS/device -I../../../device/soc/n32/n32g452/N32G45x_Driver/inc -I../../../device/soc/n32/n32g452 -I../../../utils/native/lite/include -I../../../commonlibrary/utils_lite/include -I../../../kernel/liteos_m/components/cpup -I../../../kernel/liteos_m/components/exchook -I../../../foundation/systemabilitymgr/samgr_lite/interfaces/kits/samgr -I../../../drivers/hdf_core/framework/core/common/include/manager -I../../../base/hiviewdfx/hilog_lite/interfaces/native/innerkits/hilog -I../../../base/hiviewdfx/hilog_lite/interfaces/native/innerkits -I../../../third_party/bounds_checking_function/include -I../../../kernel/liteos_m/arch/arm/common -I../../../kernel/liteos_m/arch/arm/cortex-m4/gcc -I../../../kernel/liteos_m/arch/arm/include -I../../../kernel/liteos_m/arch/include -I../../../kernel/liteos_m/kernel/include -I../../../third_party/cmsis/CMSIS/Core/Include -I../../../third_party/cmsis/CMSIS/RTOS2/Include -I../../../third_party/cmsis/CMSIS/DSP/Include -I../../../third_party/cmsis/CMSIS/DSP/PrivateInclude -I../../../kernel/liteos_m/kal/cmsis -I../../../kernel/liteos_m/kal/libc/newlib/porting/include -I../../../kernel/liteos_m/kal/posix/include -I../../../kernel/liteos_m/components/shell/include -I../../../kernel/liteos_m/components/signal -I../../../kernel/liteos_m/utils -I../../../device/board/breo/n32g452_breo/liteos_m -I../../../base/hiviewdfx/hiview_lite -I../../../base/hiviewdfx/hilog_lite/frameworks/mini -I../../../base/hiviewdfx/hilog_lite/interfaces/native/kits/hilog_lite -I../../../device/board/breo/n32g452_breo/Application -I../../../device/soc/n32/n32g452/N32G45x_Driver/include -Os -Og -Wall -fdata-sections -ffunction-sections -DUSE_STDPERIPH_DRIVER -DN32G452 -D__LITEOS_M__ -mcpu=cortex-m4 -mthumb -Og -Wall -fdata-sections -ffunction-sections -DUSE_STDPERIPH_DRIVER -DN32G452 -D__LITEOS_M__ -mcpu=cortex-m4 -mthumb -mcpu=cortex-m4 -fno-common -fno-builtin -fno-strict-aliasing -Wall -fstack-protector-all -std=c++11 -c ../../../base/hiviewdfx/hilog_lite/frameworks/featured/hilog.cpp -o obj/base/hiviewdfx/hilog_lite/frameworks/featured/libhilog_static.hilog.o</span><br><span class="line">[OHOS ERROR] ../../../base/hiviewdfx/hilog_lite/frameworks/featured/hilog.cpp:66:1: error: expected &#x27;&#125;&#x27; at end of input</span><br><span class="line">[OHOS ERROR]    66 | &#125; // namespace OHOS</span><br><span class="line">[OHOS ERROR]       | ^</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>提示以下信息：进入<code>kernel/liteos_m</code>，然后make menuconfig，选中兼容项，失能musl库，改为new lib。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[OHOS ERROR] arm-none-eabi-gcc: fatal error: /home/jd_chen/Downloads/gcc-arm-none-eabi-10-2020-q4-major/bin/../lib/gcc/arm-none-eabi/10.2.1/../../../../arm-none-eabi/lib/nano.specs: attempt to rename spec &#x27;link&#x27; to already defined spec &#x27;nano_link&#x27;</span><br><span class="line">[OHOS ERROR] compilation terminated.</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>提示以下编译报错，其中fsync函数用于将文件的所有修改同步到磁盘，而此处提示缺少相关定义，首先检查轻量系统有没有配置fs文件系统，另外本人另辟蹊径，自己定义了一个空实现，使得编译成功，如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">int fsync(int fd)</span><br><span class="line">&#123;</span><br><span class="line">  return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>报错信息如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">[OHOS ERROR] [34/56] LINK obj/kernel/liteos_m/bin/liteos</span><br><span class="line">[OHOS ERROR] FAILED: obj/kernel/liteos_m/bin/liteos obj/kernel/liteos_m/unstripped/bin/liteos </span><br><span class="line">[OHOS ERROR] ccache arm-none-eabi-gcc -static -Wl,--gc-sections -Wl,-Map=OHOS_Image.map --specs=nano.specs -Wl,-u_printf_float -Wl,--wrap=_calloc_r -Wl,--wrap=_malloc_r -Wl,--wrap=_realloc_r -Wl,</span><br><span class="line">......</span><br><span class="line">libs/libhal_sysparam.a libs/libhal_sys_param.a libs/libhilog_static.a libs/libparam_client_lite.a libs/libinit_utils.a libs/libinit_log.a libs/libsamgr.a libs/libsamgr_adapter.a libs/libsamgr_source.a libs/libbroadcast.a libs/libnative_file.a libs/libstatic_hal_file.a libs/libhilog_lite_static.a libs/libhiview_lite_static.a libs/libhievent_lite_static.a libs/libhuks_3.0_sdk.a -lc -lm -lnosys -Wl,--end-group -o obj/kernel/liteos_m/unstripped/bin/liteos  &amp;&amp; ccache arm-none-eabi-strip --strip-unneeded &quot;obj/kernel/liteos_m/unstripped/bin/liteos&quot; -o &quot;obj/kernel/liteos_m/bin/liteos&quot;</span><br><span class="line">[OHOS ERROR] /home/jd_chen/Downloads/gcc-arm-none-eabi-10-2020-q4-major/bin/../lib/gcc/arm-none-eabi/10.2.1/../../../../arm-none-eabi/bin/ld: libs/libhiview_lite_static.a(libhiview_lite_static.hiview_util.o):(.data.hiview_fsync+0x0): undefined reference to `fsync&#x27;</span><br><span class="line">[OHOS ERROR] collect2: error: ld returned 1 exit status</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>提示找不到相应的函数实现或者相应的宏定义，可全局搜索其对应的实现，考虑在合适位置添加源文件路径或者头文件路径，从而使得编译成功</p>
+</li>
+<li><p>出现如下编译错误，在vfs_fs.c添加头文件&lt;stdbool.h&gt;包含即可</p>
+  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">[OHOS ERROR] [56/340] gcc cross compiler obj/kernel/liteos_m/components/fs/vfs/vfs.vfs_fs.o</span><br><span class="line">[OHOS ERROR] FAILED: obj/kernel/liteos_m/components/fs/vfs/vfs.vfs_fs.o </span><br><span class="line">...</span><br><span class="line">[OHOS ERROR] ../../../kernel/liteos_m/components/fs/vfs/vfs_fs.c:214:43: error: unknown type name &#x27;bool&#x27;</span><br><span class="line">[OHOS ERROR]   214 | static int VfsPathCheck(const char *path, bool isFile)</span><br><span class="line">[OHOS ERROR]       |                                           ^~~~</span><br><span class="line">[OHOS ERROR] ../../../kernel/liteos_m/components/fs/vfs/vfs_fs.c: In function &#x27;VfsOpen&#x27;:</span><br><span class="line">[OHOS ERROR] ../../../kernel/liteos_m/components/fs/vfs/vfs_fs.c:244:9: error: implicit declaration of function &#x27;VfsPathCheck&#x27; [-Werror=implicit-function-declaration]</span><br><span class="line">[OHOS ERROR]   244 |     if (VfsPathCheck(path, TRUE) != LOS_OK) </span><br><span class="line">[OHOS ERROR]       |         ^~~~~~~~~~~~</span><br><span class="line">[OHOS ERROR] cc1: all warnings being treated as errors</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="程序运行错误排查"><a href="#程序运行错误排查" class="headerlink" title="程序运行错误排查"></a>程序运行错误排查</h2><h3 id="报错-ERR-null-HalHwiDefaultHandler-irqnum"><a href="#报错-ERR-null-HalHwiDefaultHandler-irqnum" class="headerlink" title="报错[ERR][(null)]HalHwiDefaultHandler irqnum:"></a>报错<code>[ERR][(null)]HalHwiDefaultHandler irqnum:</code></h3><p>运行报错如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">entering kernel init...</span><br><span class="line">[ERR][(null)]HalHwiDefaultHandler irqnum:53</span><br></pre></td></tr></table></figure>
+
+<p>查看源码得出为函数<code>__get_IPSR();</code>输出 irqnum:53，</p>
+<p>分析原因为：在未注册创建中断的时候，就使能了中断以及持续触发，导致的错误</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">USART_ConfigInt(uart-&gt;uart_device, USART_INT_IDLEF, ENABLE); <span class="comment">//使能串口空闲中断</span></span><br></pre></td></tr></table></figure>
+<p>在使能空闲中断后，须立马清除中断，代码改动增添如下，程序可正常运行：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">USART_ConfigInt(uart-&gt;uart_device, USART_INT_IDLEF, ENABLE); <span class="comment">//使能串口空闲中断</span></span><br><span class="line">USART_ReceiveData(uart-&gt;uart_device);</span><br></pre></td></tr></table></figure>
+
+
+<p>另外，LiteOS-M 通过<code>ArchHwiCreate()</code>将中断函数注册至私有的中断向量数组中，用户端不要重复设置中断分组和使能中断函数如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// NVIC_InitStructure.NVIC_IRQChannel = uart-&gt;dma.rx_irq_ch;</span></span><br><span class="line"><span class="comment">// NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;</span></span><br><span class="line"><span class="comment">// NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;</span></span><br><span class="line"><span class="comment">// NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE; //使能dma中断服务函数</span></span><br><span class="line"><span class="comment">// NVIC_Init(&amp;NVIC_InitStructure);</span></span><br></pre></td></tr></table></figure>
+<p>在跨系统移植业务代码时，需要将以上原有相关的中断库函数应用注释掉</p>
+<h3 id="程序运行至hilog-will-init"><a href="#程序运行至hilog-will-init" class="headerlink" title="程序运行至hilog will init."></a>程序运行至<code>hilog will init.</code></h3><p><strong>串口日志打印信息如下：</strong>指示为内存访问错误，最终确认为结构体变量都设置为一字节对齐，导致的结构体访问指针变量 触发 非法内存访问错误</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">entering kernel init...</span><br><span class="line">hilog will init.</span><br><span class="line"></span><br><span class="line">*************Exception Information**************</span><br><span class="line">Type      = 11</span><br><span class="line">ThrdPid   = 25</span><br><span class="line">Phase     = exc in task</span><br><span class="line">FaultAddr = 0xabababab</span><br><span class="line">Current task info:</span><br><span class="line">Task name = (null)</span><br><span class="line">Task ID   = 25</span><br><span class="line">Task SP   = (nil)</span><br><span class="line">Task ST   = 0x0</span><br><span class="line">Task SS   = 0x0</span><br><span class="line">Exception reg dump:</span><br><span class="line">PC        = 0x80111e2</span><br><span class="line">LR        = 0x8010b81</span><br><span class="line">SP        = 0x20023fb0</span><br><span class="line">R0        = 0x0</span><br><span class="line">R1        = 0x1</span><br><span class="line">R2        = 0x20011b14</span><br><span class="line">R3        = 0x400</span><br><span class="line">R4        = 0x8018a64</span><br></pre></td></tr></table></figure>
+
+<p><strong>原因分析：</strong></p>
+<p>确认程序出错于函数<code>OHOS_SystemInit()</code>中，而后<strong>在hiview_log.c找到如下代码：</strong></p>
+<ul>
+<li>增加节点信息打印，发现函数未能执行到如下的<strong>print1处</strong>，说明<code>InitCoreLogOutput()</code>函数执行跑飞<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">static void HiLogInit(void)</span><br><span class="line">&#123;</span><br><span class="line">    HIVIEW_UartPrint(&quot;hilog will init.\n&quot;);</span><br><span class="line">//print0</span><br><span class="line">    InitCoreLogOutput();</span><br><span class="line"></span><br><span class="line">//print1</span><br><span class="line">    /* The module that is not registered cannot print the log. */</span><br><span class="line">    if (HiLogRegisterModule(HILOG_MODULE_HIVIEW, &quot;HIVIEW&quot;) == FALSE ||</span><br><span class="line">        HiLogRegisterModule(HILOG_MODULE_SAMGR, &quot;SAMGR&quot;) == FALSE ||</span><br><span class="line">        HiLogRegisterModule(HILOG_MODULE_UPDATE, &quot;UPDATE&quot;) == FALSE ||</span><br><span class="line">        HiLogRegisterModule(HILOG_MODULE_ACE, &quot;ACE&quot;) == FALSE ||</span><br><span class="line">        HiLogRegisterModule(HILOG_MODULE_AAFWK, &quot;AAFWK&quot;) == FALSE ||</span><br><span class="line">        HiLogRegisterModule(HILOG_MODULE_APP, &quot;APP&quot;) == FALSE ||</span><br><span class="line">        HiLogRegisterModule(HILOG_MODULE_GRAPHIC, &quot;GRAPHIC&quot;) == FALSE ||</span><br><span class="line">        HiLogRegisterModule(HILOG_MODULE_MEDIA, &quot;MEDIA&quot;) == FALSE ||</span><br><span class="line">        HiLogRegisterModule(HILOG_MODULE_DMS, &quot;DMS&quot;) == FALSE ||</span><br><span class="line">        HiLogRegisterModule(HILOG_MODULE_SEN, &quot;SEN&quot;) == FALSE ||</span><br><span class="line">        HiLogRegisterModule(HILOG_MODULE_SCY, &quot;SCY&quot;) == FALSE ||</span><br><span class="line">        HiLogRegisterModule(HILOG_MODULE_SOFTBUS, &quot;SOFTBUS&quot;) == FALSE ||</span><br><span class="line">        HiLogRegisterModule(HILOG_MODULE_POWERMGR, &quot;POWERMGR&quot;) == FALSE ||</span><br><span class="line">        HiLogRegisterModule(HILOG_MODULE_UIKIT, &quot;UIKIT&quot;) == FALSE ||</span><br><span class="line">        HiLogRegisterModule(HILOG_MODULE_GLOBAL, &quot;GLOBAL&quot;) == FALSE ||</span><br><span class="line">        HiLogRegisterModule(HILOG_MODULE_DATAMGR, &quot;DATAMGR&quot;) == FALSE) &#123;</span><br><span class="line">        return;</span><br><span class="line">    &#125;</span><br><span class="line">//print2</span><br><span class="line">    HiviewRegisterInitFunc(HIVIEW_CMP_TYPE_LOG, InitLogOutput);</span><br><span class="line">    HiviewRegisterInitFunc(HIVIEW_CMP_TYPE_LOG_LIMIT, InitLogLimit);</span><br><span class="line">    HILOG_DEBUG(HILOG_MODULE_HIVIEW, &quot;hilog init success.&quot;);</span><br><span class="line">&#125;</span><br><span class="line">CORE_INIT_PRI(HiLogInit, 0);</span><br></pre></td></tr></table></figure></li>
+</ul>
+<p><strong>问题解决：</strong><br>在<code>target_config.h</code>添加失能<code>LOSCFG_PLATFORM_EXC</code>宏定义，或者在 debug.config 配置不使用内存访问错误，当然还可在源码中注释掉 此部分的使能，代码节选如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">// kernel/liteos_m/arch/arm/cortex-m4/gcc/los_interrupt.c</span><br><span class="line"></span><br><span class="line">    /* Enable USGFAULT, BUSFAULT, MEMFAULT */</span><br><span class="line">    *(volatile UINT32 *)OS_NVIC_SHCSR |= (USGFAULT | BUSFAULT | MEMFAULT);</span><br><span class="line"></span><br><span class="line">    /* Enable DIV 0 and unaligned exception */</span><br><span class="line">#ifdef LOSCFG_ARCH_UNALIGNED_EXC</span><br><span class="line">    *(volatile UINT32 *)OS_NVIC_CCR |= (DIV0FAULT | UNALIGNFAULT);</span><br><span class="line">#else</span><br><span class="line">    *(volatile UINT32 *)OS_NVIC_CCR |= (DIV0FAULT);</span><br><span class="line">#endif</span><br></pre></td></tr></table></figure>
+
+<p>将上述代码中的<code>MEMFAULT</code>或者<code>UNALIGNFAULT</code>去掉 即可失能 内存非对齐访问错误</p>
+<h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://gitee.com/openharmony/docs/blob/master/zh-cn/device-dev/quick-start/Readme-CN.md#/openharmony/docs/blob/master/zh-cn/device-dev/quick-start/quickstart-pkg-sourcecode.md">Gitee-OpenHarmony基于命令行入门</a></li>
+<li><a target="_blank" rel="noopener" href="https://gitee.com/openharmony/docs/blob/master/zh-cn/device-dev/porting/porting-stm32f407-on-minisystem-eth.md">轻量系统STM32F407芯片移植案例</a></li>
+<li><a target="_blank" rel="noopener" href="https://ost.51cto.com/posts/7171">LiteOS-M小型系统内核——LittleFS</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/12/20/ld%E9%93%BE%E6%8E%A5%E8%84%9A%E6%9C%AC%E5%AD%A6%E4%B9%A0/" rel="prev" title="嵌入式ld链接脚本详解">
+      <i class="fa fa-chevron-left"></i> 嵌入式ld链接脚本详解
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2023/12/20/Linux%E5%86%85%E6%A0%B8%E7%A7%BB%E6%A4%8D%E6%A6%82%E8%BF%B0-%E5%9F%BA%E4%BA%8EI-MX6ULL/" rel="next" title="Linux内核移植概述--基于I.MX6ULL">
+      Linux内核移植概述--基于I.MX6ULL <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8E%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA"><span class="nav-number">1.</span> <span class="nav-text">基于命令行开发环境搭建</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BD%BB%E9%87%8F%E7%B3%BB%E7%BB%9F%E5%BC%80%E5%8F%91%E7%9A%84%E5%89%8D%E6%9C%9F%E6%B5%81%E7%A8%8B"><span class="nav-number">2.</span> <span class="nav-text">轻量系统开发的前期流程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%AE%E6%A0%87%E5%B7%A5%E7%A8%8B%E7%9A%84%E7%BC%96%E8%AF%91%E6%9E%84%E5%BB%BA%E6%B5%81%E7%A8%8B"><span class="nav-number">3.</span> <span class="nav-text">目标工程的编译构建流程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#debug-config%E9%85%8D%E7%BD%AE"><span class="nav-number">3.1.</span> <span class="nav-text">debug.config配置</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AD%90%E7%B3%BB%E7%BB%9F%E6%B7%BB%E5%8A%A0%E5%92%8C%E6%9E%84%E5%BB%BA"><span class="nav-number">4.</span> <span class="nav-text">子系统添加和构建</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B7%BB%E5%8A%A0-LittleFS-%E6%96%87%E4%BB%B6%E5%AD%90%E7%B3%BB%E7%BB%9F"><span class="nav-number">4.1.</span> <span class="nav-text">添加 LittleFS 文件子系统</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BD%BB%E9%87%8F%E7%B3%BB%E7%BB%9F%E7%BC%96%E7%A8%8B%E5%BC%80%E5%8F%91"><span class="nav-number">5.</span> <span class="nav-text">轻量系统编程开发</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%B3%BB%E7%BB%9F%E5%88%9D%E5%A7%8B%E5%8C%96%E5%87%BD%E6%95%B0"><span class="nav-number">5.1.</span> <span class="nav-text">系统初始化函数</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BC%96%E8%AF%91%E7%BA%A0%E9%94%99"><span class="nav-number">6.</span> <span class="nav-text">编译纠错</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A8%8B%E5%BA%8F%E8%BF%90%E8%A1%8C%E9%94%99%E8%AF%AF%E6%8E%92%E6%9F%A5"><span class="nav-number">7.</span> <span class="nav-text">程序运行错误排查</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8A%A5%E9%94%99-ERR-null-HalHwiDefaultHandler-irqnum"><span class="nav-number">7.1.</span> <span class="nav-text">报错[ERR][(null)]HalHwiDefaultHandler irqnum:</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A8%8B%E5%BA%8F%E8%BF%90%E8%A1%8C%E8%87%B3hilog-will-init"><span class="nav-number">7.2.</span> <span class="nav-text">程序运行至hilog will init.</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E7%AB%99%E7%82%B9"><span class="nav-number">8.</span> <span class="nav-text">参考站点</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">cjd</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">40</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">cjd</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="Symbols count total">90k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">5:02</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

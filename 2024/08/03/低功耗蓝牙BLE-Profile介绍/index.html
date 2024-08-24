@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":"enable","trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="本文以个人理解角度，主要讲述低功耗蓝牙BLE的GATT层相关概念，包括Profile、Profile_data、服务、特征声明、特征值等以及其应用分析。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="BLE Profile概述">
+<meta property="og:url" content="http://example.com/2024/08/03/%E4%BD%8E%E5%8A%9F%E8%80%97%E8%93%9D%E7%89%99BLE-Profile%E4%BB%8B%E7%BB%8D/index.html">
+<meta property="og:site_name" content="Jindu-Chen">
+<meta property="og:description" content="本文以个人理解角度，主要讲述低功耗蓝牙BLE的GATT层相关概念，包括Profile、Profile_data、服务、特征声明、特征值等以及其应用分析。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/pictures/20240803-BLE%E5%B9%BF%E6%92%AD%E8%BF%9E%E6%8E%A5%E5%AF%B9%E6%8E%A5%E5%9B%BE.png">
+<meta property="article:published_time" content="2024-08-02T16:00:00.000Z">
+<meta property="article:modified_time" content="2024-08-24T06:19:15.112Z">
+<meta property="article:author" content="cjd">
+<meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/pictures/20240803-BLE%E5%B9%BF%E6%92%AD%E8%BF%9E%E6%8E%A5%E5%AF%B9%E6%8E%A5%E5%9B%BE.png">
+
+<link rel="canonical" href="http://example.com/2024/08/03/%E4%BD%8E%E5%8A%9F%E8%80%97%E8%93%9D%E7%89%99BLE-Profile%E4%BB%8B%E7%BB%8D/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>BLE Profile概述 | Jindu-Chen</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Jindu-Chen</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">风物长宜放眼量</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/08/03/%E4%BD%8E%E5%8A%9F%E8%80%97%E8%93%9D%E7%89%99BLE-Profile%E4%BB%8B%E7%BB%8D/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="cjd">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jindu-Chen">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          BLE Profile概述
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-08-03 00:00:00" itemprop="dateCreated datePublished" datetime="2024-08-03T00:00:00+08:00">2024-08-03</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-08-24 14:19:15" itemprop="dateModified" datetime="2024-08-24T14:19:15+08:00">2024-08-24</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">嵌入式</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%93%9D%E7%89%99/" itemprop="url" rel="index"><span itemprop="name">蓝牙</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>2.9k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>10 mins.</span>
+            </span>
+            <div class="post-description">本文以个人理解角度，主要讲述低功耗蓝牙BLE的GATT层相关概念，包括Profile、Profile_data、服务、特征声明、特征值等以及其应用分析。</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><strong>未完待续</strong></p>
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>本文框架主要分为以下几部分：</p>
+<ul>
+<li>BLE协议栈框架简述</li>
+<li>BLE-GATT层相关概念简单介绍，包括profile、service等</li>
+<li>结合代码分析GATT层的概念</li>
+<li>思考与拓展</li>
+</ul>
+<h2 id="BLE协议栈框架"><a href="#BLE协议栈框架" class="headerlink" title="BLE协议栈框架"></a>BLE协议栈框架</h2><p>暂略</p>
+<h2 id="BLE-GATT层相关概念"><a href="#BLE-GATT层相关概念" class="headerlink" title="BLE-GATT层相关概念"></a>BLE-GATT层相关概念</h2><p>GATT（Generic Attribute Profile）定义了一种用于数据交换的分层结构，包括<strong>Profile（通用属性配置文件）、Service（服务）、Characteristic（特征值）、Descriptor（描述符）</strong>等。</p>
+<p>一个BLE设备可以有多个服务，每个服务可以包含多个特征值，每个特征值可以有零个或多个特征描述符。</p>
+<p>例如，一个健康监测设备可能有一个心率服务，该服务有一个心率测量特征值，这个特征值可能有一个描述符来指示测量结果的格式。</p>
+<p>特征声明是特征值的描述和定义。它包含了特征值的属性（如读、写、通知）、权限、以及可能的描述符等信息，定义如何访问和使用特征值。</p>
+<h3 id="Profile（配置文件）"><a href="#Profile（配置文件）" class="headerlink" title="Profile（配置文件）"></a>Profile（配置文件）</h3><p>Profile，即配置文件，定义了BLE设备的功能和数据交换规则。</p>
+<p>包括关键概念有：服务、特征值、特征描述符、属性、配置文件角色、数据交换格式、安全和配对等。</p>
+<h3 id="Service（服务）"><a href="#Service（服务）" class="headerlink" title="Service（服务）"></a>Service（服务）</h3><p>Service（服务）是一组特征值的组合，每个服务都有一个唯一的标识符UUID，使得客户端可以标准化识别服务。</p>
+<p>服务可以包含多个特征值，特征值可以包含多个特征描述符（Descriptors）。</p>
+<p>服务本身没有直接的访问权限，但它们包含的特征值可以具有不同的访问权限，如只读、可写、可通知等。</p>
+<br>
+
+<p><strong>句柄：</strong> 服务句柄（Service Handle）是一个用于唯一标识服务的数字。每个服务、特征值（Characteristic）、以及特征描述符（Descriptor）在GATT数据库中都有一个唯一的句柄值。</p>
+<ul>
+<li>在GATT数据库，即<code>profile_data</code>中，句柄值通常会从1开始，然后依次增加。</li>
+<li>服务句柄通常与其他属性的句柄一起定义了一个服务的范围，即服务的第一个和最后一个属性句柄标识了服务的开始和结束。</li>
+<li>服务句柄与服务的UUID相关联，UUID用于定义服务的类型和功能，而句柄用于在GATT数据库中标识服务的位置。</li>
+</ul>
+<br>
+
+<p><strong>主服务：</strong> 主服务是GATT数据库中的顶级服务，它作为GATT层次结构的起点，包含多个特征值（Characteristics）和次级服务（Secondary Services）。</p>
+<ul>
+<li><p>一个主服务可以包含多个次级服务，而次级服务也可以进一步包含其他次级服务或特征值。</p>
+</li>
+<li><p>主服务可以被客户端设备发现，客户端设备通过扫描和查询来识别服务器端提供的服务</p>
+<blockquote>
+<p>在BLE设备配对和连接过程中，客户端设备首先发现主服务，然后才能进一步发现和访问服务内的特征值</p>
+</blockquote>
+</li>
+<li><p>主服务在GATT数据库中定义了一个服务范围，由服务的起始句柄（Start Handle）和结束句柄（End Handle）标识</p>
+</li>
+</ul>
+<h3 id="Characteristic（特征值）"><a href="#Characteristic（特征值）" class="headerlink" title="Characteristic（特征值）"></a>Characteristic（特征值）</h3><p>每个特征值都有一个唯一的UUID（Universally Unique Identifier），用于在GATT数据库中标识不同的特征值。</p>
+<p>特征值是客户端和服务器之间数据交换的基本单元。其表示BLE设备中的一个数据项，可以是温度传感器的读数、设备的电池电量、或者其它用户自定义的数据设置通道。</p>
+<p>客户端可以读取服务器的特征值，或者在特征值上注册通知，以接收数据更新。</p>
+<ul>
+<li><p>其定义了一系列特征属性（Properties），这些属性描述了特征值的行为，例如是否可读、可写、可通知（Notify）、可指示（Indicate）等。</p>
+</li>
+<li><p>特征值可以有零个或多个特征描述符（Descriptor），这些描述符提供了关于特征值的额外信息，例如用户友好的描述、配置参数等。</p>
+</li>
+<li><p>特征值具有访问权限，定义了哪些操作（如读取、写入）是被允许的。这些权限可以用于实现安全措施，如认证和加密。</p>
+</li>
+<li><p>特征值可以是动态的，其值随设备状态变化而变化；也可以是静态的，其值在设备使用期间保持不变。</p>
+</li>
+</ul>
+<h3 id="UUID（唯一标识符）"><a href="#UUID（唯一标识符）" class="headerlink" title="UUID（唯一标识符）"></a>UUID（唯一标识符）</h3><p>蓝牙低功耗（BLE）的GATT（Generic Attribute Profile）框架中，服务（Service）、特征声明（Characteristic Declaration）、特征值（Characteristic Value）和特征描述符（Descriptor）都有各自的UUID（Universally Unique Identifier，通用唯一识别码）</p>
+<p>BLE的服务和特征值都是通过UUID唯一标识的，并且可以通过UUID查找相关的服务和特征值</p>
+<ul>
+<li><p>唯一性：UUID提供了一个全球唯一的标识符，确保了不同设备或开发者定义的服务、特征值和描述符不会发生冲突。</p>
+</li>
+<li><p>标准化：使用UUID有助于标准化，使得不同制造商生产的设备能够通过标准化的接口进行通信和交互。</p>
+</li>
+</ul>
+<p>等等</p>
+<h3 id="Client-and-Server"><a href="#Client-and-Server" class="headerlink" title="Client and Server"></a>Client and Server</h3><p><strong>Server（服务器端）：</strong> 比如蓝牙耳机</p>
+<ul>
+<li>提供服务，广播服务信息，被其它设备发现</li>
+<li>存储特征值数据，如设备参数、状态信息或者用户自定义的数据</li>
+<li>响应客户端的数据交互，或者发送通知&#x2F;指示到客户端</li>
+</ul>
+<p><strong>Client（客户端）：</strong> 比如手机</p>
+<ul>
+<li>发现服务，请求服务信息，连接到Server访问特征值</li>
+<li>根据实际应用，可以读取Server的特征值数据，或者写入数据到特征值</li>
+<li>也可以订阅特征值通知，当特征值数据发生变化时，会收到通知。</li>
+</ul>
+<br>
+
+<ul>
+<li>一个通信会话包括一个 Server 和一个 Client</li>
+<li>设备可以同时充作为 Server 和 Client</li>
+<li>BLE支持一对多通信模式，一个Server可以与多个Client建立通信</li>
+</ul>
+<h3 id="BLE通信流程"><a href="#BLE通信流程" class="headerlink" title="BLE通信流程"></a>BLE通信流程</h3><p>发现阶段：Client扫描周围环境中的Server，通过广播包发现服务。<br>连接阶段：Client发起连接请求，Server接受连接后，两者建立通信链路。<br>服务和特征值发现：Client通过读取操作获取Server上的服务列表，进一步发现服务内的特征值。<br>数据交互：Client根据需要读取或写入特征值，Server响应这些请求并提供数据或确认。<br>通知和指示：Server可以通过特征值向Client发送通知或指示，Client接收并处理这些更新。</p>
+<h3 id="GATT层概念小结"><a href="#GATT层概念小结" class="headerlink" title="GATT层概念小结"></a>GATT层概念小结</h3><p>BLE定义了一系列的标准服务，其可以看作是特定应用场景下的profile，如Heart Rate Service、Battery Service等都是标准服务</p>
+<p><strong>标准服务和特征值：</strong></p>
+<p>标准服务和特征值的 UUID 通常为 16 位。<br>16位 UUID 通常用于表示标准的服务和特征值。这种 UUID 的格式为 0xXXXX，其中 XXXX 是一个四位的十六进制数。<br>16位 UUID 的完整形式为 0000XXXX-0000-1000-8000-00805F9B34FB。</p>
+<p>例如，Battery Service 的 UUID 为 0x180F，其中包含的 Battery Level 特征值的 UUID 为 0x2A19。</p>
+<p><strong>自定义服务和特征值：</strong></p>
+<p>自定义服务和特征值的 UUID 可以为 16 位或 128 位。<br>例如，一个自定义的服务 UUID 可能是 128 位的，而该服务下的特征值也可以是 128 位的 UUID，或者其中一个为 16 位，另一个为 128 位。</p>
+<p>128位 UUID 通常用于表示自定义的服务和特征值。这种 UUID 的格式为一组 32 位的十六进制数字，以连字号分为五段。<br>128位 UUID 的格式为 XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX。</p>
+<h2 id="嵌入式BLE之业务应用层开发"><a href="#嵌入式BLE之业务应用层开发" class="headerlink" title="嵌入式BLE之业务应用层开发"></a>嵌入式BLE之业务应用层开发</h2><p>以下为一项目范例BLE广播及连接示意</p>
+<p><img src="/../pictures/20240803-BLE%E5%B9%BF%E6%92%AD%E8%BF%9E%E6%8E%A5%E5%AF%B9%E6%8E%A5%E5%9B%BE.png" alt="alt text"></p>
+<h3 id="BLE的广播包设置及分析"><a href="#BLE的广播包设置及分析" class="headerlink" title="BLE的广播包设置及分析"></a>BLE的广播包设置及分析</h3><p>0x02010609FF00008AE088E655540505DAF58F010201061409736F756E64636F72652053656C656374203253</p>
+<table>
+<thead>
+<tr>
+<th>LEN</th>
+<th>TYPE</th>
+<th>VALUE</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>2</td>
+<td>0x01</td>
+<td>0x06</td>
+</tr>
+<tr>
+<td>9</td>
+<td>OxFF</td>
+<td>0x00008AE088E65554</td>
+</tr>
+<tr>
+<td>5</td>
+<td>0x05</td>
+<td>0xDAF58F01</td>
+</tr>
+<tr>
+<td>2</td>
+<td>0x01</td>
+<td>0x06</td>
+</tr>
+<tr>
+<td>20</td>
+<td>0x09</td>
+<td>0x736F756E64636F72652053656C656374203253</td>
+</tr>
+</tbody></table>
+<ul>
+<li><p>LEN: 0x02 (2字节)   TYPE: 0x01 (Flags)  VALUE: 0x06<br>这通常表示设备的发现模式，其中0x06通常表示设备支持 BLE 仅连接模式。</p>
+</li>
+<li><p>LEN: 0x09 (9字节)   TYPE: 0xFF (Manufacturer Specific Data) VALUE: 0x00008AE088E65554<br>这是制造商特定的数据，通常包含公司标识符和产品特定的信息</p>
+</li>
+<li><p>LEN: 0x05 (5字节)TYPE: 0x05 (Service Data)VALUE: 0xDAF58F01（低位在前）<br>TYPE 0x05: 表示广播数据包的类型为 Service UUID；VALUE 0xDAF58F01: 表示一个服务的 UUID。</p>
+</li>
+<li><p>LEN: 0x02 (2字节)   TYPE: 0x01 (Flags)  VALUE: 0x06</p>
+<blockquote>
+<p>重复了，可能是设置错误？</p>
+</blockquote>
+</li>
+<li><p>LEN: 0x14 (20字节) TYPE: 0x09 (Local Name)  VALUE: 0x736F756E64636F72652053656C656374203253</p>
+<blockquote>
+<p>设备的本地名称，解码为字符串<code>soundcore Select 2S</code>。</p>
+</blockquote>
+</li>
+</ul>
+<h3 id="Profile-data解析"><a href="#Profile-data解析" class="headerlink" title="Profile_data解析"></a>Profile_data解析</h3><p>以下为一profile_data示例，从行列角度描述，有：</p>
+<p>长度表示、类型表示、服务句柄、UUID（2字节或者16字节）</p>
+<ul>
+<li>服务声明：</li>
+<li>第一个特征值声明：</li>
+<li>第一个特征值值：</li>
+<li>第二个特征值声明：</li>
+<li>第二个特征值值：</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">const</span> <span class="type">uint8_t</span> profile_data[] = &#123;</span><br><span class="line">    <span class="comment">//////////////////////////////////////////////////////</span></span><br><span class="line">    <span class="comment">//</span></span><br><span class="line">    <span class="comment">// 0x0001 PRIMARY_SERVICE  1800</span></span><br><span class="line">    <span class="comment">//</span></span><br><span class="line">    <span class="comment">//////////////////////////////////////////////////////</span></span><br><span class="line">    <span class="number">0x0a</span>, <span class="number">0x00</span>, <span class="number">0x02</span>, <span class="number">0x00</span>, <span class="number">0x01</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x28</span>, <span class="number">0x00</span>, <span class="number">0x18</span>,</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* CHARACTERISTIC,  2a00, READ | WRITE | DYNAMIC, */</span></span><br><span class="line">    <span class="comment">// 0x0002 CHARACTERISTIC 2a00 READ | WRITE | DYNAMIC</span></span><br><span class="line">    <span class="number">0x0d</span>, <span class="number">0x00</span>, <span class="number">0x02</span>, <span class="number">0x00</span>, <span class="number">0x02</span>, <span class="number">0x00</span>, <span class="number">0x03</span>, <span class="number">0x28</span>, <span class="number">0x0a</span>, <span class="number">0x03</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x2a</span>,</span><br><span class="line">    <span class="comment">// 0x0003 VALUE 2a00 READ | WRITE | DYNAMIC</span></span><br><span class="line">    <span class="number">0x08</span>, <span class="number">0x00</span>, <span class="number">0x0a</span>, <span class="number">0x01</span>, <span class="number">0x03</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x2a</span>,</span><br><span class="line"></span><br><span class="line">    <span class="comment">//////////////////////////////////////////////////////</span></span><br><span class="line">    <span class="comment">//</span></span><br><span class="line">    <span class="comment">// 0x0004 PRIMARY_SERVICE  ae30</span></span><br><span class="line">    <span class="comment">//</span></span><br><span class="line">    <span class="comment">//////////////////////////////////////////////////////</span></span><br><span class="line">    <span class="number">0x0a</span>, <span class="number">0x00</span>, <span class="number">0x02</span>, <span class="number">0x00</span>, <span class="number">0x04</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x28</span>, <span class="number">0x30</span>, <span class="number">0xae</span>,</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* CHARACTERISTIC,  ae01, WRITE_WITHOUT_RESPONSE | DYNAMIC, */</span></span><br><span class="line">    <span class="comment">// 0x0005 CHARACTERISTIC ae01 WRITE_WITHOUT_RESPONSE | DYNAMIC</span></span><br><span class="line">    <span class="number">0x0d</span>, <span class="number">0x00</span>, <span class="number">0x02</span>, <span class="number">0x00</span>, <span class="number">0x05</span>, <span class="number">0x00</span>, <span class="number">0x03</span>, <span class="number">0x28</span>, <span class="number">0x04</span>, <span class="number">0x06</span>, <span class="number">0x00</span>, <span class="number">0x01</span>, <span class="number">0xae</span>,</span><br><span class="line">    <span class="comment">// 0x0006 VALUE ae01 WRITE_WITHOUT_RESPONSE | DYNAMIC</span></span><br><span class="line">    <span class="number">0x08</span>, <span class="number">0x00</span>, <span class="number">0x04</span>, <span class="number">0x01</span>, <span class="number">0x06</span>, <span class="number">0x00</span>, <span class="number">0x01</span>, <span class="number">0xae</span>,</span><br><span class="line"></span><br><span class="line">    ......</span><br><span class="line"></span><br><span class="line">        <span class="comment">//////////////////////////////////////////////////////</span></span><br><span class="line">    <span class="comment">//</span></span><br><span class="line">    <span class="comment">// 0x0021 PRIMARY_SERVICE  E49A25F8-F69A-11E8-8EB2-F2801F1B9FD1</span></span><br><span class="line">    <span class="comment">//</span></span><br><span class="line">    <span class="comment">//////////////////////////////////////////////////////</span></span><br><span class="line">    <span class="number">0x18</span>, <span class="number">0x00</span>, <span class="number">0x02</span>, <span class="number">0x00</span>, <span class="number">0x21</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x28</span>, <span class="number">0xd1</span>, <span class="number">0x9f</span>, <span class="number">0x1b</span>, <span class="number">0x1f</span>, <span class="number">0x80</span>, <span class="number">0xf2</span>, <span class="number">0xb2</span>, <span class="number">0x8e</span>, <span class="number">0xe8</span>, <span class="number">0x11</span>, <span class="number">0x9a</span>, <span class="number">0xf6</span>, <span class="number">0xf8</span>, <span class="number">0x25</span>, <span class="number">0x9a</span>, <span class="number">0xe4</span>,</span><br><span class="line"></span><br><span class="line">     <span class="comment">/* CHARACTERISTIC,  E49A25E0-F69A-11E8-8EB2-F2801F1B9FD1, WRITE_WITHOUT_RESPONSE | DYNAMIC | NOTIFY, */</span></span><br><span class="line">    <span class="comment">// 0x0022 CHARACTERISTIC E49A25E0-F69A-11E8-8EB2-F2801F1B9FD1 WRITE_WITHOUT_RESPONSE | DYNAMIC | NOTIFY</span></span><br><span class="line">    <span class="number">0x1b</span>, <span class="number">0x00</span>, <span class="number">0x02</span>, <span class="number">0x00</span>, <span class="number">0x22</span>, <span class="number">0x00</span>, <span class="number">0x03</span>, <span class="number">0x28</span>, <span class="number">0x14</span>, <span class="number">0x23</span>, <span class="number">0x00</span>, <span class="number">0xd1</span>, <span class="number">0x9f</span>, <span class="number">0x1b</span>, <span class="number">0x1f</span>, <span class="number">0x80</span>, <span class="number">0xf2</span>, <span class="number">0xb2</span>, <span class="number">0x8e</span>, <span class="number">0xe8</span>, <span class="number">0x11</span>, <span class="number">0x9a</span>, <span class="number">0xf6</span>, <span class="number">0xe0</span>, <span class="number">0x25</span>, <span class="number">0x9a</span>, <span class="number">0xe4</span>,</span><br><span class="line">    <span class="comment">// 0x0023 VALUE E49A25E0-F69A-11E8-8EB2-F2801F1B9FD1 WRITE_WITHOUT_RESPONSE | DYNAMIC | NOTIFY</span></span><br><span class="line">    <span class="number">0x16</span>, <span class="number">0x00</span>, <span class="number">0x14</span>, <span class="number">0x03</span>, <span class="number">0x23</span>, <span class="number">0x00</span>, <span class="number">0xd1</span>, <span class="number">0x9f</span>, <span class="number">0x1b</span>, <span class="number">0x1f</span>, <span class="number">0x80</span>, <span class="number">0xf2</span>, <span class="number">0xb2</span>, <span class="number">0x8e</span>, <span class="number">0xe8</span>, <span class="number">0x11</span>, <span class="number">0x9a</span>, <span class="number">0xf6</span>, <span class="number">0xe0</span>, <span class="number">0x25</span>, <span class="number">0x9a</span>, <span class="number">0xe4</span>,</span><br><span class="line">    <span class="comment">// 0x0024 CLIENT_CHARACTERISTIC_CONFIGURATION</span></span><br><span class="line">    <span class="number">0x0a</span>, <span class="number">0x00</span>, <span class="number">0x0a</span>, <span class="number">0x01</span>, <span class="number">0x24</span>, <span class="number">0x00</span>, <span class="number">0x02</span>, <span class="number">0x29</span>, <span class="number">0x00</span>, <span class="number">0x00</span>,</span><br><span class="line"></span><br><span class="line">     <span class="comment">/* CHARACTERISTIC,  E49A28E1-F69A-11E8-8EB2-F2801F1B9FD1, READ | NOTIFY, */</span></span><br><span class="line">    <span class="comment">// 0x0025 CHARACTERISTIC E49A28E1-F69A-11E8-8EB2-F2801F1B9FD1 READ | NOTIFY</span></span><br><span class="line">    <span class="number">0x1b</span>, <span class="number">0x00</span>, <span class="number">0x02</span>, <span class="number">0x00</span>, <span class="number">0x25</span>, <span class="number">0x00</span>, <span class="number">0x03</span>, <span class="number">0x28</span>, <span class="number">0x12</span>, <span class="number">0x26</span>, <span class="number">0x00</span>, <span class="number">0xd1</span>, <span class="number">0x9f</span>, <span class="number">0x1b</span>, <span class="number">0x1f</span>, <span class="number">0x80</span>, <span class="number">0xf2</span>, <span class="number">0xb2</span>, <span class="number">0x8e</span>, <span class="number">0xe8</span>, <span class="number">0x11</span>, <span class="number">0x9a</span>, <span class="number">0xf6</span>, <span class="number">0xe1</span>, <span class="number">0x28</span>, <span class="number">0x9a</span>, <span class="number">0xe4</span>,</span><br><span class="line">    <span class="comment">// 0x0026 VALUE E49A28E1-F69A-11E8-8EB2-F2801F1B9FD1 READ | NOTIFY</span></span><br><span class="line">    <span class="number">0x16</span>, <span class="number">0x00</span>, <span class="number">0x12</span>, <span class="number">0x02</span>, <span class="number">0x26</span>, <span class="number">0x00</span>, <span class="number">0xd1</span>, <span class="number">0x9f</span>, <span class="number">0x1b</span>, <span class="number">0x1f</span>, <span class="number">0x80</span>, <span class="number">0xf2</span>, <span class="number">0xb2</span>, <span class="number">0x8e</span>, <span class="number">0xe8</span>, <span class="number">0x11</span>, <span class="number">0x9a</span>, <span class="number">0xf6</span>, <span class="number">0xe1</span>, <span class="number">0x28</span>, <span class="number">0x9a</span>, <span class="number">0xe4</span>,</span><br><span class="line">    <span class="comment">// 0x0027 CLIENT_CHARACTERISTIC_CONFIGURATION</span></span><br><span class="line">    <span class="number">0x0a</span>, <span class="number">0x00</span>, <span class="number">0x0a</span>, <span class="number">0x01</span>, <span class="number">0x27</span>, <span class="number">0x00</span>, <span class="number">0x02</span>, <span class="number">0x29</span>, <span class="number">0x00</span>, <span class="number">0x00</span>,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="初始化、服务及回调注册"><a href="#初始化、服务及回调注册" class="headerlink" title="初始化、服务及回调注册"></a>初始化、服务及回调注册</h3><p>根据业务需求，定义好<code>profile_data</code>后，调用<code>ble_profile_init</code>函数进行初始化，并注册服务及回调函数。</p>
+<h3 id="业务数据处理"><a href="#业务数据处理" class="headerlink" title="业务数据处理"></a>业务数据处理</h3><p>当设备收到数据，会在相应回调中触发 case 相应的事件枚举。该枚举即对应相应的profile_data句柄。</p>
+<p><code>att_server_init(multi_profile_data, att_read_callback, att_write_callback);</code></p>
+<h2 id="思考与拓展"><a href="#思考与拓展" class="headerlink" title="思考与拓展"></a>思考与拓展</h2><h3 id="服务句柄、特征值句柄、特征值值句柄、CCCD句柄？"><a href="#服务句柄、特征值句柄、特征值值句柄、CCCD句柄？" class="headerlink" title="服务句柄、特征值句柄、特征值值句柄、CCCD句柄？"></a>服务句柄、特征值句柄、特征值值句柄、CCCD句柄？</h3><p>在程序中通过case各种句柄事件，从而执行相应的操作</p>
+<p>特征值句柄，用于读取元数据</p>
+<p>特征值值句柄用于读写实际数据</p>
+<p>CCCD句柄：特征描述符相关的标识，可选</p>
+<h3 id="客户端不与服务器端建立连接，可以读取特征值数据吗？"><a href="#客户端不与服务器端建立连接，可以读取特征值数据吗？" class="headerlink" title="客户端不与服务器端建立连接，可以读取特征值数据吗？"></a>客户端不与服务器端建立连接，可以读取特征值数据吗？</h3><h3 id="广播跟GATT层有什么联系？广播数据包必须包含哪些数据？必须与UUID关联？配置广播有什么标准要求吗？"><a href="#广播跟GATT层有什么联系？广播数据包必须包含哪些数据？必须与UUID关联？配置广播有什么标准要求吗？" class="headerlink" title="广播跟GATT层有什么联系？广播数据包必须包含哪些数据？必须与UUID关联？配置广播有什么标准要求吗？"></a>广播跟GATT层有什么联系？广播数据包必须包含哪些数据？必须与UUID关联？配置广播有什么标准要求吗？</h3><p>扫描到的广播名称，即与0x09字段的绑定</p>
+<p>广播数据包结构：<br>广播数据包包含了一个或多个字段，每个字段由长度、类型和数据组成。<br>类型字段定义了数据的含义，如设备名称、服务 UUID 等。</p>
+<p>广播数据包可以是可连接的 (Connectable) 或不可连接的 (Non-connectable)。</p>
+<h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/m0_73219367/article/details/133804551">详细介绍 BLE GATT层 porfile属性 ：特征声明，特征值，特征描述符</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2024/07/26/USB%E7%9B%B8%E5%85%B3%E4%B8%9A%E5%8A%A1%E5%BC%80%E5%8F%91%E6%A6%82%E8%BF%B0/" rel="prev" title="USB原理及应用开发概述">
+      <i class="fa fa-chevron-left"></i> USB原理及应用开发概述
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2024/08/21/%E7%BB%8F%E5%85%B8%E8%93%9D%E7%89%99%E5%92%8CTWS%E7%9A%84%E8%BF%9E%E6%8E%A5%E5%8E%9F%E7%90%86/" rel="next" title="经典蓝牙和TWS的连接原理">
+      经典蓝牙和TWS的连接原理 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#BLE%E5%8D%8F%E8%AE%AE%E6%A0%88%E6%A1%86%E6%9E%B6"><span class="nav-number">2.</span> <span class="nav-text">BLE协议栈框架</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#BLE-GATT%E5%B1%82%E7%9B%B8%E5%85%B3%E6%A6%82%E5%BF%B5"><span class="nav-number">3.</span> <span class="nav-text">BLE-GATT层相关概念</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Profile%EF%BC%88%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%EF%BC%89"><span class="nav-number">3.1.</span> <span class="nav-text">Profile（配置文件）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Service%EF%BC%88%E6%9C%8D%E5%8A%A1%EF%BC%89"><span class="nav-number">3.2.</span> <span class="nav-text">Service（服务）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Characteristic%EF%BC%88%E7%89%B9%E5%BE%81%E5%80%BC%EF%BC%89"><span class="nav-number">3.3.</span> <span class="nav-text">Characteristic（特征值）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#UUID%EF%BC%88%E5%94%AF%E4%B8%80%E6%A0%87%E8%AF%86%E7%AC%A6%EF%BC%89"><span class="nav-number">3.4.</span> <span class="nav-text">UUID（唯一标识符）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Client-and-Server"><span class="nav-number">3.5.</span> <span class="nav-text">Client and Server</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#BLE%E9%80%9A%E4%BF%A1%E6%B5%81%E7%A8%8B"><span class="nav-number">3.6.</span> <span class="nav-text">BLE通信流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#GATT%E5%B1%82%E6%A6%82%E5%BF%B5%E5%B0%8F%E7%BB%93"><span class="nav-number">3.7.</span> <span class="nav-text">GATT层概念小结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B5%8C%E5%85%A5%E5%BC%8FBLE%E4%B9%8B%E4%B8%9A%E5%8A%A1%E5%BA%94%E7%94%A8%E5%B1%82%E5%BC%80%E5%8F%91"><span class="nav-number">4.</span> <span class="nav-text">嵌入式BLE之业务应用层开发</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#BLE%E7%9A%84%E5%B9%BF%E6%92%AD%E5%8C%85%E8%AE%BE%E7%BD%AE%E5%8F%8A%E5%88%86%E6%9E%90"><span class="nav-number">4.1.</span> <span class="nav-text">BLE的广播包设置及分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Profile-data%E8%A7%A3%E6%9E%90"><span class="nav-number">4.2.</span> <span class="nav-text">Profile_data解析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96%E3%80%81%E6%9C%8D%E5%8A%A1%E5%8F%8A%E5%9B%9E%E8%B0%83%E6%B3%A8%E5%86%8C"><span class="nav-number">4.3.</span> <span class="nav-text">初始化、服务及回调注册</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%9A%E5%8A%A1%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86"><span class="nav-number">4.4.</span> <span class="nav-text">业务数据处理</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%9D%E8%80%83%E4%B8%8E%E6%8B%93%E5%B1%95"><span class="nav-number">5.</span> <span class="nav-text">思考与拓展</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%8D%E5%8A%A1%E5%8F%A5%E6%9F%84%E3%80%81%E7%89%B9%E5%BE%81%E5%80%BC%E5%8F%A5%E6%9F%84%E3%80%81%E7%89%B9%E5%BE%81%E5%80%BC%E5%80%BC%E5%8F%A5%E6%9F%84%E3%80%81CCCD%E5%8F%A5%E6%9F%84%EF%BC%9F"><span class="nav-number">5.1.</span> <span class="nav-text">服务句柄、特征值句柄、特征值值句柄、CCCD句柄？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%A2%E6%88%B7%E7%AB%AF%E4%B8%8D%E4%B8%8E%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%AB%AF%E5%BB%BA%E7%AB%8B%E8%BF%9E%E6%8E%A5%EF%BC%8C%E5%8F%AF%E4%BB%A5%E8%AF%BB%E5%8F%96%E7%89%B9%E5%BE%81%E5%80%BC%E6%95%B0%E6%8D%AE%E5%90%97%EF%BC%9F"><span class="nav-number">5.2.</span> <span class="nav-text">客户端不与服务器端建立连接，可以读取特征值数据吗？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B9%BF%E6%92%AD%E8%B7%9FGATT%E5%B1%82%E6%9C%89%E4%BB%80%E4%B9%88%E8%81%94%E7%B3%BB%EF%BC%9F%E5%B9%BF%E6%92%AD%E6%95%B0%E6%8D%AE%E5%8C%85%E5%BF%85%E9%A1%BB%E5%8C%85%E5%90%AB%E5%93%AA%E4%BA%9B%E6%95%B0%E6%8D%AE%EF%BC%9F%E5%BF%85%E9%A1%BB%E4%B8%8EUUID%E5%85%B3%E8%81%94%EF%BC%9F%E9%85%8D%E7%BD%AE%E5%B9%BF%E6%92%AD%E6%9C%89%E4%BB%80%E4%B9%88%E6%A0%87%E5%87%86%E8%A6%81%E6%B1%82%E5%90%97%EF%BC%9F"><span class="nav-number">5.3.</span> <span class="nav-text">广播跟GATT层有什么联系？广播数据包必须包含哪些数据？必须与UUID关联？配置广播有什么标准要求吗？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E7%AB%99%E7%82%B9"><span class="nav-number">6.</span> <span class="nav-text">参考站点</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">cjd</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">40</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">cjd</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="Symbols count total">90k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">5:02</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

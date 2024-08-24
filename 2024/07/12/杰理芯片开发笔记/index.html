@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":"enable","trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="本文从新人角度，暂且以&#96;jl701n_soundbox_release_v1.4.2&#x2F;sdk&#96;为例，讲述对杰理SDK的入门与开发理解。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="杰理科技SDK开发笔记">
+<meta property="og:url" content="http://example.com/2024/07/12/%E6%9D%B0%E7%90%86%E8%8A%AF%E7%89%87%E5%BC%80%E5%8F%91%E7%AC%94%E8%AE%B0/index.html">
+<meta property="og:site_name" content="Jindu-Chen">
+<meta property="og:description" content="本文从新人角度，暂且以&#96;jl701n_soundbox_release_v1.4.2&#x2F;sdk&#96;为例，讲述对杰理SDK的入门与开发理解。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/pictures/AC701N_SDK%E6%A1%86%E6%9E%B6%E7%A4%BA%E6%84%8F.png">
+<meta property="article:published_time" content="2024-07-11T16:00:00.000Z">
+<meta property="article:modified_time" content="2024-08-24T06:19:15.115Z">
+<meta property="article:author" content="cjd">
+<meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/pictures/AC701N_SDK%E6%A1%86%E6%9E%B6%E7%A4%BA%E6%84%8F.png">
+
+<link rel="canonical" href="http://example.com/2024/07/12/%E6%9D%B0%E7%90%86%E8%8A%AF%E7%89%87%E5%BC%80%E5%8F%91%E7%AC%94%E8%AE%B0/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>杰理科技SDK开发笔记 | Jindu-Chen</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Jindu-Chen</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">风物长宜放眼量</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/07/12/%E6%9D%B0%E7%90%86%E8%8A%AF%E7%89%87%E5%BC%80%E5%8F%91%E7%AC%94%E8%AE%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="cjd">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jindu-Chen">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          杰理科技SDK开发笔记
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-07-12 00:00:00" itemprop="dateCreated datePublished" datetime="2024-07-12T00:00:00+08:00">2024-07-12</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-08-24 14:19:15" itemprop="dateModified" datetime="2024-08-24T14:19:15+08:00">2024-08-24</time>
+              </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>7.3k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>24 mins.</span>
+            </span>
+            <div class="post-description">本文从新人角度，暂且以`jl701n_soundbox_release_v1.4.2/sdk`为例，讲述对杰理SDK的入门与开发理解。</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="绪论"><a href="#绪论" class="headerlink" title="绪论"></a>绪论</h2><p>本文从新人角度，暂且以<code>jl701n_soundbox_release_v1.4.2/sdk</code>为例，讲述对杰理SDK的入门与开发理解。</p>
+<h3 id="杰理系列芯片介绍"><a href="#杰理系列芯片介绍" class="headerlink" title="杰理系列芯片介绍"></a>杰理系列芯片介绍</h3><ul>
+<li><p>br23 br25 br28等，与芯片型号的关联，芯片丝印与SDK包命名的关系 等等需要理清</p>
+</li>
+<li><p>不同内核、不同型号的芯片，具体的业务方案应用场景，为何做这样的区分，概述</p>
+</li>
+</ul>
+<p>此部分内容暂略…</p>
+<h2 id="杰理SDK软件架构解析"><a href="#杰理SDK软件架构解析" class="headerlink" title="杰理SDK软件架构解析"></a>杰理SDK软件架构解析</h2><h3 id="SDK框架总体概览"><a href="#SDK框架总体概览" class="headerlink" title="SDK框架总体概览"></a>SDK框架总体概览</h3><ul>
+<li><a target="_blank" rel="noopener" href="https://gitee.com/Jindu-Chen/jindu-chen_-jie-li_-doc/blob/master/%E6%9D%B0%E7%90%86SDK%E6%A1%86%E6%9E%B6%E5%8F%8A%E5%90%84%E6%A8%A1%E5%9D%97%E5%88%86%E6%9E%90/%E6%9D%B0%E7%90%86SDK%E4%B8%BB%E6%A1%86%E6%9E%B6.drawio">点击跳转：SDK框架总体概览</a></li>
+</ul>
+<p><img src="/../pictures/AC701N_SDK%E6%A1%86%E6%9E%B6%E7%A4%BA%E6%84%8F.png" alt="SDK框架总体概览"></p>
+<h3 id="SDK文件目录概览"><a href="#SDK文件目录概览" class="headerlink" title="SDK文件目录概览"></a>SDK文件目录概览</h3><p>以SDK包为根，主要有以下子目录</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">//SDK</span><br><span class="line">│</span><br><span class="line">│</span><br><span class="line">├── apps</span><br><span class="line">│      │</span><br><span class="line">│      ├── common         # 通用中间层文件，如音频、蓝牙、全局通用配置、设备管理、文件系统等</span><br><span class="line">│      │</span><br><span class="line">│      └── soundbox       # 应用层的业务逻辑代码</span><br><span class="line">│</span><br><span class="line">├── cpu/br25             # 内核、芯片外设层的相关代码</span><br><span class="line">│      │</span><br><span class="line">│      ├── audio_common/</span><br><span class="line">│      │</span><br><span class="line">│      ├── tools/        # 工具集，包含有配置工具、烧录脚本等</span><br><span class="line">│      │</span><br><span class="line">│      └── ...           # </span><br><span class="line">│</span><br><span class="line">│</span><br><span class="line">└── include_lib          # 封装好，以供调用或者链接的库，包含OS、FS、外设底层驱动等</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="开发思路流程概览"><a href="#开发思路流程概览" class="headerlink" title="开发思路流程概览"></a>开发思路流程概览</h2><p>在<code>//apps/soundbox/board/brxx/board_config.h</code>进行板级的宏定义配置选择</p>
+<blockquote>
+<p>其包含了所有板级配置.h文件，通过配置宏定义选择性编译 <code>#ifdef xxx #endif</code>从而决定采用何种板级配置</p>
+</blockquote>
+<br>
+
+<p>板级宏定义配置决定了采用何种<code>//apps/soundbox/board/br23/board_xxx_xxx/board_xxx_cfg.h</code>文件，其业务功能实现则位于相应的<code>//apps/soundbox/board/br28/board_xxx_xxx/</code>中</p>
+<h3 id="SDK级宏定义配置"><a href="#SDK级宏定义配置" class="headerlink" title="SDK级宏定义配置"></a>SDK级宏定义配置</h3><h3 id="外设驱动抽象层宏配置"><a href="#外设驱动抽象层宏配置" class="headerlink" title="外设驱动抽象层宏配置"></a>外设驱动抽象层宏配置</h3><h2 id="SDK之初始化流程概述"><a href="#SDK之初始化流程概述" class="headerlink" title="SDK之初始化流程概述"></a>SDK之初始化流程概述</h2><h3 id="上电初始化至main"><a href="#上电初始化至main" class="headerlink" title="上电初始化至main"></a>上电初始化至main</h3><p><code>main</code>函数之前的源码不可见</p>
+<p>猜测是通过指定链接相应的.a库或者段 到上电入口地址，完成必要的上电初始化后，再跳转至<code>main</code>函数执行用户级的初始化</p>
+<p>这部分用户不可见的工作可能包括如下：</p>
+<ol>
+<li>芯片上电从0地址，或者是所映射的其它原始入口地址，开始执行</li>
+<li>进行CPU寄存器比如栈指针、CPU内核等芯片内核初始化</li>
+<li>C语言运行环境的初始化，包括栈指针设置、可读写数据区、堆区、栈区的初始化，具体代码实现取决于cpu内核架构</li>
+<li>原始时钟系统、中断向量、内部Flash的读写等初始化</li>
+<li>程序执行流-&gt;跳转至声明的<code>main</code>函数，正式执行用户级代码，并在<code>main</code>函数里面初始化及启动OS，开启线程调度</li>
+</ol>
+<br>
+
+<p>从<code>sdk.map</code>文件可知，芯片代码段起始地址为 0x06000100，并说明了全局符号<code>text_rodata_begin</code>的地址即为 0x06000100，该全局符号的链接地址由<code>sdk_ld.c</code>或<code>sdk.ld</code>链接脚本确定。</p>
+<br>
+
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">//cpu/br28/tools/sdk.map</span><br><span class="line">.text           0x06000100    0xc2610</span><br><span class="line">                [!provide]                PROVIDE (text_rodata_begin, .)</span><br><span class="line"> *(.startup.text)</span><br><span class="line"> .startup.text  0x06000100       0x8e cpu/br28/liba/cpu.a(startup.S.o)</span><br><span class="line">                0x06000100                _start</span><br><span class="line"> *(.text)</span><br><span class="line"> .text          0x0600018e    0x11efe cpu/br28/tools/sdk.elf.o</span><br><span class="line">                0x060014ae                update_result_get</span><br><span class="line">                0x060019fc                __errno</span><br><span class="line">                0x06001cd4                main</span><br></pre></td></tr></table></figure>
+<p>通过以上节选map文件推测可知，芯片上电后，会首先执行<code>_start</code>汇编初始化函数，其实现位于<code>cpu/br28/liba/cpu.a(startup.S.o)</code>，而后即跳转至<code>main</code>函数</p>
+<h3 id="main函数"><a href="#main函数" class="headerlink" title="main函数"></a>main函数</h3><p>用户入口<code>int main()</code>位于<code>//SDK/apps/soundbox/common/init.c/main()</code>，实现以及解释如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    wdt_close();    <span class="comment">// 关看门狗</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 初始化`FreeRTOS`或其它RTOS的任务调度器链表、</span></span><br><span class="line"><span class="comment">    以及定时器任务链表、消息队列链表、事件链表等必要内核组件数据结构 */</span></span><br><span class="line">    os_init();</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* </span></span><br><span class="line"><span class="comment">    架构级设置，路径位于 //cpu/br28/setup.c/setup_arch()，里面所作设置如下：</span></span><br><span class="line"><span class="comment">    1. 开启DSP核的bpu配置，暂没了解</span></span><br><span class="line"><span class="comment">    2. 定义芯片复位引脚的复位电平，以及长置该电平复位的时间</span></span><br><span class="line"><span class="comment">    3. 调用memory_init，应为 用户动态内存堆的初始化</span></span><br><span class="line"><span class="comment">    4. p11_init()，电源管理相关API，源码不可见</span></span><br><span class="line"><span class="comment">    5. 初始化看门狗复位时间</span></span><br><span class="line"><span class="comment">    6. efuse_init() ，推测为芯片flash相关的初始化</span></span><br><span class="line"><span class="comment">    7. clk_voltage_init，配置时钟模式及系统电压初始化</span></span><br><span class="line"><span class="comment">    8. xosc_hcs_trim()，外部晶振相关调整设置</span></span><br><span class="line"><span class="comment">    9. clk_early_init 时钟源的早期配置，晶振频率、时钟频率、系统时钟源等</span></span><br><span class="line"><span class="comment">    10. tick_timer_init OS节拍定时器初始化，实现链接可见于cpu/br28/liba/system.a(os_cpu_c.c.o)</span></span><br><span class="line"><span class="comment">    11. port_init() 所有IO的必要初始化，或者复位</span></span><br><span class="line"><span class="comment">    12. debug_uart_init 日志输出串口初始化，默认为uart0，实现位于//apps/soundbox/board/br28/board_xxx_xxx/board_xxx_xxx.c。</span></span><br><span class="line"><span class="comment">        (该文件体现了不同板级间的配置差异)</span></span><br><span class="line"><span class="comment">    13. log_early_init(1024);</span></span><br><span class="line"><span class="comment">    14. 一些模块的dump</span></span><br><span class="line"><span class="comment">    15. 调用中断注册接口，进行必要中断的注册设置</span></span><br><span class="line"><span class="comment">    16. sys_timer_init();</span></span><br><span class="line"><span class="comment">    17. debug_init(); 异常检测模块初始化，推测可能会初始化一个任务，检测cpu或者os任务控制块相关数据情况</span></span><br><span class="line"><span class="comment">    18. __crc16_mutex_init();</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">    setup_arch();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 运行操作系统前之必要的板级初始化，本文件内为弱函数，具体所链接的函数实现位于.a库中，不可见（当然，.a库也可能没有该实现）</span></span><br><span class="line">    board_early_init();</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 创建一个OS任务，入口函数为 app_task_handler，入参为 NULL，name为 app_core</span></span><br><span class="line"><span class="comment">    注意该任务：该任务包含了大部分的模式业务逻辑，其内实现了一个简易切换模式枚举的设计</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">    task_create(app_task_handler, <span class="literal">NULL</span>, <span class="string">&quot;app_core&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 使能OS内核的任务调度接口</span></span><br><span class="line">    os_start();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 使能全局中断，当中断使能后，系统节拍定时器中断会立即切入，然后调用任务调度器切入优先级最高的任务执行</span></span><br><span class="line">    local_irq_enable();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (<span class="number">1</span>) &#123;</span><br><span class="line">        <span class="keyword">asm</span>(<span class="string">&quot;idle&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="app-init-用户级初始化"><a href="#app-init-用户级初始化" class="headerlink" title="app_init 用户级初始化"></a>app_init 用户级初始化</h3><p>在<code>main</code>函数创建<code>app_task_handler()</code>的app任务入口函数后，即开始调度至该入口函数执行，如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">void</span> <span class="title function_">app_task_handler</span><span class="params">(<span class="type">void</span> *p)</span></span><br><span class="line">&#123;</span><br><span class="line">    app_init();</span><br><span class="line">    app_main();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<br>
+
+<p><code>app_init()</code>函数路径位于<code>//apps/soundbox/common/init.c/app_init()</code>，实现如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">void</span> <span class="title function_">app_init</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int</span> update;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// do...call 皆为自动初始化，指向指定的目标段，执行其首尾之间的所有函数指针，从而完成必要的一些初始化动作</span></span><br><span class="line">    do_early_initcall();</span><br><span class="line">    do_platform_initcall();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 板级初始化</span></span><br><span class="line">    board_init();</span><br><span class="line"></span><br><span class="line">    do_initcall();</span><br><span class="line"></span><br><span class="line">    do_module_initcall();</span><br><span class="line">    do_late_initcall();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 初始化音频编码器和解码器</span></span><br><span class="line">    audio_enc_init();</span><br><span class="line">    audio_dec_init();</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 如果是配置了有升级功能，则进行处理</span></span><br><span class="line">    <span class="keyword">if</span> (!UPDATE_SUPPORT_DEV_IS_NULL()) &#123;</span><br><span class="line">        <span class="comment">// 升级后，在此进行结果处理：</span></span><br><span class="line">        <span class="comment">// 无更新，则直接返回；更新成功，则以一半的音量播报5次？更新失败，则以最大音量播报同一句语音？.......</span></span><br><span class="line">        update = update_result_deal();  <span class="comment">// apps/common/update/update.c</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    app_var.play_poweron_tone = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 如果没有插入充电，则检查开机电压</span></span><br><span class="line">    <span class="keyword">if</span> (!get_charge_online_flag()) &#123;</span><br><span class="line">        check_power_on_voltage();   <span class="comment">// 循环判断指定次数电池电压，如果正常则开机，电压过低则设置软关机</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">if</span> TCFG_POWER_ON_NEED_KEY  <span class="comment">// 是否需要按键才能开机</span></span></span><br><span class="line">        <span class="comment">/*充电拔出,CPU软件复位, 不检测按键，直接开机*/</span></span><br><span class="line">        <span class="keyword">extern</span> u8 <span class="title function_">get_alarm_wkup_flag</span><span class="params">(<span class="type">void</span>)</span>;</span><br><span class="line"><span class="meta">#<span class="keyword">if</span> TCFG_CHARGE_OFF_POWERON_NE</span></span><br><span class="line">        <span class="keyword">if</span> ((!update &amp;&amp; cpu_reset_by_soft()) || is_ldo5v_wakeup() || get_alarm_wkup_flag()) &#123;</span><br><span class="line"><span class="meta">#<span class="keyword">else</span></span></span><br><span class="line">        <span class="keyword">if</span> ((!update &amp;&amp; cpu_reset_by_soft()) || get_alarm_wkup_flag()) &#123;</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">            app_var.play_poweron_tone = <span class="number">0</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            check_power_on_key();</span><br><span class="line">        &#125;</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">if</span> TCFG_SHARE_OSC_EN</span></span><br><span class="line">    <span class="keyword">extern</span> <span class="type">void</span> <span class="title function_">share_osc_pull_down_io</span><span class="params">()</span>;</span><br><span class="line">    share_osc_pull_down_io();</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">if</span> TCFG_UART_1T2_EN</span></span><br><span class="line">    <span class="keyword">extern</span> <span class="type">void</span> <span class="title function_">uart_1t2_pull_down_io</span><span class="params">()</span>;</span><br><span class="line">    uart_1t2_pull_down_io();</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">if</span> (TCFG_MC_BIAS_AUTO_ADJUST == MC_BIAS_ADJUST_POWER_ON)</span></span><br><span class="line">    u8 por_flag = <span class="number">0</span>;</span><br><span class="line">    u8 cur_por_flag = <span class="number">0</span>;</span><br><span class="line"><span class="meta">#<span class="keyword">if</span> (defined(CONFIG_CPU_BR23) || defined(CONFIG_CPU_BR25))</span></span><br><span class="line">    <span class="keyword">extern</span> u8 power_reset_src;</span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">     *1.update</span></span><br><span class="line"><span class="comment">     *2.power_on_reset(BIT0:上电复位)</span></span><br><span class="line"><span class="comment">     *3.pin reset(BIT4:长按复位)</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">if</span> (update || (power_reset_src &amp; BIT(<span class="number">0</span>)) || (power_reset_src &amp; BIT(<span class="number">4</span>))) &#123;</span><br><span class="line">        <span class="comment">//log_info(&quot;reset_flag:0x%x&quot;,power_reset_src);</span></span><br><span class="line">        cur_por_flag = <span class="number">0xA5</span>;</span><br><span class="line">    &#125;</span><br><span class="line"><span class="meta">#<span class="keyword">else</span> <span class="comment">/* #if defined(CONFIG_CPU_BR23) */</span></span></span><br><span class="line">    u32 reset_src = is_reset_source(BIT(MSYS_POWER_RETURN) | BIT(P33_PPINR_RST));</span><br><span class="line">    <span class="keyword">if</span> (update || reset_src) &#123;</span><br><span class="line">        cur_por_flag = <span class="number">0xA5</span>;</span><br><span class="line">    &#125;</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span> <span class="comment">/* #if defined(CONFIG_CPU_BR23) */</span></span></span><br><span class="line"></span><br><span class="line">    <span class="type">int</span> ret = syscfg_read(CFG_POR_FLAG, &amp;por_flag, <span class="number">1</span>);</span><br><span class="line">    <span class="keyword">if</span> ((cur_por_flag == <span class="number">0xA5</span>) &amp;&amp; (por_flag != cur_por_flag)) &#123;</span><br><span class="line">        <span class="comment">//log_info(&quot;update POR flag&quot;);</span></span><br><span class="line">        ret = syscfg_write(CFG_POR_FLAG, &amp;cur_por_flag, <span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">if</span> (TCFG_CHARGE_ENABLE &amp;&amp; TCFG_CHARGE_POWERON_ENABLE)</span></span><br><span class="line">    <span class="keyword">if</span> (is_ldo5v_wakeup()) &#123; <span class="comment">//LDO5V唤醒</span></span><br><span class="line">        <span class="keyword">extern</span> u8 <span class="title function_">get_charge_online_flag</span><span class="params">(<span class="type">void</span>)</span>;</span><br><span class="line">        <span class="keyword">if</span> (get_charge_online_flag()) &#123; <span class="comment">//关机时，充电插入</span></span><br><span class="line"></span><br><span class="line">        &#125; <span class="keyword">else</span> &#123; <span class="comment">//关机时，充电拔出</span></span><br><span class="line">            power_set_soft_poweroff();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">if</span>(TCFG_CHARGE_BOX_ENABLE)</span></span><br><span class="line">    <span class="comment">/* clock_add_set(CHARGE_BOX_CLK); */</span></span><br><span class="line">    chgbox_init_app();</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上述<code>app_init</code>代码暂作部分解释，其余后续补充</p>
+<h4 id="板级初始化-board-init"><a href="#板级初始化-board-init" class="headerlink" title="板级初始化 board_init()"></a>板级初始化 board_init()</h4><p><code>board_init()</code>在<code>app_init</code>函数中被调用，其路径位于<code>//apps/soundbox/board/br28/board_jl701n_demo/board_jl701n_demo.c/board_init()</code>，实现如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">board_init</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    board_power_init(); <span class="comment">// 实现位于当前模块内，包括电源管理，如唤醒源IO配置等功能</span></span><br><span class="line">    <span class="comment">//adc_vbg_init();</span></span><br><span class="line">    adc_init(); <span class="comment">// 实现位于 //cpu/br28/adc_api.c</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 解析蓝牙配置文件，实现位于 //apps/soundbox/common/user_cfg_new.c</span></span><br><span class="line">    <span class="comment">// 蓝牙配置，如名字、Mac地址等，在此函数内进行结构体设置</span></span><br><span class="line">    cfg_file_parse(<span class="number">0</span>);  </span><br><span class="line">    <span class="comment">/* devices_init(); */</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">if</span> TCFG_CHARGE_ENABLE  <span class="comment">// 是否支持芯片内置充电</span></span></span><br><span class="line">    <span class="keyword">extern</span> <span class="type">int</span> <span class="title function_">charge_init</span><span class="params">(<span class="type">const</span> <span class="keyword">struct</span> dev_node *node, <span class="type">void</span> *arg)</span>;</span><br><span class="line">    charge_init(<span class="literal">NULL</span>, (<span class="type">void</span> *)&amp;charge_data);</span><br><span class="line"><span class="meta">#<span class="keyword">else</span></span></span><br><span class="line">	CHARGE_EN(<span class="number">0</span>);</span><br><span class="line">    CHGGO_EN(<span class="number">0</span>);</span><br><span class="line">    gpio_longpress_pin1_reset_config(IO_LDOIN_DET, <span class="number">0</span>, <span class="number">0</span>);</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* if (!get_charge_online_flag()) &#123; */</span></span><br><span class="line">        <span class="comment">/* check_power_on_voltage(); */</span></span><br><span class="line">    <span class="comment">/* &#125; */</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">if</span> (TCFG_SD0_ENABLE || TCFG_SD1_ENABLE)</span></span><br><span class="line">	sdpg_config(<span class="number">4</span>);</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">if</span> TCFG_FM_ENABLE</span></span><br><span class="line">	fm_dev_init(&amp;fm_dev_data);</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">if</span> TCFG_NOR_REC</span></span><br><span class="line">    nor_fs_ops_init();</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">if</span> TCFG_NOR_FS</span></span><br><span class="line">    init_norsdfile_hdl();</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">if</span> FLASH_INSIDE_REC_ENABLE</span></span><br><span class="line">    sdfile_rec_ops_init();</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line">	dev_manager_init();</span><br><span class="line">    dev_manager_set_valid_by_logo(<span class="string">&quot;res_nor&quot;</span>, <span class="number">0</span>);<span class="comment">///将设备设置为无效设备</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 设备驱动层初始化，比如按键驱动在此内进行注册</span></span><br><span class="line">	board_devices_init();</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">if</span> TCFG_CHARGE_ENABLE</span></span><br><span class="line">    <span class="keyword">if</span>(get_charge_online_flag())</span><br><span class="line"><span class="meta">#<span class="keyword">else</span></span></span><br><span class="line">    <span class="keyword">if</span> (<span class="number">0</span>)</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">	&#123;</span><br><span class="line">    	power_set_mode(PWR_LDO15);</span><br><span class="line">	&#125;<span class="keyword">else</span>&#123;</span><br><span class="line">    	power_set_mode(TCFG_LOWPOWER_POWER_SEL);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line"> <span class="meta">#<span class="keyword">if</span> TCFG_UART0_ENABLE  <span class="comment">// 如果使能日志打印，则设置该串口的rx为普通io？</span></span></span><br><span class="line">    <span class="keyword">if</span> (uart0_data.rx_pin &lt; IO_MAX_NUM) &#123;</span><br><span class="line">        gpio_set_die(uart0_data.rx_pin, <span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">if</span> TCFG_SMART_VOICE_ENABLE</span></span><br><span class="line">    <span class="type">int</span> <span class="title function_">audio_smart_voice_detect_init</span><span class="params">(<span class="keyword">struct</span> vad_mic_platform_data *mic_data)</span>;</span><br><span class="line">    audio_smart_voice_detect_init((<span class="keyword">struct</span> vad_mic_platform_data *)&amp;vad_mic_data);</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span> <span class="comment">/* #if TCFG_SMART_VOICE_ENABLE */</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">if</span> defined(AUDIO_PCM_DEBUG)</span></span><br><span class="line">    <span class="type">void</span> <span class="title function_">uartSendInit</span><span class="params">()</span>;</span><br><span class="line">    uartSendInit();</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">if</span> TCFG_RTC_ENABLE</span></span><br><span class="line">    alarm_init();</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="app-main-用户级初始化"><a href="#app-main-用户级初始化" class="headerlink" title="app_main 用户级初始化"></a>app_main 用户级初始化</h3><p><code>app_main()</code>函数路径位于<code>//apps/soundbox/app_main.c/app_main()</code>，实现如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">app_main</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    log_info(<span class="string">&quot;app_main \n&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">if</span> TCFG_UNISOUND_ENABLE</span></span><br><span class="line">    unisound_init();</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// app_var是个结构体，包含了音量、音量效果等的参数</span></span><br><span class="line">    app_var.start_time = timer_get_ms();    <span class="comment">// 获取OS当前时间，作为app的开始时间</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 如果有充电插入</span></span><br><span class="line">    <span class="keyword">if</span> (get_charge_online_flag()) &#123;</span><br><span class="line"></span><br><span class="line">        app_var.poweron_charge = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">if</span> (TCFG_SYS_LVD_EN == 1)</span></span><br><span class="line">        vbat_check_init();  <span class="comment">// 如果电量检测使能，则调用，其内会初始化电池检测定时器用于检测电压</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">ifndef</span>  PC_POWER_ON_CHARGE <span class="comment">// 没有定义此项</span></span></span><br><span class="line">        app_curr_task = APP_IDLE_TASK;  <span class="comment">// 直接进入此处</span></span><br><span class="line"><span class="meta">#<span class="keyword">else</span></span></span><br><span class="line">        app_curr_task = APP_POWERON_TASK;</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">    &#125;</span><br><span class="line"><span class="meta">#<span class="keyword">if</span> TCFG_RTC_ENABLE</span></span><br><span class="line">    <span class="comment">// 如果没插充电，且使能了实时时钟，则进入此处</span></span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (alarm_active_flag_get()) &#123;</span><br><span class="line">        app_curr_task = APP_RTC_TASK;</span><br><span class="line">    &#125;</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">    <span class="keyword">else</span> &#123;</span><br><span class="line"><span class="meta">#<span class="keyword">if</span> 0 <span class="comment">//SOUNDCARD_ENABLE</span></span></span><br><span class="line">        soundcard_peripheral_init();</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">if</span> TCFG_HOST_AUDIO_ENABLE</span></span><br><span class="line">        <span class="comment">/* void usb_host_audio_init(int (*put_buf)(void *ptr, u32 len), int *(*get_buf)(void *ptr, u32 len)); */</span></span><br><span class="line">        <span class="comment">/* usb_host_audio_init(usb_audio_play_put_buf, usb_audio_record_get_buf); */</span></span><br><span class="line">        uac_host_init();</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line">        <span class="comment">/* endless_loop_debug_int(); */</span></span><br><span class="line">        <span class="comment">// 更新led的灯效设置状态，实现位于 //apps/soundbox/ui/led/pwm_led_api.c。如果没有配置，则是空实现</span></span><br><span class="line">        ui_update_status(STATUS_POWERON);   </span><br><span class="line"></span><br><span class="line">        app_curr_task = APP_POWERON_TASK;   <span class="comment">// 非插充电下，无RTC使能，app while 1 轮询该模式业务</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">if</span> TCFG_CHARGE_BOX_ENABLE</span></span><br><span class="line">    app_curr_task = APP_IDLE_TASK;</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">if</span> TCFG_CHARGE_ENABLE</span></span><br><span class="line">    set_charge_event_flag(<span class="number">1</span>);</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line">    app_task_loop(); <span class="comment">// app任务进入 while 1 轮询</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h4 id="app-task-loop之APP顶层模式业务"><a href="#app-task-loop之APP顶层模式业务" class="headerlink" title="app_task_loop之APP顶层模式业务"></a>app_task_loop之APP顶层模式业务</h4><p>app_task_loop 代码节选如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">app_task_loop</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">while</span> (<span class="number">1</span>) &#123;</span><br><span class="line">        <span class="keyword">switch</span> (app_curr_task) &#123;</span><br><span class="line">        <span class="keyword">case</span> APP_POWERON_TASK:</span><br><span class="line">            log_info(<span class="string">&quot;APP_POWERON_TASK \n&quot;</span>);    <span class="comment">// 开机临时模式</span></span><br><span class="line">            app_poweron_task();     <span class="comment">// 检测到任何的公共消息事件，则将 app_next_task 设置相应的模式枚举，并退出其内的 while1 等等</span></span><br><span class="line">            app_task_exit_ok();     <span class="comment">// if (app_next_task) &#123; app_curr_task = app_next_task; app_next_task = 0; task_exitting = 0;&#125;</span></span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> APP_POWEROFF_TASK:</span><br><span class="line">            log_info(<span class="string">&quot;APP_POWEROFF_TASK \n&quot;</span>);</span><br><span class="line">            app_poweroff_task();</span><br><span class="line">            app_task_exit_ok();</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        <span class="keyword">case</span> APP_BT_TASK:</span><br><span class="line">            log_info(<span class="string">&quot;APP_BT_TASK \n&quot;</span>);</span><br><span class="line">            app_bt_task();</span><br><span class="line">            app_task_exit_ok();</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        </span><br><span class="line">        ......</span><br><span class="line"></span><br><span class="line">        <span class="keyword">case</span> APP_LIVE_IIS_TASK:</span><br><span class="line">            log_info(<span class="string">&quot;APP_LIVE_IIS_ACTION_TASK \n&quot;</span>);</span><br><span class="line">            app_live_iis_task();</span><br><span class="line">            app_task_exit_ok();</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        app_task_clear_key_msg();<span class="comment">//清理按键消息</span></span><br><span class="line">        <span class="comment">//检查整理VM</span></span><br><span class="line">        vm_check_all(<span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="app-各模式业务设计解析"><a href="#app-各模式业务设计解析" class="headerlink" title="app 各模式业务设计解析"></a>app 各模式业务设计解析</h3><p>结合代码，概述顶层应用的模式业务逻辑</p>
+<p> APP_POWERON_TASK<br> APP_POWEROFF_TASK<br> APP_BT_TASK<br> APP_MUSIC_TASK<br> APP_LINEIN_TASK<br> APP_PC_TASK<br> APP_IDLE_TASK<br> APP_SLEEP_TASK</p>
+<h2 id="板子基本功能及系统级API简述"><a href="#板子基本功能及系统级API简述" class="headerlink" title="板子基本功能及系统级API简述"></a>板子基本功能及系统级API简述</h2><h3 id="板子通用基本功能概述"><a href="#板子通用基本功能概述" class="headerlink" title="板子通用基本功能概述"></a>板子通用基本功能概述</h3><h3 id="系统级API应用开发简述"><a href="#系统级API应用开发简述" class="headerlink" title="系统级API应用开发简述"></a>系统级API应用开发简述</h3><h4 id="系统任务创建"><a href="#系统任务创建" class="headerlink" title="系统任务创建"></a>系统任务创建</h4><p>创建新任务，调用OS API</p>
+<p>另外，要在<code>//apps/soundbox/common/task_table.c</code>表增加相应的任务参数配置。为何这样设计，结合代码分析</p>
+<p>其关联调用关系是怎样的</p>
+<p>具体调用逻辑，后续补充</p>
+<h4 id="系统定时器API"><a href="#系统定时器API" class="headerlink" title="系统定时器API"></a>系统定时器API</h4><p>sys_timer：软件定时器，定时到达后，发送事件到相应线程响应。属于同步接口</p>
+<p>usr_timer：定时到达之后，直接在硬件中断服务函数执行 回调函数。属于异步接口</p>
+<p>time与timeout： timeout只会被执行一次即结束</p>
+<h4 id="事件上报及处理流程"><a href="#事件上报及处理流程" class="headerlink" title="事件上报及处理流程"></a>事件上报及处理流程</h4><h2 id="各模块业务功能开发"><a href="#各模块业务功能开发" class="headerlink" title="各模块业务功能开发"></a>各模块业务功能开发</h2><h3 id="APP-TASK框架设计解析"><a href="#APP-TASK框架设计解析" class="headerlink" title="APP_TASK框架设计解析"></a>APP_TASK框架设计解析</h3><p>等等</p>
+<h3 id="日志打印配置"><a href="#日志打印配置" class="headerlink" title="日志打印配置"></a>日志打印配置</h3><p>在板级配置文件，如<code>//apps/soundbox/board/br28/board_jl701n_demo/board_jl701n_demo_cfg.hs</code>，配置使能串口打印，如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> TCFG_UART0_ENABLE			ENABLE_THIS_MOUDLE <span class="comment">//串口打印模块使能</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> TCFG_UART0_RX_PORT			NO_CONFIG_PORT      <span class="comment">//串口接收脚配置（用于打印可以选择NO_CONFIG_PORT）</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">if</span> USER_CDC_TEST_ENABLE</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> TCFG_UART0_TX_PORT  		IO_PORTA_06<span class="comment">//IO_PORTA_06//IO_PORT_DP //串口发送脚配置</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">else</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> TCFG_UART0_TX_PORT  		IO_PORT_DP<span class="comment">//IO_PORTA_06//IO_PORT_DP //串口发送脚配置</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> TCFG_UART0_BAUDRATE  		1000000       <span class="comment">//串口波特率配置</span></span></span><br></pre></td></tr></table></figure>
+
+<p>在<code>//apps/soundbox/include/app_config.h</code>有</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> CONFIG_DEBUG_ENABLE       1</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//打开断言</span></span><br><span class="line"><span class="type">const</span> <span class="type">int</span> config_asser         = <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//打开整个库打印</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> LIB_DEBUG    1</span></span><br><span class="line"></span><br><span class="line"><span class="comment">///打印是否时间打印信息</span></span><br><span class="line"><span class="type">const</span> <span class="type">int</span> config_printf_time         = <span class="number">1</span>;</span><br></pre></td></tr></table></figure>
+
+<h3 id="按键模块功能"><a href="#按键模块功能" class="headerlink" title="按键模块功能"></a>按键模块功能</h3><p><strong>系统上电初始化时，调用<code>key_driver_init()</code>进行按键驱动初始化</strong></p>
+<ul>
+<li>进行iokey、adkey等key的IO初始化，此部分IO配置句柄（包括获取键值函数、定义消抖、长按等参数）实现位于<code>apps/soundbox/board/br28/board_jl701n_demo/board_jl701n_demo.c</code>中，句柄的配置宏定义则位于相应的板级配置.h文件中</li>
+<li>将按键句柄、配置参数、按键扫描函数添加到<code>usr_timer_add</code>硬件定时器中（可进入低功耗）</li>
+</ul>
+<br>
+
+<p><strong>按键定时扫描-&gt;触发上报-&gt;按键-事件-任务表映射-&gt;发送打包后的消息</strong></p>
+<ul>
+<li>当按键扫描函数判断到有相应按键触发后，则触发通知<br>  （事件结构体指明：事件类型为<code>SYS_KEY_EVENT</code>、事件参数为<code>DEVICE_EVENT_FROM_KEY</code>、按键类型、按键事件如单击、长按等）</li>
+<li><code>key_event_remap(&amp;e)</code>-&gt;<code>app_key_event_remap()</code>将触发的事件进行映射：判断当前app_curr_task，再转换成不同task下的 任务-按键事件-枚举表<br>  （总映射管理位于<code>apps/soundbox/task_manager/task_key.c</code>）</li>
+<li>调用<code>sys_event_notify(struct sys_event *e)</code>向系统发送事件通知</li>
+<li>事件API会给sys_event再封包，加上包头<code>APP_MSG_SYS_EVENT</code>，作为app消息发送至系统中</li>
+</ul>
+<br>
+
+<p><strong>由当前app_task接收msg-&gt;解析按键事件-&gt;case相应事件枚举-&gt;执行相应操作</strong></p>
+<ul>
+<li>每个app任务下有个while1，通过调用<code>app_task_get_msg(msg, ARRAY_SIZE(msg), 1);</code>接收到系统app消息</li>
+<li>进行包头消息判断，如<code>case APP_MSG_SYS_EVENT</code>，符合则进入私有任务的事件处理函数中</li>
+<li>在私有任务的事件处理中，<code>case SYS_KEY_EVENT</code>则表示进入按键事件处理；再往下，则可以根据不同的按键事件进行相应处理，如下，表示音量增加。<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">case</span>  KEY_VOLUP_HOLD:</span><br><span class="line">    log_info(<span class="string">&quot;    KEY_VOLUP_HOLD \n&quot;</span>);</span><br><span class="line">    bt_key_vol_up();</span><br><span class="line">    <span class="keyword">break</span>;</span><br></pre></td></tr></table></figure></li>
+<li>在私有任务事件进行处理后，则可以<code>return 1</code>表示成功处理；否则，调用<code>app_default_event_deal((struct sys_event *)(&amp;msg[1]));</code>将消息缓存由通用事件处理函数进行处理</li>
+</ul>
+<br>
+
+<p>另外，每个app任务在退出切换时，会清除按键事件缓存，如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">u8 <span class="title function_">app_task_exitting</span><span class="params">()</span><span class="comment">//</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">sys_event</span> <span class="title">clear_key_event</span> =</span> &#123;.type =  SYS_KEY_EVENT, .arg = (<span class="type">void</span> *)DEVICE_EVENT_FROM_KEY&#125;;</span><br><span class="line">    <span class="keyword">if</span> (app_next_task &amp;&amp; !task_exitting) &#123;</span><br><span class="line">        <span class="comment">/* app_curr_task = app_next_task; */</span></span><br><span class="line">        <span class="comment">/* app_next_task = 0; */</span></span><br><span class="line">        task_exitting = <span class="number">1</span>;</span><br><span class="line">        sys_key_event_disable();</span><br><span class="line">        sys_event_clear(&amp;clear_key_event);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="UI-LED模块"><a href="#UI-LED模块" class="headerlink" title="UI-LED模块"></a>UI-LED模块</h3><p>灯随音动的实现</p>
+<h3 id="设备管理功能"><a href="#设备管理功能" class="headerlink" title="设备管理功能"></a>设备管理功能</h3><p>dev_manager提供了设备上下线、设备状态查询等api操作接口，可以支持U盘&#x2F;SD等设备挂载、查找、激活等操作，接口汇总概括如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">(1) 支持设备上下线（添加/删除）</span><br><span class="line">(2) 支持设备查找</span><br><span class="line">    1) 查找第一个设备</span><br><span class="line">    2) 查找最后一个设备</span><br><span class="line">    3) 查找当前设备上一个设备</span><br><span class="line">    4) 查找当前设备下一个设备</span><br><span class="line">    5) 查找最后活动设备</span><br><span class="line">    6) 查找指定设备</span><br><span class="line">    7) 查找指定序号的设备</span><br><span class="line">(3) 支持设置设备信息</span><br><span class="line">    1) 设置设备有效/无效</span><br><span class="line">    2) 设置设备为活动设备</span><br><span class="line">(4) 支持获取设备信息</span><br><span class="line">    1) 获取设备逻辑盘符</span><br><span class="line">    2) 获取音乐设备逻辑盘符</span><br><span class="line">    3) 获取录音播放设备逻辑盘符</span><br><span class="line">    4) 获取设备根目录</span><br><span class="line">    5) 获取设备文件浏览根目录</span><br><span class="line">(5) 支持设备在线检查</span><br><span class="line">(6) 其他</span><br><span class="line">    1) 设备扫盘及扫盘释放</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="文件系统功能"><a href="#文件系统功能" class="headerlink" title="文件系统功能"></a>文件系统功能</h3><p>文件系统接口模块提供包含文件浏览，文件删除，打开，创建，读写，等接口</p>
+<p>音乐，录音，解码等模式会使用到</p>
+<h3 id="音频模块相关功能"><a href="#音频模块相关功能" class="headerlink" title="音频模块相关功能"></a>音频模块相关功能</h3><p>解码任务，用于串联所有音频流处理。</p>
+<p>相应地有打开通道和关闭通道，相当于打开在解码任务中的 串行流 通道。  解码流都是走的解码线程</p>
+<p>（录音编码流也有对应的 编码线程、录音线程、mix_buffer、pcm_buf 等等）</p>
+<p><code>init.c -&gt; cpu\br28\audio_dec\audio_dec.c\audio_dec_init</code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">audio_dec_init</span><span class="params">()</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">int</span> err;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;audio_dec_init\n&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 创建解码任务</span></span><br><span class="line">    err = audio_decoder_task_create(&amp;decode_task, <span class="string">&quot;audio_dec&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="蓝牙A2DP音频处理"><a href="#蓝牙A2DP音频处理" class="headerlink" title="蓝牙A2DP音频处理"></a>蓝牙A2DP音频处理</h4><p>何处发送该事件：</p>
+<ol>
+<li>底层协议栈自动发送</li>
+<li>bt_switch_fun.c <code>a2dp_media_packet_user_handler-&gt;a2dp_media_packet_play_start</code>，后台模式下检测到有音频流，则切换至APP_BT_TASK并发送<code>BT_STATUS_A2DP_MEDIA_START</code>事件到APP_BT_TASK接收进行打开音频流</li>
+</ol>
+<p>bt.c-&gt;<br>app_bt_task while1-&gt; 接收到事件<br>bt_sys_event_handler-&gt;<br>bt_sys_event_office-&gt;<br>bt_connction_status_event_handler<br>-&gt; case BT_STATUS_A2DP_MEDIA_START 事件</p>
+<p>-&gt;<br>bt_event_func.c<br>bt_status_a2dp_media_start</p>
+<p>在文件<code>audio_dec_bt.c</code>中<br><code>a2dp_dec_open-&gt;audio_decoder_task_add_wait（a2dp_wait_res_handler）-&gt;a2dp_dec_start</code></p>
+<p>其中audio_decoder_task_add_wait接口实现不可见</p>
+<p><strong>重点</strong> 对a2dp_dec_start函数的实现解析，以充分理解音频流的处理流程</p>
+<p>文件 <code>audio_dec_bt.c-&gt;int zero_entry_handle(void *priv, struct audio_data_frame *in)</code>用于对PCM原始音频数据帧的处理</p>
+<p>文件 audio_digital_vol.c audio_digital_vol.h 包含了音量初始化及处理的相关接口：</p>
+<p>通过<code>int audio_digital_vol_run(dvol_handle *dvol, void *data, u32 len)</code>函数实现直接对PCM数据流的音量变化处理，并实现将当前音量平滑至目标音量的效果。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 结构体定义如下：</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    u8 toggle;					<span class="comment">/*数字音量开关*/</span></span><br><span class="line">    u8 fade;					<span class="comment">/*淡入淡出标志*/</span></span><br><span class="line">    u8 vol;						<span class="comment">/*淡入淡出当前音量(level)*/</span></span><br><span class="line">    u8 vol_max;					<span class="comment">/*淡入淡出最大音量(level)*/</span></span><br><span class="line">    s16 vol_fade;				<span class="comment">/*淡入淡出对应的起始音量*/</span></span><br><span class="line"><span class="meta">#<span class="keyword">if</span> BG_DVOL_FADE_ENABLE</span></span><br><span class="line">    s16 vol_bk;					<span class="comment">/*后台自动淡出前音量值*/</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">list_head</span> <span class="title">entry</span>;</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line">    <span class="keyword">volatile</span> s16 vol_target;	<span class="comment">/*淡入淡出对应的目标音量*/</span></span><br><span class="line">    <span class="keyword">volatile</span> u16 fade_step;		<span class="comment">/*淡入淡出的步进*/</span></span><br><span class="line">&#125; dvol_handle;</span><br></pre></td></tr></table></figure>
+
+<h4 id="声卡功能应用"><a href="#声卡功能应用" class="headerlink" title="声卡功能应用"></a>声卡功能应用</h4><p>app_var.music_volume</p>
+<p> printf(“common vol+: %d”, app_audio_get_volume(APP_AUDIO_CURRENT_STATE));</p>
+<p>app_audio_set_volume(__this-&gt;state, volume, 1);</p>
+<h4 id="提示音模块功能"><a href="#提示音模块功能" class="headerlink" title="提示音模块功能"></a>提示音模块功能</h4><p><strong>通过SDK_config配置工具-&gt;进行提示音配置</strong></p>
+<ol>
+<li>打开<code>//sdk/cpu/br28/tools/*配置入口.jlxproj</code>配置工具，选择<code>提示音配置</code>，可配置相应提示音的文件、格式，最终点击保存即将提示音文件转化写入到<code>cfg_tool.bin</code>中</li>
+<li>表格的提示音名字对应<code>//apps/soundbox/common/tone_table.c</code>的语音枚举，节选如下：<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">const</span> <span class="type">char</span> *tone_table[] = &#123;</span><br><span class="line">    [IDEX_TONE_NUM_0] 			= TONE_RES_ROOT_PATH<span class="string">&quot;tone/0.*&quot;</span>,</span><br><span class="line">    [IDEX_TONE_NUM_1] 			= TONE_RES_ROOT_PATH<span class="string">&quot;tone/1.*&quot;</span>,</span><br><span class="line">    [IDEX_TONE_NUM_2] 			= TONE_RES_ROOT_PATH<span class="string">&quot;tone/2.*&quot;</span>,</span><br><span class="line">    <span class="comment">// ......</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></li>
+</ol>
+<p>当然，提示音的存放路径也可以放到外部存储介质中，则需要在源文件额外配置路径等。</p>
+<br>
+
+<p><strong>提示音控制接口应用</strong></p>
+<ul>
+<li>提示音接口API声明位于<code>//apps/soundbox/include/tone_player.h</code>，代码节选及解析如下<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">extern</span> <span class="type">const</span> <span class="type">char</span> *tone_table[];</span><br><span class="line"><span class="type">int</span> <span class="title function_">tone_play_open_with_callback_base</span><span class="params">(<span class="type">const</span> <span class="type">char</span> **<span class="built_in">list</span>, u8 follow, u8 preemption, <span class="type">void</span> (*evt_handler)(<span class="type">void</span> *priv, <span class="type">int</span> flag), <span class="type">void</span> *evt_priv, <span class="type">int</span> sync_confirm_time)</span>;</span><br><span class="line"><span class="type">int</span> <span class="title function_">tone_play</span><span class="params">(<span class="type">const</span> <span class="type">char</span> *name, u8 preemption)</span>;</span><br><span class="line"><span class="type">int</span> <span class="title function_">tone_play_index</span><span class="params">(u8 index, u8 preemption)</span>;</span><br><span class="line"><span class="type">int</span> <span class="title function_">tone_play_index_with_callback</span><span class="params">(u8 index, u8 preemption, <span class="type">void</span> (*user_evt_handler)(<span class="type">void</span> *priv), <span class="type">void</span> *priv)</span>;</span><br><span class="line"><span class="type">int</span> <span class="title function_">tone_file_list_play</span><span class="params">(<span class="type">const</span> <span class="type">char</span> **<span class="built_in">list</span>, u8 preemption)</span>;</span><br><span class="line"><span class="type">int</span> <span class="title function_">tone_play_stop</span><span class="params">(<span class="type">void</span>)</span>;</span><br><span class="line"><span class="type">int</span> <span class="title function_">tone_play_stop_by_index</span><span class="params">(u8 index)</span>;</span><br><span class="line"><span class="type">int</span> <span class="title function_">tone_play_stop_by_path</span><span class="params">(<span class="type">char</span> *path)</span>;</span><br><span class="line"><span class="type">int</span> <span class="title function_">tone_get_status</span><span class="params">()</span>;</span><br><span class="line"><span class="type">int</span> <span class="title function_">tone_play_by_path</span><span class="params">(<span class="type">const</span> <span class="type">char</span> *name, u8 preemption)</span>;</span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">tone_dec_wait_stop</span><span class="params">(u32 timeout_ms)</span>;</span><br><span class="line"><span class="type">int</span> <span class="title function_">tone_play_pp</span><span class="params">(<span class="type">void</span>)</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 按名字播放提示音，播放完毕后回调evt_handler</span></span><br><span class="line"><span class="comment">// 示例场景1：从后台返回蓝牙模式，播放蓝牙提示音后，回调启动播放器</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">tone_play_with_callback_by_name</span><span class="params">(<span class="type">char</span> *name, <span class="comment">// 带有路径的文件名</span></span></span><br><span class="line"><span class="params">                                    u8 preemption, <span class="comment">// 打断标记</span></span></span><br><span class="line"><span class="params">                                    <span class="type">void</span> (*evt_handler)(<span class="type">void</span> *priv, <span class="type">int</span> flag), <span class="comment">// 事件回调接口 //flag: 0正常关闭，1被打断关闭</span></span></span><br><span class="line"><span class="params">                                    <span class="type">void</span> *evt_priv <span class="comment">// 事件回调私有句柄</span></span></span><br><span class="line"><span class="params">                                   )</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 按列表播放提示音</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">tone_play_with_callback_by_list</span><span class="params">(<span class="type">const</span> <span class="type">char</span> **<span class="built_in">list</span>, <span class="comment">// 文件名列表</span></span></span><br><span class="line"><span class="params">                                    u8 preemption, <span class="comment">// 打断标记</span></span></span><br><span class="line"><span class="params">                                    <span class="type">void</span> (*evt_handler)(<span class="type">void</span> *priv, <span class="type">int</span> flag), <span class="comment">// 事件回调接口 //flag: 0正常关闭，1被打断关闭</span></span></span><br><span class="line"><span class="params">                                    <span class="type">void</span> *evt_priv <span class="comment">// 事件回调私有句柄</span></span></span><br><span class="line"><span class="params">                                   )</span>;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<p>tone_play_by_path<br>tone_play_by_path(tone_table[IDEX_TONE_PAIRING], 1);</p>
+<p>delay_play_conn_tone_status &#x3D; sys_timeout_add(NULL,delay_play_conn_tone,1500);</p>
+<p>tone_get_status() &#x3D;&#x3D; TONE_START</p>
+<h3 id="录音功能应用"><a href="#录音功能应用" class="headerlink" title="录音功能应用"></a>录音功能应用</h3><p>以<code>jl701n_soundbox_sdk142</code>为例，在<code>//apps/soundbox/task_manager/record/record.c</code>有如下录音API调用逻辑：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 当前为app_record_task</span></span><br><span class="line"><span class="comment">// app_record_task-&gt;record_sys_event_handler-&gt;record_key_event_opr-&gt;switch (key_event) </span></span><br><span class="line">    <span class="keyword">case</span> KEY_ENC_START:</span><br><span class="line">        log_i(<span class="string">&quot;  KEY_ENC_START \n&quot;</span>);</span><br><span class="line">        record_key_pp();</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// record_key_pp-&gt;recorder_mix_start</span></span><br><span class="line"><span class="comment">// record_key_pp-&gt;record_mic_start</span></span><br></pre></td></tr></table></figure>
+
+<p>在<code>//apps/soundbox/task_manager/app_common.c</code>文件有如下API调用逻辑：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 各自模式下的app_task未处理完的事件，会调用 app_default_event_deal 进行公共事件统一处理</span></span><br><span class="line"><span class="comment">// app_default_event_deal-&gt;app_common_key_msg_deal-&gt;case KEY_ENC_START:</span></span><br><span class="line"><span class="comment">// 如按键录音事件枚举为 KEY_ENC_START ，可见公共事件中只会在 混合录音使能时，进行录音处理</span></span><br><span class="line">    <span class="keyword">case</span> KEY_ENC_START:</span><br><span class="line"><span class="meta">#<span class="keyword">if</span> (RECORDER_MIX_EN)</span></span><br><span class="line">        <span class="keyword">if</span> (recorder_mix_get_status()) &#123;</span><br><span class="line">            g_printf(<span class="string">&quot;recorder_encode_stop\n&quot;</span>);</span><br><span class="line">            recorder_mix_stop();</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            g_printf(<span class="string">&quot;recorder_encode_start\n&quot;</span>);</span><br><span class="line">            recorder_mix_start();</span><br><span class="line">        &#125;</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span><span class="comment">/*RECORDER_MIX_EN*/</span></span></span><br><span class="line">        <span class="keyword">break</span>;</span><br></pre></td></tr></table></figure>
+
+<p>如果音频流频率跟MIC采样频率不一样，则进行 SRC 变采样处理</p>
+<h4 id="常规MIC录音"><a href="#常规MIC录音" class="headerlink" title="常规MIC录音"></a>常规MIC录音</h4><p><code>record_mic_start-&gt;recorder_encode_start-&gt;pcm2file_enc_open-&gt;audio_encoder_open-&gt;......</code></p>
+<h4 id="混合录音"><a href="#混合录音" class="headerlink" title="混合录音"></a>混合录音</h4><p><code>//cpu/br28/audio_enc/audio_recorder_mix.c/</code>下有<code>recorder_mix_start-&gt;__recorder_mix_start-&gt;recorder_encode_start-&gt;pcm2file_enc_open</code></p>
+<p>音频流以及MIC输入流，混合输入编码到PCM，再存储到文件中</p>
+<p>行与不行，核心关注：<code>//cpu/br28/audio_enc/audio_enc_file.c/pcm2file_enc_open</code></p>
+<p>关注<code>//cpu/br28/audio_enc/audio_enc_file.c/pcm2file_enc_pcm_get</code>，有没有进来</p>
+<p>通常问题原因有：无法创建文件、</p>
+<h3 id="电源管理模块"><a href="#电源管理模块" class="headerlink" title="电源管理模块"></a>电源管理模块</h3><p>&#x2F;&#x2F;apps&#x2F;soundbox&#x2F;power_manage&#x2F;app_power_manage.c 提供了电源管理相关接口，如读取电池电压电量百分比、初始化接口</p>
+<p>具体涉及到哪些功能</p>
+<p>电池电压电量检测？通过ADC检测并滤波会存在耗时吗？可以配置DMA-ADC吗？</p>
+<p>充电管理？</p>
+<h3 id="蓝牙模块功能"><a href="#蓝牙模块功能" class="headerlink" title="蓝牙模块功能"></a>蓝牙模块功能</h3><p><code>btstack_main.c</code>-&gt;<code>ble_profile_init</code>-&gt;<code>app_ble_profile_init()</code>-&gt;<code>att_server_init(multi_profile_data, att_read_callback, att_write_callback);</code></p>
+<p>实际中打印发现：</p>
+<p>cpu&#x2F;br28&#x2F;liba&#x2F;btstack.a.llvm.1119858.spp_update_profile.c,mutil_handle_data_deal</p>
+<p>BLE收到透传数据时，会自动调用<code>mutil_handle_data_deal()-&gt;soundcore_spp_data_receive_cb()</code></p>
+<h4 id="蓝牙相关功能部分概述"><a href="#蓝牙相关功能部分概述" class="headerlink" title="蓝牙相关功能部分概述"></a>蓝牙相关功能部分概述</h4><p>蓝牙相关部分具体会涉及到哪些内容、哪些业务功能</p>
+<h4 id="蓝牙模块初始化配置"><a href="#蓝牙模块初始化配置" class="headerlink" title="蓝牙模块初始化配置"></a>蓝牙模块初始化配置</h4><p>结构体类型定义位于<code>//include_lib/system/user_config.h</code>，如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> __<span class="title">BT_CONFIG</span> &#123;</span></span><br><span class="line">    u8 edr_name[LOCAL_NAME_LEN];       <span class="comment">//经典蓝牙名</span></span><br><span class="line">    u8 mac_addr[<span class="number">6</span>];                    <span class="comment">//蓝牙MAC地址</span></span><br><span class="line">    u8 rf_power;                       <span class="comment">//发射功率</span></span><br><span class="line">    u8 dac_analog_gain;                <span class="comment">//通话DAC模拟增益</span></span><br><span class="line">    u8 mic_analog_gain;                <span class="comment">//通话MIC增益</span></span><br><span class="line">    u16 tws_device_indicate;         <span class="comment">/*设置对箱搜索标识，inquiry时候用,搜索到相应的标识才允许连接*/</span></span><br><span class="line">    u8 tws_local_addr[<span class="number">6</span>];</span><br><span class="line">    u8 ble_name[LOCAL_NAME_LEN];       <span class="comment">//ble蓝牙名</span></span><br><span class="line">    u8 ble_mac_addr[<span class="number">6</span>];                <span class="comment">//ble蓝牙MAC地址</span></span><br><span class="line">    u8 ble_rf_power;                   <span class="comment">//ble发射功率</span></span><br><span class="line">&#125; _GNU_PACKED_  BT_CONFIG;</span><br></pre></td></tr></table></figure>
+
+<p>蓝牙配置初始化代码位于<code>//apps/soundbox/common/user_cfg_new.c</code>，结构体配置如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">BT_CONFIG bt_cfg = &#123;</span><br><span class="line">    .edr_name        = &#123;<span class="string">&#x27;j&#x27;</span>, <span class="string">&#x27;l&#x27;</span>, <span class="string">&#x27;_&#x27;</span>, <span class="string">&#x27;s&#x27;</span>, <span class="string">&#x27;o&#x27;</span>, <span class="string">&#x27;u&#x27;</span>, <span class="string">&#x27;n&#x27;</span>, <span class="string">&#x27;d&#x27;</span>, <span class="string">&#x27;b&#x27;</span>, <span class="string">&#x27;o&#x27;</span>, <span class="string">&#x27;x&#x27;</span>, <span class="string">&#x27;_&#x27;</span>, <span class="string">&#x27;1&#x27;</span>&#125;,</span><br><span class="line">    .mac_addr        = &#123;<span class="number">0xff</span>, <span class="number">0xff</span>, <span class="number">0xff</span>, <span class="number">0xff</span>, <span class="number">0xff</span>, <span class="number">0xff</span>&#125;,</span><br><span class="line">    .tws_local_addr  = &#123;<span class="number">0xff</span>, <span class="number">0xff</span>, <span class="number">0xff</span>, <span class="number">0xff</span>, <span class="number">0xff</span>, <span class="number">0xff</span>&#125;,</span><br><span class="line">    .rf_power        = <span class="number">10</span>,</span><br><span class="line">    .dac_analog_gain = <span class="number">25</span>,</span><br><span class="line">    .mic_analog_gain = <span class="number">7</span>,</span><br><span class="line">    .tws_device_indicate = <span class="number">0x6688</span>,</span><br><span class="line">    .ble_name        = &#123;<span class="string">&#x27;j&#x27;</span>, <span class="string">&#x27;l&#x27;</span>, <span class="string">&#x27;_&#x27;</span>, <span class="string">&#x27;s&#x27;</span>, <span class="string">&#x27;o&#x27;</span>, <span class="string">&#x27;u&#x27;</span>, <span class="string">&#x27;n&#x27;</span>, <span class="string">&#x27;d&#x27;</span>, <span class="string">&#x27;b&#x27;</span>, <span class="string">&#x27;o&#x27;</span>, <span class="string">&#x27;x&#x27;</span>, <span class="string">&#x27;_&#x27;</span>, <span class="string">&#x27;b&#x27;</span>, <span class="string">&#x27;l&#x27;</span>, <span class="string">&#x27;e&#x27;</span>&#125;,</span><br><span class="line">    .ble_mac_addr        = &#123;<span class="number">0xff</span>, <span class="number">0xff</span>, <span class="number">0xff</span>, <span class="number">0xff</span>, <span class="number">0xff</span>, <span class="number">0xff</span>&#125;,</span><br><span class="line">    .ble_rf_power        = <span class="number">10</span>,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>当然，上述的配置信息仅作结构体展示用，并没有实际设置至程序中。</p>
+<p>在当前文件下的<code>cfg_file_parse(u8 idx)</code>函数（入参“idx”没有被调用）会重新覆盖初始化设置该配置结构体参数，包括蓝牙名称，如下代码所示：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">ret = syscfg_read(CFG_BT_NAME, tmp, <span class="number">32</span>);</span><br><span class="line"><span class="keyword">if</span> (ret &lt; <span class="number">0</span>) &#123;</span><br><span class="line">    log_info(<span class="string">&quot;read bt name err\n&quot;</span>);</span><br><span class="line">&#125; <span class="keyword">else</span> <span class="keyword">if</span> (ret &gt;= LOCAL_NAME_LEN) &#123;</span><br><span class="line">    <span class="built_in">memset</span>(bt_cfg.edr_name, <span class="number">0x00</span>, LOCAL_NAME_LEN);</span><br><span class="line">    <span class="built_in">memcpy</span>(bt_cfg.edr_name, tmp, LOCAL_NAME_LEN);</span><br><span class="line">    bt_cfg.edr_name[LOCAL_NAME_LEN - <span class="number">1</span>] = <span class="number">0</span>;</span><br><span class="line">    log_info(<span class="string">&quot;read new cfg bt name config:%s\n&quot;</span>, tmp);</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="built_in">memset</span>(bt_cfg.edr_name, <span class="number">0x00</span>, LOCAL_NAME_LEN);</span><br><span class="line">    <span class="built_in">memcpy</span>(bt_cfg.edr_name, tmp, ret);</span><br><span class="line">    log_info(<span class="string">&quot;read new cfg bt name config:%s\n&quot;</span>, tmp);</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">/* g_printf(&quot;bt name config:%s\n&quot;, bt_cfg.edr_name); */</span></span><br><span class="line">log_info(<span class="string">&quot;bt name config:%s\n&quot;</span>, bt_cfg.edr_name);</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="芯片外设配置开发"><a href="#芯片外设配置开发" class="headerlink" title="芯片外设配置开发"></a>芯片外设配置开发</h2><h3 id="时钟系统配置"><a href="#时钟系统配置" class="headerlink" title="时钟系统配置"></a>时钟系统配置</h3><p>低速外设时钟源 LSB</p>
+<p>时钟源打印 <code>clock_dump</code></p>
+<h3 id="杰理音频芯片系列通用外设"><a href="#杰理音频芯片系列通用外设" class="headerlink" title="杰理音频芯片系列通用外设"></a>杰理音频芯片系列通用外设</h3><p>研读杰理<code>工程音频技术应用文档</code>，依照其资料大纲，按照个人理解方式，重述外设驱动应用开发部分。</p>
+<h4 id="普通外设"><a href="#普通外设" class="headerlink" title="普通外设"></a>普通外设</h4><p>普通外设概览如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">RESET：可配置作复位、唤醒、低功耗唤醒脚</span><br><span class="line">TIMER：</span><br><span class="line">UART：</span><br><span class="line">SPI：</span><br><span class="line">内部Flash：</span><br><span class="line">IIC：</span><br><span class="line">GPIO：</span><br><span class="line">PWM：</span><br><span class="line">SD&amp;USB：</span><br><span class="line">时钟外设（RTC、省晶振）：</span><br><span class="line">GPCNT：</span><br><span class="line">IOMAP（IO重映射）：</span><br><span class="line">复用应用：</span><br></pre></td></tr></table></figure>
+<br>
+
+<h4 id="音频外设"><a href="#音频外设" class="headerlink" title="音频外设"></a>音频外设</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">AUX/音频ADC：</span><br><span class="line">IIS：</span><br><span class="line">HDMI（ARC）：</span><br><span class="line">SPDIF：</span><br><span class="line">PDM LINK：</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="外设IO功能宏定义配置"><a href="#外设IO功能宏定义配置" class="headerlink" title="外设IO功能宏定义配置"></a>外设IO功能宏定义配置</h3><p>宏定义配置路径位于<code>//apps/soundbox/board/br28/board_jl791n_demo/board_jl701n_demo_cfg.h</code></p>
+<h2 id="杰理SDK编译、构建、链接、下载流程概述"><a href="#杰理SDK编译、构建、链接、下载流程概述" class="headerlink" title="杰理SDK编译、构建、链接、下载流程概述"></a>杰理SDK编译、构建、链接、下载流程概述</h2><p>bootloader、app、备份区、数据区等</p>
+<h3 id="SDK顶层Makefile结构解析"><a href="#SDK顶层Makefile结构解析" class="headerlink" title="SDK顶层Makefile结构解析"></a>SDK顶层Makefile结构解析</h3><h4 id="编译链、环境路径、特定工具设置"><a href="#编译链、环境路径、特定工具设置" class="headerlink" title="编译链、环境路径、特定工具设置"></a>编译链、环境路径、特定工具设置</h4><ul>
+<li>根据<code>$(OS)</code>变量判断当前是Windows还是Linux，分别设置各系统下的编译工具链路径</li>
+<li>设置工具链下的具体可执行程序路径，如CC、LD、AD等；设置一些通用CMD命令，如mkdir、rm -rf等</li>
+<li>设置系统库及其库头文件搜索路径等<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">windows下为</span><br><span class="line">SYS_LIB_DIR := C:/JL/pi32/pi32v2-lib/r3-large</span><br><span class="line">SYS_INC_DIR := C:/JL/pi32/pi32v2-include</span><br></pre></td></tr></table></figure></li>
+<li>将工具链路径export到环境变量中（特别地 CC CXX LD AR这四个变量被强制使用指定工具链路径下的可执行程序）</li>
+<li>设置输出文件和编译生成路径</li>
+</ul>
+<h4 id="编译参数、宏定义设置"><a href="#编译参数、宏定义设置" class="headerlink" title="编译参数、宏定义设置"></a>编译参数、宏定义设置</h4><h4 id="头文件搜索路径、源文件路径设置"><a href="#头文件搜索路径、源文件路径设置" class="headerlink" title="头文件搜索路径、源文件路径设置"></a>头文件搜索路径、源文件路径设置</h4><h4 id="链接参数设置"><a href="#链接参数设置" class="headerlink" title="链接参数设置"></a>链接参数设置</h4><h4 id="预构建流程"><a href="#预构建流程" class="headerlink" title="预构建流程"></a>预构建流程</h4><p>特别地，其中在实际编译和链接之前的<code>pre_build</code>过程需要注意：</p>
+<ol>
+<li>cpu&#x2F;br28&#x2F;sdk_used_list.c -o cpu&#x2F;br28&#x2F;sdk_used_list.used 链接选项用到</li>
+<li>cpu&#x2F;br28&#x2F;sdk_ld.c -o cpu&#x2F;br28&#x2F;sdk.ld 链接选项用到</li>
+<li>cpu&#x2F;br28&#x2F;tools&#x2F;download.c -o $(POST_SCRIPT) 编译链接完成后执行此脚本</li>
+<li>$(FIXBAT) $(POST_SCRIPT) 格式转换</li>
+<li>cpu&#x2F;br28&#x2F;tools&#x2F;isd_config_rule.c -o cpu&#x2F;br28&#x2F;tools&#x2F;isd_config.ini 固件下载升级时用到的配置文件？</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">pre_build:</span><br><span class="line">	$(info +PRE-BUILD)</span><br><span class="line">	$(QUITE) $(CC) $(CFLAGS) $(DEFINES) $(INCLUDES) -D__LD__ -E -P cpu/br28/sdk_used_list.c -o cpu/br28/sdk_used_list.used</span><br><span class="line">	$(QUITE) $(CC) $(CFLAGS) $(DEFINES) $(INCLUDES) -D__LD__ -E -P cpu/br28/sdk_ld.c -o cpu/br28/sdk.ld</span><br><span class="line">	$(QUITE) $(CC) $(CFLAGS) $(DEFINES) $(INCLUDES) -D__LD__ -E -P cpu/br28/tools/download.c -o $(POST_SCRIPT)</span><br><span class="line">	$(QUITE) $(FIXBAT) $(POST_SCRIPT)</span><br><span class="line">	$(QUITE) $(CC) $(CFLAGS) $(DEFINES) $(INCLUDES) -D__LD__ -E -P cpu/br28/tools/isd_config_rule.c -o cpu/br28/tools/isd_config.ini</span><br></pre></td></tr></table></figure>
+<p>上述预构建过程解析如下：<br>-E: 这个选项告诉编译器只执行预处理阶段，不进行实际的编译。这意味着编译器将读取源代码，执行宏替换、文件包含等预处理操作，然后停止，不生成任何机器代码。</p>
+<p>-P: 这个选项请求预处理器不生成传统的预处理输出，而是生成更易读的输出，这通常意味着移除行号和文件名标记，使得输出更适合进一步处理，比如用作脚本的一部分。</p>
+<h4 id="源文件构建流程"><a href="#源文件构建流程" class="headerlink" title="源文件构建流程"></a>源文件构建流程</h4><ul>
+<li>使用通配符和转换规则，使<code>c_OBJS, S_OBJS, s_OBJS, cpp_OBJS, cxx_OBJS, cc_OBJS</code>分别映射包含所有源文件编译生成对应的 .o 目标文件</li>
+<li>定义<code>OBJS</code>包含所有类型的目标文件；定义<code>DEP_FILES</code>包含所有的.d依赖文件，用于增量编译判断用。</li>
+<li>修改 OBJS 和 DEP_FILES 的值，增加BUILD_DIR前缀，使得所有构建过程输出都位于BUILD_DIR目录下</li>
+<li><code>VERBOSE</code>控制编译过程输出详细日志，默认为0，可设置为1，如<code>make VERBOSE=1</code>; <code>LINK_AT</code>用于决定是否使用file函数</li>
+<li>定义构建伪目标<code>all、pre_build、clean</code>，规则、编译、依赖文件包含等<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">all依赖于pre_build和OUT_ELF（即sdk.elf）（层层目标依赖，直至源文件-&gt;目标文件的编译），直接输入make时，默认执行make all。其执行完编译链接流程后，最后调用脚本`cpu\br28\tools\download.bat`进行下载</span><br><span class="line"></span><br><span class="line">pre_build用于执行预处理步骤，如生成配置文件、链接脚本、下载脚本</span><br><span class="line"></span><br><span class="line">clean用于清理构建过程产生的中间文件，如rm -rf BUILD_DIR xxx</span><br></pre></td></tr></table></figure>
+<br></li>
+</ul>
+<h3 id="相关的配置、链接、下载脚本解析"><a href="#相关的配置、链接、下载脚本解析" class="headerlink" title="相关的配置、链接、下载脚本解析"></a>相关的配置、链接、下载脚本解析</h3><h4 id="cpu-br28-sdk-used-list-c"><a href="#cpu-br28-sdk-used-list-c" class="headerlink" title="cpu&#x2F;br28&#x2F;sdk_used_list.c"></a>cpu&#x2F;br28&#x2F;sdk_used_list.c</h4><h4 id="cpu-br28-sdk-ld-c"><a href="#cpu-br28-sdk-ld-c" class="headerlink" title="cpu&#x2F;br28&#x2F;sdk_ld.c"></a>cpu&#x2F;br28&#x2F;sdk_ld.c</h4><p>段分配、地址分配等</p>
+<p>各模块的链接</p>
+<h4 id="cpu-br28-tools-download-c"><a href="#cpu-br28-tools-download-c" class="headerlink" title="cpu&#x2F;br28&#x2F;tools&#x2F;download.c"></a>cpu&#x2F;br28&#x2F;tools&#x2F;download.c</h4><p>生成了download.bat，其里调用了子目录download.bat</p>
+<p>fw_add 固件打包流程</p>
+<h4 id="cpu-br28-tools-isd-config-rule-c"><a href="#cpu-br28-tools-isd-config-rule-c" class="headerlink" title="cpu&#x2F;br28&#x2F;tools&#x2F;isd_config_rule.c"></a>cpu&#x2F;br28&#x2F;tools&#x2F;isd_config_rule.c</h4><h3 id="杰理程序烧录、下载、升级等概述"><a href="#杰理程序烧录、下载、升级等概述" class="headerlink" title="杰理程序烧录、下载、升级等概述"></a>杰理程序烧录、下载、升级等概述</h3><p>cpu&#x2F;br28&#x2F;tools&#x2F;download&#x2F;soundbox&#x2F;download.bat的执行流程</p>
+<p>检测到目标设备当前固件与下载固件一致，则不进行升级，此部分代码体现在何处？</p>
+<p>USB DP&#x2F;DM 通信传输代码实现？</p>
+<h4 id="升级实现"><a href="#升级实现" class="headerlink" title="升级实现"></a>升级实现</h4><p>串口升级设计代码实现？</p>
+<p>蓝牙升级部分代码实现？<br>蓝牙BLE主要走SPP串口透传<br>EDR蓝牙升级<br>U盘升级：.ufw文件<br>串口升级</p>
+<h2 id="简单思考及拓展"><a href="#简单思考及拓展" class="headerlink" title="简单思考及拓展"></a>简单思考及拓展</h2><h3 id="是如何通过宏定义进行不同板级选择的？不同配置的板级代码之间有何异同？"><a href="#是如何通过宏定义进行不同板级选择的？不同配置的板级代码之间有何异同？" class="headerlink" title="是如何通过宏定义进行不同板级选择的？不同配置的板级代码之间有何异同？"></a>是如何通过宏定义进行不同板级选择的？不同配置的板级代码之间有何异同？</h3><p>Makefile把所有源文件都包含了进去，通过 xxx_config.h 对相应的板级配置.h文件开启 条件编译，同样的，相应的 .c 实现文件也开启了条件编译。</p>
+<p>那不同板级的配置差异体现在哪里？为何存在这些差异？他们的业务应用区别是？<br>：</p>
+<h3 id="杰理codeblock工程是如何进行构建编译的？与SDK根目录的Makefile构建方式的具体异同？效率有何差异？"><a href="#杰理codeblock工程是如何进行构建编译的？与SDK根目录的Makefile构建方式的具体异同？效率有何差异？" class="headerlink" title="杰理codeblock工程是如何进行构建编译的？与SDK根目录的Makefile构建方式的具体异同？效率有何差异？"></a>杰理codeblock工程是如何进行构建编译的？与SDK根目录的Makefile构建方式的具体异同？效率有何差异？</h3><h3 id="下载脚本download-bat执行的详细链路解析？具体是如何通过USB-DP-DM，以何种协议进行程序下载升级的？"><a href="#下载脚本download-bat执行的详细链路解析？具体是如何通过USB-DP-DM，以何种协议进行程序下载升级的？" class="headerlink" title="下载脚本download.bat执行的详细链路解析？具体是如何通过USB DP&#x2F;DM，以何种协议进行程序下载升级的？"></a>下载脚本download.bat执行的详细链路解析？具体是如何通过USB DP&#x2F;DM，以何种协议进行程序下载升级的？</h3><h3 id="不同芯片的SDK，其软件设计框架具体有何异同？为何？举实例分析与软件设计的相关因素？"><a href="#不同芯片的SDK，其软件设计框架具体有何异同？为何？举实例分析与软件设计的相关因素？" class="headerlink" title="不同芯片的SDK，其软件设计框架具体有何异同？为何？举实例分析与软件设计的相关因素？"></a>不同芯片的SDK，其软件设计框架具体有何异同？为何？举实例分析与软件设计的相关因素？</h3><h3 id="杰理不同系列芯片SDK的适用业务方案范围大概是怎样的？概括一下？"><a href="#杰理不同系列芯片SDK的适用业务方案范围大概是怎样的？概括一下？" class="headerlink" title="杰理不同系列芯片SDK的适用业务方案范围大概是怎样的？概括一下？"></a>杰理不同系列芯片SDK的适用业务方案范围大概是怎样的？概括一下？</h3><h3 id="在底层驱动代码或者库源码不可见的情况下，如何界定某些bug是出自于上层业务还是底层代码？通常的方法论是？举实用实例？"><a href="#在底层驱动代码或者库源码不可见的情况下，如何界定某些bug是出自于上层业务还是底层代码？通常的方法论是？举实用实例？" class="headerlink" title="在底层驱动代码或者库源码不可见的情况下，如何界定某些bug是出自于上层业务还是底层代码？通常的方法论是？举实用实例？"></a>在底层驱动代码或者库源码不可见的情况下，如何界定某些bug是出自于上层业务还是底层代码？通常的方法论是？举实用实例？</h3><h3 id="设备的各种提示音的内容定义、播放逻辑、业务流程、提示音文件打包下载-具体是如何做的？"><a href="#设备的各种提示音的内容定义、播放逻辑、业务流程、提示音文件打包下载-具体是如何做的？" class="headerlink" title="设备的各种提示音的内容定义、播放逻辑、业务流程、提示音文件打包下载 具体是如何做的？"></a>设备的各种提示音的内容定义、播放逻辑、业务流程、提示音文件打包下载 具体是如何做的？</h3><h3 id="不同业务模式，如耳机、蓝牙、音箱等的主要业务代码区别体现在何处？"><a href="#不同业务模式，如耳机、蓝牙、音箱等的主要业务代码区别体现在何处？" class="headerlink" title="不同业务模式，如耳机、蓝牙、音箱等的主要业务代码区别体现在何处？"></a>不同业务模式，如耳机、蓝牙、音箱等的主要业务代码区别体现在何处？</h3><p>如开机后进入<code>POWERON_TASK</code>模式，轮询检测各模块的消息从而决定进入哪个工作模式，当音频蓝牙连接时，app_task则切换至<code>APP_BT_TASK</code></p>
+<h3 id="是如何实现声音播放淡入淡出的？具体代码原理分析？"><a href="#是如何实现声音播放淡入淡出的？具体代码原理分析？" class="headerlink" title="是如何实现声音播放淡入淡出的？具体代码原理分析？"></a>是如何实现声音播放淡入淡出的？具体代码原理分析？</h3><p>通过对PCM数据流的处理，作渐进比例控制，从而实现声音淡入淡出效果</p>
+<h3 id="具体分别说下模式主任务app-task与各子模块的交互设计及切换流程？"><a href="#具体分别说下模式主任务app-task与各子模块的交互设计及切换流程？" class="headerlink" title="具体分别说下模式主任务app_task与各子模块的交互设计及切换流程？"></a>具体分别说下模式主任务app_task与各子模块的交互设计及切换流程？</h3><p>各模块的任务检测到有事件发生后，通过消息队列发送至 app_task，app_task接收到消息后进行相应的处理</p>
+<p>如 按键模块，代码实现：<br>蓝牙连接事件通知处理如：<br>等等</p>
+<h3 id="APP-TASK各模式处理接收的事件的具体流程？"><a href="#APP-TASK各模式处理接收的事件的具体流程？" class="headerlink" title="APP_TASK各模式处理接收的事件的具体流程？"></a>APP_TASK各模式处理接收的事件的具体流程？</h3><h3 id="如何具体基于release-SDK作增量-二次业务开发？"><a href="#如何具体基于release-SDK作增量-二次业务开发？" class="headerlink" title="如何具体基于release_SDK作增量&#x2F;二次业务开发？"></a>如何具体基于release_SDK作增量&#x2F;二次业务开发？</h3><p>二次业务开发，通常是新起文件夹，新建文件，并将其加入Makefile中，然后编译链接即可</p>
+<p>当然，其实也可以拷贝一份板级配置以及板级相关源文件，改为新的板级配置，在此基础上进行开发。</p>
+<h3 id="公版SDK是？与手上的SDK-Release有何区别？如何添加Key？"><a href="#公版SDK是？与手上的SDK-Release有何区别？如何添加Key？" class="headerlink" title="公版SDK是？与手上的SDK_Release有何区别？如何添加Key？"></a>公版SDK是？与手上的SDK_Release有何区别？如何添加Key？</h3><p>release即公版SDK</p>
+<p>Key是一个文件，在实际的下载脚本中，添加<code>-key &lt;param&gt;</code>下载带有相关代理商Key的固件到目标芯片。</p>
+<p>空片则对应无Key下载，带Key的芯片则要带相应Key参数进行下载升级。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2024/04/02/%E4%B8%B2%E8%A1%8C%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE%E5%BC%80%E5%8F%91%E5%8F%8A%E5%85%B6%E5%BA%94%E7%94%A8/" rel="prev" title="私有通信协议栈的开发设计与应用">
+      <i class="fa fa-chevron-left"></i> 私有通信协议栈的开发设计与应用
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2024/07/16/%E5%B5%8C%E5%85%A5%E5%BC%8F%E5%BC%80%E5%8F%91%E4%B9%8B%E9%9F%B3%E9%A2%91%E6%9D%82%E9%A1%B9%E7%9F%A5%E8%AF%86%E8%AE%B0%E5%BD%95/" rel="next" title="嵌入式之音频开发知识概述">
+      嵌入式之音频开发知识概述 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%AA%E8%AE%BA"><span class="nav-number">1.</span> <span class="nav-text">绪论</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9D%B0%E7%90%86%E7%B3%BB%E5%88%97%E8%8A%AF%E7%89%87%E4%BB%8B%E7%BB%8D"><span class="nav-number">1.1.</span> <span class="nav-text">杰理系列芯片介绍</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9D%B0%E7%90%86SDK%E8%BD%AF%E4%BB%B6%E6%9E%B6%E6%9E%84%E8%A7%A3%E6%9E%90"><span class="nav-number">2.</span> <span class="nav-text">杰理SDK软件架构解析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#SDK%E6%A1%86%E6%9E%B6%E6%80%BB%E4%BD%93%E6%A6%82%E8%A7%88"><span class="nav-number">2.1.</span> <span class="nav-text">SDK框架总体概览</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SDK%E6%96%87%E4%BB%B6%E7%9B%AE%E5%BD%95%E6%A6%82%E8%A7%88"><span class="nav-number">2.2.</span> <span class="nav-text">SDK文件目录概览</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BC%80%E5%8F%91%E6%80%9D%E8%B7%AF%E6%B5%81%E7%A8%8B%E6%A6%82%E8%A7%88"><span class="nav-number">3.</span> <span class="nav-text">开发思路流程概览</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#SDK%E7%BA%A7%E5%AE%8F%E5%AE%9A%E4%B9%89%E9%85%8D%E7%BD%AE"><span class="nav-number">3.1.</span> <span class="nav-text">SDK级宏定义配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%96%E8%AE%BE%E9%A9%B1%E5%8A%A8%E6%8A%BD%E8%B1%A1%E5%B1%82%E5%AE%8F%E9%85%8D%E7%BD%AE"><span class="nav-number">3.2.</span> <span class="nav-text">外设驱动抽象层宏配置</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SDK%E4%B9%8B%E5%88%9D%E5%A7%8B%E5%8C%96%E6%B5%81%E7%A8%8B%E6%A6%82%E8%BF%B0"><span class="nav-number">4.</span> <span class="nav-text">SDK之初始化流程概述</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%8A%E7%94%B5%E5%88%9D%E5%A7%8B%E5%8C%96%E8%87%B3main"><span class="nav-number">4.1.</span> <span class="nav-text">上电初始化至main</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#main%E5%87%BD%E6%95%B0"><span class="nav-number">4.2.</span> <span class="nav-text">main函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#app-init-%E7%94%A8%E6%88%B7%E7%BA%A7%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="nav-number">4.3.</span> <span class="nav-text">app_init 用户级初始化</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9D%BF%E7%BA%A7%E5%88%9D%E5%A7%8B%E5%8C%96-board-init"><span class="nav-number">4.3.1.</span> <span class="nav-text">板级初始化 board_init()</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#app-main-%E7%94%A8%E6%88%B7%E7%BA%A7%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="nav-number">4.4.</span> <span class="nav-text">app_main 用户级初始化</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#app-task-loop%E4%B9%8BAPP%E9%A1%B6%E5%B1%82%E6%A8%A1%E5%BC%8F%E4%B8%9A%E5%8A%A1"><span class="nav-number">4.4.1.</span> <span class="nav-text">app_task_loop之APP顶层模式业务</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#app-%E5%90%84%E6%A8%A1%E5%BC%8F%E4%B8%9A%E5%8A%A1%E8%AE%BE%E8%AE%A1%E8%A7%A3%E6%9E%90"><span class="nav-number">4.5.</span> <span class="nav-text">app 各模式业务设计解析</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9D%BF%E5%AD%90%E5%9F%BA%E6%9C%AC%E5%8A%9F%E8%83%BD%E5%8F%8A%E7%B3%BB%E7%BB%9F%E7%BA%A7API%E7%AE%80%E8%BF%B0"><span class="nav-number">5.</span> <span class="nav-text">板子基本功能及系统级API简述</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9D%BF%E5%AD%90%E9%80%9A%E7%94%A8%E5%9F%BA%E6%9C%AC%E5%8A%9F%E8%83%BD%E6%A6%82%E8%BF%B0"><span class="nav-number">5.1.</span> <span class="nav-text">板子通用基本功能概述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%B3%BB%E7%BB%9F%E7%BA%A7API%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91%E7%AE%80%E8%BF%B0"><span class="nav-number">5.2.</span> <span class="nav-text">系统级API应用开发简述</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%B3%BB%E7%BB%9F%E4%BB%BB%E5%8A%A1%E5%88%9B%E5%BB%BA"><span class="nav-number">5.2.1.</span> <span class="nav-text">系统任务创建</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%B3%BB%E7%BB%9F%E5%AE%9A%E6%97%B6%E5%99%A8API"><span class="nav-number">5.2.2.</span> <span class="nav-text">系统定时器API</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BA%8B%E4%BB%B6%E4%B8%8A%E6%8A%A5%E5%8F%8A%E5%A4%84%E7%90%86%E6%B5%81%E7%A8%8B"><span class="nav-number">5.2.3.</span> <span class="nav-text">事件上报及处理流程</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%90%84%E6%A8%A1%E5%9D%97%E4%B8%9A%E5%8A%A1%E5%8A%9F%E8%83%BD%E5%BC%80%E5%8F%91"><span class="nav-number">6.</span> <span class="nav-text">各模块业务功能开发</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#APP-TASK%E6%A1%86%E6%9E%B6%E8%AE%BE%E8%AE%A1%E8%A7%A3%E6%9E%90"><span class="nav-number">6.1.</span> <span class="nav-text">APP_TASK框架设计解析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%97%A5%E5%BF%97%E6%89%93%E5%8D%B0%E9%85%8D%E7%BD%AE"><span class="nav-number">6.2.</span> <span class="nav-text">日志打印配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8C%89%E9%94%AE%E6%A8%A1%E5%9D%97%E5%8A%9F%E8%83%BD"><span class="nav-number">6.3.</span> <span class="nav-text">按键模块功能</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#UI-LED%E6%A8%A1%E5%9D%97"><span class="nav-number">6.4.</span> <span class="nav-text">UI-LED模块</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%BE%E5%A4%87%E7%AE%A1%E7%90%86%E5%8A%9F%E8%83%BD"><span class="nav-number">6.5.</span> <span class="nav-text">设备管理功能</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%8A%9F%E8%83%BD"><span class="nav-number">6.6.</span> <span class="nav-text">文件系统功能</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%9F%B3%E9%A2%91%E6%A8%A1%E5%9D%97%E7%9B%B8%E5%85%B3%E5%8A%9F%E8%83%BD"><span class="nav-number">6.7.</span> <span class="nav-text">音频模块相关功能</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%93%9D%E7%89%99A2DP%E9%9F%B3%E9%A2%91%E5%A4%84%E7%90%86"><span class="nav-number">6.7.1.</span> <span class="nav-text">蓝牙A2DP音频处理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A3%B0%E5%8D%A1%E5%8A%9F%E8%83%BD%E5%BA%94%E7%94%A8"><span class="nav-number">6.7.2.</span> <span class="nav-text">声卡功能应用</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8F%90%E7%A4%BA%E9%9F%B3%E6%A8%A1%E5%9D%97%E5%8A%9F%E8%83%BD"><span class="nav-number">6.7.3.</span> <span class="nav-text">提示音模块功能</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BD%95%E9%9F%B3%E5%8A%9F%E8%83%BD%E5%BA%94%E7%94%A8"><span class="nav-number">6.8.</span> <span class="nav-text">录音功能应用</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B8%B8%E8%A7%84MIC%E5%BD%95%E9%9F%B3"><span class="nav-number">6.8.1.</span> <span class="nav-text">常规MIC录音</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B7%B7%E5%90%88%E5%BD%95%E9%9F%B3"><span class="nav-number">6.8.2.</span> <span class="nav-text">混合录音</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%94%B5%E6%BA%90%E7%AE%A1%E7%90%86%E6%A8%A1%E5%9D%97"><span class="nav-number">6.9.</span> <span class="nav-text">电源管理模块</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%93%9D%E7%89%99%E6%A8%A1%E5%9D%97%E5%8A%9F%E8%83%BD"><span class="nav-number">6.10.</span> <span class="nav-text">蓝牙模块功能</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%93%9D%E7%89%99%E7%9B%B8%E5%85%B3%E5%8A%9F%E8%83%BD%E9%83%A8%E5%88%86%E6%A6%82%E8%BF%B0"><span class="nav-number">6.10.1.</span> <span class="nav-text">蓝牙相关功能部分概述</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%93%9D%E7%89%99%E6%A8%A1%E5%9D%97%E5%88%9D%E5%A7%8B%E5%8C%96%E9%85%8D%E7%BD%AE"><span class="nav-number">6.10.2.</span> <span class="nav-text">蓝牙模块初始化配置</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%8A%AF%E7%89%87%E5%A4%96%E8%AE%BE%E9%85%8D%E7%BD%AE%E5%BC%80%E5%8F%91"><span class="nav-number">7.</span> <span class="nav-text">芯片外设配置开发</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%97%B6%E9%92%9F%E7%B3%BB%E7%BB%9F%E9%85%8D%E7%BD%AE"><span class="nav-number">7.1.</span> <span class="nav-text">时钟系统配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9D%B0%E7%90%86%E9%9F%B3%E9%A2%91%E8%8A%AF%E7%89%87%E7%B3%BB%E5%88%97%E9%80%9A%E7%94%A8%E5%A4%96%E8%AE%BE"><span class="nav-number">7.2.</span> <span class="nav-text">杰理音频芯片系列通用外设</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%99%AE%E9%80%9A%E5%A4%96%E8%AE%BE"><span class="nav-number">7.2.1.</span> <span class="nav-text">普通外设</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%9F%B3%E9%A2%91%E5%A4%96%E8%AE%BE"><span class="nav-number">7.2.2.</span> <span class="nav-text">音频外设</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%96%E8%AE%BEIO%E5%8A%9F%E8%83%BD%E5%AE%8F%E5%AE%9A%E4%B9%89%E9%85%8D%E7%BD%AE"><span class="nav-number">7.3.</span> <span class="nav-text">外设IO功能宏定义配置</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9D%B0%E7%90%86SDK%E7%BC%96%E8%AF%91%E3%80%81%E6%9E%84%E5%BB%BA%E3%80%81%E9%93%BE%E6%8E%A5%E3%80%81%E4%B8%8B%E8%BD%BD%E6%B5%81%E7%A8%8B%E6%A6%82%E8%BF%B0"><span class="nav-number">8.</span> <span class="nav-text">杰理SDK编译、构建、链接、下载流程概述</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#SDK%E9%A1%B6%E5%B1%82Makefile%E7%BB%93%E6%9E%84%E8%A7%A3%E6%9E%90"><span class="nav-number">8.1.</span> <span class="nav-text">SDK顶层Makefile结构解析</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%BC%96%E8%AF%91%E9%93%BE%E3%80%81%E7%8E%AF%E5%A2%83%E8%B7%AF%E5%BE%84%E3%80%81%E7%89%B9%E5%AE%9A%E5%B7%A5%E5%85%B7%E8%AE%BE%E7%BD%AE"><span class="nav-number">8.1.1.</span> <span class="nav-text">编译链、环境路径、特定工具设置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%BC%96%E8%AF%91%E5%8F%82%E6%95%B0%E3%80%81%E5%AE%8F%E5%AE%9A%E4%B9%89%E8%AE%BE%E7%BD%AE"><span class="nav-number">8.1.2.</span> <span class="nav-text">编译参数、宏定义设置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A4%B4%E6%96%87%E4%BB%B6%E6%90%9C%E7%B4%A2%E8%B7%AF%E5%BE%84%E3%80%81%E6%BA%90%E6%96%87%E4%BB%B6%E8%B7%AF%E5%BE%84%E8%AE%BE%E7%BD%AE"><span class="nav-number">8.1.3.</span> <span class="nav-text">头文件搜索路径、源文件路径设置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%93%BE%E6%8E%A5%E5%8F%82%E6%95%B0%E8%AE%BE%E7%BD%AE"><span class="nav-number">8.1.4.</span> <span class="nav-text">链接参数设置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%A2%84%E6%9E%84%E5%BB%BA%E6%B5%81%E7%A8%8B"><span class="nav-number">8.1.5.</span> <span class="nav-text">预构建流程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%BA%90%E6%96%87%E4%BB%B6%E6%9E%84%E5%BB%BA%E6%B5%81%E7%A8%8B"><span class="nav-number">8.1.6.</span> <span class="nav-text">源文件构建流程</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%9B%B8%E5%85%B3%E7%9A%84%E9%85%8D%E7%BD%AE%E3%80%81%E9%93%BE%E6%8E%A5%E3%80%81%E4%B8%8B%E8%BD%BD%E8%84%9A%E6%9C%AC%E8%A7%A3%E6%9E%90"><span class="nav-number">8.2.</span> <span class="nav-text">相关的配置、链接、下载脚本解析</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#cpu-br28-sdk-used-list-c"><span class="nav-number">8.2.1.</span> <span class="nav-text">cpu&#x2F;br28&#x2F;sdk_used_list.c</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#cpu-br28-sdk-ld-c"><span class="nav-number">8.2.2.</span> <span class="nav-text">cpu&#x2F;br28&#x2F;sdk_ld.c</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#cpu-br28-tools-download-c"><span class="nav-number">8.2.3.</span> <span class="nav-text">cpu&#x2F;br28&#x2F;tools&#x2F;download.c</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#cpu-br28-tools-isd-config-rule-c"><span class="nav-number">8.2.4.</span> <span class="nav-text">cpu&#x2F;br28&#x2F;tools&#x2F;isd_config_rule.c</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9D%B0%E7%90%86%E7%A8%8B%E5%BA%8F%E7%83%A7%E5%BD%95%E3%80%81%E4%B8%8B%E8%BD%BD%E3%80%81%E5%8D%87%E7%BA%A7%E7%AD%89%E6%A6%82%E8%BF%B0"><span class="nav-number">8.3.</span> <span class="nav-text">杰理程序烧录、下载、升级等概述</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8D%87%E7%BA%A7%E5%AE%9E%E7%8E%B0"><span class="nav-number">8.3.1.</span> <span class="nav-text">升级实现</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AE%80%E5%8D%95%E6%80%9D%E8%80%83%E5%8F%8A%E6%8B%93%E5%B1%95"><span class="nav-number">9.</span> <span class="nav-text">简单思考及拓展</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%98%AF%E5%A6%82%E4%BD%95%E9%80%9A%E8%BF%87%E5%AE%8F%E5%AE%9A%E4%B9%89%E8%BF%9B%E8%A1%8C%E4%B8%8D%E5%90%8C%E6%9D%BF%E7%BA%A7%E9%80%89%E6%8B%A9%E7%9A%84%EF%BC%9F%E4%B8%8D%E5%90%8C%E9%85%8D%E7%BD%AE%E7%9A%84%E6%9D%BF%E7%BA%A7%E4%BB%A3%E7%A0%81%E4%B9%8B%E9%97%B4%E6%9C%89%E4%BD%95%E5%BC%82%E5%90%8C%EF%BC%9F"><span class="nav-number">9.1.</span> <span class="nav-text">是如何通过宏定义进行不同板级选择的？不同配置的板级代码之间有何异同？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9D%B0%E7%90%86codeblock%E5%B7%A5%E7%A8%8B%E6%98%AF%E5%A6%82%E4%BD%95%E8%BF%9B%E8%A1%8C%E6%9E%84%E5%BB%BA%E7%BC%96%E8%AF%91%E7%9A%84%EF%BC%9F%E4%B8%8ESDK%E6%A0%B9%E7%9B%AE%E5%BD%95%E7%9A%84Makefile%E6%9E%84%E5%BB%BA%E6%96%B9%E5%BC%8F%E7%9A%84%E5%85%B7%E4%BD%93%E5%BC%82%E5%90%8C%EF%BC%9F%E6%95%88%E7%8E%87%E6%9C%89%E4%BD%95%E5%B7%AE%E5%BC%82%EF%BC%9F"><span class="nav-number">9.2.</span> <span class="nav-text">杰理codeblock工程是如何进行构建编译的？与SDK根目录的Makefile构建方式的具体异同？效率有何差异？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%8B%E8%BD%BD%E8%84%9A%E6%9C%ACdownload-bat%E6%89%A7%E8%A1%8C%E7%9A%84%E8%AF%A6%E7%BB%86%E9%93%BE%E8%B7%AF%E8%A7%A3%E6%9E%90%EF%BC%9F%E5%85%B7%E4%BD%93%E6%98%AF%E5%A6%82%E4%BD%95%E9%80%9A%E8%BF%87USB-DP-DM%EF%BC%8C%E4%BB%A5%E4%BD%95%E7%A7%8D%E5%8D%8F%E8%AE%AE%E8%BF%9B%E8%A1%8C%E7%A8%8B%E5%BA%8F%E4%B8%8B%E8%BD%BD%E5%8D%87%E7%BA%A7%E7%9A%84%EF%BC%9F"><span class="nav-number">9.3.</span> <span class="nav-text">下载脚本download.bat执行的详细链路解析？具体是如何通过USB DP&#x2F;DM，以何种协议进行程序下载升级的？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%8D%E5%90%8C%E8%8A%AF%E7%89%87%E7%9A%84SDK%EF%BC%8C%E5%85%B6%E8%BD%AF%E4%BB%B6%E8%AE%BE%E8%AE%A1%E6%A1%86%E6%9E%B6%E5%85%B7%E4%BD%93%E6%9C%89%E4%BD%95%E5%BC%82%E5%90%8C%EF%BC%9F%E4%B8%BA%E4%BD%95%EF%BC%9F%E4%B8%BE%E5%AE%9E%E4%BE%8B%E5%88%86%E6%9E%90%E4%B8%8E%E8%BD%AF%E4%BB%B6%E8%AE%BE%E8%AE%A1%E7%9A%84%E7%9B%B8%E5%85%B3%E5%9B%A0%E7%B4%A0%EF%BC%9F"><span class="nav-number">9.4.</span> <span class="nav-text">不同芯片的SDK，其软件设计框架具体有何异同？为何？举实例分析与软件设计的相关因素？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9D%B0%E7%90%86%E4%B8%8D%E5%90%8C%E7%B3%BB%E5%88%97%E8%8A%AF%E7%89%87SDK%E7%9A%84%E9%80%82%E7%94%A8%E4%B8%9A%E5%8A%A1%E6%96%B9%E6%A1%88%E8%8C%83%E5%9B%B4%E5%A4%A7%E6%A6%82%E6%98%AF%E6%80%8E%E6%A0%B7%E7%9A%84%EF%BC%9F%E6%A6%82%E6%8B%AC%E4%B8%80%E4%B8%8B%EF%BC%9F"><span class="nav-number">9.5.</span> <span class="nav-text">杰理不同系列芯片SDK的适用业务方案范围大概是怎样的？概括一下？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9C%A8%E5%BA%95%E5%B1%82%E9%A9%B1%E5%8A%A8%E4%BB%A3%E7%A0%81%E6%88%96%E8%80%85%E5%BA%93%E6%BA%90%E7%A0%81%E4%B8%8D%E5%8F%AF%E8%A7%81%E7%9A%84%E6%83%85%E5%86%B5%E4%B8%8B%EF%BC%8C%E5%A6%82%E4%BD%95%E7%95%8C%E5%AE%9A%E6%9F%90%E4%BA%9Bbug%E6%98%AF%E5%87%BA%E8%87%AA%E4%BA%8E%E4%B8%8A%E5%B1%82%E4%B8%9A%E5%8A%A1%E8%BF%98%E6%98%AF%E5%BA%95%E5%B1%82%E4%BB%A3%E7%A0%81%EF%BC%9F%E9%80%9A%E5%B8%B8%E7%9A%84%E6%96%B9%E6%B3%95%E8%AE%BA%E6%98%AF%EF%BC%9F%E4%B8%BE%E5%AE%9E%E7%94%A8%E5%AE%9E%E4%BE%8B%EF%BC%9F"><span class="nav-number">9.6.</span> <span class="nav-text">在底层驱动代码或者库源码不可见的情况下，如何界定某些bug是出自于上层业务还是底层代码？通常的方法论是？举实用实例？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%BE%E5%A4%87%E7%9A%84%E5%90%84%E7%A7%8D%E6%8F%90%E7%A4%BA%E9%9F%B3%E7%9A%84%E5%86%85%E5%AE%B9%E5%AE%9A%E4%B9%89%E3%80%81%E6%92%AD%E6%94%BE%E9%80%BB%E8%BE%91%E3%80%81%E4%B8%9A%E5%8A%A1%E6%B5%81%E7%A8%8B%E3%80%81%E6%8F%90%E7%A4%BA%E9%9F%B3%E6%96%87%E4%BB%B6%E6%89%93%E5%8C%85%E4%B8%8B%E8%BD%BD-%E5%85%B7%E4%BD%93%E6%98%AF%E5%A6%82%E4%BD%95%E5%81%9A%E7%9A%84%EF%BC%9F"><span class="nav-number">9.7.</span> <span class="nav-text">设备的各种提示音的内容定义、播放逻辑、业务流程、提示音文件打包下载 具体是如何做的？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%8D%E5%90%8C%E4%B8%9A%E5%8A%A1%E6%A8%A1%E5%BC%8F%EF%BC%8C%E5%A6%82%E8%80%B3%E6%9C%BA%E3%80%81%E8%93%9D%E7%89%99%E3%80%81%E9%9F%B3%E7%AE%B1%E7%AD%89%E7%9A%84%E4%B8%BB%E8%A6%81%E4%B8%9A%E5%8A%A1%E4%BB%A3%E7%A0%81%E5%8C%BA%E5%88%AB%E4%BD%93%E7%8E%B0%E5%9C%A8%E4%BD%95%E5%A4%84%EF%BC%9F"><span class="nav-number">9.8.</span> <span class="nav-text">不同业务模式，如耳机、蓝牙、音箱等的主要业务代码区别体现在何处？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%98%AF%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E5%A3%B0%E9%9F%B3%E6%92%AD%E6%94%BE%E6%B7%A1%E5%85%A5%E6%B7%A1%E5%87%BA%E7%9A%84%EF%BC%9F%E5%85%B7%E4%BD%93%E4%BB%A3%E7%A0%81%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90%EF%BC%9F"><span class="nav-number">9.9.</span> <span class="nav-text">是如何实现声音播放淡入淡出的？具体代码原理分析？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B7%E4%BD%93%E5%88%86%E5%88%AB%E8%AF%B4%E4%B8%8B%E6%A8%A1%E5%BC%8F%E4%B8%BB%E4%BB%BB%E5%8A%A1app-task%E4%B8%8E%E5%90%84%E5%AD%90%E6%A8%A1%E5%9D%97%E7%9A%84%E4%BA%A4%E4%BA%92%E8%AE%BE%E8%AE%A1%E5%8F%8A%E5%88%87%E6%8D%A2%E6%B5%81%E7%A8%8B%EF%BC%9F"><span class="nav-number">9.10.</span> <span class="nav-text">具体分别说下模式主任务app_task与各子模块的交互设计及切换流程？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#APP-TASK%E5%90%84%E6%A8%A1%E5%BC%8F%E5%A4%84%E7%90%86%E6%8E%A5%E6%94%B6%E7%9A%84%E4%BA%8B%E4%BB%B6%E7%9A%84%E5%85%B7%E4%BD%93%E6%B5%81%E7%A8%8B%EF%BC%9F"><span class="nav-number">9.11.</span> <span class="nav-text">APP_TASK各模式处理接收的事件的具体流程？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E5%85%B7%E4%BD%93%E5%9F%BA%E4%BA%8Erelease-SDK%E4%BD%9C%E5%A2%9E%E9%87%8F-%E4%BA%8C%E6%AC%A1%E4%B8%9A%E5%8A%A1%E5%BC%80%E5%8F%91%EF%BC%9F"><span class="nav-number">9.12.</span> <span class="nav-text">如何具体基于release_SDK作增量&#x2F;二次业务开发？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%AC%E7%89%88SDK%E6%98%AF%EF%BC%9F%E4%B8%8E%E6%89%8B%E4%B8%8A%E7%9A%84SDK-Release%E6%9C%89%E4%BD%95%E5%8C%BA%E5%88%AB%EF%BC%9F%E5%A6%82%E4%BD%95%E6%B7%BB%E5%8A%A0Key%EF%BC%9F"><span class="nav-number">9.13.</span> <span class="nav-text">公版SDK是？与手上的SDK_Release有何区别？如何添加Key？</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">cjd</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">40</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">cjd</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="Symbols count total">90k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">5:02</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

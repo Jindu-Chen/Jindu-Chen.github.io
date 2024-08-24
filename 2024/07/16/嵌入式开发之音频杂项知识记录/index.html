@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":"enable","trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="本人并不专于音频开发，但日常工作中难免也会经常接触到音频，因此写下本文记录嵌入式与其相关的基础知识，包括但不限于音频采集、播放、编解码、频谱分析、编码开发应用等方面，便于理清其基本概念及开发思路。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="嵌入式之音频开发知识概述">
+<meta property="og:url" content="http://example.com/2024/07/16/%E5%B5%8C%E5%85%A5%E5%BC%8F%E5%BC%80%E5%8F%91%E4%B9%8B%E9%9F%B3%E9%A2%91%E6%9D%82%E9%A1%B9%E7%9F%A5%E8%AF%86%E8%AE%B0%E5%BD%95/index.html">
+<meta property="og:site_name" content="Jindu-Chen">
+<meta property="og:description" content="本人并不专于音频开发，但日常工作中难免也会经常接触到音频，因此写下本文记录嵌入式与其相关的基础知识，包括但不限于音频采集、播放、编解码、频谱分析、编码开发应用等方面，便于理清其基本概念及开发思路。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2024-07-15T16:00:00.000Z">
+<meta property="article:modified_time" content="2024-08-24T06:19:15.113Z">
+<meta property="article:author" content="cjd">
+<meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2024/07/16/%E5%B5%8C%E5%85%A5%E5%BC%8F%E5%BC%80%E5%8F%91%E4%B9%8B%E9%9F%B3%E9%A2%91%E6%9D%82%E9%A1%B9%E7%9F%A5%E8%AF%86%E8%AE%B0%E5%BD%95/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>嵌入式之音频开发知识概述 | Jindu-Chen</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Jindu-Chen</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">风物长宜放眼量</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/07/16/%E5%B5%8C%E5%85%A5%E5%BC%8F%E5%BC%80%E5%8F%91%E4%B9%8B%E9%9F%B3%E9%A2%91%E6%9D%82%E9%A1%B9%E7%9F%A5%E8%AF%86%E8%AE%B0%E5%BD%95/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="cjd">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jindu-Chen">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          嵌入式之音频开发知识概述
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-07-16 00:00:00" itemprop="dateCreated datePublished" datetime="2024-07-16T00:00:00+08:00">2024-07-16</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-08-24 14:19:15" itemprop="dateModified" datetime="2024-08-24T14:19:15+08:00">2024-08-24</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">嵌入式</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>6.8k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>23 mins.</span>
+            </span>
+            <div class="post-description">本人并不专于音频开发，但日常工作中难免也会经常接触到音频，因此写下本文记录嵌入式与其相关的基础知识，包括但不限于音频采集、播放、编解码、频谱分析、编码开发应用等方面，便于理清其基本概念及开发思路。</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <hr>
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>未完待续…</p>
+<h2 id="嵌入式开发之音频知识概述"><a href="#嵌入式开发之音频知识概述" class="headerlink" title="嵌入式开发之音频知识概述"></a>嵌入式开发之音频知识概述</h2><h3 id="音频之本质概述"><a href="#音频之本质概述" class="headerlink" title="音频之本质概述"></a>音频之本质概述</h3><p>正弦波是最简单的周期性信号之一，其数学表达式非常简单，如下：</p>
+<p><strong>y(t)&#x3D;Asin(2πft+ϕ)</strong></p>
+<p>其中：<br>y(t) 是正弦波在时间 t 处的值。<br>A 是振幅，表示波形的最大振动幅度。<br>f 是频率，表示波形的周期性变化次数。<br>ϕ 是相位，表示波形在时间轴上的偏移。</p>
+<p>正弦波是分析和合成其它信号的基础，因为所有的复杂信号、波形都可以看作为由不同的正弦波叠加而成。（傅里叶变换可以将波形信号分解为一系列的正弦波）</p>
+<p><strong>模拟信号-&gt;声音的过程：</strong> 音频在模拟信号中表现为<code>一个随时间变化的电压波形</code>，该电压波形输出到喇叭（喇叭内部有音圈），会产生电流的变化，从而产生变化的磁场，使得音圈产生相应的振动；音圈的振动带动了振膜振动，在空气中形成了压力波，即声波。</p>
+<p><strong>声音-&gt;模拟信号的过程：</strong> 声波传播使得麦克风内的声学敏感元件振动，这些振动即反映了声波的频率和幅度等。通过线圈、振膜、压电材料、电容器等，<code>将机械振动波形转化为电压的变化波形</code>，此即初始的模拟信号。可能需要麦克风内的放大器进行放大，再传输到模数转换器，被进一步转换为数字信号，便于存储、传输、或者数字处理。</p>
+<br>
+
+<p><strong>模拟信号-&gt;数字信号：</strong> </p>
+<ol>
+<li>采样：采样频率至少应为信号最高频率的两倍</li>
+<li>量化：采样后的信号在幅度上被分割为有限数量的级别。每个采样值被近似到最接近的级别，这个过程称为量化。量化精度决定了数字信号的比特深度，通常为8、16、24或32比特。</li>
+<li>编码：量化后的样本值被转换为数字代码，通常是二进制形式，以便于存储和传输</li>
+</ol>
+<p><strong>数字信号-&gt;模拟信号：</strong> </p>
+<ol>
+<li>解码：</li>
+<li>插值：由于数字信号是离散的，插值过程用于在样本点之间生成连续的信号。这通常通过低通滤波器实现，以平滑信号并消除重建过程中可能产生的高频噪声</li>
+<li>重建：</li>
+</ol>
+<p>采样率（采样的频率）、比特深度（采的样本精度）、转换误差</p>
+<h2 id="音频格式-常识"><a href="#音频格式-常识" class="headerlink" title="音频格式&#x2F;常识"></a>音频格式&#x2F;常识</h2><h3 id="PCM（脉冲编码调制）"><a href="#PCM（脉冲编码调制）" class="headerlink" title="PCM（脉冲编码调制）"></a>PCM（脉冲编码调制）</h3><ul>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_28258885/article/details/120197122">参照PCM数据格式详解博客链接</a></li>
+</ul>
+<p>采集声音从模拟信号转换成数字信号，重要的两个衡量标准就是 采样率、位数（量化精度）。</p>
+<p>PCM数据格式常用指标：</p>
+<ul>
+<li>采样率：如通话采样率为8KHz，常用媒体采样率为44.1KHz 等等</li>
+<li>位深度：一般为16bit（有65,536个等级可以用于衡量真实的模拟信号），也有24bit</li>
+<li>字节端序：大端或者小端</li>
+<li>声道数：单、双、2.1、3.1、5.1声道等</li>
+<li>样本对齐方式：多通道下的样本不同声道交错对齐？</li>
+<li>采样数据符号？<blockquote>
+<p>如 FFmpeg中常见的PCM数据格式s16le为例：它描述的是有符号16位小端PCM数据。s表示有符号，16表示位深，le表示小端存储。</p>
+</blockquote>
+</li>
+</ul>
+<p>PCM存储数据流Stream：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">// 8-bit有符号单声道，分割符&quot;|&quot;分割字节，采样的范围为-128～128</span><br><span class="line">+---------+-----------+-----------+----</span><br><span class="line"> binary 	| 0010 0000 | 1010 0000 | ...</span><br><span class="line"> decimal	| 32        | -96       | ...</span><br><span class="line">+---------+-----------+-----------+----  </span><br></pre></td></tr></table></figure>
+
+<p>实现播放速度调整：加载好PCM数据后，需要送到音频设备驱动程序中播放，这时我们应该能听到声音。与PCM数数据一同到达驱动程序的通常还有采样率（sample rate），用来告诉驱动每秒钟应该播放多少个采样数据。如果传递给驱动程序的采样率大于PCM实际采样率，那么声音的播放速度将比实际速度快，反之亦然。</p>
+<p>常用的多声道PCM数据流排列方式：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">2:  FL FR                       (stereo)</span><br><span class="line">3:  FL FR LFE                   (2.1 surround)</span><br><span class="line">4:  FL FR BL BR                 (quad)</span><br><span class="line">5:  FL FR FC BL BR              (quad + center)</span><br><span class="line">6:  FL FR FC LFE SL SR          (5.1 surround - last two can also be BL BR)</span><br><span class="line">7:  FL FR FC LFE BC SL SR       (6.1 surround)</span><br><span class="line">8:  FL FR FC LFE BL BR SL SR    (7.1 surround)</span><br></pre></td></tr></table></figure>
+<p>如上述，具体能够支持多少声道，得看芯片硬件通道是否支持。<br>FL：前置左声道<br>FR：前置右声道<br>FC：前置中置声道<br>LFE：重低音声道<br>BL：后置左环绕声道<br>BR：后置右环绕声道<br>SL：侧置左环绕声道<br>SR：侧置右环绕声道</p>
+<h4 id="PCM数据流结构及封装"><a href="#PCM数据流结构及封装" class="headerlink" title="PCM数据流结构及封装"></a>PCM数据流结构及封装</h4><p>对于一个16位、立体双声道、44.1kHz采样率的PCM数据流，每个样本占用2字节（16位），每秒钟会产生44100 * 2 * 2 &#x3D; 176400字节的数据。在交错模式下，PCM格式数据流的结构如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">第1字节：第一个左声道样本的低位字节。</span><br><span class="line">第2字节：第一个左声道样本的高位字节。</span><br><span class="line">第3字节：第一个右声道样本的低位字节。</span><br><span class="line">第4字节：第一个右声道样本的高位字节。</span><br><span class="line">...</span><br><span class="line">第5字节：第二个左声道样本的低位字节。</span><br><span class="line">第6字节：第二个左声道样本的高位字节。</span><br><span class="line">第7字节：第二个右声道样本的低位字节。</span><br><span class="line">第8字节：第二个右声道样本的高位字节。</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p><strong>数据流封装：</strong> PCM数据流通常会被封装在一个容器格式中，如WAV、AIFF或RAW等，这些容器格式提供了额外的信息，如采样率、位深度、通道数等元数据，以及可能的头部信息和尾部信息。</p>
+<h3 id="EQ、DRC处理"><a href="#EQ、DRC处理" class="headerlink" title="EQ、DRC处理"></a>EQ、DRC处理</h3><p>EQ英文全称Equaliser，中文也就是均衡器的意思。它的基本作用是通过对声音某一个或多个频段进行增益或衰减，从而达到调整音色的目的。EQ通常包括以下三个参数：<br>Frequency，频率：这是用于设定你要进行调整的频率点的参数；<br>Gain，增益：用于调整在你设定好的F值上进行增益或衰减的参数；<br>Quantize，频宽比（中心频率与控制带宽的比例，Q值越小，控制范围越大，越模糊）：用于设定要进行增益或衰减的频段“宽度”的参数。Q值越小处理的频段就越宽。</p>
+<p>DRC，Dynamic Range Control(DRC)：动态范围控制提供压缩和放大能力，可以使声音听起来更柔和或者更大声，即一种信号幅度调节方式。</p>
+<p>限幅器</p>
+<h3 id="直接对PCM数据处理、数字增益、模拟增益"><a href="#直接对PCM数据处理、数字增益、模拟增益" class="headerlink" title="直接对PCM数据处理、数字增益、模拟增益"></a>直接对PCM数据处理、数字增益、模拟增益</h3><p>直接对PCM数据处理：直接修改传输中的PCM样本值，以改变音频信号的电平。这通常涉及乘法运算或者移位，将每个样本值乘以一个增益因子。</p>
+<p>数字增益：在数字信号处理DSP域中，对音频信号进行增益控制。主要为对处理器的参数化接口调整<br>    灵活性：可以在软件中动态调整，便于实现复杂的音频处理算法。<br>    无失真：只要不超过数字信号处理器的动态范围，数字增益不会引入额外的失真。<br>    易于集成：可以与其他数字信号处理功能（如均衡、压缩、限幅等）无缝结合。</p>
+<p>模拟增益：在信号链的模拟域中对音频信号进行放大的过程。<br>    直接影响功率：模拟增益直接影响输出信号的功率，从而影响扬声器或耳机的音量。<br>    可能引入失真：当信号电平过高时，模拟增益可能导致削波失真。<br>    硬件限制：模拟增益受硬件的限制，可能有固定的增益步进或范围。</p>
+<h3 id="dB-分贝"><a href="#dB-分贝" class="headerlink" title="dB 分贝"></a>dB 分贝</h3><p>在音频处理和日常生活中提到的“dB”（分贝）都是衡量声音强度的单位，但它们的使用场景和参照点有所不同。</p>
+<p>dB是对数单位，用于表达两个量的比值，用于描述声音强度、功率、电压或电流等物理量的<strong>相对变化</strong>。</p>
+<p>生活中的dB：通常用于描述声压级，即声音在空气中的压力波动相对于基准声压的比值。其中基准声压，即0dB（通常为20uPa）是人耳能听到的最低声压。</p>
+<p>音频处理中的dB：通常用于表示信号电平的相对变化（可以有不同的参照点，常见的是dBFS），以满刻度为基准。</p>
+<p>以<code>16bit</code>位深度的PCM音频数据为例，那么其最大值<code>0xFFFF</code>则表示为0dB。</p>
+<blockquote>
+<p>相应的dBFS计算公式为<code>dBFS = 20 * lg (signal / 0xFFFF)</code>。 其中，signal为实际的采样值。<br>dBFS &#x3D; 20 * lg (0x01 &#x2F; 0xFFFF) &#x3D; -96dB<br>所以，16bit位深的峰值表为 0dB到-96dB<br>可推算，24bit位深，峰值表为 0dB到-144dB</p>
+</blockquote>
+<h3 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h3><p><strong>音频播放流程：</strong> 从 文件&#x2F;蓝牙音频&#x2F;IIS&#x2F;SPDIF 到 PCM数据流，到发声，有一整条串行处理流：<strong>直接PCM数据处理、EQ&#x2F;DRC处理、DSP数字增益、DAC、模拟增益、输出</strong></p>
+<blockquote>
+<p>处理节点可以自行进行适当配置， user_handler？</p>
+</blockquote>
+<p>LADC：高分辨率ADC？</p>
+<p>AUX接口，模拟到模拟的增益控制？：</p>
+<p>声音能量：其计算通常用于音频信号处理中，以量化声音的强度或音量。（通过积分？）常用计算方法如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">均方根能量（RMS Energy）： 均方根能量是最常用的音频能量计算方法之一，它通过计算信号样本值的平方平均值的平方根来衡量信号的平均功率。公式如下： [ E_&#123;RMS&#125; = \sqrt&#123;\frac&#123;1&#125;&#123;N&#125;\sum_&#123;i=1&#125;^&#123;N&#125;x_i^2&#125; ] 其中，(x_i)是第(i)个样本值，(N)是样本总数。</span><br><span class="line"></span><br><span class="line">峰值能量： 峰值能量是信号最大幅度的平方，它反映信号的最大强度。公式如下： [ E_&#123;peak&#125; = \max(x_i)^2 ]</span><br><span class="line"></span><br><span class="line">总能量： 总能量是信号所有样本值平方的总和，它表示信号在整个时间窗口内的总能量。公式如下： [ E_&#123;total&#125; = \sum_&#123;i=1&#125;^&#123;N&#125;x_i^2 ]</span><br><span class="line"></span><br><span class="line">平均能量： 平均能量是信号样本值平方的平均值，它类似于均方根能量的平方。公式如下： [ E_&#123;avg&#125; = \frac&#123;1&#125;&#123;N&#125;\sum_&#123;i=1&#125;^&#123;N&#125;x_i^2 ]</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="音频接口-协议标准"><a href="#音频接口-协议标准" class="headerlink" title="音频接口&#x2F;协议标准"></a>音频接口&#x2F;协议标准</h2><h3 id="A2DP协议标准（无线音频流配置）"><a href="#A2DP协议标准（无线音频流配置）" class="headerlink" title="A2DP协议标准（无线音频流配置）"></a>A2DP协议标准（无线音频流配置）</h3><p>A2DP并不是物理意义上的音频接口，而是蓝牙技术中的一种协议。其配置定义了如何通过蓝牙无线连接来传输立体声音频。（主要为音频流）</p>
+<p><strong>关键特征如下：</strong></p>
+<ul>
+<li>音频质量：<strong>主要支持高质量的立体声音频传输</strong>，使用<strong>SBC、AAC、或者aptX、aptXHD、LDAC等编解码器</strong>来压缩&#x2F;解压音频数据，以减少带宽需求并保持良好音质。（LDAC：高分辨率音质编解码器）</li>
+<li>无线传输及设备兼容性：无须依赖物理音频线，利用蓝牙技术，实现音频数据的无线传输。并支持广泛设备连接。</li>
+<li>应用场景包括但不限于：蓝牙耳机、手机&#x2F;电脑音乐无线输出至蓝牙音响等。主要用于播放音乐、电影音轨、游戏音频等非通话相关的音频内容。</li>
+<li>角色定义：SRC（Source，源设备），负责音频编码和传输；SNK（Sink，接收设备），负责接收和解码音频。</li>
+<li>传输机制：A2DP的音频数据通过ACL（Asynchronous Connection-Less）Link传输（一种异步、无连接的数据传输方式，适合于音频流的连续传输）</li>
+<li>多编解码器支持：A2DP协议规范允许设备协商使用最佳可用的编解码器，以适应不同的音频质量和带宽需求。</li>
+</ul>
+<br>
+
+<p><strong>A2DP的工作流程：</strong></p>
+<ul>
+<li>设备发现：蓝牙设备通过广播信号互相发现对方的存在。</li>
+<li>配对与连接：用户确认配对请求，设备建立安全连接。</li>
+<li>服务发现：通过L2CAP（Logical Link Control and Adaptation Protocol）查询对方设备支持的A2DP服务。</li>
+<li>编解码器协商：双方设备协商使用哪种音频编解码器进行传输。</li>
+<li>音频流传输：SRC设备将音频数据编码并发送给SNK设备，后者解码并播放音频。</li>
+</ul>
+<h3 id="HSP-HFP（语音通话流配置）"><a href="#HSP-HFP（语音通话流配置）" class="headerlink" title="HSP&#x2F;HFP（语音通话流配置）"></a>HSP&#x2F;HFP（语音通话流配置）</h3><p><strong>关键特征如下：</strong></p>
+<ul>
+<li>语音通话质量：HSP&#x2F;HFP配置文件优化了语音通话质量，通常使用 CVSD 或 其它专为语音设计的编解码器</li>
+<li>传输机制：使用SCO（Synchronous Connection-Oriented）Link，是一种同步、面向连接的传输方式，特别适合于语音通话的实时性要求</li>
+<li>应用场景：用于手机通话、VoIP通话或会议电话等</li>
+</ul>
+<p>HSP&#x2F;HFP主要关注语音通话的清晰度，不支持立体声，且音频质量较低，不足以满足音乐播放的需求。</p>
+<p>HFP扩展了HSP的功能，不仅支持语音通话，还增加了对电话控制的支持，如接听、挂断电话、拒接来电等。</p>
+<blockquote>
+<p>HFP同样使用CVSD或类似的语音编解码器，以确保通话质量，但它其注重于提供免提通话的便利性，尤其是在驾驶或无法手持电话的情况下。</p>
+</blockquote>
+<h3 id="BT-Audio接口之-A2DP-HSP-HFP-配置小结"><a href="#BT-Audio接口之-A2DP-HSP-HFP-配置小结" class="headerlink" title="BT Audio接口之 A2DP&#x2F;HSP&#x2F;HFP 配置小结"></a>BT Audio接口之 A2DP&#x2F;HSP&#x2F;HFP 配置小结</h3><p>BT Audio接口使用蓝牙无线技术，无需物理线缆即可传输音频数据。<br>配置文件支持：依赖于蓝牙协议中的特定配置文件，如A2DP（高级音频分配配置文件）用于高质量音频流传输，或者HFP&#x2F;HSP（免提配置文件&#x2F;耳机配置文件）用于语音通话。</p>
+<br>
+
+
+
+<p><strong>A2DP与HSP&#x2F;HFP的差异：</strong></p>
+<ul>
+<li>A2DP针对高质量音频传输，而HSP&#x2F;HFP专注于清晰的语音通话</li>
+<li>A2DP用于音频的下行传输，HSP&#x2F;HFP配置文件支持音频的上行和下行双向传输，但音频质量较A2DP低。如果要同时使用高音质音频及语音上行，如游戏耳机，可以组合使用多个配置文件实现。</li>
+<li>A2DP使用ACL Link，适合连续的音频流传输；HSP&#x2F;HFP使用SCO Link，适合实时的语音通话。</li>
+<li>A2DP支持多种音频编解码器，以适应不同的音频质量需求；HSP&#x2F;HFP使用专为语音设计的编解码器</li>
+</ul>
+<p>蓝牙设备可以同时支持A2DP（Advanced Audio Distribution Profile）和HSP&#x2F;HFP（Headset Profile &#x2F; Hands-Free Profile）配置文件</p>
+<p>例如，当将一部支持A2DP和HFP的手机与一副同样支持这两种配置文件的蓝牙耳机配对时，手机会自动检测并建立与耳机的连接。在大多数情况下，手机会优先使用A2DP进行音频流传输，而当有来电时，连接会自动切换到HFP，以确保高质量的语音通话。</p>
+<p>在某些情况下，设备可能需要手动或自动切换配置文件。例如，当用户正在通过A2DP听音乐时，如果接收到电话呼叫，设备通常会自动暂停音乐播放并切换到HFP进行通话。通话结束后，设备会自动返回到A2DP继续播放音乐。</p>
+<p>注：ACL Link 和 SCO Link 是蓝牙技术中定义的两种不同的物理链路类型，它们分别用于不同的数据传输场景，并且具有不同的特性和优点。</p>
+<p>（非限制一对一连接）<br>ACL Link 是一种异步无连接的数据传输链路，主要用于传输分组数据，如文件传输、互联网数据和高质量音频（通过A2DP配置文件）。ACL Link 的关键特性包括：<br>异步无连接：数据包可以随时发送，不需要预先建立连接，这使得ACL Link非常适合于突发性的数据传输。<br>可变数据速率：根据蓝牙版本的不同，ACL Link的数据速率可以从较低的1Mbps到较新的版本中的2Mbps甚至更高。<br>错误检测与重传：ACL Link支持错误检测机制，如果数据包丢失或损坏，可以请求重传。<br>适用于大量数据传输：由于其较高的数据速率和错误纠正能力，ACL Link非常适合于大数据量的传输，如文件传输和高质量音频流。</p>
+<p>SCO Link 是一种同步面向连接的数据传输链路，主要用于传输实时性要求高的数据，如语音通话（通过HSP或HFP配置文件）。SCO Link 的关键特性包括：<br>同步面向连接：在数据传输前需要建立连接，数据包按照固定的时间间隔发送，保证了数据的实时性。<br>固定数据速率：SCO Link通常以固定的速率传输数据，如64kbps，以确保语音通话的连续性和清晰度。<br>不支持错误重传：由于实时性要求，SCO Link不支持数据包的重传，如果数据包丢失，则会被丢弃。<br>适用于实时音频传输：由于其低延迟和固定速率的特性，SCO Link非常适合于语音通话和实时音频流传输。</p>
+<p>通常情况下：当音乐正在播放时（通过A2DP），如果电话呼入，耳机将自动暂停音乐播放，并切换到HFP&#x2F;HSP模式以处理通话。通话结束后，音乐会自动恢复播放。（但有些耳机能够同时进行）</p>
+<h3 id="LINEIN-AUX-音频输入接口"><a href="#LINEIN-AUX-音频输入接口" class="headerlink" title="LINEIN&#x2F;AUX 音频输入接口"></a>LINEIN&#x2F;AUX 音频输入接口</h3><p>AUX接口通常采用3.5毫米（1&#x2F;8英寸）TRS插头，与标准的耳机插头兼容，便于连接。</p>
+<ul>
+<li>直接连接外部音频源，如平板、手机、笔记本等通过AUX连接到音响、音箱等</li>
+<li>音频信号：AUX接口支持模拟音频信号的传输，无须数模、或模数转换。保证了连接的简便性和即插即用的特性</li>
+</ul>
+<p>与 LINEIN 相对应的是 LINEOUT 接口，与耳机3.5mm接口兼容，当然电气特性不完全相同。如：耳机接口可能包含音频输出和麦克风输入功能，而LINEOUT只有音频输出功能。</p>
+<h3 id="IIS接口"><a href="#IIS接口" class="headerlink" title="IIS接口"></a>IIS接口</h3><p>IIS（Inter-IC Sound），又称集成电路内置音频总线，是飞利浦在1986年定义的数字音频传输标准，与IIC并无相关性。</p>
+<p>相对其它协议，IIS接口协议相对简单，没有地址和片选机制。在总线上，只能同时存在一个主设备和发射设备：提供时钟的为主设备，主设备可以是发射设备、接收设备或者协调两者的其它控制设备皆可。</p>
+<blockquote>
+<p>主要应用于处理器与音频编解码器之间的音频数据传输<br><br></p>
+</blockquote>
+<p>IIS协议定义了三根信号线：<strong>时钟信号SCK、数据信号SD、左右声道选择信号WS</strong></p>
+<ul>
+<li>SCK&#x2F;BCLK 位时钟：等于通道数 * 位宽 * 采样率</li>
+<li>SDIN&#x2F;DIN 数据线：串行数据，以二进制补码形式在数据线上传输，在WS变化后的第一个SCK脉冲先传输最高位</li>
+<li>WS&#x2F;LRCLK 声道选择信号：用于区分左右声道的数据，0表示左声道，1表示右声道。也叫帧时钟，等于声音的采样频率</li>
+<li>MCLK 主时钟（可选）：提供主时钟频率给接收端，确保采样率的准确性。 在高质量音频输出、使用外部音频解码器、多通道音频传输时，主时钟是必须的。</li>
+</ul>
+<p>时分复用，用于IIS实现多通道音频数据传输情况？</p>
+<h3 id="USB-Audio-Class接口（UAC）"><a href="#USB-Audio-Class接口（UAC）" class="headerlink" title="USB Audio Class接口（UAC）"></a>USB Audio Class接口（UAC）</h3><p>UAC规范的组成部分：<br>音频控制接口（Audio Control Interface）：这部分定义了音频设备的控制信号，包括音量调节、静音、采样率选择等。</p>
+<p>音频流接口（Audio Streaming Interface）：这部分定义了音频数据的传输方式，包括数据格式、采样率、位深度、通道数等。</p>
+<h3 id="SPDIF接口"><a href="#SPDIF接口" class="headerlink" title="SPDIF接口"></a>SPDIF接口</h3><p>SPDIF定义了一种数字音频信号的传输方式，包括数据的格式和编码，以及如何在设备间传输这些数据。</p>
+<p>SPDIF接口主要用于家用音频设备之间，如CD播放机、数字录音机、AV接收器、电视和声卡等，以实现高质量的数字音频传输。</p>
+<p>物理接口有：同轴电缆、光纤</p>
+<p>数据格式：SPDIF定义了如何将数字音频数据打包成帧，包括采样率、位深度、通道数量等信息。<br>编码方式：使用脉冲编码调制（PCM）或压缩格式（如Dolby Digital或DTS）来编码音频数据。<br>传输机制：规定了如何在设备间同步传输这些数据，包括时钟信号的同步。</p>
+<h3 id="PDM接口"><a href="#PDM接口" class="headerlink" title="PDM接口"></a>PDM接口</h3><p>PDM（Pulse Density Modulation）接口是一种用于传输音频信号的接口，特别是在数字麦克风和扬声器系统中。PDM是一种调制技术，用于将模拟音频信号转换为数字信号，这种数字信号由一系列脉冲组成，脉冲的密度反映了模拟信号的幅度。</p>
+<p>PDM接口中，音频信号是以极高的频率（远远高于标准的PCM采样率，如44.1kHz或48kHz）进行采样的，通常在数兆赫兹（MHz）。由于采样率非常高，PDM信号可以使用单个比特（1位）来表示每个样本，这意味着信号在传输时要么为0，要么为1。</p>
+<p>PDM接口不需要复杂的模数转换器（ADC）和数模转换器（DAC）</p>
+<p>PDM接口常用于数字麦克风，如MEMS麦克风，以及一些音频编解码器中。在数字信号处理器（DSP）或专用集成电路（ASIC）中，PDM信号通常会被转换回更高分辨率的数字信号（如16位或24位PCM），以便进一步处理和播放。</p>
+<h2 id="音频开发相关概念"><a href="#音频开发相关概念" class="headerlink" title="音频开发相关概念"></a>音频开发相关概念</h2><h3 id="声卡"><a href="#声卡" class="headerlink" title="声卡"></a>声卡</h3><p>声卡的基本功能：将来自话筒、磁带、光盘、电脑USB设备等的原始声音信号或者数字音频信号，进行转换，再输出到耳机、扬声器或者扩音机等声响设备。</p>
+<p>比如，电脑的音频文件进行解码后，可以通过其内置声卡，将音频输出到主机自带的AUX接口中。</p>
+<p>也可以通过电脑USB将音频流输出到外挂的设备，再由外挂USB设备进行高质量的音频输出到扬声器。此时外挂的嵌入式设备，称为声卡。</p>
+<p>进行嵌入式音频设备开发，通常在PC-USB模式下，将自身作为声卡功能</p>
+<h3 id="混响"><a href="#混响" class="headerlink" title="混响"></a>混响</h3><p>CPU0 Trace: 0x00108440 0x00108442 0x00108472 0x00108488 </p>
+<p>CPU1 Trace: 0x00108440 0x00108442 0x00108472 0x0602AB7C </p>
+<p>CPU0 Trace: 0x00108440 –&gt;0x00108442 –&gt;0x00108472 –&gt;0x00108488 </p>
+<p>CPU1 Trace: 0x00108440 0x00108442 0x00108472 0x0602AB92 </p>
+<h3 id="录音"><a href="#录音" class="headerlink" title="录音"></a>录音</h3><p>麦克风：动圈麦克风</p>
+<p>混合录音</p>
+<p>音频流以及MIC输入流，混合输入编码到PCM，再存储到文件中</p>
+<p>如果音频流频率跟MIC采样频率不一样，则进行 SRC 变采样处理</p>
+<p>音频流如 eq、drc、移频（避免啸叫）、变声、谐波、混响（空间、回声） -&gt; 低中高频 DRC -&gt; 输出</p>
+<h2 id="业务层音频功能开发"><a href="#业务层音频功能开发" class="headerlink" title="业务层音频功能开发"></a>业务层音频功能开发</h2><h3 id="音频功能配置"><a href="#音频功能配置" class="headerlink" title="音频功能配置"></a>音频功能配置</h3><p>输出模式？  单端隔直、差分输出、VCOM直推</p>
+<p>VCM电容</p>
+<p>等</p>
+<h3 id="音效调试"><a href="#音效调试" class="headerlink" title="音效调试"></a>音效调试</h3><p>如何调试？</p>
+<h2 id="注意项及扩展思考"><a href="#注意项及扩展思考" class="headerlink" title="注意项及扩展思考"></a>注意项及扩展思考</h2><p>关机时需要先把功放给关掉，  另外ES8388音频解码器也要等电容的电放完 才能再次上电通讯，否则iic会通讯失败</p>
+<h3 id="为什么直接断电时，扬声器会嘭的一声"><a href="#为什么直接断电时，扬声器会嘭的一声" class="headerlink" title="为什么直接断电时，扬声器会嘭的一声"></a>为什么直接断电时，扬声器会嘭的一声</h3><p>功放与扬声器的关系，为什么直接断电时 扬声器会嘭的一声： 功放电容直接关闭时瞬间放电导致SPK发声</p>
+<p>通常在关闭功放或者音响时，先将功放设置为静音（MUTE）状态后，再断电。</p>
+<p>避免开关冲击噪声，即功放内部可能的瞬态电流波动。</p>
+<p>在开启功放时，也建议先将功放设置为静音状态，然后再启动。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">扬声器的末端有一个电容，电容会有一个偏置电压，通常为 VDD/2 。在上电时，该电容瞬间上电会导致扬声器 peng 的一声。</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="音频开发中出现底噪、电流声的分析流程"><a href="#音频开发中出现底噪、电流声的分析流程" class="headerlink" title="音频开发中出现底噪、电流声的分析流程"></a>音频开发中出现底噪、电流声的分析流程</h3><p>噪声问题主要通过优化硬件处理， 如果硬件处理无法达到理想效果，则通过软件加噪声门处理（反相底噪的PCM数据，做音效抵消）</p>
+<p>1、模拟地短接到数字地，导致模拟地有电压波动，导致音频噪声。<br>2、功放带宽大，导致DAC输出的信号有折回，会导致喇叭有明显噪声。 在DAC输出端加二阶低通滤波。</p>
+<p>头戴式耳机本身模具决定电池线和喇叭线需要共同紧贴着走一段很长的距离，然后接到主板端上。此时电池上的干扰很容易就通过平行线耦合干扰到喇叭线。</p>
+<blockquote>
+<p>硬件上做对应处理。</p>
+</blockquote>
+<h3 id="开发中出现音频数据没声音的问题排查"><a href="#开发中出现音频数据没声音的问题排查" class="headerlink" title="开发中出现音频数据没声音的问题排查"></a>开发中出现音频数据没声音的问题排查</h3><ul>
+<li>音频管脚是否配置正确，是否为复用引脚</li>
+<li>时钟是由处理器还是编解码器提供？主从模式是否正确</li>
+<li>通信双方的通道数、位宽、采样率是否配置正确</li>
+<li>LRCK、SCK是否输出正确，其中<code>LRCK=采样率</code>、<code>SCK=通道数*位宽*采样率</code></li>
+</ul>
+<h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/fIm5XtPUa8UWWpVJ-7lhBg">【技术帖】一些关于音频功放的小秘密，你都知道吗？</a></li>
+</ul>
+<h2 id="附录-备忘录"><a href="#附录-备忘录" class="headerlink" title="附录&#x2F;备忘录"></a>附录&#x2F;备忘录</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">### 音频播放原理概述</span><br><span class="line"></span><br><span class="line">将mp3文件通过esp32自带的转换工具转成bin文件，而后烧录到esp32的指定地址。（mp3文件命名转换与esp32代码中mp3命名一一对应） </span><br><span class="line"></span><br><span class="line">esp32调用库接口解码播放相应的mp3歌曲，通过IIS将数字音频信号输出到ES8388音频解码器，转换成相应的交流信号（模拟信号），再经过功率放大器放大 音频的电信号，最后输出到扬声器将 电信号转换成声音</span><br><span class="line"></span><br><span class="line">ESP32 IIC IIS-&gt;音频解码-&gt;功率放大器-&gt;扬声器</span><br><span class="line"></span><br><span class="line">### 语音识别开发流程</span><br><span class="line"></span><br><span class="line">离线语音识别：</span><br><span class="line">电脑端模型训练词条，完成模型训练后，针对特定平台编译成相应的库（输入声音流，输出词条的库），编译部署到设备上运行</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">在线语音识别</span><br><span class="line"></span><br><span class="line">语音识别和回音消除，  通过ES7243E模数转换器，将外界的声音转换成数字信号给ESP32识别，采集MIC的声音减去SPK的声音就是真实的外界声音。 （另外 IIS具有区分左右声道的能力）</span><br><span class="line"></span><br><span class="line">声学算法如回声消除、噪声抑制等的部署，</span><br><span class="line"></span><br><span class="line">编程初始化算法、处理音频数据、调用算法接口等</span><br><span class="line"></span><br><span class="line">### 语音控制功能简述</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2024/07/12/%E6%9D%B0%E7%90%86%E8%8A%AF%E7%89%87%E5%BC%80%E5%8F%91%E7%AC%94%E8%AE%B0/" rel="prev" title="杰理科技SDK开发笔记">
+      <i class="fa fa-chevron-left"></i> 杰理科技SDK开发笔记
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2024/07/26/%E8%93%9D%E7%89%99%E5%BA%94%E7%94%A8%E4%B8%9A%E5%8A%A1%E5%BC%80%E5%8F%91/" rel="next" title="蓝牙协议栈及基础业务应用概念简述">
+      蓝牙协议栈及基础业务应用概念简述 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B5%8C%E5%85%A5%E5%BC%8F%E5%BC%80%E5%8F%91%E4%B9%8B%E9%9F%B3%E9%A2%91%E7%9F%A5%E8%AF%86%E6%A6%82%E8%BF%B0"><span class="nav-number">2.</span> <span class="nav-text">嵌入式开发之音频知识概述</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%9F%B3%E9%A2%91%E4%B9%8B%E6%9C%AC%E8%B4%A8%E6%A6%82%E8%BF%B0"><span class="nav-number">2.1.</span> <span class="nav-text">音频之本质概述</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9F%B3%E9%A2%91%E6%A0%BC%E5%BC%8F-%E5%B8%B8%E8%AF%86"><span class="nav-number">3.</span> <span class="nav-text">音频格式&#x2F;常识</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#PCM%EF%BC%88%E8%84%89%E5%86%B2%E7%BC%96%E7%A0%81%E8%B0%83%E5%88%B6%EF%BC%89"><span class="nav-number">3.1.</span> <span class="nav-text">PCM（脉冲编码调制）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#PCM%E6%95%B0%E6%8D%AE%E6%B5%81%E7%BB%93%E6%9E%84%E5%8F%8A%E5%B0%81%E8%A3%85"><span class="nav-number">3.1.1.</span> <span class="nav-text">PCM数据流结构及封装</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#EQ%E3%80%81DRC%E5%A4%84%E7%90%86"><span class="nav-number">3.2.</span> <span class="nav-text">EQ、DRC处理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%9B%B4%E6%8E%A5%E5%AF%B9PCM%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86%E3%80%81%E6%95%B0%E5%AD%97%E5%A2%9E%E7%9B%8A%E3%80%81%E6%A8%A1%E6%8B%9F%E5%A2%9E%E7%9B%8A"><span class="nav-number">3.3.</span> <span class="nav-text">直接对PCM数据处理、数字增益、模拟增益</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#dB-%E5%88%86%E8%B4%9D"><span class="nav-number">3.4.</span> <span class="nav-text">dB 分贝</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B0%8F%E7%BB%93"><span class="nav-number">3.5.</span> <span class="nav-text">小结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9F%B3%E9%A2%91%E6%8E%A5%E5%8F%A3-%E5%8D%8F%E8%AE%AE%E6%A0%87%E5%87%86"><span class="nav-number">4.</span> <span class="nav-text">音频接口&#x2F;协议标准</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#A2DP%E5%8D%8F%E8%AE%AE%E6%A0%87%E5%87%86%EF%BC%88%E6%97%A0%E7%BA%BF%E9%9F%B3%E9%A2%91%E6%B5%81%E9%85%8D%E7%BD%AE%EF%BC%89"><span class="nav-number">4.1.</span> <span class="nav-text">A2DP协议标准（无线音频流配置）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#HSP-HFP%EF%BC%88%E8%AF%AD%E9%9F%B3%E9%80%9A%E8%AF%9D%E6%B5%81%E9%85%8D%E7%BD%AE%EF%BC%89"><span class="nav-number">4.2.</span> <span class="nav-text">HSP&#x2F;HFP（语音通话流配置）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#BT-Audio%E6%8E%A5%E5%8F%A3%E4%B9%8B-A2DP-HSP-HFP-%E9%85%8D%E7%BD%AE%E5%B0%8F%E7%BB%93"><span class="nav-number">4.3.</span> <span class="nav-text">BT Audio接口之 A2DP&#x2F;HSP&#x2F;HFP 配置小结</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#LINEIN-AUX-%E9%9F%B3%E9%A2%91%E8%BE%93%E5%85%A5%E6%8E%A5%E5%8F%A3"><span class="nav-number">4.4.</span> <span class="nav-text">LINEIN&#x2F;AUX 音频输入接口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#IIS%E6%8E%A5%E5%8F%A3"><span class="nav-number">4.5.</span> <span class="nav-text">IIS接口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#USB-Audio-Class%E6%8E%A5%E5%8F%A3%EF%BC%88UAC%EF%BC%89"><span class="nav-number">4.6.</span> <span class="nav-text">USB Audio Class接口（UAC）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SPDIF%E6%8E%A5%E5%8F%A3"><span class="nav-number">4.7.</span> <span class="nav-text">SPDIF接口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#PDM%E6%8E%A5%E5%8F%A3"><span class="nav-number">4.8.</span> <span class="nav-text">PDM接口</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9F%B3%E9%A2%91%E5%BC%80%E5%8F%91%E7%9B%B8%E5%85%B3%E6%A6%82%E5%BF%B5"><span class="nav-number">5.</span> <span class="nav-text">音频开发相关概念</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A3%B0%E5%8D%A1"><span class="nav-number">5.1.</span> <span class="nav-text">声卡</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B7%B7%E5%93%8D"><span class="nav-number">5.2.</span> <span class="nav-text">混响</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BD%95%E9%9F%B3"><span class="nav-number">5.3.</span> <span class="nav-text">录音</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%9A%E5%8A%A1%E5%B1%82%E9%9F%B3%E9%A2%91%E5%8A%9F%E8%83%BD%E5%BC%80%E5%8F%91"><span class="nav-number">6.</span> <span class="nav-text">业务层音频功能开发</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%9F%B3%E9%A2%91%E5%8A%9F%E8%83%BD%E9%85%8D%E7%BD%AE"><span class="nav-number">6.1.</span> <span class="nav-text">音频功能配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%9F%B3%E6%95%88%E8%B0%83%E8%AF%95"><span class="nav-number">6.2.</span> <span class="nav-text">音效调试</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B3%A8%E6%84%8F%E9%A1%B9%E5%8F%8A%E6%89%A9%E5%B1%95%E6%80%9D%E8%80%83"><span class="nav-number">7.</span> <span class="nav-text">注意项及扩展思考</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E7%9B%B4%E6%8E%A5%E6%96%AD%E7%94%B5%E6%97%B6%EF%BC%8C%E6%89%AC%E5%A3%B0%E5%99%A8%E4%BC%9A%E5%98%AD%E7%9A%84%E4%B8%80%E5%A3%B0"><span class="nav-number">7.1.</span> <span class="nav-text">为什么直接断电时，扬声器会嘭的一声</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%9F%B3%E9%A2%91%E5%BC%80%E5%8F%91%E4%B8%AD%E5%87%BA%E7%8E%B0%E5%BA%95%E5%99%AA%E3%80%81%E7%94%B5%E6%B5%81%E5%A3%B0%E7%9A%84%E5%88%86%E6%9E%90%E6%B5%81%E7%A8%8B"><span class="nav-number">7.2.</span> <span class="nav-text">音频开发中出现底噪、电流声的分析流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BC%80%E5%8F%91%E4%B8%AD%E5%87%BA%E7%8E%B0%E9%9F%B3%E9%A2%91%E6%95%B0%E6%8D%AE%E6%B2%A1%E5%A3%B0%E9%9F%B3%E7%9A%84%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5"><span class="nav-number">7.3.</span> <span class="nav-text">开发中出现音频数据没声音的问题排查</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E7%AB%99%E7%82%B9"><span class="nav-number">8.</span> <span class="nav-text">参考站点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%99%84%E5%BD%95-%E5%A4%87%E5%BF%98%E5%BD%95"><span class="nav-number">9.</span> <span class="nav-text">附录&#x2F;备忘录</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">cjd</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">40</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">cjd</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="Symbols count total">90k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">5:02</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

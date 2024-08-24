@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":"enable","trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="&emsp;&emsp;写下此篇文章，系统性地总结个人对硬件开发的认知，以作回顾，本意不是为了深入硬件开发，因为每个细分领域的差异都是巨大的，而人的精力是有限的。 &emsp;&emsp;但是，作为一个嵌入式软件开发人员，应当要对硬件有所了解，适当地学习认识硬件，相信对嵌入式开发本业也能起到一定的反哺作用。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="嵌入式硬件--学习笔记">
+<meta property="og:url" content="http://example.com/2024/02/01/%E5%B5%8C%E5%85%A5%E5%BC%8F%E7%A1%AC%E4%BB%B6%E4%B9%8B%E4%B8%AA%E4%BA%BA%E7%90%86%E8%A7%A3/index.html">
+<meta property="og:site_name" content="Jindu-Chen">
+<meta property="og:description" content="&emsp;&emsp;写下此篇文章，系统性地总结个人对硬件开发的认知，以作回顾，本意不是为了深入硬件开发，因为每个细分领域的差异都是巨大的，而人的精力是有限的。 &emsp;&emsp;但是，作为一个嵌入式软件开发人员，应当要对硬件有所了解，适当地学习认识硬件，相信对嵌入式开发本业也能起到一定的反哺作用。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2024-01-31T16:00:00.000Z">
+<meta property="article:modified_time" content="2024-08-24T06:19:15.114Z">
+<meta property="article:author" content="cjd">
+<meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2024/02/01/%E5%B5%8C%E5%85%A5%E5%BC%8F%E7%A1%AC%E4%BB%B6%E4%B9%8B%E4%B8%AA%E4%BA%BA%E7%90%86%E8%A7%A3/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>嵌入式硬件--学习笔记 | Jindu-Chen</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Jindu-Chen</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">风物长宜放眼量</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/02/01/%E5%B5%8C%E5%85%A5%E5%BC%8F%E7%A1%AC%E4%BB%B6%E4%B9%8B%E4%B8%AA%E4%BA%BA%E7%90%86%E8%A7%A3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="cjd">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jindu-Chen">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          嵌入式硬件--学习笔记
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-02-01 00:00:00" itemprop="dateCreated datePublished" datetime="2024-02-01T00:00:00+08:00">2024-02-01</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-08-24 14:19:15" itemprop="dateModified" datetime="2024-08-24T14:19:15+08:00">2024-08-24</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E7%A1%AC%E4%BB%B6/" itemprop="url" rel="index"><span itemprop="name">硬件</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/MISC/" itemprop="url" rel="index"><span itemprop="name">MISC</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>1.8k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>6 mins.</span>
+            </span>
+            <div class="post-description">&emsp;&emsp;写下此篇文章，系统性地总结个人对硬件开发的认知，以作回顾，本意不是为了深入硬件开发，因为每个细分领域的差异都是巨大的，而人的精力是有限的。<br>
+&emsp;&emsp;但是，作为一个嵌入式软件开发人员，应当要对硬件有所了解，适当地学习认识硬件，相信对嵌入式开发本业也能起到一定的反哺作用。
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><a href="/2024/01/01/PCB%E8%AE%BE%E8%AE%A1%E5%89%8D%E7%BD%AE%E7%9F%A5%E8%AF%86%E7%AC%94%E8%AE%B0"><strong>PCB设计前置知识学习笔记</strong></a><br><a href="/2024/01/01/%E7%A1%AC%E4%BB%B6%E5%9F%BA%E7%A1%80%E5%99%A8%E4%BB%B6%E7%9F%A5%E8%AF%86%E7%AE%80%E8%BF%B0"><strong>硬件基础器件知识记录</strong></a></p>
+<br>
+
+<p><strong>未完待续…</strong></p>
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>分为PCB设计部分、电路原理图设计部分、IC选型部分</p>
+<h2 id="硬件开发概述"><a href="#硬件开发概述" class="headerlink" title="硬件开发概述"></a>硬件开发概述</h2><p>电路原理图设计（Schematic）</p>
+<p>PCB布局（layout）</p>
+<h2 id="电路原理图设计"><a href="#电路原理图设计" class="headerlink" title="电路原理图设计"></a>电路原理图设计</h2><h3 id="电流检测电路设计"><a href="#电流检测电路设计" class="headerlink" title="电流检测电路设计"></a>电流检测电路设计</h3><h3 id="DCDC电路"><a href="#DCDC电路" class="headerlink" title="DCDC电路"></a>DCDC电路</h3><p>Boost升压电路原理</p>
+<p>Buck</p>
+<p>升降压、稳压电路设计</p>
+<p>DCDC外围电路</p>
+<h3 id="LDO电路"><a href="#LDO电路" class="headerlink" title="LDO电路"></a>LDO电路</h3><h3 id="充电电路设计"><a href="#充电电路设计" class="headerlink" title="充电电路设计"></a>充电电路设计</h3><p>充电时 充电极接到电池正极，同时电池正极又接到负载端，那么设备是用的电池的电还是充电线的电？</p>
+<p>充电器件外围电路</p>
+<p>充满电后，电池有继续参与到充放电循环中吗</p>
+<h3 id="其它电路设计"><a href="#其它电路设计" class="headerlink" title="其它电路设计"></a>其它电路设计</h3><p>按键复位电路</p>
+<p>基本的电路原理</p>
+<p>RC一阶</p>
+<h4 id="交流放大电路"><a href="#交流放大电路" class="headerlink" title="交流放大电路"></a>交流放大电路</h4><p>采用三极管、电容等将交流信号放大，滤掉直流信号</p>
+<h2 id="PCB-Layout设计"><a href="#PCB-Layout设计" class="headerlink" title="PCB Layout设计"></a>PCB Layout设计</h2><h3 id="PCB走线设计"><a href="#PCB走线设计" class="headerlink" title="PCB走线设计"></a>PCB走线设计</h3><p>避免直角走线</p>
+<p>因为当PCB直角走线时，在传输线拐角处的线宽变大，约为正常线宽的1.414 倍。由于线宽改变，导致阻抗变小，产生一定的信号反射。同时，90度拐角处还会产生寄生电容&#x2F;寄生电感和尖端EMI</p>
+<h2 id="PCB设计之基础术语解析"><a href="#PCB设计之基础术语解析" class="headerlink" title="PCB设计之基础术语解析"></a>PCB设计之基础术语解析</h2><h4 id="过孔设计"><a href="#过孔设计" class="headerlink" title="过孔设计"></a>过孔设计</h4><p>Via孔<br>Pad孔：烧录孔，适合排针类</p>
+<p>通孔、埋孔、盲孔<br>盲孔：并非如通孔一般贯穿整个电路板，通常用于空间紧密的布置，节省空间，留出更多空间用于摆放其它器件或者走线，但其工艺价格较通孔高</p>
+<h4 id="测试点设计"><a href="#测试点设计" class="headerlink" title="测试点设计"></a>测试点设计</h4><h3 id="电源规划"><a href="#电源规划" class="headerlink" title="电源规划"></a>电源规划</h3><p>电源规划属于布局设计和布线设计：<br>电源分配网络: 电源分配网络是将电源从电源插座分配到各个元件的网络。电源分配网络的设计应考虑以下因素：</p>
+<p>电源纹波和噪声: 电源纹波和噪声会影响电路的性能。电源分配网络应设计得尽可能减少电源纹波和噪声。<br>电流负载: 电源分配网络应能够承受所有元件的最大电流负载。<br>热量: 电源分配网络会产生热量。电源分配网络应设计得能够散发出足够的热量。<br>去耦: 去耦是指使用电容器将高频噪声从电源线中去除。去耦可以减少电源纹波和噪声，并提高电路的稳定性。</p>
+<p>电源线宽度: 电源线应足够宽，以承载所需的电流。<br>电源线布局: 电源线应远离信号线，以减少电磁干扰 (EMI)。<br>接地: 接地是电源规划的重要组成部分。PCB 应具有专用接地层，连接到所有元件的接地引脚。接地层应在单点连接到电源接地。</p>
+<p>线发烫是由于电源宽度不够</p>
+<h3 id="串扰抑制"><a href="#串扰抑制" class="headerlink" title="串扰抑制"></a>串扰抑制</h3><h3 id="阻抗匹配"><a href="#阻抗匹配" class="headerlink" title="阻抗匹配"></a>阻抗匹配</h3><p>理想的阻抗匹配状态是信号源的输出阻抗与负载阻抗相等，这时信号传输效率最高，几乎没有反射，能量损失最小。</p>
+<p>如电池，输出阻抗主要是欧姆阻抗，反映电池内部的电阻特性。同一电池状态，不同供电电流下，电池电压不一样。可以说这个电压电流比值差，就是输出阻抗。</p>
+<p>阻抗匹配不仅适用于高频信号传输（如微波电路中的传输线），也适用于低频电路，如音频放大器与扬声器之间的连接。</p>
+<p>“反射”指的是当信号遇到阻抗不匹配的界面时，部分能量不能被负载吸收，而是被反射回信号源的现象<br>这种现象类似于光从一种介质进入另一种介质时发生的反射。在电信号传输中，如果信号源的输出阻抗（Source Impedance）与负载阻抗（Load Impedance）不相等，就会在它们的连接点产生阻抗失配，从而引发反射。</p>
+<p><strong>如何匹配阻抗？</strong><br>终端匹配：在信号链路的末端添加一个与传输线阻抗相等的电阻，直接吸收反射信号。</p>
+<h3 id="环路阻抗"><a href="#环路阻抗" class="headerlink" title="环路阻抗"></a>环路阻抗</h3><p>环路阻抗通常指的是在电路中形成闭合回路的阻抗特性，特别是在讨论反馈系统（如放大器的反馈网络）时。<br>它涉及到信号从输出到输入的整个路径上的总阻抗，包括所有元器件（如电阻、电容、电感）的贡献。<br>环路阻抗对系统的稳定性、增益以及频率响应有着直接影响。在反馈放大器设计中，环路增益的计算就需要考虑环路阻抗，以确保系统稳定工作，避免自激振荡。</p>
+<h3 id="电磁兼容性（EMC）"><a href="#电磁兼容性（EMC）" class="headerlink" title="电磁兼容性（EMC）"></a>电磁兼容性（EMC）</h3><h3 id="静电测试（ESD）"><a href="#静电测试（ESD）" class="headerlink" title="静电测试（ESD）"></a>静电测试（ESD）</h3><h2 id="疑惑解答及扩展思考"><a href="#疑惑解答及扩展思考" class="headerlink" title="疑惑解答及扩展思考"></a>疑惑解答及扩展思考</h2><h3 id="MOS管的栅极G和源极S为啥要串100k电阻？"><a href="#MOS管的栅极G和源极S为啥要串100k电阻？" class="headerlink" title="MOS管的栅极G和源极S为啥要串100k电阻？"></a>MOS管的栅极G和源极S为啥要串100k电阻？</h3><p>在无驱动信号时，提供偏置，比如接地偏置等。</p>
+<p>防止静电损伤：MOSFET的栅极非常敏感，容易受到静电放电（ESD）的影响。100kΩ的电阻可以限制流过栅极的瞬时电流，从而提供一定的静电保护</p>
+<p>避免寄生振荡：在<strong>高频率或高速开关</strong>应用，MOSFET的栅极-漏极（Miller电容）可能会引起寄生振荡。100kΩ电阻有助于抑制这些振荡。</p>
+<p>选择100K电阻会提供更慢的开关速度、更强的静电保护、更低的静态电流</p>
+<ul>
+<li>另外，通常从芯片的驱动口到MOSFET（金属-氧化物半导体场效应晶体管）栅极之间串联一个1kΩ电阻（也称为栅极电阻或GATE电阻），其作用包括有：限流保护、防止毛刺等</li>
+</ul>
+<h3 id="EMC测试fail，如何排查？"><a href="#EMC测试fail，如何排查？" class="headerlink" title="EMC测试fail，如何排查？"></a>EMC测试fail，如何排查？</h3><p>首先重点排查可能与软件相关的信号，超过1MHz的都要着重注意，走线过长的也要注意，如时钟线、数据线等信号线等，是否有串电阻以起到如下作用：</p>
+<ul>
+<li>阻抗匹配：串联一个匹配电阻（其值接近传输线的特征阻抗）可以在信号源处或接收端实现阻抗匹配，减少反射</li>
+<li>吸收反射信号：长信号线仍可能因线路特性变化（如接头、分支等）引起微小的反射。在信号线上串联一个小电阻（如终端电阻）可以吸收这些反射回来的微弱信号，减少它们与原信号叠加造成的干扰</li>
+<li>降低信号上升沿速度：快速变化的信号边缘（即上升沿和下降沿）会产生较强的电磁辐射。串联电阻可以稍微降低信号的边沿速率，减少高频成分</li>
+<li>噪声抑制：在信号线上串联电阻可以作为一个简单的低通滤波器，帮助抑制高频噪声，这些噪声往往是EMC问题的主要来源</li>
+</ul>
+<br>
+
+<p>排查与高频相关的器件，如开关电源、DCDC</p>
+<p>布线设计、信号线与电源线的隔离、地平面的处理是否合理？</p>
+<h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1d4411R74r/?spm_id_from=333.337.search-card.all.click&vd_source=82e85569f7427ac31cbd67ec7206aa00">【Allegro教程】零基础小白快速入门4层板PCB设计</a></li>
+<li><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/YeJILgNylGv386t_LCj2zA">PCB为什么不能直角走线？三大理由！</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2024/01/05/Kconfig%E5%85%A5%E9%97%A8%E3%80%81%E5%B8%B8%E7%94%A8%E8%AF%AD%E6%B3%95%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" rel="prev" title="Kconfig入门、常用语法学习笔记">
+      <i class="fa fa-chevron-left"></i> Kconfig入门、常用语法学习笔记
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2024/02/01/%E5%B5%8C%E5%85%A5%E5%BC%8FMCU%E7%A7%BB%E6%A4%8DCmBacktrace/" rel="next" title="嵌入式单片机移植CmBacktrace">
+      嵌入式单片机移植CmBacktrace <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A1%AC%E4%BB%B6%E5%BC%80%E5%8F%91%E6%A6%82%E8%BF%B0"><span class="nav-number">2.</span> <span class="nav-text">硬件开发概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%94%B5%E8%B7%AF%E5%8E%9F%E7%90%86%E5%9B%BE%E8%AE%BE%E8%AE%A1"><span class="nav-number">3.</span> <span class="nav-text">电路原理图设计</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%94%B5%E6%B5%81%E6%A3%80%E6%B5%8B%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1"><span class="nav-number">3.1.</span> <span class="nav-text">电流检测电路设计</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DCDC%E7%94%B5%E8%B7%AF"><span class="nav-number">3.2.</span> <span class="nav-text">DCDC电路</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#LDO%E7%94%B5%E8%B7%AF"><span class="nav-number">3.3.</span> <span class="nav-text">LDO电路</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%85%E7%94%B5%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1"><span class="nav-number">3.4.</span> <span class="nav-text">充电电路设计</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B6%E5%AE%83%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1"><span class="nav-number">3.5.</span> <span class="nav-text">其它电路设计</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BA%A4%E6%B5%81%E6%94%BE%E5%A4%A7%E7%94%B5%E8%B7%AF"><span class="nav-number">3.5.1.</span> <span class="nav-text">交流放大电路</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#PCB-Layout%E8%AE%BE%E8%AE%A1"><span class="nav-number">4.</span> <span class="nav-text">PCB Layout设计</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#PCB%E8%B5%B0%E7%BA%BF%E8%AE%BE%E8%AE%A1"><span class="nav-number">4.1.</span> <span class="nav-text">PCB走线设计</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#PCB%E8%AE%BE%E8%AE%A1%E4%B9%8B%E5%9F%BA%E7%A1%80%E6%9C%AF%E8%AF%AD%E8%A7%A3%E6%9E%90"><span class="nav-number">5.</span> <span class="nav-text">PCB设计之基础术语解析</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BF%87%E5%AD%94%E8%AE%BE%E8%AE%A1"><span class="nav-number">5.0.1.</span> <span class="nav-text">过孔设计</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B5%8B%E8%AF%95%E7%82%B9%E8%AE%BE%E8%AE%A1"><span class="nav-number">5.0.2.</span> <span class="nav-text">测试点设计</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%94%B5%E6%BA%90%E8%A7%84%E5%88%92"><span class="nav-number">5.1.</span> <span class="nav-text">电源规划</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%B2%E6%89%B0%E6%8A%91%E5%88%B6"><span class="nav-number">5.2.</span> <span class="nav-text">串扰抑制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%98%BB%E6%8A%97%E5%8C%B9%E9%85%8D"><span class="nav-number">5.3.</span> <span class="nav-text">阻抗匹配</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%8E%AF%E8%B7%AF%E9%98%BB%E6%8A%97"><span class="nav-number">5.4.</span> <span class="nav-text">环路阻抗</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%94%B5%E7%A3%81%E5%85%BC%E5%AE%B9%E6%80%A7%EF%BC%88EMC%EF%BC%89"><span class="nav-number">5.5.</span> <span class="nav-text">电磁兼容性（EMC）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%9D%99%E7%94%B5%E6%B5%8B%E8%AF%95%EF%BC%88ESD%EF%BC%89"><span class="nav-number">5.6.</span> <span class="nav-text">静电测试（ESD）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%96%91%E6%83%91%E8%A7%A3%E7%AD%94%E5%8F%8A%E6%89%A9%E5%B1%95%E6%80%9D%E8%80%83"><span class="nav-number">6.</span> <span class="nav-text">疑惑解答及扩展思考</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#MOS%E7%AE%A1%E7%9A%84%E6%A0%85%E6%9E%81G%E5%92%8C%E6%BA%90%E6%9E%81S%E4%B8%BA%E5%95%A5%E8%A6%81%E4%B8%B2100k%E7%94%B5%E9%98%BB%EF%BC%9F"><span class="nav-number">6.1.</span> <span class="nav-text">MOS管的栅极G和源极S为啥要串100k电阻？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#EMC%E6%B5%8B%E8%AF%95fail%EF%BC%8C%E5%A6%82%E4%BD%95%E6%8E%92%E6%9F%A5%EF%BC%9F"><span class="nav-number">6.2.</span> <span class="nav-text">EMC测试fail，如何排查？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E7%AB%99%E7%82%B9"><span class="nav-number">7.</span> <span class="nav-text">参考站点</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">cjd</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">40</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">cjd</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="Symbols count total">90k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">5:02</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

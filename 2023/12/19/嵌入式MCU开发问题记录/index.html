@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":"enable","trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="记录、总结嵌入式开发中遇到的一些小问题，包括但不限于现象记录、原因分析以及解决思路等。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="嵌入式MCU开发问题记录">
+<meta property="og:url" content="http://example.com/2023/12/19/%E5%B5%8C%E5%85%A5%E5%BC%8FMCU%E5%BC%80%E5%8F%91%E9%97%AE%E9%A2%98%E8%AE%B0%E5%BD%95/index.html">
+<meta property="og:site_name" content="Jindu-Chen">
+<meta property="og:description" content="记录、总结嵌入式开发中遇到的一些小问题，包括但不限于现象记录、原因分析以及解决思路等。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2023-12-18T16:00:00.000Z">
+<meta property="article:modified_time" content="2023-12-18T16:00:00.000Z">
+<meta property="article:author" content="cjd">
+<meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2023/12/19/%E5%B5%8C%E5%85%A5%E5%BC%8FMCU%E5%BC%80%E5%8F%91%E9%97%AE%E9%A2%98%E8%AE%B0%E5%BD%95/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>嵌入式MCU开发问题记录 | Jindu-Chen</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Jindu-Chen</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">风物长宜放眼量</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/12/19/%E5%B5%8C%E5%85%A5%E5%BC%8FMCU%E5%BC%80%E5%8F%91%E9%97%AE%E9%A2%98%E8%AE%B0%E5%BD%95/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="cjd">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jindu-Chen">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          嵌入式MCU开发问题记录
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-12-19 00:00:00" itemprop="dateCreated datePublished" datetime="2023-12-19T00:00:00+08:00">2023-12-19</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/MCU/" itemprop="url" rel="index"><span itemprop="name">MCU</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>3.7k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>12 mins.</span>
+            </span>
+            <div class="post-description">记录、总结嵌入式开发中遇到的一些小问题，包括但不限于现象记录、原因分析以及解决思路等。</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h3 id="自定义打印函数，通过命令行调用能打印，但在中断函数执行却没有打印"><a href="#自定义打印函数，通过命令行调用能打印，但在中断函数执行却没有打印" class="headerlink" title="自定义打印函数，通过命令行调用能打印，但在中断函数执行却没有打印"></a>自定义打印函数，通过命令行调用能打印，但在中断函数执行却没有打印</h3><p>如下函数源码：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> logPrintln(format, ...) \</span></span><br><span class="line"><span class="meta">        logWrite(LOG_ALL_OBJ, LOG_NONE, format <span class="string">&quot;\r\n&quot;</span>, ##__VA_ARGS__)</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> logPrinttext(format, ...) \</span></span><br><span class="line"><span class="meta">        logWrite(LOG_ALL_OBJ, LOG_NONE, format, ##__VA_ARGS__)</span></span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">drv_adc_read_total</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    logPrintln(<span class="string">&quot;aaa %d&quot;</span>, drv_adc_read(<span class="number">1</span>));</span><br><span class="line">    logPrinttext(<span class="string">&quot;bbb&quot;</span>);</span><br><span class="line">    logPrintln(<span class="string">&quot;aaa %d&quot;</span>, drv_adc_read(<span class="number">1</span>));</span><br><span class="line">&#125;</span><br><span class="line">SHELL_EXPORT_CMD(SHELL_CMD_PERMISSION(<span class="number">0</span>)|SHELL_CMD_TYPE(SHELL_TYPE_CMD_FUNC)|SHELL_CMD_DISABLE_RETURN, drv_adc_read_total, drv_adc_read_total, drv_adc_read_total);</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">DMA_Channel6_IRQHandler</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    DMA_ClearFlag(DMA_FLAG_GL6, DMA);</span><br><span class="line">    logDebug(<span class="string">&quot;read start&quot;</span>);</span><br><span class="line">    drv_adc_read_total();</span><br><span class="line">    logDebug(<span class="string">&quot;read end&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在DMA_Channel6_IRQHandler中执行，仅没有 logPrinttext(“bbb”); 这个输出<br>通过命令行调用drv_adc_read_total函数则有 logPrinttext(“bbb”); 打印</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">中断函数执行结果如下：</span><br><span class="line">D [0:11:49,025] DMA_Channel6_IRQHandler [208]: read start</span><br><span class="line">aaa 65533</span><br><span class="line">aaa 65533</span><br><span class="line">D [0:11:49,025] DMA_Channel6_IRQHandler [210]: read end</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">命令行执行结果如下：</span><br><span class="line">root:/$ drv_adc_read_total</span><br><span class="line">aaa 65533</span><br><span class="line">bbbaaa 65533</span><br></pre></td></tr></table></figure>
+
+<p><strong>问题调试分析：</strong></p>
+<ul>
+<li>如果将<code>&quot;\r\n&quot;</code>同样加到 <code>logPrinttext</code>函数的宏定义中，那么在中断中也能打印此函数内容</li>
+<li>在命令行中调用，无论怎样更改宏定义，都能完整打印。区别在于一个在正常环境，一个在中断环境中；一个带了<code>\r\n</code>拼接字符串，一个没带</li>
+<li>同时把中断服务函数引出命令行调用，执行结果对比如下：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">root:/$ DMA_Channel6_IRQHandler // 手动执行命令行调用，能够完整打印</span><br><span class="line">D [0:00:17,989] DMA_Channel6_IRQHandler [210]: read start</span><br><span class="line">aaa 65533</span><br><span class="line">bbb 65533bbb</span><br><span class="line">aaa 65533</span><br><span class="line">D [0:00:17,989] DMA_Channel6_IRQHandler [212]: read end</span><br><span class="line"></span><br><span class="line">// 中断执行</span><br><span class="line">D [0:00:18,040] DMA_Channel6_IRQHandler [210]: read start</span><br><span class="line">aaa 65533</span><br><span class="line">bbb</span><br><span class="line">aaa 65533</span><br><span class="line">D [0:00:18,040] DMA_Channel6_IRQHandler [212]: read end</span><br></pre></td></tr></table></figure></li>
+</ul>
+<p><strong>问题解决：</strong><br>为尾行模式问题</p>
+<p>由于使能了尾行模式，所以每次在调用<code>logWrite</code>函数输出时，都会紧接着将光标移到行首，而后输出终端用户等字符，覆盖当前行。<strong>如果当前内容后面没有接上换行符，则会被覆盖。</strong></p>
+<p>而当用户通过命令行调用函数时，由于是当前shell状态为执行命令行函数，所以不会启用尾行输出，因而不会覆盖当前行的内容。</p>
+<hr>
+<h3 id="Switch-Case语句里面定义的静态变量会自己变化"><a href="#Switch-Case语句里面定义的静态变量会自己变化" class="headerlink" title="Switch Case语句里面定义的静态变量会自己变化"></a>Switch Case语句里面定义的静态变量会自己变化</h3><p>在一个case里面定义了一个<code>&#123;&#125;</code>作用域，而后定义一个静态变量，但有时发现其中某个for循环函数，明明没有对此变量进行修改，但是此变量的值却一直在变化。</p>
+<p><strong>排查：</strong><br>考虑编译器优化等级、数据类型 u8 u16转换不当、等原因</p>
+<p><strong>原因：</strong><br>最后发现为在 for 循环函数中有 循环给一个 数组进行赋值，然后<strong>该数组下标越界</strong>了，正好内存越界到 此静态变量的地址中。在对数组进行赋值操作或者对数组指针进行操作时，一定要注意可能的内存越界问题。</p>
+<hr>
+<h3 id="32MCU库函数应用问题"><a href="#32MCU库函数应用问题" class="headerlink" title="32MCU库函数应用问题"></a>32MCU库函数应用问题</h3><p>在本例中使用到 PB4引脚 复用为 USART2 的 TX 引脚，但是配置却不生效。最后发现，查看芯片数据手册得知：该引脚默认使能功能为 SW-JTAG 的烧录调试引脚之一，需要关闭此功能，代码如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">RCC_EnableAPB2PeriphClk(RCC_APB2_PERIPH_AFIO, ENABLE);</span><br><span class="line">GPIO_ConfigPinRemap(GPIO_RMP3_USART2, ENABLE);              </span><br><span class="line">GPIO_ConfigPinRemap(GPIO_RMP_SW_JTAG_SW_ENABLE, ENABLE);    <span class="comment">// 需要配置引脚重映射，增加此项配置</span></span><br><span class="line">RCC_EnableAPB2PeriphClk(RCC_APB2_PERIPH_GPIOB, ENABLE);</span><br><span class="line">GPIO_InitCtlStruct.GPIO_Mode = GPIO_Mode_AF_PP;</span><br><span class="line">GPIO_InitCtlStruct.Pin = GPIO_PIN_4;</span><br><span class="line">GPIO_InitPeripheral(GPIOB, &amp;GPIO_InitCtlStruct);</span><br><span class="line">GPIO_InitCtlStruct.GPIO_Mode = GPIO_Mode_IN_FLOATING;</span><br><span class="line">GPIO_InitCtlStruct.Pin = GPIO_PIN_5;</span><br><span class="line">GPIO_InitPeripheral(GPIOB, &amp;GPIO_InitCtlStruct);</span><br></pre></td></tr></table></figure>
+<p>另外，在进行库函数开发时，特别要注意查看函数功能注释，比如<code>GPIO_ConfigPinRemap</code>该库函数，并不支持一次同时输入多个值如<code>GPIO_RMP3_USART2 | GPIO_RMP_SW_JTAG_SW_ENABLE</code>。</p>
+<hr>
+<h3 id="配置ADC-DMA的发送完成中断触发无效"><a href="#配置ADC-DMA的发送完成中断触发无效" class="headerlink" title="配置ADC-DMA的发送完成中断触发无效"></a>配置ADC-DMA的发送完成中断触发无效</h3><p><strong>现象：</strong></p>
+<ul>
+<li>DMA、ADC皆已配置完成，adc能够正常采集，dma也能够正常地将adc的数据采集存放到指定的缓冲区中。此时添加使能相应的DMA-ADC通道发送完成中断，发现无效。</li>
+</ul>
+<p><strong>原因：</strong><br>为初始化顺序不符合，正常的配置顺序应为： 初始化ADC外设及相应的复用IO-&gt;初始化DMA外设通道-&gt;配置DMA-ADC通道映射-&gt;清除DMA标志位-&gt;配置使能DMA通道标志触发中断-&gt;使能ADC-DMA访问请求-&gt;使能相应的DMA通道-&gt;配置NVIC使能DMA通道中断</p>
+<p>以上，特别注意：ADC-DMA使能、DMA通断使能、DMA通道使能中断要放到最后.</p>
+<p>另外，编写中断服务函数时，须要在其内清除相应的中断标志位，否则可能会无限重入中断，程序运行出现问题。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">DMA_ConfigInt(DMA1_CH1, DMA_INT_TXC, ENABLE);   <span class="comment">// 配置使能中断要放在使能通道之前，不然无法生效，配置流程要严谨参考芯片手册，不可凭感觉配置</span></span><br><span class="line">DMA_EnableChannel(DMA1_CH1,ENABLE);</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="添加了bootloader的LiteOS应用程序没能跑起来"><a href="#添加了bootloader的LiteOS应用程序没能跑起来" class="headerlink" title="添加了bootloader的LiteOS应用程序没能跑起来"></a>添加了bootloader的LiteOS应用程序没能跑起来</h3><p><strong>原因分析：</strong></p>
+<ul>
+<li>首先检查bootloader和app的链接脚本是否有误，确认bootloader跳转地址为0x8004000，而app链接脚本的FLASH起始地址为0x8004000无误</li>
+<li>确认app中断向量SCB-&gt;VTOR配置正确</li>
+<li>使用此前的bootloader + LiteOS APP、 gcc环境下的bootloader + 重构前的rt-thread App分别观察现象；发现gcc bootloader + rt-thread App能够正常运行，说明问题出现在LiteOS的应用程序上</li>
+<li><strong>可能是中断向量仍然未配置好、可能是程序实际并未以0x8004000为起始地址链接、可能是App程序中关于IAP部分程序没配置好地址、可能是LiteOS自定义的中断向量没有8字节对齐、可能是App部分大小超过FLASH限制</strong></li>
+<li>另外，不排除bootloader中有读取擦除指定地址数据的操作，当App程序过大越界可能会被擦除部分数据</li>
+<li>不排除bootloader与app的系统时钟初始化可能存在不一致问题，如两者工程的启动文件都会调用到<code>system_stm32xxxx.c</code>里的系统时钟初始化函数，进入到main函数，通常用户会再次初始化系统时钟。需要保持其时钟源配置一致，避免出现初始化错误</li>
+<li>另外发现，<code>Reset_handler</code>函数的hex文件地址解析 比 在map文件中的地址加1.</li>
+<li>在检查链接脚本时，发现如下代码：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">_estack = 0x20024000;    /* end of RAM */</span><br><span class="line">_sstack = 0x20000000;    /* start of RAM */</span><br></pre></td></tr></table></figure></li>
+<li>突发奇想，将栈顶指针<code>_estack = 0x20024000;</code>删减掉，加到如下链接脚本处，发现bootloader可以正常跳转运行了<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">._user_heap_stack :</span><br><span class="line">&#123;</span><br><span class="line">  . = ALIGN(4);</span><br><span class="line">  PROVIDE ( end = . );</span><br><span class="line">  PROVIDE ( _end = . );</span><br><span class="line">  . = . + _Min_Heap_Size;</span><br><span class="line">  . = . + _Min_Stack_Size;</span><br><span class="line">  _estack = .;</span><br><span class="line">  . = ALIGN(4);</span><br><span class="line">&#125; &gt;RAM</span><br></pre></td></tr></table></figure></li>
+</ul>
+<p><strong>问题最终分析：</strong></p>
+<ul>
+<li>app的栈顶指针指向芯片的最大RAM地址，在无bootloader时，程序能够正常运行；加上了bootloader后，存在问题</li>
+<li>此两者区别是：一个是由链接器自动计算堆栈的大小，一个是自己指定栈顶地址</li>
+<li>进一步分析二者对程序可能的影响：</li>
+</ul>
+<hr>
+<h3 id="J-Link仿真器正常，但点击烧录就工作异常"><a href="#J-Link仿真器正常，但点击烧录就工作异常" class="headerlink" title="J-Link仿真器正常，但点击烧录就工作异常"></a>J-Link仿真器正常，但点击烧录就工作异常</h3><ul>
+<li>MCU及元件上电工作，J-Link供电不足 – 插上电源</li>
+<li>芯片在读写保护状态，需要用特定软件解除读保护后，才可烧录</li>
+</ul>
+<hr>
+<h3 id="移植TIMER-PWM驱动时-发现电机出现高频异响"><a href="#移植TIMER-PWM驱动时-发现电机出现高频异响" class="headerlink" title="移植TIMER-PWM驱动时, 发现电机出现高频异响"></a>移植TIMER-PWM驱动时, 发现电机出现高频异响</h3><p><strong>原因分析:</strong></p>
+<ul>
+<li>经检查,高频异响是电机驱动输入pwm频率过高引起的</li>
+<li>而该PWM驱动默认了MCU主频是72MHz, PWM时钟分频为72分频, 以1MHz的定时器时钟来作为基准</li>
+<li>所以当该驱动移植到芯片主频为144MHz时, 使得PWM的频率为之前的两倍</li>
+</ul>
+<p><strong>解决:</strong></p>
+<ul>
+<li>修改该PWM驱动, 以使其更具通用性, 将时钟分频修改为变量形式 &#x3D; 系统时钟频率 &#x2F;1MHz,即可实现在不同主频芯片中的定时器基准频率为1MHz</li>
+</ul>
+<hr>
+<h3 id="应用LiteOS的定时器，出现bug：在软件定时器回调函数中给一个句柄写入消息，其中涉及到阻塞1s申请互斥量操作，但却一直无法写入"><a href="#应用LiteOS的定时器，出现bug：在软件定时器回调函数中给一个句柄写入消息，其中涉及到阻塞1s申请互斥量操作，但却一直无法写入" class="headerlink" title="应用LiteOS的定时器，出现bug：在软件定时器回调函数中给一个句柄写入消息，其中涉及到阻塞1s申请互斥量操作，但却一直无法写入"></a>应用LiteOS的定时器，出现bug：在软件定时器回调函数中给一个句柄写入消息，其中涉及到阻塞1s申请互斥量操作，但却一直无法写入</h3><p><strong>原因分析：</strong></p>
+<ul>
+<li>首先检查日志，发现每次回调函数能被正常执行，但写入操作一直失败。其中为延时获取互斥量失败，但实际上没有延时</li>
+<li>怀疑可能是软件定时器本身就设计不支持阻塞接口操作，所以直接返回；可能是软件设计不当导致的互斥量一直被其它任务所占用</li>
+<li>排查缩小范围</li>
+</ul>
+<p><strong>解决：</strong></p>
+<ul>
+<li>最终确认为在软件定时器线程中，不支持事件、信号量、互斥量相关的操作，相关内核组件运行时，会检查当前线程是否为定时器线程，是——则直接返回错误。</li>
+</ul>
+<hr>
+<h3 id="应用LiteOS信号量，阻塞100tick-等待，程序却卡死在阻塞等待处，另，串口UART4中断函数异常跑飞"><a href="#应用LiteOS信号量，阻塞100tick-等待，程序却卡死在阻塞等待处，另，串口UART4中断函数异常跑飞" class="headerlink" title="应用LiteOS信号量，阻塞100tick 等待，程序却卡死在阻塞等待处，另，串口UART4中断函数异常跑飞"></a>应用LiteOS信号量，阻塞100tick 等待，程序却卡死在阻塞等待处，另，串口UART4中断函数异常跑飞</h3><p>部分源代码节选如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">uint32_t</span> comm_board_sem;</span><br><span class="line"></span><br><span class="line">LOS_SemCreate(<span class="number">0</span>, &amp;comm_board_sem);</span><br><span class="line"></span><br><span class="line">LOS_SemPost(comm_board_sem);        <span class="comment">// 在串口接收空闲中断处调用</span></span><br><span class="line"></span><br><span class="line">logVerbose(<span class="string">&quot;init&quot;</span>);</span><br><span class="line">    result = LOS_SemPend(comm_board_sem, LOS_MS2Tick(<span class="number">100</span>));</span><br><span class="line">logVerbose(<span class="string">&quot;init&quot;</span>); <span class="comment">// 未能执行到此处</span></span><br></pre></td></tr></table></figure>
+<p>通过断点调试，程序卡死在如下处：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* ****************************************************************************</span></span><br><span class="line"><span class="comment">Function    : ArchSysExit</span></span><br><span class="line"><span class="comment">Description : Task exit function</span></span><br><span class="line"><span class="comment">**************************************************************************** */</span></span><br><span class="line">LITE_OS_SEC_TEXT_MINOR VOID <span class="title function_">ArchSysExit</span><span class="params">(VOID)</span></span><br><span class="line">&#123;</span><br><span class="line">    (VOID)LOS_IntLock();</span><br><span class="line">    <span class="keyword">while</span> (<span class="number">1</span>) &#123;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>原因分析与解决步骤：</strong></p>
+<ol>
+<li>将该线程注释掉，系统能够正常运作，说明是此线程的设计问题</li>
+<li>考虑可能是此处的设计导致了系统线程调度出现问题，在该线程入口函数的for循环内加上断点打印，注射掉<code>LOS_SemPend(comm_board_sem, LOS_MS2Tick(100));</code>，再行调试</li>
+<li>发现程序又卡死在<code>LOS_TaskDelay()</code>中，此时精简后的线程入口函数源码如下：<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">void</span> <span class="title function_">comm_board_rx_task</span><span class="params">(<span class="type">void</span> *parameter)</span></span><br><span class="line"> &#123;</span><br><span class="line">     logVerbose(<span class="string">&quot;xxx&quot;</span>);</span><br><span class="line">     <span class="type">uint8_t</span> recv_from_rb[<span class="number">256</span>];</span><br><span class="line">     <span class="type">int16_t</span> recv_ret;</span><br><span class="line">     <span class="type">uint8_t</span> interpret_buf[<span class="number">256</span>];</span><br><span class="line">     err_enum unpack_ret = err_ok;</span><br><span class="line">     <span class="keyword">for</span> (;;)</span><br><span class="line">     &#123;</span><br><span class="line">         logVerbose(<span class="string">&quot;xxx&quot;</span>);</span><br><span class="line">         LOS_TaskDelay(<span class="number">100</span>);</span><br><span class="line">         logVerbose(<span class="string">&quot;xxx&quot;</span>);      <span class="comment">// 无法执行到此处，程序卡死</span></span><br><span class="line">     &#125;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure></li>
+<li>此前该段入口函数在rt-thread中运行无误，在LiteOS中却无法运行，推测可能是在for循环之前定义了几个大数组，其存储位置在线程上下文即 线程栈中</li>
+<li>而系统崩掉的原因应该是线程调度时没有考虑到如此大的数据入栈出栈，从而导致出错</li>
+<li>经过排查和不断的代码注释运行，最终发现是串口的DMA收发初始化，导致程序无法运行 – 判断是uart的驱动问题</li>
+<li>再次排查此前已经验证通过的uart驱动，代码对比无误，进行常规分析：可能是LiteOS的中断注册存在问题、可能是代码的驱动存在冲突、可能中断服务函数并没正确对应注册、可能是初始化步骤存在问题</li>
+<li>经过验证，发现是UART4可能存在问题，另外发现一个奇葩现象，如果开启了UART1驱动的宏定义，UART4能够正常运行；直接现象是USART1的中断服务函数影响到了UART4的中断，但USART1中断函数从没被调用</li>
+<li>毫不相关的USART1函数，却直接导致了UART4的使用问题；</li>
+<li>突发奇想，把编译优化等级从O1改为O0，程序就能正常运行了，有可能是<strong>这部分驱动程序编写不够健壮，也可能是编译选项存在应用不当问题</strong></li>
+<li>继续缩小代码范围，发现了注释与调用某一个变量，会导致程序能运行与否，另外查看其map文件对比，只一个变量的区别 – <strong>怀疑可能是字节对齐的问题</strong></li>
+<li>此外，发现编译选项 <strong>-fdata-sections</strong> 的删减，可使程序正确运行，通过对比删减前后的map文件，发现在函数<code>drv_uart_init()</code>的text段大小差了4个字节；同时在当前文件bss段变量大小也差了4个字节</li>
+<li>考虑代码可能存在以下几个问题：<br>全局变量与外部变量重名，导致的链接错误；<br>变量可能未被正确初始化，或存在一些漏洞</li>
+</ol>
+<hr>
+<h3 id="从N32L406芯片的验证通过的-DMA-USART-TX-RX驱动到N32WB452上-串口DMA发送没能跑起来"><a href="#从N32L406芯片的验证通过的-DMA-USART-TX-RX驱动到N32WB452上-串口DMA发送没能跑起来" class="headerlink" title="从N32L406芯片的验证通过的 DMA-USART TX RX驱动到N32WB452上, 串口DMA发送没能跑起来"></a>从N32L406芯片的验证通过的 DMA-USART TX RX驱动到N32WB452上, 串口DMA发送没能跑起来</h3><p><strong>原因分析:</strong></p>
+<ul>
+<li>通过GDB调试发现DMA_GetCurrDataCounter()的数值一直没变,说明是DMA通道的数据没能发送出去</li>
+<li>查看芯片手册确认DMA通道映射无误,对比确认DMA初始化流程一致</li>
+<li>不同点在于N32WB452加上了LiteOS,在DMA RX驱动处加上了 添加DMA接收完成和UART空闲中断服务函数</li>
+</ul>
+<p><strong>问题解决步骤:</strong></p>
+<ul>
+<li>重复比对初始化步骤,以及断点调试,查看DMA的寄存器配置信息,发现DMA寄存器没有被正确初始化</li>
+<li>确定为驱动初始化的原因, 再次重复确认DMA-UART的结构体初始化信息,发现为信息结构体的位置错位了<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">drv_uart_dev</span> <span class="title">uart2</span> =</span></span><br><span class="line">&#123;</span><br><span class="line">    USART2,</span><br><span class="line">    USART2_IRQn,</span><br><span class="line">    &#123;</span><br><span class="line">        DMA1_CH6,</span><br><span class="line">        DMA1,</span><br><span class="line">        DMA1_FLAG_GL6,</span><br><span class="line">        DMA1_Channel6_IRQn,</span><br><span class="line">        <span class="number">0</span>,                      <span class="comment">// 此处缺少一个 0 变量,导致下面的变量错位</span></span><br><span class="line">        DMA1_CH7,</span><br><span class="line">        DMA1,</span><br><span class="line">    &#125;,</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">drv_uart_dev</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">    USART_Module *uart_device;</span><br><span class="line">    IRQn_Type irq;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">drv_uart_dma</span></span></span><br><span class="line"><span class="class">    &#123;</span></span><br><span class="line">        DMA_ChannelType *rx_ch;</span><br><span class="line">        DMA_Module *rx_dma_type;</span><br><span class="line">        <span class="type">uint32_t</span> rx_gl_flag;</span><br><span class="line">        <span class="type">uint8_t</span> rx_irq_ch;</span><br><span class="line">        <span class="type">uint32_t</span> setting_dma_flag;</span><br><span class="line">        <span class="type">uint16_t</span> last_recv_index;</span><br><span class="line"></span><br><span class="line">        DMA_ChannelType *tx_ch;</span><br><span class="line">        DMA_Module *tx_dma_type;</span><br><span class="line">    &#125; dma;</span><br><span class="line">    <span class="type">void</span> (*user_cb)(<span class="keyword">enum</span> uart_dev_name uart_num, <span class="type">uint16_t</span> length);</span><br><span class="line">    structUsertData rx_buf_dev;</span><br><span class="line">    structUserTxData tx_buf_dev;</span><br><span class="line">    <span class="class"><span class="keyword">enum</span> <span class="title">uart_dev_name</span> <span class="title">uart_num</span>;</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<p>另外，需要注意串口空闲中断接收时不一定接收的是整包数据，也可能是半包数据即触发了空闲中断，设计中需要考虑规避此现象可能导致的问题</p>
+<hr>
+<h3 id="移植letter-shell组件和LiteOS-开机上电立即打印了letter-shell版本信息-但其后的打印信息阻塞延时了几秒钟-在这期间内-shell完全没任何反应"><a href="#移植letter-shell组件和LiteOS-开机上电立即打印了letter-shell版本信息-但其后的打印信息阻塞延时了几秒钟-在这期间内-shell完全没任何反应" class="headerlink" title="移植letter_shell组件和LiteOS, 开机上电立即打印了letter_shell版本信息, 但其后的打印信息阻塞延时了几秒钟, 在这期间内, shell完全没任何反应"></a>移植letter_shell组件和LiteOS, 开机上电立即打印了letter_shell版本信息, 但其后的打印信息阻塞延时了几秒钟, 在这期间内, shell完全没任何反应</h3><p><strong>现象分析:</strong></p>
+<ul>
+<li>系统时基是从延时后才开始累计, 说明在此前Systick没有跑起来</li>
+<li>一上电就能输出信息</li>
+</ul>
+<p><strong>问题解决步骤:</strong></p>
+<ul>
+<li>在上电正常输出日志处, 和延时处添加日志打印,不断往中间逼近,查找是哪个函数导致的阻塞延时</li>
+<li>通过日志逼近打印,发现是上电初始化时与充电ic的iic通信导致的阻塞延时,并且iic没有通信成功</li>
+<li>iic与SGM41528初始化时序时败,阻塞占用了接近2s的时间,接下来需要排查为何移植LiteOS的 iic通信初始化 超时失败</li>
+<li>通过比较排查,已知: iic通信在刚上电时通信失败,但上电一段时间后,通信正常; 但与移植LiteOS前相比,iic的初始化调用逻辑并没有改变, 接下来需要排查为什么刚上电时的iic初始化失败</li>
+<li>通过调试发现iic初始化时是有ACK回复的,但耗时高</li>
+<li>最后发现是iic驱动中的微秒级延时代码存在问题, 而LiteOS在初始化Systick会配置Systick-&gt;load &#x3D; 0xFFFFFF, 之后启动系统时再次配置为 SystemCoreClock&#x2F;1000, 从而使得问题暴露 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">void</span> <span class="title function_">n32_udelay</span><span class="params">(<span class="type">uint32_t</span> us)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="type">uint32_t</span> ticks;</span><br><span class="line">    <span class="type">uint32_t</span> told, tnow, tcnt = <span class="number">0</span>;</span><br><span class="line">    <span class="type">uint32_t</span> reload = SysTick-&gt;LOAD;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// ticks = us * reload / (1000000 / DRV_TICK_PER_SECOND);</span></span><br><span class="line">    ticks = us * (SystemCoreClock / <span class="number">1000000</span>); <span class="comment">//需要的节拍数</span></span><br><span class="line">    told = SysTick-&gt;VAL;</span><br><span class="line">    <span class="keyword">while</span> (<span class="number">1</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        tnow = SysTick-&gt;VAL;</span><br><span class="line">        <span class="keyword">if</span> (tnow != told)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">if</span> (tnow &lt; told)</span><br><span class="line">            &#123;</span><br><span class="line">                tcnt += told - tnow;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">            &#123;</span><br><span class="line">                tcnt += reload - tnow + told;</span><br><span class="line">            &#125;</span><br><span class="line">            told = tnow;</span><br><span class="line">            <span class="keyword">if</span> (tcnt &gt;= ticks)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+ 其中<code>ticks = us * reload / (1000000 / DRV_TICK_PER_SECOND);</code>更新为:<code>ticks = us * (SystemCoreClock / 1000000);</code></li>
+</ul>
+<hr>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/12/15/Makefile%E7%9B%B8%E5%85%B3%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" rel="prev" title="Makefile学习笔记">
+      <i class="fa fa-chevron-left"></i> Makefile学习笔记
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2023/12/20/ld%E9%93%BE%E6%8E%A5%E8%84%9A%E6%9C%AC%E5%AD%A6%E4%B9%A0/" rel="next" title="嵌入式ld链接脚本详解">
+      嵌入式ld链接脚本详解 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%87%AA%E5%AE%9A%E4%B9%89%E6%89%93%E5%8D%B0%E5%87%BD%E6%95%B0%EF%BC%8C%E9%80%9A%E8%BF%87%E5%91%BD%E4%BB%A4%E8%A1%8C%E8%B0%83%E7%94%A8%E8%83%BD%E6%89%93%E5%8D%B0%EF%BC%8C%E4%BD%86%E5%9C%A8%E4%B8%AD%E6%96%AD%E5%87%BD%E6%95%B0%E6%89%A7%E8%A1%8C%E5%8D%B4%E6%B2%A1%E6%9C%89%E6%89%93%E5%8D%B0"><span class="nav-number">1.</span> <span class="nav-text">自定义打印函数，通过命令行调用能打印，但在中断函数执行却没有打印</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Switch-Case%E8%AF%AD%E5%8F%A5%E9%87%8C%E9%9D%A2%E5%AE%9A%E4%B9%89%E7%9A%84%E9%9D%99%E6%80%81%E5%8F%98%E9%87%8F%E4%BC%9A%E8%87%AA%E5%B7%B1%E5%8F%98%E5%8C%96"><span class="nav-number">2.</span> <span class="nav-text">Switch Case语句里面定义的静态变量会自己变化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#32MCU%E5%BA%93%E5%87%BD%E6%95%B0%E5%BA%94%E7%94%A8%E9%97%AE%E9%A2%98"><span class="nav-number">3.</span> <span class="nav-text">32MCU库函数应用问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%85%8D%E7%BD%AEADC-DMA%E7%9A%84%E5%8F%91%E9%80%81%E5%AE%8C%E6%88%90%E4%B8%AD%E6%96%AD%E8%A7%A6%E5%8F%91%E6%97%A0%E6%95%88"><span class="nav-number">4.</span> <span class="nav-text">配置ADC-DMA的发送完成中断触发无效</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B7%BB%E5%8A%A0%E4%BA%86bootloader%E7%9A%84LiteOS%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F%E6%B2%A1%E8%83%BD%E8%B7%91%E8%B5%B7%E6%9D%A5"><span class="nav-number">5.</span> <span class="nav-text">添加了bootloader的LiteOS应用程序没能跑起来</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#J-Link%E4%BB%BF%E7%9C%9F%E5%99%A8%E6%AD%A3%E5%B8%B8%EF%BC%8C%E4%BD%86%E7%82%B9%E5%87%BB%E7%83%A7%E5%BD%95%E5%B0%B1%E5%B7%A5%E4%BD%9C%E5%BC%82%E5%B8%B8"><span class="nav-number">6.</span> <span class="nav-text">J-Link仿真器正常，但点击烧录就工作异常</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A7%BB%E6%A4%8DTIMER-PWM%E9%A9%B1%E5%8A%A8%E6%97%B6-%E5%8F%91%E7%8E%B0%E7%94%B5%E6%9C%BA%E5%87%BA%E7%8E%B0%E9%AB%98%E9%A2%91%E5%BC%82%E5%93%8D"><span class="nav-number">7.</span> <span class="nav-text">移植TIMER-PWM驱动时, 发现电机出现高频异响</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BA%94%E7%94%A8LiteOS%E7%9A%84%E5%AE%9A%E6%97%B6%E5%99%A8%EF%BC%8C%E5%87%BA%E7%8E%B0bug%EF%BC%9A%E5%9C%A8%E8%BD%AF%E4%BB%B6%E5%AE%9A%E6%97%B6%E5%99%A8%E5%9B%9E%E8%B0%83%E5%87%BD%E6%95%B0%E4%B8%AD%E7%BB%99%E4%B8%80%E4%B8%AA%E5%8F%A5%E6%9F%84%E5%86%99%E5%85%A5%E6%B6%88%E6%81%AF%EF%BC%8C%E5%85%B6%E4%B8%AD%E6%B6%89%E5%8F%8A%E5%88%B0%E9%98%BB%E5%A1%9E1s%E7%94%B3%E8%AF%B7%E4%BA%92%E6%96%A5%E9%87%8F%E6%93%8D%E4%BD%9C%EF%BC%8C%E4%BD%86%E5%8D%B4%E4%B8%80%E7%9B%B4%E6%97%A0%E6%B3%95%E5%86%99%E5%85%A5"><span class="nav-number">8.</span> <span class="nav-text">应用LiteOS的定时器，出现bug：在软件定时器回调函数中给一个句柄写入消息，其中涉及到阻塞1s申请互斥量操作，但却一直无法写入</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BA%94%E7%94%A8LiteOS%E4%BF%A1%E5%8F%B7%E9%87%8F%EF%BC%8C%E9%98%BB%E5%A1%9E100tick-%E7%AD%89%E5%BE%85%EF%BC%8C%E7%A8%8B%E5%BA%8F%E5%8D%B4%E5%8D%A1%E6%AD%BB%E5%9C%A8%E9%98%BB%E5%A1%9E%E7%AD%89%E5%BE%85%E5%A4%84%EF%BC%8C%E5%8F%A6%EF%BC%8C%E4%B8%B2%E5%8F%A3UART4%E4%B8%AD%E6%96%AD%E5%87%BD%E6%95%B0%E5%BC%82%E5%B8%B8%E8%B7%91%E9%A3%9E"><span class="nav-number">9.</span> <span class="nav-text">应用LiteOS信号量，阻塞100tick 等待，程序却卡死在阻塞等待处，另，串口UART4中断函数异常跑飞</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%8EN32L406%E8%8A%AF%E7%89%87%E7%9A%84%E9%AA%8C%E8%AF%81%E9%80%9A%E8%BF%87%E7%9A%84-DMA-USART-TX-RX%E9%A9%B1%E5%8A%A8%E5%88%B0N32WB452%E4%B8%8A-%E4%B8%B2%E5%8F%A3DMA%E5%8F%91%E9%80%81%E6%B2%A1%E8%83%BD%E8%B7%91%E8%B5%B7%E6%9D%A5"><span class="nav-number">10.</span> <span class="nav-text">从N32L406芯片的验证通过的 DMA-USART TX RX驱动到N32WB452上, 串口DMA发送没能跑起来</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A7%BB%E6%A4%8Dletter-shell%E7%BB%84%E4%BB%B6%E5%92%8CLiteOS-%E5%BC%80%E6%9C%BA%E4%B8%8A%E7%94%B5%E7%AB%8B%E5%8D%B3%E6%89%93%E5%8D%B0%E4%BA%86letter-shell%E7%89%88%E6%9C%AC%E4%BF%A1%E6%81%AF-%E4%BD%86%E5%85%B6%E5%90%8E%E7%9A%84%E6%89%93%E5%8D%B0%E4%BF%A1%E6%81%AF%E9%98%BB%E5%A1%9E%E5%BB%B6%E6%97%B6%E4%BA%86%E5%87%A0%E7%A7%92%E9%92%9F-%E5%9C%A8%E8%BF%99%E6%9C%9F%E9%97%B4%E5%86%85-shell%E5%AE%8C%E5%85%A8%E6%B2%A1%E4%BB%BB%E4%BD%95%E5%8F%8D%E5%BA%94"><span class="nav-number">11.</span> <span class="nav-text">移植letter_shell组件和LiteOS, 开机上电立即打印了letter_shell版本信息, 但其后的打印信息阻塞延时了几秒钟, 在这期间内, shell完全没任何反应</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">cjd</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">40</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">cjd</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="Symbols count total">90k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">5:02</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

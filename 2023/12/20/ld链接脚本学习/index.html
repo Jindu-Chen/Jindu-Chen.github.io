@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":"enable","trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="记录链接脚本的学习内容，主要为链接脚本的要素简述、常用语法说明、常见片段的意义解析、示例代码的讲述及应用">
+<meta property="og:type" content="article">
+<meta property="og:title" content="嵌入式ld链接脚本详解">
+<meta property="og:url" content="http://example.com/2023/12/20/ld%E9%93%BE%E6%8E%A5%E8%84%9A%E6%9C%AC%E5%AD%A6%E4%B9%A0/index.html">
+<meta property="og:site_name" content="Jindu-Chen">
+<meta property="og:description" content="记录链接脚本的学习内容，主要为链接脚本的要素简述、常用语法说明、常见片段的意义解析、示例代码的讲述及应用">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2023-12-19T16:00:00.000Z">
+<meta property="article:modified_time" content="2024-08-24T06:19:15.111Z">
+<meta property="article:author" content="cjd">
+<meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2023/12/20/ld%E9%93%BE%E6%8E%A5%E8%84%9A%E6%9C%AC%E5%AD%A6%E4%B9%A0/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>嵌入式ld链接脚本详解 | Jindu-Chen</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Jindu-Chen</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">风物长宜放眼量</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/12/20/ld%E9%93%BE%E6%8E%A5%E8%84%9A%E6%9C%AC%E5%AD%A6%E4%B9%A0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="cjd">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jindu-Chen">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          嵌入式ld链接脚本详解
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-12-20 00:00:00" itemprop="dateCreated datePublished" datetime="2023-12-20T00:00:00+08:00">2023-12-20</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-08-24 14:19:15" itemprop="dateModified" datetime="2024-08-24T14:19:15+08:00">2024-08-24</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/MISC/" itemprop="url" rel="index"><span itemprop="name">MISC</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>1.8k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>6 mins.</span>
+            </span>
+            <div class="post-description">记录链接脚本的学习内容，主要为链接脚本的要素简述、常用语法说明、常见片段的意义解析、示例代码的讲述及应用</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>链接脚本的主要作用：描述如何将输入文件(.o目标文件)中的段 映射到 输出文件(.bin&#x2F;.hex&#x2F;…)中的段，并控制输出文件的内存布局(地址分配)。</p>
+<p>注意：输入文件的段和输出文件的段是独立的，主要分为<code>.text</code>, <code>.data</code>, <code>.bss</code>, <code>heap</code>, <code>stack</code>段</p>
+<p>输入文件的段是链接器从输入文件中读取的内容，输出文件的段是链接器将输入文件的段链接到一起后生成的内容。</p>
+<p>链接脚本用于指导链接器如何将输入文件的段链接到一起，其主要由<strong>MEMORY</strong>和<strong>SECTIONS</strong>块组成</p>
+<ul>
+<li><code>SECTIONS</code>是必须的</li>
+<li><code>MEMORY</code>可选的，如果没有，链接器则认为所有输入文件都位于同一个内存区域，并且从0x0开始<br></li>
+</ul>
+<h2 id="基本知识点补充"><a href="#基本知识点补充" class="headerlink" title="基本知识点补充"></a>基本知识点补充</h2><p>.ld文件是GNU链接器(ld)使用的标准链接脚本文件，可使用GNU链接器的所有功能，包括符号解析、重定位、符号表生成等<br><br></p>
+<p>.lds文件是旧式的链接脚本文件，其仅支持GNU链接器的部分功能，不推荐使用</p>
+<h2 id="块"><a href="#块" class="headerlink" title="块"></a>块</h2><h3 id="MEMORY"><a href="#MEMORY" class="headerlink" title="MEMORY"></a>MEMORY</h3><p>为链接器提供系统内存的布局信息，并确定内存区域的访问权限。链接器根据MEMORY的信息，将编译生成的.o目标文件中的代码、数据、符号等分配到不同的内存区域。</p>
+<p>示例代码如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">MEMORY</span><br><span class="line">&#123;</span><br><span class="line">FLASH (rx)      : ORIGIN = 0x8000000, LENGTH = 128K</span><br><span class="line">RAM (xrw)      : ORIGIN = 0x20000000, LENGTH = 32K</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>代码描述了两个内存区域：</p>
+<ul>
+<li>标号为<code>FLASH</code>的内存区域权限为：可读只执行，起始地址为0x8000000，长度为128K；</li>
+<li>标号为<code>RAM</code>的内存区域权限为：可读可写可执行，起始地址为0x20000000，长度为32K。<br></li>
+</ul>
+<p><strong>而后，链接脚本可声明将指定的代码放到对应的memory区域——以下链接脚本代码将<code>.text</code>段存放到标号为<code>RAM</code>的内存区域，将<code>.data</code>段存放到标号为<code>FLASH</code>的内存区域</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">SECTIONS</span><br><span class="line">&#123;</span><br><span class="line">  .text &gt;RAM</span><br><span class="line">  .data &gt;FLASH</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="SECTIONS"><a href="#SECTIONS" class="headerlink" title="SECTIONS"></a>SECTIONS</h3><p>用于定义目标文件中各个段，包括名称、存储位置、对齐方式、内容，并且可以确定其访问权限。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">SECTIONS</span><br><span class="line">&#123;</span><br><span class="line">  // 将可执行代码段（.text 段）存放到 RAM 区域，对齐到 4 字节边界</span><br><span class="line">  .text &gt;RAM : ALIGN(4)</span><br><span class="line"></span><br><span class="line">  // 将全局变量段（.data 段）存放到 FLASH 区域，对齐到 4 字节边界</span><br><span class="line">  .data &gt;FLASH : ALIGN(4)</span><br><span class="line"></span><br><span class="line">  // 将堆（heap）段存放到 RAM 区域，对齐到 8 字节边界</span><br><span class="line">  .heap &gt;RAM : ALIGN(8)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>另，<strong>链接脚本中的内存存放顺序是从上到下</strong></p>
+<hr>
+<h2 id="命令"><a href="#命令" class="headerlink" title="命令"></a>命令</h2><p><strong>ENTRY</strong></p>
+<p>将某个入口点函数指定为起始地址，如果没有指定<code>ENTRY</code>，链接器会默认使用第一个可执行section作为程序入口点</p>
+<p><code>ENTRY(Reset_Handler)</code>将Reset_Handler函数设为程序的入口点，链接器需要知道程序的入口点，才能正确地组织可执行文件的时序，才能正确地执行编译、链接、优化代码</p>
+<p><strong>注意：在cortex-m4中，ENTRY(Reset_Handler)并没有将Reset_Handler实体链接到0x8000004地址，其地址由链接器根据实际链接</strong><br></p>
+<p><strong>链接脚本规定了起始段放置的是isr_vector，而启动文件 规定了向量中第一个字是指定存放 栈顶地址，第二个字即0x8000004存放的则是Reset_Handler的地址</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">SECTIONS</span><br><span class="line">&#123;</span><br><span class="line">  .isr_vector :</span><br><span class="line">  &#123;</span><br><span class="line">    . = ALIGN(4);</span><br><span class="line">    KEEP(*(.isr_vector))</span><br><span class="line">    . = ALIGN(4);</span><br><span class="line">  &#125; &gt;FLASH</span><br><span class="line"></span><br><span class="line">  .text :</span><br><span class="line">  &#123;</span><br><span class="line">  _stext = .;</span><br><span class="line">  . = ALIGN(4);</span><br><span class="line">  *(.text)           /* .text sections (code) */</span><br><span class="line">  xxx&#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<p><strong>&#x2F;DISCARD&#x2F;</strong></p>
+<p>用于指定链接器应丢弃的section</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">/DISCARD/ :</span><br><span class="line">&#123;</span><br><span class="line">  libc.a ( * )</span><br><span class="line">  libm.a ( * )</span><br><span class="line">  libgcc.a ( * )</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上述代码，指示链接器将C标准库、数学库、GCC库中的section丢弃，在生成的可执行文件中不需要保留这些段。</p>
+<p><strong>如果有调用到以下函数，则需要保留：</strong></p>
+<ul>
+<li>libm.a 包含了用于实现数学函数的符号和数据，例如 sin()、cos()、sqrt() 等</li>
+<li>libgcc.a 包含了用于实现 GCC 扩展的符号和数据，例如 __builtin_add()、__builtin_div() 等</li>
+<li>libc.a 是 C 标准库的库文件，包含了许多实现 C 标准库函数的符号和数据，诸如 printf()、scanf()、malloc()、free() 等常用函数。如果使用了微库，也可以去掉该section</li>
+</ul>
+<hr>
+<p><strong>KEEP</strong></p>
+<p>用于防止链接器丢弃未被引用的段和符号</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">// 强制连接器保留 .text 和 .data 两个 section 中的所有符号</span><br><span class="line">SECTIONS &#123;</span><br><span class="line">.text : &#123; KEEP(*(.text.*)) &#125;</span><br><span class="line">.data : &#123; KEEP(*(.data.*)) &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>*</code>表示任意多个字符，<code>.text.*</code>表示所有以 .text 开头的 section</li>
+<li><code>*(.text.*)</code> 表示所有以 .text 开头的 section 中的所有符号</li>
+</ul>
+<hr>
+<p><strong>LOADADDR</strong><br>  用于指定段的加载地址<br><br></p>
+<p><strong>PROVIDE</strong><br>用于在链接时提供一个符号，如果符号未被定义，则使用其提供的值<br>如：<code>PROVIDE ( end = . );</code><br><br></p>
+<p><strong>PROVIDE_HIDDEN</strong><br>作用类似于PROVIDE，但提供的符号不会被其它模块看到<br>如：<code>PROVIDE_HIDDEN (__fini_array_start = .);</code><br><br></p>
+<h2 id="语句、片段示例解释"><a href="#语句、片段示例解释" class="headerlink" title="语句、片段示例解释"></a>语句、片段示例解释</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">SECTIONS</span><br><span class="line">&#123;</span><br><span class="line">. = 0x10000;  // 将地址指针设为0x10000，表示.text段从地址0x10000开始</span><br><span class="line">.text : &#123; *(.text) &#125;  // 表示将输入文件的.text段复制到输出文件的.text段中</span><br><span class="line">. = 0x8000000;        //将地址指针设为0x8000000，表示.data段从地址0x8000000开始</span><br><span class="line">.data : &#123; *(.data) &#125;</span><br><span class="line">.bss : &#123; *(.bss) &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">._user_heap_stack :</span><br><span class="line">&#123;</span><br><span class="line">    . = ALIGN(4);       // 将当前地址调整为4字节对齐，确保堆和栈数据的正确访问</span><br><span class="line">    PROVIDE ( end = . );</span><br><span class="line">    PROVIDE ( _end = . );</span><br><span class="line">    . = . + _Min_Heap_Size;</span><br><span class="line">    . = . + _Min_Stack_Size;</span><br><span class="line">    _estack = .;      // 设置 _estack 符号的值为当前地址</span><br><span class="line">    . = ALIGN(4);</span><br><span class="line">&#125; &gt;RAM</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="链接脚本完整示例解释"><a href="#链接脚本完整示例解释" class="headerlink" title="链接脚本完整示例解释"></a>链接脚本完整示例解释</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br></pre></td><td class="code"><pre><span class="line">ENTRY(Reset_Handler)</span><br><span class="line"></span><br><span class="line">_Min_Heap_Size = 0x200;      /* required amount of heap  */</span><br><span class="line">_Min_Stack_Size = 0x1500; /* required amount of stack */</span><br><span class="line"></span><br><span class="line">MEMORY</span><br><span class="line">&#123;</span><br><span class="line">FLASH (rx)      : ORIGIN = 0x8000000, LENGTH = 128K</span><br><span class="line">RAM (xrw)      : ORIGIN = 0x20000000, LENGTH = 32K</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">SECTIONS</span><br><span class="line">&#123;</span><br><span class="line">  .isr_vector :</span><br><span class="line">  &#123;</span><br><span class="line">    . = ALIGN(4);</span><br><span class="line">    KEEP(*(.isr_vector)) /* Startup code */</span><br><span class="line">    . = ALIGN(4);</span><br><span class="line">  &#125; &gt;FLASH</span><br><span class="line"></span><br><span class="line">  .text :</span><br><span class="line">  &#123;</span><br><span class="line">    . = ALIGN(4);</span><br><span class="line">    *(.text)           /* .text sections (code) */</span><br><span class="line">    *(.text*)          /* .text* sections (code) */</span><br><span class="line">    *(.glue_7)         /* glue arm to thumb code */</span><br><span class="line">    *(.glue_7t)        /* glue thumb to arm code */</span><br><span class="line">    *(.eh_frame)</span><br><span class="line"></span><br><span class="line">    KEEP (*(.init))</span><br><span class="line">    KEEP (*(.fini))</span><br><span class="line">	</span><br><span class="line">	. = ALIGN(4);</span><br><span class="line">	__fsymtab_start = .;</span><br><span class="line">	KEEP(*(FSymTab))</span><br><span class="line">	__fsymtab_end = .;</span><br><span class="line"></span><br><span class="line">	. = ALIGN(4);</span><br><span class="line">	__vsymtab_start = .;</span><br><span class="line">	KEEP(*(VSymTab))</span><br><span class="line">	__vsymtab_end = .;</span><br><span class="line"></span><br><span class="line">	. = ALIGN(4);</span><br><span class="line">	__rt_init_start = .;</span><br><span class="line">	KEEP(*(SORT(.rti_fn*)))</span><br><span class="line">	__rt_init_end = .;</span><br><span class="line"></span><br><span class="line">    . = ALIGN(4);</span><br><span class="line">    _etext = .;        /* define a global symbols at end of code */</span><br><span class="line">    _exit = .;</span><br><span class="line">  &#125; &gt;FLASH</span><br><span class="line"></span><br><span class="line">  .rodata :</span><br><span class="line">  &#123;</span><br><span class="line">    . = ALIGN(4);</span><br><span class="line">    *(.rodata)         /* .rodata sections (constants, strings, etc.) */</span><br><span class="line">    *(.rodata*)        /* .rodata* sections (constants, strings, etc.) */</span><br><span class="line">    . = ALIGN(4);</span><br><span class="line"></span><br><span class="line">  _shell_command_start = .;</span><br><span class="line">  KEEP (*(shellCommand))</span><br><span class="line">  _shell_command_end = .;</span><br><span class="line">  &#125; &gt;FLASH</span><br><span class="line"></span><br><span class="line">  .ARM.extab   : &#123; *(.ARM.extab* .gnu.linkonce.armextab.*) &#125; &gt;FLASH</span><br><span class="line">  .ARM : &#123;</span><br><span class="line">    __exidx_start = .;</span><br><span class="line">    *(.ARM.exidx*)</span><br><span class="line">    __exidx_end = .;</span><br><span class="line">  &#125; &gt;FLASH</span><br><span class="line"></span><br><span class="line">  .preinit_array     :</span><br><span class="line">  &#123;</span><br><span class="line">    PROVIDE_HIDDEN (__preinit_array_start = .);</span><br><span class="line">    KEEP (*(.preinit_array*))</span><br><span class="line">    PROVIDE_HIDDEN (__preinit_array_end = .);</span><br><span class="line">  &#125; &gt;FLASH</span><br><span class="line">  .init_array :</span><br><span class="line">  &#123;</span><br><span class="line">    PROVIDE_HIDDEN (__init_array_start = .);</span><br><span class="line">    KEEP (*(SORT(.init_array.*)))</span><br><span class="line">    KEEP (*(.init_array*))</span><br><span class="line">    PROVIDE_HIDDEN (__init_array_end = .);</span><br><span class="line">  &#125; &gt;FLASH</span><br><span class="line">  .fini_array :</span><br><span class="line">  &#123;</span><br><span class="line">    PROVIDE_HIDDEN (__fini_array_start = .);</span><br><span class="line">    KEEP (*(SORT(.fini_array.*)))</span><br><span class="line">    KEEP (*(.fini_array*))</span><br><span class="line">    PROVIDE_HIDDEN (__fini_array_end = .);</span><br><span class="line">  &#125; &gt;FLASH</span><br><span class="line"></span><br><span class="line">  _sidata = LOADADDR(.data);</span><br><span class="line"></span><br><span class="line">  .data : </span><br><span class="line">  &#123;</span><br><span class="line">    . = ALIGN(4);</span><br><span class="line">    _sdata = .;        /* create a global symbol at data start */</span><br><span class="line">    *(.data)           /* .data sections */</span><br><span class="line">    *(.data*)          /* .data* sections */</span><br><span class="line"></span><br><span class="line">    . = ALIGN(4);</span><br><span class="line">    _edata = .;        /* define a global symbol at data end */</span><br><span class="line">  &#125; &gt;RAM AT&gt; FLASH</span><br><span class="line">  </span><br><span class="line">  . = ALIGN(4);</span><br><span class="line">  .bss :</span><br><span class="line">  &#123;</span><br><span class="line">    /* This is used by the startup in order to initialize the .bss secion */</span><br><span class="line">    _sbss = .;         /* define a global symbol at bss start */</span><br><span class="line">    __bss_start__ = _sbss;</span><br><span class="line">    *(.bss)</span><br><span class="line">    *(.bss*)</span><br><span class="line">    *(COMMON)</span><br><span class="line"></span><br><span class="line">    . = ALIGN(4);</span><br><span class="line">    _ebss = .;         /* define a global symbol at bss end */</span><br><span class="line">    __bss_end__ = _ebss;</span><br><span class="line">  &#125; &gt;RAM</span><br><span class="line"></span><br><span class="line">  /* User_heap_stack section, used to check that there is enough RAM left */</span><br><span class="line">  ._user_heap_stack :</span><br><span class="line">  &#123;</span><br><span class="line">    . = ALIGN(4);</span><br><span class="line">    PROVIDE ( end = . );</span><br><span class="line">    PROVIDE ( _end = . );</span><br><span class="line">    . = . + _Min_Heap_Size;</span><br><span class="line">    . = . + _Min_Stack_Size;</span><br><span class="line">    _estack = .;</span><br><span class="line">    . = ALIGN(4);</span><br><span class="line">  &#125; &gt;RAM</span><br><span class="line"></span><br><span class="line">  /* Remove information from the standard libraries */</span><br><span class="line">  /DISCARD/ :</span><br><span class="line">  &#123;</span><br><span class="line">    libc.a ( * )</span><br><span class="line">    libm.a ( * )</span><br><span class="line">    libgcc.a ( * )</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  .ARM.attributes 0 : &#123; *(.ARM.attributes) &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="疑惑解答及注意项"><a href="#疑惑解答及注意项" class="headerlink" title="疑惑解答及注意项"></a>疑惑解答及注意项</h2><h3 id="如何将指定的函数-数据-变量链接到指定的内存地址上？"><a href="#如何将指定的函数-数据-变量链接到指定的内存地址上？" class="headerlink" title="如何将指定的函数&#x2F;数据&#x2F;变量链接到指定的内存地址上？"></a>如何将指定的函数&#x2F;数据&#x2F;变量链接到指定的内存地址上？</h3><p>讲道理来说，原则上是可实现的，一般用在特殊情况需求上，比如两个互相独立的工程分别下载到同一个Flash的不同区域，但它们又需要共享用到一个非常大的常量数组，这时候或许需要这个技巧。</p>
+<p>在编译时就指定变量的存放地址，程序直接指向强制访问该地址即可。</p>
+<p>由于时间关系，或者本人意愿关系，暂且不想写下这个详细步骤，但先铺垫点草稿如下：</p>
+<ul>
+<li>使用<code>__attribute__</code>关键字，如<code>int value __attribute__ ((section (&quot;.ARM.__at_0x20000000&quot;))) = 0x33;</code></li>
+<li>给变量声明一个段，而后在链接脚本中指定这个段的链接或加载地址</li>
+</ul>
+<h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://blog.51cto.com/u_15060508/3869831">简单的ld链接脚本学习</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/12/19/%E5%B5%8C%E5%85%A5%E5%BC%8FMCU%E5%BC%80%E5%8F%91%E9%97%AE%E9%A2%98%E8%AE%B0%E5%BD%95/" rel="prev" title="嵌入式MCU开发问题记录">
+      <i class="fa fa-chevron-left"></i> 嵌入式MCU开发问题记录
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2023/12/20/OpenHarmony-V4-0%E5%BA%94%E7%94%A8%E8%AE%B0%E5%BD%95/" rel="next" title="OpenHarmony-V4.0-LiteOS-M鸿蒙轻内核开发调试">
+      OpenHarmony-V4.0-LiteOS-M鸿蒙轻内核开发调试 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E7%9F%A5%E8%AF%86%E7%82%B9%E8%A1%A5%E5%85%85"><span class="nav-number">2.</span> <span class="nav-text">基本知识点补充</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9D%97"><span class="nav-number">3.</span> <span class="nav-text">块</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#MEMORY"><span class="nav-number">3.1.</span> <span class="nav-text">MEMORY</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SECTIONS"><span class="nav-number">3.2.</span> <span class="nav-text">SECTIONS</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%91%BD%E4%BB%A4"><span class="nav-number">4.</span> <span class="nav-text">命令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%AD%E5%8F%A5%E3%80%81%E7%89%87%E6%AE%B5%E7%A4%BA%E4%BE%8B%E8%A7%A3%E9%87%8A"><span class="nav-number">5.</span> <span class="nav-text">语句、片段示例解释</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%93%BE%E6%8E%A5%E8%84%9A%E6%9C%AC%E5%AE%8C%E6%95%B4%E7%A4%BA%E4%BE%8B%E8%A7%A3%E9%87%8A"><span class="nav-number">6.</span> <span class="nav-text">链接脚本完整示例解释</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%96%91%E6%83%91%E8%A7%A3%E7%AD%94%E5%8F%8A%E6%B3%A8%E6%84%8F%E9%A1%B9"><span class="nav-number">7.</span> <span class="nav-text">疑惑解答及注意项</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E5%B0%86%E6%8C%87%E5%AE%9A%E7%9A%84%E5%87%BD%E6%95%B0-%E6%95%B0%E6%8D%AE-%E5%8F%98%E9%87%8F%E9%93%BE%E6%8E%A5%E5%88%B0%E6%8C%87%E5%AE%9A%E7%9A%84%E5%86%85%E5%AD%98%E5%9C%B0%E5%9D%80%E4%B8%8A%EF%BC%9F"><span class="nav-number">7.1.</span> <span class="nav-text">如何将指定的函数&#x2F;数据&#x2F;变量链接到指定的内存地址上？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E7%AB%99%E7%82%B9"><span class="nav-number">8.</span> <span class="nav-text">参考站点</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">cjd</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">40</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">cjd</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="Symbols count total">90k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">5:02</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

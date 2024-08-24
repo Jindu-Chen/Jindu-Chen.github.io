@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":"enable","trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="记录ARM架构体系、指令集、寄存器等相关的一些概念知识">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ARM架构及相关概念">
+<meta property="og:url" content="http://example.com/2023/12/04/ARM%E6%9E%B6%E6%9E%84%E5%8F%8A%E7%9B%B8%E5%85%B3%E6%A6%82%E5%BF%B5/index.html">
+<meta property="og:site_name" content="Jindu-Chen">
+<meta property="og:description" content="记录ARM架构体系、指令集、寄存器等相关的一些概念知识">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2023-12-03T16:00:00.000Z">
+<meta property="article:modified_time" content="2024-08-24T06:19:15.106Z">
+<meta property="article:author" content="cjd">
+<meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2023/12/04/ARM%E6%9E%B6%E6%9E%84%E5%8F%8A%E7%9B%B8%E5%85%B3%E6%A6%82%E5%BF%B5/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>ARM架构及相关概念 | Jindu-Chen</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Jindu-Chen</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">风物长宜放眼量</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/12/04/ARM%E6%9E%B6%E6%9E%84%E5%8F%8A%E7%9B%B8%E5%85%B3%E6%A6%82%E5%BF%B5/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="cjd">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jindu-Chen">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          ARM架构及相关概念
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-12-04 00:00:00" itemprop="dateCreated datePublished" datetime="2023-12-04T00:00:00+08:00">2023-12-04</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-08-24 14:19:15" itemprop="dateModified" datetime="2024-08-24T14:19:15+08:00">2024-08-24</time>
+              </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>986</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>3 mins.</span>
+            </span>
+            <div class="post-description">记录ARM架构体系、指令集、寄存器等相关的一些概念知识</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="ARM指令集"><a href="#ARM指令集" class="headerlink" title="ARM指令集"></a>ARM指令集</h2><h3 id="Thumb指令集"><a href="#Thumb指令集" class="headerlink" title="Thumb指令集"></a>Thumb指令集</h3><p>其是ARM指令集的一个子集，16位的代码宽度</p>
+<h2 id="哈佛架构与冯诺依曼架构"><a href="#哈佛架构与冯诺依曼架构" class="headerlink" title="哈佛架构与冯诺依曼架构"></a>哈佛架构与冯诺依曼架构</h2><h2 id="CPU寄存器"><a href="#CPU寄存器" class="headerlink" title="CPU寄存器"></a>CPU寄存器</h2><p><strong>通用寄存器：</strong>R0-R15</p>
+<ul>
+<li>R0-R3：在函数调用时，用于传递前四个参数；函数调用结束后，R0通常用于存储函数返回值</li>
+<li>R4-R11：通用寄存器，主要用于存储局部变量。触发OS PendSV&#x2F;SVC 异常时，Cortex-M内核并不会自动压栈弹栈此部分寄存器值，须由用户RTOS程序手动压栈弹栈</li>
+<li>R12：通用寄存器，</li>
+<li>R13（SP）：用作堆栈指针，Cortex-M3&#x2F;4 内核在物理上存在两个堆栈指针</li>
+<li>R14（LR）：存储函数返回地址，当函数被调用时，LR保存调用函数的返回地址。函数返回时，R14会将返回地址写入程序计数器，使程序返回到调用函数</li>
+<li>R15（PC）：指向下一条要执行指令的地址</li>
+</ul>
+<p><strong>特殊寄存器：</strong></p>
+<ul>
+<li>程序状态字寄存器组（PSRs）：</li>
+<li>中断屏蔽寄存器组（PRIMASK、FAULTMASK、BASEPRI）</li>
+<li>控制寄存器（CONTROL）：</li>
+<li>浮点寄存器</li>
+</ul>
+<p>帧指针（FP）：取决于编译器和编译选择，选择一个通用寄存器，在函数调用栈中跟踪堆栈帧的位置</p>
+<h3 id="ARM不同内核架构的CPU寄存器组异同"><a href="#ARM不同内核架构的CPU寄存器组异同" class="headerlink" title="ARM不同内核架构的CPU寄存器组异同"></a>ARM不同内核架构的CPU寄存器组异同</h3><p>如：Cortex-M系列只有两种运行模式：特权模式和非特权模式，其中通用寄存器组是共用的，但堆栈指针 R13（PSP、MSP）是各模式独有的</p>
+<p>如：Cortex-A7 有 9 种运行模式，每一种运行模式都有一组与之对应的寄存器组。</p>
+<ul>
+<li>每一种模式可见的寄存器包括 15 个通用寄存器(R0~R14)、一两个程序状态寄存器和一个程序计数器 PC</li>
+<li>在这些寄存器中，有些是所有模式所共用的同一个物理寄存器，有一些是各模式自己所独立拥有的</li>
+<li>Cortex-A系列内核的各模式下的所有CPU寄存器总计：34个通用寄存器、8个状态寄存器、Hyp 模式下独有一个 ELR_Hyp 寄存器</li>
+</ul>
+<h2 id="Cortex-M内核"><a href="#Cortex-M内核" class="headerlink" title="Cortex-M内核"></a>Cortex-M内核</h2><p>在 Cortex-M 内核中，中断和异常都由 NVIC（Nested Vectored Interrupt Controller）来管理。NVIC 是一个硬件模块，负责处理来自外部或内部的所有中断和异常<br><br></p>
+<p>中断是指来自外部或内部事件的请求，如定时器超时、外部引脚中断<br><br></p>
+<p>异常是CPU执行程序发生的错误处理（如：内存访问非法、除零）或者主动软件触发异常，包括PendSV、HardFault等异常<br><br></p>
+<h2 id="杂项"><a href="#杂项" class="headerlink" title="杂项"></a>杂项</h2><h4 id="glue-7、glue-7t-和-eh-frame"><a href="#glue-7、glue-7t-和-eh-frame" class="headerlink" title="glue_7、glue_7t 和 eh_frame"></a>glue_7、glue_7t 和 eh_frame</h4><ul>
+<li><p>glue_7 和 glue_7t 是 ARM 架构中用于将 ARM 代码和 Thumb 代码粘合在一起的代码。</p>
+</li>
+<li><p>ARM 架构支持两种指令集：ARM 指令集和 Thumb 指令集。ARM 指令集是 32 位指令集，而 Thumb 指令集是 16 位指令集。为了兼容两种指令集，ARM 架构中引入了一种称为 Thumb 嵌入 的机制。</p>
+</li>
+<li><p>Thumb 嵌入允许 ARM 代码中嵌入 Thumb 指令，反之亦然。当 ARM 代码中嵌入 Thumb 指令时，连接器会生成 glue_7 或 glue_7t  section 来将 ARM 代码和 Thumb 代码粘合在一起。</p>
+</li>
+<li><p>eh_frame 是异常处理框架（Exception Handling Frame）的缩写。异常处理框架是用于支持异常处理的一种结构。当程序发生异常时，异常处理框架会保存程序的运行状态，并将程序转到异常处理程序。</p>
+</li>
+<li><p>异常处理框架通常包含以下信息：<br>  程序的堆栈指针（SP）<br>  程序的返回地址（LR）<br>  异常发生时的寄存器值</p>
+</li>
+<li><p>eh_frame section 包含了异常处理框架的信息。当程序发生异常时，连接器会将 eh_frame section 加载到内存中，以便异常处理程序可以访问异常处理框架的信息</p>
+</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/12/04/%E9%80%9A%E8%BF%87VSCode-GDB-%E6%90%AD%E5%BB%BAWSL%E4%B8%8B%E7%9A%84%E5%B5%8C%E5%85%A5%E5%BC%8Fmcu%E8%B0%83%E8%AF%95%E7%8E%AF%E5%A2%83/" rel="prev" title="通过VSCode + GDB 搭建WSL下的嵌入式MCU调试环境">
+      <i class="fa fa-chevron-left"></i> 通过VSCode + GDB 搭建WSL下的嵌入式MCU调试环境
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2023/12/04/C%E8%AF%AD%E8%A8%80%E7%9F%A5%E8%AF%86%E7%82%B9%E8%AE%B0%E5%BD%95/" rel="next" title="C语言知识点记录">
+      C语言知识点记录 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#ARM%E6%8C%87%E4%BB%A4%E9%9B%86"><span class="nav-number">1.</span> <span class="nav-text">ARM指令集</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Thumb%E6%8C%87%E4%BB%A4%E9%9B%86"><span class="nav-number">1.1.</span> <span class="nav-text">Thumb指令集</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%93%88%E4%BD%9B%E6%9E%B6%E6%9E%84%E4%B8%8E%E5%86%AF%E8%AF%BA%E4%BE%9D%E6%9B%BC%E6%9E%B6%E6%9E%84"><span class="nav-number">2.</span> <span class="nav-text">哈佛架构与冯诺依曼架构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CPU%E5%AF%84%E5%AD%98%E5%99%A8"><span class="nav-number">3.</span> <span class="nav-text">CPU寄存器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#ARM%E4%B8%8D%E5%90%8C%E5%86%85%E6%A0%B8%E6%9E%B6%E6%9E%84%E7%9A%84CPU%E5%AF%84%E5%AD%98%E5%99%A8%E7%BB%84%E5%BC%82%E5%90%8C"><span class="nav-number">3.1.</span> <span class="nav-text">ARM不同内核架构的CPU寄存器组异同</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Cortex-M%E5%86%85%E6%A0%B8"><span class="nav-number">4.</span> <span class="nav-text">Cortex-M内核</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9D%82%E9%A1%B9"><span class="nav-number">5.</span> <span class="nav-text">杂项</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#glue-7%E3%80%81glue-7t-%E5%92%8C-eh-frame"><span class="nav-number">5.0.1.</span> <span class="nav-text">glue_7、glue_7t 和 eh_frame</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">cjd</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">40</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">cjd</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="Symbols count total">90k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">5:02</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

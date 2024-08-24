@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":"enable","trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="&emsp;&emsp;Kconfig作为一个配置管理工具，其不仅是Linux内核配置系统的一部分，也被广泛应用于其它开源项目，如Buildroot、U-Boot、OpenHarmony、BusyBox等。 &emsp;&emsp;要熟悉大型工程的配置和编译构建过程，那么需要对Kconfig有一定了解，本文为Kconfig之学习笔记，介绍Kconfig的概况、常用语法、代码示例解释、及对其于Ope">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Kconfig入门、常用语法学习笔记">
+<meta property="og:url" content="http://example.com/2024/01/05/Kconfig%E5%85%A5%E9%97%A8%E3%80%81%E5%B8%B8%E7%94%A8%E8%AF%AD%E6%B3%95%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/index.html">
+<meta property="og:site_name" content="Jindu-Chen">
+<meta property="og:description" content="&emsp;&emsp;Kconfig作为一个配置管理工具，其不仅是Linux内核配置系统的一部分，也被广泛应用于其它开源项目，如Buildroot、U-Boot、OpenHarmony、BusyBox等。 &emsp;&emsp;要熟悉大型工程的配置和编译构建过程，那么需要对Kconfig有一定了解，本文为Kconfig之学习笔记，介绍Kconfig的概况、常用语法、代码示例解释、及对其于Ope">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2024-01-04T21:47:11.000Z">
+<meta property="article:modified_time" content="2024-08-24T06:19:15.108Z">
+<meta property="article:author" content="cjd">
+<meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2024/01/05/Kconfig%E5%85%A5%E9%97%A8%E3%80%81%E5%B8%B8%E7%94%A8%E8%AF%AD%E6%B3%95%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>Kconfig入门、常用语法学习笔记 | Jindu-Chen</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Jindu-Chen</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">风物长宜放眼量</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/01/05/Kconfig%E5%85%A5%E9%97%A8%E3%80%81%E5%B8%B8%E7%94%A8%E8%AF%AD%E6%B3%95%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="cjd">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jindu-Chen">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Kconfig入门、常用语法学习笔记
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-01-05 05:47:11" itemprop="dateCreated datePublished" datetime="2024-01-05T05:47:11+08:00">2024-01-05</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-08-24 14:19:15" itemprop="dateModified" datetime="2024-08-24T14:19:15+08:00">2024-08-24</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/LiteOS/" itemprop="url" rel="index"><span itemprop="name">LiteOS</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Linux/" itemprop="url" rel="index"><span itemprop="name">Linux</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>1.4k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>5 mins.</span>
+            </span>
+            <div class="post-description">&emsp;&emsp;Kconfig作为一个配置管理工具，其不仅是Linux内核配置系统的一部分，也被广泛应用于其它开源项目，如Buildroot、U-Boot、OpenHarmony、BusyBox等。<br>
+&emsp;&emsp;要熟悉大型工程的配置和编译构建过程，那么需要对Kconfig有一定了解，本文为Kconfig之学习笔记，介绍Kconfig的概况、常用语法、代码示例解释、及对其于OpenHarmony的应用解析等。
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><strong>此文章大部为参考&#x2F;复述整理编写，为私有理解回顾用</strong><br></p>
+<h2 id="概况"><a href="#概况" class="headerlink" title="概况"></a>概况</h2><p>Kconfig是Linux内核及许多其它系统广泛使用的一款配置管理工具，用于配置选择功能模块的编译与否<br></p>
+<ul>
+<li>Kconfig是脚本语言，用于定义配置选项和配置菜单</li>
+<li>Kconfig文件分布在各级目录下，构成一个分布式的配置数据库</li>
+<li>一般来说，<code>make menuconfig</code>通过make命令执行menuconfig目标，来调用Kconfig生成界面</li>
+</ul>
+<p><strong>其单个配置项基本语法如下：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">config &lt;option-name&gt;                # config：配置选项的名称</span><br><span class="line">        [depends on &lt;expr&gt;]         # depends on：该配置选项依赖的其它配置选项</span><br><span class="line">        [select &lt;expr&gt;]             # select：其下所包含的选择项</span><br><span class="line">        [default &lt;expr&gt;]            # default：该配置选项的默认值</span><br><span class="line">        [prompt &lt;string&gt;]           # prompt：提示信息</span><br><span class="line">        [help &lt;string&gt;]             # help：帮助信息</span><br></pre></td></tr></table></figure>
+<br>
+
+<p><strong>简单示例如下：</strong> 该Kconfig文件定义了两个配置选项：MY_FEATURE和MY_FEATURE_SUB_OPTION。MY_FEATURE是一个布尔类型的选项，默认值为y。MY_FEATURE_SUB_OPTION是一个布尔类型的选项，依赖于MY_FEATURE</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">config MY_FEATURE</span><br><span class="line">        bool &quot;My Feature&quot;</span><br><span class="line">        default y</span><br><span class="line">        help</span><br><span class="line">          This option enables my feature.</span><br><span class="line"></span><br><span class="line">config MY_FEATURE_SUB_OPTION</span><br><span class="line">        depends on MY_FEATURE</span><br><span class="line">        bool &quot;My Feature Sub Option&quot;</span><br><span class="line">        default n</span><br><span class="line">        help</span><br><span class="line">          This option enables my feature sub option.</span><br></pre></td></tr></table></figure>
+
+<p>在使用make menuconfig命令生成配置界面后，可以看到<strong>以下配置选项</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">My Feature [y]</span><br><span class="line">    * My Feature Sub Option [n]</span><br></pre></td></tr></table></figure>
+<p>用户可以选择将MY_FEATURE选项设置为y或n。如果将MY_FEATURE选项设置为y，则会显示MY_FEATURE_SUB_OPTION选项。用户可以选择将MY_FEATURE_SUB_OPTION选项设置为y或n</p>
+<h3 id="Linux内核之make-menuconfig"><a href="#Linux内核之make-menuconfig" class="headerlink" title="Linux内核之make menuconfig"></a>Linux内核之make menuconfig</h3><p>以下部分复述自参考文章<br></p>
+<p><code>menuconfig</code>目标是Linux内核的顶层Makefile中的目标之一，定义如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">config_cmd = menuconfig</span><br><span class="line">config_cmd_help = Configure the kernel</span><br></pre></td></tr></table></figure>
+<p>该目标设置指定了<code>make menuconfig</code>命令执行步骤如下：</p>
+<ul>
+<li>调用make命令的config_cmd目标</li>
+<li>config_cmd目标会调用<code>scripts/kconfig/Makefile:mconf</code>命令来生成配置界面</li>
+<li>mconf命令会解析Kconfig文件，并将配置选项显示在配置界面中，mconf代码位于<code>//script/Kconfig/mconf.c</code><blockquote>
+<p>解析Kconfig：.&#x2F;mconf Kconfig<br>生成对话框：init_dialog<br>配置界面：conf</p>
+</blockquote>
+</li>
+</ul>
+<br>
+
+<p>在<code>make menuconfig</code>之后生成.config文件</p>
+<ul>
+<li>在编译链接时，Makefile会读取.config文件中的内容，从而决定是否编译或者链接相关代码</li>
+<li><strong>此外，系统会将所有的选项以宏的形式保存在Linux内核根目录下的<code>include/generated/autoconf.h</code>文件，此头文件被包含于工程源文件中，用于决定源文件的条件编译选项</strong></li>
+</ul>
+<h2 id="Kconfig常用语法"><a href="#Kconfig常用语法" class="headerlink" title="Kconfig常用语法"></a>Kconfig常用语法</h2><p>在Kconfig文件中，如果配置项名字为<code>XXX</code>，则生成的.config文件中，会展示其变量为CONFIG_XXX</p>
+<ul>
+<li>如果设置了<code>CONFIG_=LINUX</code>，则变量名展示为<code>LINUX_XXX</code></li>
+<li>not set，则表示配置选项未设置或依赖于其他配置选项（此其他选项未设置）</li>
+<li>.config文件如下所示，设置了<code>CONFIG_=LOSCFG</code>，去掉前缀的变量即为Kconfig文件中的配置项名字<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">LOSCFG_DEBUG_TOOLS=y</span><br><span class="line">LOSCFG_MEM_DEBUG=y</span><br><span class="line"># LOSCFG_DRIVERS is not set</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="菜单"><a href="#菜单" class="headerlink" title="菜单"></a>菜单</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">menu &quot;test menu&quot;</span><br><span class="line">    config TEST_MENU_A</span><br><span class="line">        tristate &quot;menu test A&quot;</span><br><span class="line"></span><br><span class="line">    config TEST_MENU_B</span><br><span class="line">        bool &quot;menu test B&quot;</span><br><span class="line">        default n                           </span><br><span class="line">endmenu</span><br></pre></td></tr></table></figure>
+
+<h2 id="选择"><a href="#选择" class="headerlink" title="选择"></a>选择</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">choice</span><br><span class="line">    prompt &quot;The maximal size of fifo&quot;</span><br><span class="line">    default USB_FIFO_512</span><br><span class="line">    </span><br><span class="line">    config USB_FIFO_512</span><br><span class="line">        bool &quot;512&quot;</span><br><span class="line">        </span><br><span class="line">    config USB_FIFO_1024</span><br><span class="line">        bool &quot;1024&quot;</span><br><span class="line">        </span><br><span class="line">    config USB_FIFO_3072</span><br><span class="line">        bool &quot;3072&quot;</span><br><span class="line"></span><br><span class="line">endchoice</span><br></pre></td></tr></table></figure>
+
+<h2 id="menuconfig"><a href="#menuconfig" class="headerlink" title="menuconfig"></a>menuconfig</h2><p>menuconfig XXX和config XXX类似， 唯一不同的是该选项除了能设置y&#x2F;m&#x2F;n外，还可以实现菜单效果(能回车进入该项内部)</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">menuconfig M</span><br><span class="line">  if M</span><br><span class="line">      config C1</span><br><span class="line">      config C2</span><br><span class="line">  endif</span><br></pre></td></tr></table></figure>
+
+<hr>
+<p>以下为Kconfig文件示例：其定义了一个名为My Menu的菜单，菜单下包含四个配置选项：MY_FEATURE_1、MY_FEATURE_2、MY_FEATURE_3和MY_FEATURE_4。其中，MY_FEATURE_4依赖于MY_FEATURE_1</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">menu &quot;My Menu&quot;</span><br><span class="line"></span><br><span class="line">config MY_FEATURE_1</span><br><span class="line">        bool &quot;My Feature 1&quot;</span><br><span class="line">        default y</span><br><span class="line">        help</span><br><span class="line">          This option enables my feature 1.</span><br><span class="line"></span><br><span class="line">config MY_FEATURE_2</span><br><span class="line">        bool &quot;My Feature 2&quot;</span><br><span class="line">        default n</span><br><span class="line">        help</span><br><span class="line">          This option enables my feature 2.</span><br><span class="line"></span><br><span class="line">config MY_FEATURE_3</span><br><span class="line">        bool &quot;My Feature 3&quot;</span><br><span class="line">        default n</span><br><span class="line">        help</span><br><span class="line">          This option enables my feature 3.</span><br><span class="line"></span><br><span class="line">config MY_FEATURE_4</span><br><span class="line">        depends on MY_FEATURE_1</span><br><span class="line">        bool &quot;My Feature 4&quot;</span><br><span class="line">        default n</span><br><span class="line">        help</span><br><span class="line">          This option enables my feature 4.</span><br><span class="line"></span><br><span class="line">endmenu</span><br></pre></td></tr></table></figure>
+<p>在使用make menuconfig命令生成配置界面后，可以看到以下配置选项：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">My Menu</span><br><span class="line">    * My Feature 1 [y]</span><br><span class="line">    * My Feature 2 [n]</span><br><span class="line">    * My Feature 3 [n]</span><br><span class="line">    * My Feature 4 [n]</span><br></pre></td></tr></table></figure>
+<p>用户可以选择将菜单下的任意一个配置选项设置为y或n。如果将MY_FEATURE_1选项设置为y，则会显示MY_FEATURE_4选项。用户可以选择将MY_FEATURE_4选项设置为y或n。</p>
+<h2 id="进阶操作"><a href="#进阶操作" class="headerlink" title="进阶操作"></a>进阶操作</h2><h3 id="source语句"><a href="#source语句" class="headerlink" title="source语句"></a>source语句</h3><p>source 语句用于读取另一个文件中的 Kconfig 文件</p>
+<h3 id="if语句"><a href="#if语句" class="headerlink" title="if语句"></a>if语句</h3><p>if语句：用于根据条件来显示或隐藏配置选项<br></p>
+<p>以下示例，如果CONFIG_CPU_32选项设置为n，则MY_FEATURE选项才会显示在配置界面中</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">if !CONFIG_CPU_32</span><br><span class="line">        config MY_FEATURE</span><br><span class="line">                bool &quot;My Feature&quot;</span><br><span class="line">                default y</span><br><span class="line">                help</span><br><span class="line">                  This option enables my feature, which is only available on 64-bit CPUs.</span><br><span class="line">endif</span><br></pre></td></tr></table></figure>
+
+<h3 id="tristate语句"><a href="#tristate语句" class="headerlink" title="tristate语句"></a>tristate语句</h3><p>用于定义三态配置选项<br></p>
+<p>以下示例，MY_FEATURE选项可以设置为y、n或m</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">config MY_FEATURE</span><br><span class="line">        tristate &quot;My Feature&quot;</span><br><span class="line">        default n</span><br><span class="line">        help</span><br><span class="line">          This option enables my feature</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="OpenHarmony之Kconfig应用"><a href="#OpenHarmony之Kconfig应用" class="headerlink" title="OpenHarmony之Kconfig应用"></a>OpenHarmony之Kconfig应用</h2><p>在OpenHarmony轻量系统的编译链接配置过程中，有如下应用：</p>
+<ul>
+<li>用户在<code>//kernel/liteos_m/</code>目录下<code>make menuconfig</code>，结果生成于<code>//vendor/$&#123;company&#125;/$&#123;company_product&#125;/kernel_configs/debug.config</code>文件中（前提是先创建该文件）</li>
+<li>而此debug.config文件的宏配置会公开可见于整个GN构建工程，使得系统可以进行选择性的条件编译链接</li>
+<li>另外，会有mkconfig.sh脚本将此配置文件转化为C语言的宏定义，写入<code>los_config.h</code>文件，此效果等同于在<code>target_config.h</code>文件声明配置相关宏定义</li>
+</ul>
+<h2 id="注意项及疑惑解答"><a href="#注意项及疑惑解答" class="headerlink" title="注意项及疑惑解答"></a>注意项及疑惑解答</h2><ul>
+<li>一定是生成.config文件吗，这个文件名是否可改</li>
+<li>.config文件的配置是如何导入到C源文件的宏定义的</li>
+<li>Kconfig.xx.xx文件类型</li>
+<li>如何构建</li>
+<li>.json文件的用法，其属性与Kconfig的联系？</li>
+</ul>
+<h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/517418914">menuconfig 和、Kconfig 介绍及例子解析！</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/hellokitty2/p/7587251.html">Make menuconfig生成文件</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2024/01/02/%E7%BC%96%E8%AF%91%E9%93%BE%E6%8E%A5%E9%80%89%E9%A1%B9%E6%84%8F%E4%B9%89%E8%A7%A3%E9%87%8A/" rel="prev" title="常用编译/链接选项说明及其应用分析">
+      <i class="fa fa-chevron-left"></i> 常用编译/链接选项说明及其应用分析
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2024/02/01/%E5%B5%8C%E5%85%A5%E5%BC%8F%E7%A1%AC%E4%BB%B6%E4%B9%8B%E4%B8%AA%E4%BA%BA%E7%90%86%E8%A7%A3/" rel="next" title="嵌入式硬件--学习笔记">
+      嵌入式硬件--学习笔记 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A6%82%E5%86%B5"><span class="nav-number">1.</span> <span class="nav-text">概况</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Linux%E5%86%85%E6%A0%B8%E4%B9%8Bmake-menuconfig"><span class="nav-number">1.1.</span> <span class="nav-text">Linux内核之make menuconfig</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Kconfig%E5%B8%B8%E7%94%A8%E8%AF%AD%E6%B3%95"><span class="nav-number">2.</span> <span class="nav-text">Kconfig常用语法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%8F%9C%E5%8D%95"><span class="nav-number">3.</span> <span class="nav-text">菜单</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%80%89%E6%8B%A9"><span class="nav-number">4.</span> <span class="nav-text">选择</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#menuconfig"><span class="nav-number">5.</span> <span class="nav-text">menuconfig</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%9B%E9%98%B6%E6%93%8D%E4%BD%9C"><span class="nav-number">6.</span> <span class="nav-text">进阶操作</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#source%E8%AF%AD%E5%8F%A5"><span class="nav-number">6.1.</span> <span class="nav-text">source语句</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#if%E8%AF%AD%E5%8F%A5"><span class="nav-number">6.2.</span> <span class="nav-text">if语句</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#tristate%E8%AF%AD%E5%8F%A5"><span class="nav-number">6.3.</span> <span class="nav-text">tristate语句</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#OpenHarmony%E4%B9%8BKconfig%E5%BA%94%E7%94%A8"><span class="nav-number">7.</span> <span class="nav-text">OpenHarmony之Kconfig应用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B3%A8%E6%84%8F%E9%A1%B9%E5%8F%8A%E7%96%91%E6%83%91%E8%A7%A3%E7%AD%94"><span class="nav-number">8.</span> <span class="nav-text">注意项及疑惑解答</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E7%AB%99%E7%82%B9"><span class="nav-number">9.</span> <span class="nav-text">参考站点</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">cjd</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">40</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">cjd</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="Symbols count total">90k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">5:02</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
