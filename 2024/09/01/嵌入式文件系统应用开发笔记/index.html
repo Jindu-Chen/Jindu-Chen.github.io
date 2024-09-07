@@ -27,13 +27,15 @@
 <meta property="og:site_name" content="Jindu-Chen">
 <meta property="og:description" content="讲述个人对嵌入式文件系统的学习、理解、思考、移植与应用开发">
 <meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/pictures/FAT%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E4%B8%BB%E6%A1%86%E6%9E%B6.png">
 <meta property="og:image" content="http://example.com/pictures/FAT%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%BC%95%E5%AF%BC%E6%89%87%E5%8C%BA%E5%88%86%E6%9E%90.png">
+<meta property="og:image" content="http://example.com/pictures/FAT32%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9FFAT%E6%96%87%E4%BB%B6%E5%88%86%E9%85%8D%E8%A1%A8%E7%A4%BA%E6%84%8F.png">
 <meta property="article:published_time" content="2024-08-31T16:00:00.000Z">
-<meta property="article:modified_time" content="2024-09-07T02:41:32.627Z">
+<meta property="article:modified_time" content="2024-09-07T08:25:42.720Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://example.com/pictures/FAT%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%BC%95%E5%AF%BC%E6%89%87%E5%8C%BA%E5%88%86%E6%9E%90.png">
+<meta name="twitter:image" content="http://example.com/pictures/FAT%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E4%B8%BB%E6%A1%86%E6%9E%B6.png">
 
 <link rel="canonical" href="http://example.com/2024/09/01/%E5%B5%8C%E5%85%A5%E5%BC%8F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91%E7%AC%94%E8%AE%B0/">
 
@@ -227,7 +229,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-09-07 10:41:32" itemprop="dateModified" datetime="2024-09-07T10:41:32+08:00">2024-09-07</time>
+                <time title="Modified: 2024-09-07 16:25:42" itemprop="dateModified" datetime="2024-09-07T16:25:42+08:00">2024-09-07</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -249,14 +251,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>3.2k</span>
+              <span>4.4k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>11 mins.</span>
+              <span>15 mins.</span>
             </span>
             <div class="post-description">讲述个人对嵌入式文件系统的学习、理解、思考、移植与应用开发</div>
 
@@ -327,11 +329,15 @@
 </ul>
 <p>如果一个文件系统的簇大小为4KB，那么即使一个文件只有1KB大小，它也会占用整个4KB的簇空间。<br>如果一个文件大小为4.5KB，它将占用两个簇的空间，即8KB。一个文件的最后一簇往往是未存满的。</p>
 <h3 id="文件系统类型概述及适用场景"><a href="#文件系统类型概述及适用场景" class="headerlink" title="文件系统类型概述及适用场景"></a>文件系统类型概述及适用场景</h3><p>FAT12 FAT16 FAT32 NTFS ext4</p>
-<h2 id="FAT文件系统解析"><a href="#FAT文件系统解析" class="headerlink" title="FAT文件系统解析"></a>FAT文件系统解析</h2><h3 id="FAT文件系统结构"><a href="#FAT文件系统结构" class="headerlink" title="FAT文件系统结构"></a>FAT文件系统结构</h3><p>FAT文件系统由 D<strong>BR及其保留扇区、FAT1、FAT2、DATA</strong> 四个部分组成。（<em>分区被格式化时即创建该系统结构</em>）</p>
+<h2 id="FAT文件系统解析"><a href="#FAT文件系统解析" class="headerlink" title="FAT文件系统解析"></a>FAT文件系统解析</h2><h3 id="FAT文件系统结构"><a href="#FAT文件系统结构" class="headerlink" title="FAT文件系统结构"></a>FAT文件系统结构</h3><p><img src="/../pictures/FAT%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E4%B8%BB%E6%A1%86%E6%9E%B6.png" alt="alt text"></p>
+<p>FAT文件系统由 D<strong>BR及其保留扇区、FAT1、FAT2、DATA</strong> 四个部分组成。（<em>分区被格式化时即创建该系统结构</em>）</p>
 <p><strong>DBR及其保留扇区：</strong> DBR的含义是DOS引导记录，也称为操作系统引导记录，在DBR之后会有一些保留扇区。</p>
 <p><strong>FAT1：</strong> FAT的含义是文件分配表，FAT32一般有两份FAT，FAT1是第一份，也是主FAT。</p>
 <p><strong>FAT2：</strong> FAT2是FAT32的第二份文件分配表，也是FAT1的备份。</p>
 <p><strong>DATA：</strong> DATA也就是数据区，是FAT32文件系统的主要区域，其中包含目录区域。</p>
+<hr>
+<p><strong>FAT文件系统重要概念：</strong><br><strong>FAT表项：</strong> 每个 FAT 表项对应于一个簇（Cluster），包含指向下一个簇的指针，形成一个链表，用于表示文件或目录的实际存储位置。</p>
+<p><strong>目录项：</strong> 描述文件或目录的元数据信息，包括但不限于文件名、扩展名、属性、创建时间、最后访问时间、最后修改时间、文件大小以及文件的第一个簇号等。</p>
 <h4 id="DBR-引导扇区及保留扇区"><a href="#DBR-引导扇区及保留扇区" class="headerlink" title="DBR 引导扇区及保留扇区"></a>DBR 引导扇区及保留扇区</h4><p>由五部分组成，分别为跳转指令、OEM代号、BPB、引导程序、结束标志</p>
 <p><img src="/../pictures/FAT%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%BC%95%E5%AF%BC%E6%89%87%E5%8C%BA%E5%88%86%E6%9E%90.png" alt="alt text"></p>
 <p>如上图所示</p>
@@ -341,7 +347,7 @@
 <li><p>OEM代号：占8个字节，由创建该文件系统镜像的厂商具体安排</p>
 </li>
 <li><p>BPB：FAT32的BPB从DBR的第12个字节开始，占用79字节，记录了有关该文件系统的重要信息。前面53个字节是BPB，后面26个字节是扩展BPB<br>  记录的信息包括如下：</p>
-  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">BPB</span><br><span class="line">每个扇区的字节数</span><br><span class="line">每簇的扇区数</span><br><span class="line">保留扇区数</span><br><span class="line">FAT数：一般为2</span><br><span class="line">根目录项数：FAT12/16使用，FAT32必须为0</span><br><span class="line">小扇区数：FAT12/16使用，FAT32必须为0</span><br><span class="line">媒体描述符</span><br><span class="line">每FAT扇区数：FAT12/16使用，FAT32必须为0</span><br><span class="line">...</span><br><span class="line">...</span><br><span class="line">总扇区数</span><br><span class="line">每FAT扇区数：只被FAT32使用，协助决定根目录从哪里开始</span><br><span class="line">扩展标志、文件系统版本、根目录簇号、文件系统信息扇区号：只被FAT32使用</span><br><span class="line">备份引导扇区号：只被FAT32使用</span><br><span class="line">保留位</span><br><span class="line"></span><br><span class="line">扩展BPB：</span><br><span class="line">物理驱动器号、保留位、扩展引导标签</span><br><span class="line">分区序号</span><br><span class="line">卷标号</span><br><span class="line">系统ID</span><br></pre></td></tr></table></figure>
+  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">BPB</span><br><span class="line">每个扇区的字节数</span><br><span class="line">每簇的扇区数</span><br><span class="line">保留扇区数</span><br><span class="line">FAT数：一般为2</span><br><span class="line">根目录项数：FAT12/16使用，FAT32必须为0</span><br><span class="line">小扇区数：FAT12/16使用，FAT32必须为0</span><br><span class="line">媒体描述符</span><br><span class="line">...</span><br><span class="line">...</span><br><span class="line">总扇区数</span><br><span class="line">每FAT扇区数：只被FAT32使用，协助决定根目录从哪里开始</span><br><span class="line">扩展标志、文件系统版本、根目录簇号、文件系统信息扇区号：只被FAT32使用</span><br><span class="line">备份引导扇区号：只被FAT32使用</span><br><span class="line">保留位</span><br><span class="line"></span><br><span class="line">扩展BPB：</span><br><span class="line">物理驱动器号、保留位、扩展引导标签</span><br><span class="line">分区序号</span><br><span class="line">卷标号</span><br><span class="line">系统ID</span><br></pre></td></tr></table></figure>
 <p>  文件系统信息扇区位于保留扇区，记录数据区中空闲簇的个数及下一个空闲簇的簇号。（即紧跟DBR后的第一个扇区：1号扇区）</p>
 </li>
 <li><p>引导程序代码：FAT32的DBR引导程序占用420字节（非OS环境可忽略）</p>
@@ -352,7 +358,12 @@
 <h4 id="FAT-文件分配表"><a href="#FAT-文件分配表" class="headerlink" title="FAT 文件分配表"></a>FAT 文件分配表</h4><p>FAT1 排序在 引导扇区、保留扇区后，紧接着就是FAT2</p>
 <p>FAT文件系统之所以有12，16，32不同的版本之分，其根本在于FAT表用来记录任意一簇链接的二进制位数。以FAT16为例，每一簇在FAT表中占据2字节(二进制16位)。所以，FAT16最大可以表示的簇号为0xFFFF(十进制的65535)，以32K（最多只支持64个扇区）为簇的大小的话，FAT16可以管理的最大磁盘空间为：32KB×65535&#x3D;2048MB,这就是为什么FAT16不支持超过2GB分区的原因（DOS下）。</p>
 <p>FAT表结构及作用</p>
-<p>1、FAT32文件一般有两份FAT，他们由格式化程序在对分区进行格式化时创建，FAT1是主，FAT2是备份。<br>2、FAT1跟在DBR之后，其具体地址由DBR的BPB参数中指定，FAT2跟在FAT1的后面。<br>3、FAT表由FAT表项构成，我们把FAT表项简称FAT项，每个FAT项占用4字节。<br>4、每个FAT项都有一个固定的编号，这个编号从0开始。<br>5、FAT表项的前两个FAT项为文件系统保留使用，0号FAT为介质类型，1号FAT为文件系统错误标志。<br>6、分区的数据区中每个簇都会映射到FAT表中的唯一一个FAT项，因为0号FAT和1号FAT被系统占用，用户的数据从2号FAT开始记录。<br>7、如果某个文件占用很多个簇，则第一个FAT项记录下一个FAT项的编号（既簇号），如果这个文件结束了，则用“0F FF FF FF”表示。<br>8、分区格式化后，用户文件以簇为单位存放在数据区中，一个文件至少占用一个簇。<br>9、FAT的主要作用是标明分区存储的介质以及簇的使用情况。<br>定位FAT绝对位置的方法如下：<br>1、首先从MBR的分区表中得知分区的起始扇区，偏移到此扇区。<br>2、从DBR的BPB中得知DBR的保留扇区数，FAT表的个数，FAT表的大小。<br>3、因此FAT1&#x3D;分区起始扇区+DBR保留扇区，FAT2&#x3D;分区起始扇区+DBR保留扇区+FAT1。<br>下图为FAT1的第一个扇区：<br>从第0项开始的，第0项和第1项暂时就不用看了，从第2项开始，为0F FF FF FF，表示这是一个小文件，只占用一个簇就结束了，然后第3、4项也是的。</p>
+<p>FAT表就是用来记录簇号的，每个表项对应一个簇号。（根目录、目录、文件都是属于文件数据，都会以表项的形式通过链表方式记录在FAT表中）</p>
+<p>1、FAT32文件一般有两份FAT，他们由格式化程序在对分区进行格式化时创建，FAT1是主，FAT2是备份。<br>2、FAT1跟在DBR之后，其具体地址由DBR的BPB参数中指定，FAT2跟在FAT1的后面。<br>3、FAT表由FAT表项构成，我们把FAT表项简称FAT项，每个FAT项占用4字节。<br>4、每个FAT项都有一个固定的编号，这个编号从0开始。<br>5、FAT表项的前两个FAT项为文件系统保留使用，0号FAT为介质类型，1号FAT为文件系统错误标志。<br>6、分区的数据区中每个簇都会映射到FAT表中的唯一一个FAT项，因为0号FAT和1号FAT被系统占用，用户的数据从2号FAT开始记录。<br>7、如果某个文件占用很多个簇，则第一个FAT项记录下一个FAT项的编号（既簇号），如果这个文件结束了，则用“0F FF FF FF”表示。<br>8、分区格式化后，用户文件以簇为单位存放在数据区中，一个文件至少占用一个簇。<br>9、FAT的主要作用是标明分区存储的介质以及簇的使用情况。<br>定位FAT绝对位置的方法如下：<br>1、首先从MBR的分区表中得知分区的起始扇区，偏移到此扇区。<br>2、从DBR的BPB中得知DBR的保留扇区数，FAT表的个数，FAT表的大小。<br>3、因此FAT1&#x3D;分区起始扇区+DBR保留扇区，FAT2&#x3D;分区起始扇区+DBR保留扇区+FAT1。<br>下图为FAT1的第一个扇区：</p>
+<p><img src="/../pictures/FAT32%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9FFAT%E6%96%87%E4%BB%B6%E5%88%86%E9%85%8D%E8%A1%A8%E7%A4%BA%E6%84%8F.png" alt="alt text"></p>
+<p>文件系统擦写均衡策略，就是通过FAT表来管理的，每一个表项表示一个簇，擦写时随机选用簇来存放实际数据，而不是递增存放。</p>
+<p>从第0项开始的，第0项和第1项暂时就不用看了，从第2项开始，为0F FF FF FF，表示这是一个小文件，只占用一个簇就结束了，然后第3、4项也是的。</p>
+<p>文件分配表，FAT32系统中，每32位就表示一个簇，簇号呈递增关系。 32位数据里的内容，则是簇链，表示文件的下一部分指向哪一个簇。 （刚初始化的文件分配表，通常都是连续的）</p>
 <p>第5簇中存放的数据是6，这又是一个文件或文件夹的首簇。其内容为第6簇，就是说接下来的簇位于第6簇——〉FAT表指引我们到达FAT表的第6簇指向，上面写的数据是7，就是说接下来的簇位于第7簇——〉FAT表指引我们到达FAT表的第7簇指向……直到根据FAT链读取到扇区相对偏移0×20~0×24，也就是第8簇，上面写的数据是9，也就是指向第9簇——〉第9簇的内容为”0F FF FF FF”，意即此文件已至尾簇。</p>
 <h4 id="DATA-数据区"><a href="#DATA-数据区" class="headerlink" title="DATA 数据区"></a>DATA 数据区</h4><p>数据区的位置在FAT2的后面，具体定位方式如下；</p>
 <p>1、通过MBR中的分区表信息得知分区的起始位置。<br>2、通过分区中DBR得知DBR的保留扇区数以及FAT表的大小，FAT表的个数。<br>3、通过上面的信息就可以找到数据区的起始位置，数据区 &#x3D; 隐藏扇区数+DBR保留扇区+（每个FAT表扇区数*2）。</p>
@@ -363,7 +374,20 @@
 <p>短文件名目录项：所谓短文件名既文件名的“8.3”格式，此格式支持主文件名不能超过8字节，扩展名不能超过3字节。短文件名目录始终存放在一个目录项中。</p>
 <p>FDT第1字节又表明了该文件的状态，它有如下四种取值方式：<br>a.   00H–目录项的空目录。<br>b.   E5H–表示该目录项曾经使用过，但文件已被删除。<br>c.   2EH–表示子目录下的两个特殊文件 “. “或 “.. “目录项<br>d.   其它任何字符–表示一个文件名(或目录名)的第一个字符的ASCII码值.</p>
 <p>FAT第0xB个字节可以判别是长文件目录项还是短文件目录项。</p>
-<h2 id="嵌入式文件系统的应用"><a href="#嵌入式文件系统的应用" class="headerlink" title="嵌入式文件系统的应用"></a>嵌入式文件系统的应用</h2><h2 id="移植思路概述"><a href="#移植思路概述" class="headerlink" title="移植思路概述"></a>移植思路概述</h2><h3 id="文件系统底层接口函数适配"><a href="#文件系统底层接口函数适配" class="headerlink" title="文件系统底层接口函数适配"></a>文件系统底层接口函数适配</h3><h3 id="文件系统上层接口应用"><a href="#文件系统上层接口应用" class="headerlink" title="文件系统上层接口应用"></a>文件系统上层接口应用</h3><h2 id="嵌入式文件系统实现原理"><a href="#嵌入式文件系统实现原理" class="headerlink" title="嵌入式文件系统实现原理"></a>嵌入式文件系统实现原理</h2><h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2><ul>
+<h2 id="嵌入式文件系统的应用"><a href="#嵌入式文件系统的应用" class="headerlink" title="嵌入式文件系统的应用"></a>嵌入式文件系统的应用</h2><h2 id="移植思路概述"><a href="#移植思路概述" class="headerlink" title="移植思路概述"></a>移植思路概述</h2><h3 id="文件系统底层接口函数适配"><a href="#文件系统底层接口函数适配" class="headerlink" title="文件系统底层接口函数适配"></a>文件系统底层接口函数适配</h3><h3 id="文件系统上层接口应用"><a href="#文件系统上层接口应用" class="headerlink" title="文件系统上层接口应用"></a>文件系统上层接口应用</h3><h2 id="嵌入式文件系统实现原理"><a href="#嵌入式文件系统实现原理" class="headerlink" title="嵌入式文件系统实现原理"></a>嵌入式文件系统实现原理</h2><h2 id="思考与拓展"><a href="#思考与拓展" class="headerlink" title="思考与拓展"></a>思考与拓展</h2><h4 id="FAT文件系统中-FAT表项和目录项-的区别？"><a href="#FAT文件系统中-FAT表项和目录项-的区别？" class="headerlink" title="FAT文件系统中 FAT表项和目录项 的区别？"></a>FAT文件系统中 FAT表项和目录项 的区别？</h4><p>FAT 表项是 FAT 文件系统中用于跟踪文件存储位置的信息。每个 FAT 表项对应于一个簇（Cluster），包含指向下一个簇的指针，形成一个链表，用于表示文件或目录的实际存储位置。</p>
+<p>存储位置：FAT 表项位于文件分配表（FAT）中，紧邻引导扇区（DBR）之后。<br>内容：每个 FAT 表项包含了一个簇号，指示了文件数据的下一个簇的位置。如果文件数据结束，则 FAT 表项中会有一个特殊的值来表示文件的结束。<br>FAT 表项使得系统能够追踪文件数据的连续性，即使这些数据在物理上是分散存储的。</p>
+<p>一个文件夹就占一个簇，只要是文件夹，文件夹本身就会至少占一个簇。（FAT12&#x2F;16中，根目录只能占一个簇）</p>
+<p>目录项则是用来描述文件或目录的元数据信息，包括但不限于文件名、扩展名、属性、创建时间、最后访问时间、最后修改时间、文件大小以及文件的第一个簇号等。</p>
+<p>目录项存储在目录区（Directory Area），通常是根目录或子目录中的某个位置。</p>
+<p>目录项提供了文件或目录的基本信息，并通过指向 FAT 表中的第一个簇号来链接到文件的实际数据存储位置。</p>
+<h4 id="文件系统扫盘的详细流程？"><a href="#文件系统扫盘的详细流程？" class="headerlink" title="文件系统扫盘的详细流程？"></a>文件系统扫盘的详细流程？</h4><h4 id="文件系统的文件增加、删减操作在底层是如何体现的？会重新更新一次FAT表吗？"><a href="#文件系统的文件增加、删减操作在底层是如何体现的？会重新更新一次FAT表吗？" class="headerlink" title="文件系统的文件增加、删减操作在底层是如何体现的？会重新更新一次FAT表吗？"></a>文件系统的文件增加、删减操作在底层是如何体现的？会重新更新一次FAT表吗？</h4><p>分配簇：创建新文件或目录时，更新 FAT 表项以指向新的簇。<br>释放簇：删除文件或目录时，更新 FAT 表项以标记簇为空闲。<br>调整簇链：修改文件大小时，更新 FAT 表项以反映新的簇链。<br>这样可以确保 FAT 表的更新是局部的，而不是全局的，从而提高系统的效率和稳定性</p>
+<p>另外，一个文件所存放的簇号，不一定就是连续的，其实这就是碎片化。 磁盘碎片整理，有助于提高访问性能</p>
+<h4 id="文件系统中文件检索与读取？文件号排序越靠后的，检索读取时间就越长吗？"><a href="#文件系统中文件检索与读取？文件号排序越靠后的，检索读取时间就越长吗？" class="headerlink" title="文件系统中文件检索与读取？文件号排序越靠后的，检索读取时间就越长吗？"></a>文件系统中文件检索与读取？文件号排序越靠后的，检索读取时间就越长吗？</h4><p>某种程序上来说，是的，按文件号读取的话，每次指定读取指定文件号，就需要从根目录区开始扫</p>
+<p>每扫到一个文件项，就文件号计数加一，当文件号排序累加到与指定序号一致时，即表示找到了目标文件的目录项，接着从该目录项配置中，去到介质中指定偏移地址，读取实际的文件内容。</p>
+<p>设备扫盘，实际上是扫描DATA数据区的根目录区、子目录区的所有目录项。而不会扫描文件内容。</p>
+<p>如果文件号排序越靠后，那么初次读取花费时间就越长。（断点续传时，会记录相应的偏移，无须重新定位文件，所以不耗时）</p>
+<h4 id="磁盘碎片化是什么意思？如何理解？"><a href="#磁盘碎片化是什么意思？如何理解？" class="headerlink" title="磁盘碎片化是什么意思？如何理解？"></a>磁盘碎片化是什么意思？如何理解？</h4><h4 id="为什么SD卡、U盘等，没有存放文件，也被使用了一部分空间？"><a href="#为什么SD卡、U盘等，没有存放文件，也被使用了一部分空间？" class="headerlink" title="为什么SD卡、U盘等，没有存放文件，也被使用了一部分空间？"></a>为什么SD卡、U盘等，没有存放文件，也被使用了一部分空间？</h4><p>因为 文件系统本身就占一部分资源，DBR、FAT表、根目录区 </p>
+<h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2><ul>
 <li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/Chary/p/12981056.html">博客园-详解FAT32文件系统</a></li>
 <li><a target="_blank" rel="noopener" href="https://blog.csdn.net/winafa/article/details/115319185">经典FAT文件系统格式详解</a></li>
 </ul>
@@ -447,7 +471,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E7%BD%AE%E6%80%9D%E8%80%83%E4%B8%8E%E8%A7%A3%E7%AD%94"><span class="nav-number">1.</span> <span class="nav-text">前置思考与解答</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E6%A6%82%E8%BF%B0"><span class="nav-number">2.</span> <span class="nav-text">文件系统概述</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-number">2.1.</span> <span class="nav-text">文件系统是什么？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%B1%BB%E5%9E%8B%E6%A6%82%E8%BF%B0%E5%8F%8A%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">2.2.</span> <span class="nav-text">文件系统类型概述及适用场景</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#FAT%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E8%A7%A3%E6%9E%90"><span class="nav-number">3.</span> <span class="nav-text">FAT文件系统解析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#FAT%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%BB%93%E6%9E%84"><span class="nav-number">3.1.</span> <span class="nav-text">FAT文件系统结构</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#DBR-%E5%BC%95%E5%AF%BC%E6%89%87%E5%8C%BA%E5%8F%8A%E4%BF%9D%E7%95%99%E6%89%87%E5%8C%BA"><span class="nav-number">3.1.1.</span> <span class="nav-text">DBR 引导扇区及保留扇区</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#FAT-%E6%96%87%E4%BB%B6%E5%88%86%E9%85%8D%E8%A1%A8"><span class="nav-number">3.1.2.</span> <span class="nav-text">FAT 文件分配表</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#DATA-%E6%95%B0%E6%8D%AE%E5%8C%BA"><span class="nav-number">3.1.3.</span> <span class="nav-text">DATA 数据区</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B5%8C%E5%85%A5%E5%BC%8F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%9A%84%E5%BA%94%E7%94%A8"><span class="nav-number">4.</span> <span class="nav-text">嵌入式文件系统的应用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A7%BB%E6%A4%8D%E6%80%9D%E8%B7%AF%E6%A6%82%E8%BF%B0"><span class="nav-number">5.</span> <span class="nav-text">移植思路概述</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%BA%95%E5%B1%82%E6%8E%A5%E5%8F%A3%E5%87%BD%E6%95%B0%E9%80%82%E9%85%8D"><span class="nav-number">5.1.</span> <span class="nav-text">文件系统底层接口函数适配</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E4%B8%8A%E5%B1%82%E6%8E%A5%E5%8F%A3%E5%BA%94%E7%94%A8"><span class="nav-number">5.2.</span> <span class="nav-text">文件系统上层接口应用</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B5%8C%E5%85%A5%E5%BC%8F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86"><span class="nav-number">6.</span> <span class="nav-text">嵌入式文件系统实现原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E7%AB%99%E7%82%B9"><span class="nav-number">7.</span> <span class="nav-text">参考站点</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E7%BD%AE%E6%80%9D%E8%80%83%E4%B8%8E%E8%A7%A3%E7%AD%94"><span class="nav-number">1.</span> <span class="nav-text">前置思考与解答</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E6%A6%82%E8%BF%B0"><span class="nav-number">2.</span> <span class="nav-text">文件系统概述</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-number">2.1.</span> <span class="nav-text">文件系统是什么？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%B1%BB%E5%9E%8B%E6%A6%82%E8%BF%B0%E5%8F%8A%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">2.2.</span> <span class="nav-text">文件系统类型概述及适用场景</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#FAT%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E8%A7%A3%E6%9E%90"><span class="nav-number">3.</span> <span class="nav-text">FAT文件系统解析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#FAT%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%BB%93%E6%9E%84"><span class="nav-number">3.1.</span> <span class="nav-text">FAT文件系统结构</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#DBR-%E5%BC%95%E5%AF%BC%E6%89%87%E5%8C%BA%E5%8F%8A%E4%BF%9D%E7%95%99%E6%89%87%E5%8C%BA"><span class="nav-number">3.1.1.</span> <span class="nav-text">DBR 引导扇区及保留扇区</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#FAT-%E6%96%87%E4%BB%B6%E5%88%86%E9%85%8D%E8%A1%A8"><span class="nav-number">3.1.2.</span> <span class="nav-text">FAT 文件分配表</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#DATA-%E6%95%B0%E6%8D%AE%E5%8C%BA"><span class="nav-number">3.1.3.</span> <span class="nav-text">DATA 数据区</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B5%8C%E5%85%A5%E5%BC%8F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%9A%84%E5%BA%94%E7%94%A8"><span class="nav-number">4.</span> <span class="nav-text">嵌入式文件系统的应用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A7%BB%E6%A4%8D%E6%80%9D%E8%B7%AF%E6%A6%82%E8%BF%B0"><span class="nav-number">5.</span> <span class="nav-text">移植思路概述</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%BA%95%E5%B1%82%E6%8E%A5%E5%8F%A3%E5%87%BD%E6%95%B0%E9%80%82%E9%85%8D"><span class="nav-number">5.1.</span> <span class="nav-text">文件系统底层接口函数适配</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E4%B8%8A%E5%B1%82%E6%8E%A5%E5%8F%A3%E5%BA%94%E7%94%A8"><span class="nav-number">5.2.</span> <span class="nav-text">文件系统上层接口应用</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B5%8C%E5%85%A5%E5%BC%8F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86"><span class="nav-number">6.</span> <span class="nav-text">嵌入式文件系统实现原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%9D%E8%80%83%E4%B8%8E%E6%8B%93%E5%B1%95"><span class="nav-number">7.</span> <span class="nav-text">思考与拓展</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#FAT%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E4%B8%AD-FAT%E8%A1%A8%E9%A1%B9%E5%92%8C%E7%9B%AE%E5%BD%95%E9%A1%B9-%E7%9A%84%E5%8C%BA%E5%88%AB%EF%BC%9F"><span class="nav-number">7.0.1.</span> <span class="nav-text">FAT文件系统中 FAT表项和目录项 的区别？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E6%89%AB%E7%9B%98%E7%9A%84%E8%AF%A6%E7%BB%86%E6%B5%81%E7%A8%8B%EF%BC%9F"><span class="nav-number">7.0.2.</span> <span class="nav-text">文件系统扫盘的详细流程？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%9A%84%E6%96%87%E4%BB%B6%E5%A2%9E%E5%8A%A0%E3%80%81%E5%88%A0%E5%87%8F%E6%93%8D%E4%BD%9C%E5%9C%A8%E5%BA%95%E5%B1%82%E6%98%AF%E5%A6%82%E4%BD%95%E4%BD%93%E7%8E%B0%E7%9A%84%EF%BC%9F%E4%BC%9A%E9%87%8D%E6%96%B0%E6%9B%B4%E6%96%B0%E4%B8%80%E6%AC%A1FAT%E8%A1%A8%E5%90%97%EF%BC%9F"><span class="nav-number">7.0.3.</span> <span class="nav-text">文件系统的文件增加、删减操作在底层是如何体现的？会重新更新一次FAT表吗？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E4%B8%AD%E6%96%87%E4%BB%B6%E6%A3%80%E7%B4%A2%E4%B8%8E%E8%AF%BB%E5%8F%96%EF%BC%9F%E6%96%87%E4%BB%B6%E5%8F%B7%E6%8E%92%E5%BA%8F%E8%B6%8A%E9%9D%A0%E5%90%8E%E7%9A%84%EF%BC%8C%E6%A3%80%E7%B4%A2%E8%AF%BB%E5%8F%96%E6%97%B6%E9%97%B4%E5%B0%B1%E8%B6%8A%E9%95%BF%E5%90%97%EF%BC%9F"><span class="nav-number">7.0.4.</span> <span class="nav-text">文件系统中文件检索与读取？文件号排序越靠后的，检索读取时间就越长吗？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%A3%81%E7%9B%98%E7%A2%8E%E7%89%87%E5%8C%96%E6%98%AF%E4%BB%80%E4%B9%88%E6%84%8F%E6%80%9D%EF%BC%9F%E5%A6%82%E4%BD%95%E7%90%86%E8%A7%A3%EF%BC%9F"><span class="nav-number">7.0.5.</span> <span class="nav-text">磁盘碎片化是什么意思？如何理解？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88SD%E5%8D%A1%E3%80%81U%E7%9B%98%E7%AD%89%EF%BC%8C%E6%B2%A1%E6%9C%89%E5%AD%98%E6%94%BE%E6%96%87%E4%BB%B6%EF%BC%8C%E4%B9%9F%E8%A2%AB%E4%BD%BF%E7%94%A8%E4%BA%86%E4%B8%80%E9%83%A8%E5%88%86%E7%A9%BA%E9%97%B4%EF%BC%9F"><span class="nav-number">7.0.6.</span> <span class="nav-text">为什么SD卡、U盘等，没有存放文件，也被使用了一部分空间？</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E7%AB%99%E7%82%B9"><span class="nav-number">8.</span> <span class="nav-text">参考站点</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -510,12 +534,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">92k</span>
+    <span title="Symbols count total">93k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">5:06</span>
+    <span title="Reading time total">5:09</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
   </div>
