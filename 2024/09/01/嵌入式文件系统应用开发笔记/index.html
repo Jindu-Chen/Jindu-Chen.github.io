@@ -31,7 +31,7 @@
 <meta property="og:image" content="http://example.com/pictures/FAT%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%BC%95%E5%AF%BC%E6%89%87%E5%8C%BA%E5%88%86%E6%9E%90.png">
 <meta property="og:image" content="http://example.com/pictures/FAT32%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9FFAT%E6%96%87%E4%BB%B6%E5%88%86%E9%85%8D%E8%A1%A8%E7%A4%BA%E6%84%8F.png">
 <meta property="article:published_time" content="2024-08-31T16:00:00.000Z">
-<meta property="article:modified_time" content="2024-09-07T08:25:42.720Z">
+<meta property="article:modified_time" content="2024-09-07T08:51:06.562Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -229,7 +229,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-09-07 16:25:42" itemprop="dateModified" datetime="2024-09-07T16:25:42+08:00">2024-09-07</time>
+                <time title="Modified: 2024-09-07 16:51:06" itemprop="dateModified" datetime="2024-09-07T16:51:06+08:00">2024-09-07</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -251,14 +251,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>4.4k</span>
+              <span>4.7k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>15 mins.</span>
+              <span>16 mins.</span>
             </span>
             <div class="post-description">讲述个人对嵌入式文件系统的学习、理解、思考、移植与应用开发</div>
 
@@ -295,9 +295,9 @@
 </li>
 <li><p><strong>使用文件系统会遇到的问题？如何排查和解决？</strong></p>
 <blockquote>
-<p>嵌入式文件系统API对不同文件系统类型的支持度有所不同，需要注意</p>
+<p>嵌入式文件系统API对不同文件系统类型的支持度有所不同，需要注意（如：部分设备对FAT12的支持不完善）</p>
 <p>SD卡某些情况下，会被电脑识别成损坏，但嵌入式设备能正常读卡，并播放部分歌曲。原因是：电脑扫描检测更完善，嵌入式设备不会做全盘的完整性检测。</p>
-<p>文件系统的文件排序与实际存储的排序</p>
+<p>注意文件系统的文件排序与实际存储的排序（创建文件的文件号与预期调用的不符）</p>
 </blockquote>
 </li>
 <li><p><strong>在使用SD卡、MMC、SPI Flash、E2PROM等存储设备时，需要考虑什么问题？</strong></p>
@@ -315,7 +315,7 @@
 </ul>
 <br>
 
-<p><strong>以下内容大部摘抄自网络，在此基础上作修饰总结，未完待续……</strong></p>
+<p><strong>以下内容为在前人的基础上作进一步总结，未完待续……，参考内容见文末站点</strong></p>
 <hr>
 <h2 id="文件系统概述"><a href="#文件系统概述" class="headerlink" title="文件系统概述"></a>文件系统概述</h2><h3 id="文件系统是什么？"><a href="#文件系统是什么？" class="headerlink" title="文件系统是什么？"></a>文件系统是什么？</h3><p>文件系统是一个<strong>软件组件</strong>，用于管理和组织存储设备（如硬盘、U盘、SD卡等）的文件和目录。文件系统定义了文件如何被存储、命名、组织以及检索的方式。</p>
 <p>文件系统向应用程序或用户提供了一系列的接口，包括对文件&#x2F;目录的创建、删除、重命名、读取、写入、移动等等操作。</p>
@@ -328,6 +328,8 @@
 </li>
 </ul>
 <p>如果一个文件系统的簇大小为4KB，那么即使一个文件只有1KB大小，它也会占用整个4KB的簇空间。<br>如果一个文件大小为4.5KB，它将占用两个簇的空间，即8KB。一个文件的最后一簇往往是未存满的。</p>
+<p>以32GB-U盘实验为例，检测到簇大小为16KB，创建一个空文件夹或者空文件，都会显示已用空间增加了16KB。</p>
+<p><strong>无论是不是在根目录下创建，或者创建的是文件夹还是文件，其实体在数据区都会至少占用一个簇。</strong></p>
 <h3 id="文件系统类型概述及适用场景"><a href="#文件系统类型概述及适用场景" class="headerlink" title="文件系统类型概述及适用场景"></a>文件系统类型概述及适用场景</h3><p>FAT12 FAT16 FAT32 NTFS ext4</p>
 <h2 id="FAT文件系统解析"><a href="#FAT文件系统解析" class="headerlink" title="FAT文件系统解析"></a>FAT文件系统解析</h2><h3 id="FAT文件系统结构"><a href="#FAT文件系统结构" class="headerlink" title="FAT文件系统结构"></a>FAT文件系统结构</h3><p><img src="/../pictures/FAT%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E4%B8%BB%E6%A1%86%E6%9E%B6.png" alt="alt text"></p>
 <p>FAT文件系统由 D<strong>BR及其保留扇区、FAT1、FAT2、DATA</strong> 四个部分组成。（<em>分区被格式化时即创建该系统结构</em>）</p>
@@ -380,13 +382,21 @@
 <p>目录项则是用来描述文件或目录的元数据信息，包括但不限于文件名、扩展名、属性、创建时间、最后访问时间、最后修改时间、文件大小以及文件的第一个簇号等。</p>
 <p>目录项存储在目录区（Directory Area），通常是根目录或子目录中的某个位置。</p>
 <p>目录项提供了文件或目录的基本信息，并通过指向 FAT 表中的第一个簇号来链接到文件的实际数据存储位置。</p>
-<h4 id="文件系统扫盘的详细流程？"><a href="#文件系统扫盘的详细流程？" class="headerlink" title="文件系统扫盘的详细流程？"></a>文件系统扫盘的详细流程？</h4><h4 id="文件系统的文件增加、删减操作在底层是如何体现的？会重新更新一次FAT表吗？"><a href="#文件系统的文件增加、删减操作在底层是如何体现的？会重新更新一次FAT表吗？" class="headerlink" title="文件系统的文件增加、删减操作在底层是如何体现的？会重新更新一次FAT表吗？"></a>文件系统的文件增加、删减操作在底层是如何体现的？会重新更新一次FAT表吗？</h4><p>分配簇：创建新文件或目录时，更新 FAT 表项以指向新的簇。<br>释放簇：删除文件或目录时，更新 FAT 表项以标记簇为空闲。<br>调整簇链：修改文件大小时，更新 FAT 表项以反映新的簇链。<br>这样可以确保 FAT 表的更新是局部的，而不是全局的，从而提高系统的效率和稳定性</p>
-<p>另外，一个文件所存放的簇号，不一定就是连续的，其实这就是碎片化。 磁盘碎片整理，有助于提高访问性能</p>
+<h4 id="文件系统扫盘的详细流程？"><a href="#文件系统扫盘的详细流程？" class="headerlink" title="文件系统扫盘的详细流程？"></a>文件系统扫盘的详细流程？</h4><p>FAT文件系统，只知道根目录区在数据区的簇号，其它一概不知。所以每次读取文件，都需要从根目录开始。</p>
+<p>从根目录开始，先扫描根目录下的所有目录项（含文件夹和文件的目录项）</p>
+<p>然后扫根目录下的第一个子目录下的文件，再递归扫子目录下的目录，直到叶子目录</p>
+<p>给文件号的排序，不取决于文件的目录项在目录区中的位置。（看文件系统上层程序的实现方式）</p>
+<h4 id="文件系统的文件增加、删减操作在底层是如何体现的？会重新更新一次FAT表吗？"><a href="#文件系统的文件增加、删减操作在底层是如何体现的？会重新更新一次FAT表吗？" class="headerlink" title="文件系统的文件增加、删减操作在底层是如何体现的？会重新更新一次FAT表吗？"></a>文件系统的文件增加、删减操作在底层是如何体现的？会重新更新一次FAT表吗？</h4><p>分配簇：创建新文件或目录时，更新 FAT 表项以指向新的簇。<br>释放簇：删除文件或目录时，更新 FAT 表项以标记簇为空闲。<br>调整簇链：修改文件大小时，更新 FAT 表项以反映新的簇链。<br>这样可以确保 FAT 表的更新是局部的，而不是全局的，从而提高系统的效率和稳定性</p>
+<p>另外，一个文件所存放的簇号，不一定就是连续的，其实这就是碎片化。 </p>
 <h4 id="文件系统中文件检索与读取？文件号排序越靠后的，检索读取时间就越长吗？"><a href="#文件系统中文件检索与读取？文件号排序越靠后的，检索读取时间就越长吗？" class="headerlink" title="文件系统中文件检索与读取？文件号排序越靠后的，检索读取时间就越长吗？"></a>文件系统中文件检索与读取？文件号排序越靠后的，检索读取时间就越长吗？</h4><p>某种程序上来说，是的，按文件号读取的话，每次指定读取指定文件号，就需要从根目录区开始扫</p>
 <p>每扫到一个文件项，就文件号计数加一，当文件号排序累加到与指定序号一致时，即表示找到了目标文件的目录项，接着从该目录项配置中，去到介质中指定偏移地址，读取实际的文件内容。</p>
 <p>设备扫盘，实际上是扫描DATA数据区的根目录区、子目录区的所有目录项。而不会扫描文件内容。</p>
 <p>如果文件号排序越靠后，那么初次读取花费时间就越长。（断点续传时，会记录相应的偏移，无须重新定位文件，所以不耗时）</p>
-<h4 id="磁盘碎片化是什么意思？如何理解？"><a href="#磁盘碎片化是什么意思？如何理解？" class="headerlink" title="磁盘碎片化是什么意思？如何理解？"></a>磁盘碎片化是什么意思？如何理解？</h4><h4 id="为什么SD卡、U盘等，没有存放文件，也被使用了一部分空间？"><a href="#为什么SD卡、U盘等，没有存放文件，也被使用了一部分空间？" class="headerlink" title="为什么SD卡、U盘等，没有存放文件，也被使用了一部分空间？"></a>为什么SD卡、U盘等，没有存放文件，也被使用了一部分空间？</h4><p>因为 文件系统本身就占一部分资源，DBR、FAT表、根目录区 </p>
+<p>文件系统内容碎片化程度越高，访问时间也越长。</p>
+<h4 id="磁盘碎片化是什么意思？如何理解？"><a href="#磁盘碎片化是什么意思？如何理解？" class="headerlink" title="磁盘碎片化是什么意思？如何理解？"></a>磁盘碎片化是什么意思？如何理解？</h4><p>FAT表记录的簇链，在初始化时是沿着簇号递增链接的，随着增删改次数越来越多，簇链就变得杂乱，</p>
+<p>导致文件内容在数据区的簇号分布也是散乱的，那么每次在读取一个文件时，都要根据各种偏移或者信息，进行拼凑，导致性能下降。</p>
+<p>磁盘碎片整理，有助于提高访问性能</p>
+<h4 id="为什么SD卡、U盘等，没有存放文件，也被使用了一部分空间？"><a href="#为什么SD卡、U盘等，没有存放文件，也被使用了一部分空间？" class="headerlink" title="为什么SD卡、U盘等，没有存放文件，也被使用了一部分空间？"></a>为什么SD卡、U盘等，没有存放文件，也被使用了一部分空间？</h4><p>因为 文件系统本身就占一部分资源，DBR、FAT表、根目录区 </p>
 <h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2><ul>
 <li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/Chary/p/12981056.html">博客园-详解FAT32文件系统</a></li>
 <li><a target="_blank" rel="noopener" href="https://blog.csdn.net/winafa/article/details/115319185">经典FAT文件系统格式详解</a></li>
@@ -539,7 +549,7 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">5:09</span>
+    <span title="Reading time total">5:11</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
   </div>
