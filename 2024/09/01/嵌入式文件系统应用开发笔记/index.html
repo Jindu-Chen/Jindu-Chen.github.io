@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":"enable","trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="讲述个人对嵌入式文件系统的学习、理解、思考、移植与应用开发">
+<meta property="og:type" content="article">
+<meta property="og:title" content="嵌入式之文件系统应用开发笔记">
+<meta property="og:url" content="http://example.com/2024/09/01/%E5%B5%8C%E5%85%A5%E5%BC%8F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91%E7%AC%94%E8%AE%B0/index.html">
+<meta property="og:site_name" content="Jindu-Chen">
+<meta property="og:description" content="讲述个人对嵌入式文件系统的学习、理解、思考、移植与应用开发">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/pictures/FAT%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%BC%95%E5%AF%BC%E6%89%87%E5%8C%BA%E5%88%86%E6%9E%90.png">
+<meta property="article:published_time" content="2024-08-31T16:00:00.000Z">
+<meta property="article:modified_time" content="2024-09-07T01:21:32.609Z">
+<meta property="article:author" content="cjd">
+<meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/pictures/FAT%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%BC%95%E5%AF%BC%E6%89%87%E5%8C%BA%E5%88%86%E6%9E%90.png">
+
+<link rel="canonical" href="http://example.com/2024/09/01/%E5%B5%8C%E5%85%A5%E5%BC%8F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91%E7%AC%94%E8%AE%B0/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>嵌入式之文件系统应用开发笔记 | Jindu-Chen</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Jindu-Chen</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">风物长宜放眼量</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/09/01/%E5%B5%8C%E5%85%A5%E5%BC%8F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91%E7%AC%94%E8%AE%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="cjd">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jindu-Chen">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          嵌入式之文件系统应用开发笔记
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-09-01 00:00:00" itemprop="dateCreated datePublished" datetime="2024-09-01T00:00:00+08:00">2024-09-01</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-09-07 09:21:32" itemprop="dateModified" datetime="2024-09-07T09:21:32+08:00">2024-09-07</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">嵌入式</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/" itemprop="url" rel="index"><span itemprop="name">文件系统</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>2.9k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>10 mins.</span>
+            </span>
+            <div class="post-description">讲述个人对嵌入式文件系统的学习、理解、思考、移植与应用开发</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>本文讲述个人对嵌入式文件系统的学习、理解、移植、应用等相关方面的笔记。</p>
+<p>个人认为，接触一个事物之前，总要带着一点疑问和思考较为好些，那么在文件系统应用与开发方面，也<strong>应该有些前置思考</strong>：</p>
+<ul>
+<li>文件系统在嵌入式开发中有哪些应用场景？</li>
+<li>如何从零移植一个文件系统到嵌入式芯片上？移植步骤？</li>
+<li>文件系统的代码原理？占用内存空间如何评估？时间效率如何评估？</li>
+<li>初始化挂载、目录读写、文件读写实现原理？与Windows的文件目录架构、Linux的文件目录架构有何异同？不同文件系统的差异？</li>
+<li>如何从零开始编写一个文件系统？需要具备哪些要素？</li>
+<li>使用文件系统会遇到的问题？如何排查和解决？</li>
+<li>如LittleFS对有限擦写寿命的Flash是如何实现擦写均衡的？掉电安全是如何实现的？等等原理实现？</li>
+<li>在使用SD卡、MMC、SPI Flash、E2PROM等存储设备时，需要考虑什么问题？</li>
+<li>在嵌入式设备中，直接给存储设备烧录文件通常比较麻烦？有通过串口-MCU-Shell命令行调试从而给存储设备烧录文件的方法吗？如何调试与开发？</li>
+<li>对于非Windows兼容或者非上位机直接交互的存储设备&#x2F;文件系统，如外部Flash，如何将文件按照指定格式烧录进存储设备？如何编写上位机程序封装文件转化成映像？</li>
+</ul>
+<p>未完待续……</p>
+<p><strong>本文内容大部摘抄自网络，在此基础上作修饰</strong></p>
+<hr>
+<h2 id="文件系统概述"><a href="#文件系统概述" class="headerlink" title="文件系统概述"></a>文件系统概述</h2><h3 id="文件系统是什么？"><a href="#文件系统是什么？" class="headerlink" title="文件系统是什么？"></a>文件系统是什么？</h3><p>文件系统是一个<strong>软件组件</strong>，用于管理和组织存储设备（如硬盘、U盘、SD卡等）的文件和目录。文件系统定义了文件如何被存储、命名、组织以及检索的方式。</p>
+<p>文件系统向应用程序或用户提供了一系列的接口，包括对文件&#x2F;目录的创建、删除、重命名、读取、写入、移动等等操作。</p>
+<p>文件系统向上层&#x2F;用户提供的功能包括有：文件存储、目录管理、文件属性管理、文件访问控制、文件备份、文件恢复、文件压缩、文件加密等等。</p>
+<p><strong>文件系统概念</strong></p>
+<ul>
+<li><p>扇区：存储介质的最小分割单位，一次至少读取或写入一个扇区的数据。<br>文件系统建立在物理扇区之上，通常将单个或多个物理扇区组合成更大的逻辑单元，称为簇（Clust），或者块（BLOCK）。</p>
+</li>
+<li><p>簇（clust）：文件系统的最小管理单位。</p>
+</li>
+</ul>
+<p>如果一个文件系统的簇大小为4KB，那么即使一个文件只有1KB大小，它也会占用整个4KB的簇空间。<br>如果一个文件大小为4.5KB，它将占用两个簇的空间，即8KB。一个文件的最后一簇往往是未存满的。</p>
+<h3 id="文件系统类型概述及适用场景"><a href="#文件系统类型概述及适用场景" class="headerlink" title="文件系统类型概述及适用场景"></a>文件系统类型概述及适用场景</h3><p>FAT12 FAT16 FAT32 NTFS ext4</p>
+<h2 id="FAT文件系统解析"><a href="#FAT文件系统解析" class="headerlink" title="FAT文件系统解析"></a>FAT文件系统解析</h2><h3 id="FAT文件系统结构"><a href="#FAT文件系统结构" class="headerlink" title="FAT文件系统结构"></a>FAT文件系统结构</h3><p>FAT文件系统由 DBR及其保留扇区、FAT1、FAT2、DATA 四个部分组成。（分区被格式化时即创建该系统结构）</p>
+<p>DBR及其保留扇区：DBR的含义是DOS引导记录，也称为操作系统引导记录，在DBR之后往往会有一些保留扇区。</p>
+<p>FAT1：FAT的含义是文件分配表，FAT32一般有两份FAT，FAT1是第一份，也是主FAT。</p>
+<p>FAT2：FAT2是FAT32的第二份文件分配表，也是FAT1的备份。</p>
+<p>DATA：DATA也就是数据区，是FAT32文件系统的主要区域，其中包含目录区域。</p>
+<h4 id="DBR-引导扇区及保留扇区"><a href="#DBR-引导扇区及保留扇区" class="headerlink" title="DBR 引导扇区及保留扇区"></a>DBR 引导扇区及保留扇区</h4><p>由五部分组成，分别为跳转指令、OEM代号、BPB、引导程序、结束标志</p>
+<p><img src="/../pictures/FAT%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%BC%95%E5%AF%BC%E6%89%87%E5%8C%BA%E5%88%86%E6%9E%90.png" alt="alt text"></p>
+<p>如上图所示</p>
+<ul>
+<li><p><code>EB 3C 90</code>为跳转指令，3C 表示OS引导代码的偏移位置（非OS环境可忽略）</p>
+</li>
+<li><p>OEM代号：占8个字节，由创建该文件系统镜像的厂商具体安排</p>
+</li>
+<li><p>BPB：FAT32的BPB从DBR的第12个字节开始，占用79字节，记录了有关该文件系统的重要信息。前面53个字节是BPB，后面26个字节是扩展BPB<br>  记录的信息包括如下：</p>
+  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">BPB</span><br><span class="line">每个扇区的字节数</span><br><span class="line">每簇的扇区数</span><br><span class="line">保留扇区数</span><br><span class="line">FAT数：一般为2</span><br><span class="line">根目录项数：FAT12/16使用，FAT32必须为0</span><br><span class="line">小扇区数：FAT12/16使用，FAT32必须为0</span><br><span class="line">媒体描述符</span><br><span class="line">每FAT扇区数：FAT12/16使用，FAT32必须为0</span><br><span class="line">...</span><br><span class="line">...</span><br><span class="line">总扇区数</span><br><span class="line">每FAT扇区数：只被FAT32使用，协助决定根目录从哪里开始</span><br><span class="line">扩展标志、文件系统版本、根目录簇号、文件系统信息扇区号：只被FAT32使用</span><br><span class="line">备份引导扇区号：只被FAT32使用</span><br><span class="line">保留位</span><br><span class="line"></span><br><span class="line">扩展BPB：</span><br><span class="line">物理驱动器号、保留位、扩展引导标签</span><br><span class="line">分区序号</span><br><span class="line">卷标号</span><br><span class="line">系统ID</span><br></pre></td></tr></table></figure>
+<p>  文件系统信息扇区位于保留扇区，记录数据区中空闲簇的个数及下一个空闲簇的簇号。（即紧跟DBR后的第一个扇区：1号扇区）</p>
+</li>
+<li><p>引导程序代码：FAT32的DBR引导程序占用420字节（非OS环境可忽略）</p>
+</li>
+<li><p>结束标志：DBR的结束标志与MBR，EBR的结束标志相同，为“55 AA”。</p>
+</li>
+</ul>
+<h4 id="FAT-文件分配表"><a href="#FAT-文件分配表" class="headerlink" title="FAT 文件分配表"></a>FAT 文件分配表</h4><p>FAT1 排序在 引导扇区、保留扇区后，紧接着就是FAT2</p>
+<p>FAT文件系统之所以有12，16，32不同的版本之分，其根本在于FAT表用来记录任意一簇链接的二进制位数。以FAT16为例，每一簇在FAT表中占据2字节(二进制16位)。所以，FAT16最大可以表示的簇号为0xFFFF(十进制的65535)，以32K（最多只支持64个扇区）为簇的大小的话，FAT16可以管理的最大磁盘空间为：32KB×65535&#x3D;2048MB,这就是为什么FAT16不支持超过2GB分区的原因（DOS下）。</p>
+<p>FAT表结构及作用</p>
+<p>1、FAT32文件一般有两份FAT，他们由格式化程序在对分区进行格式化时创建，FAT1是主，FAT2是备份。<br>2、FAT1跟在DBR之后，其具体地址由DBR的BPB参数中指定，FAT2跟在FAT1的后面。<br>3、FAT表由FAT表项构成，我们把FAT表项简称FAT项，每个FAT项占用4字节。<br>4、每个FAT项都有一个固定的编号，这个编号从0开始。<br>5、FAT表项的前两个FAT项为文件系统保留使用，0号FAT为介质类型，1号FAT为文件系统错误标志。<br>6、分区的数据区中每个簇都会映射到FAT表中的唯一一个FAT项，因为0号FAT和1号FAT被系统占用，用户的数据从2号FAT开始记录。<br>7、如果某个文件占用很多个簇，则第一个FAT项记录下一个FAT项的编号（既簇号），如果这个文件结束了，则用“0F FF FF FF”表示。<br>8、分区格式化后，用户文件以簇为单位存放在数据区中，一个文件至少占用一个簇。<br>9、FAT的主要作用是标明分区存储的介质以及簇的使用情况。<br>定位FAT绝对位置的方法如下：<br>1、首先从MBR的分区表中得知分区的起始扇区，偏移到此扇区。<br>2、从DBR的BPB中得知DBR的保留扇区数，FAT表的个数，FAT表的大小。<br>3、因此FAT1&#x3D;分区起始扇区+DBR保留扇区，FAT2&#x3D;分区起始扇区+DBR保留扇区+FAT1。<br>下图为FAT1的第一个扇区：<br>从第0项开始的，第0项和第1项暂时就不用看了，从第2项开始，为0F FF FF FF，表示这是一个小文件，只占用一个簇就结束了，然后第3、4项也是的。</p>
+<p>第5簇中存放的数据是6，这又是一个文件或文件夹的首簇。其内容为第6簇，就是说接下来的簇位于第6簇——〉FAT表指引我们到达FAT表的第6簇指向，上面写的数据是7，就是说接下来的簇位于第7簇——〉FAT表指引我们到达FAT表的第7簇指向……直到根据FAT链读取到扇区相对偏移0×20~0×24，也就是第8簇，上面写的数据是9，也就是指向第9簇——〉第9簇的内容为”0F FF FF FF”，意即此文件已至尾簇。</p>
+<h4 id="DATA-数据区"><a href="#DATA-数据区" class="headerlink" title="DATA 数据区"></a>DATA 数据区</h4><p>数据区的位置在FAT2的后面，具体定位方式如下；</p>
+<p>1、通过MBR中的分区表信息得知分区的起始位置。<br>2、通过分区中DBR得知DBR的保留扇区数以及FAT表的大小，FAT表的个数。<br>3、通过上面的信息就可以找到数据区的起始位置，数据区 &#x3D; 隐藏扇区数+DBR保留扇区+（每个FAT表扇区数*2）。</p>
+<p>数据区的类容主要由三部分组成：根目录，子目录和文件内容。在数据区中是以“簇”为单位进行存储的，2号簇被分配给根目录使用。</p>
+<p>根据簇号得到在FAT中的扇区号和偏移：<br>扇区号 &#x3D; 簇号<em>4&#x2F;每个扇区的字节数 + 隐藏扇区数 + 保留扇区数<br>扇区偏移 &#x3D; 簇号</em>4%每个扇区的字节数</p>
+<p>根据簇号得到起始扇区号：<br>簇号起始扇区 &#x3D; （簇号-2）* 每个簇的扇区数 + 隐藏扇区数 + 保留扇区数 + FAT数*每个FAT占扇区数</p>
+<p>FAT32文件系统中，分区根目录下的文件和目录都放在根目录区中，子目录中的文件和目录都放在子目录区中，并且每32个字节为一个目录项（FDT），每个目录项纪录着一个目录或文件（也可能是多个目录项记录一个文件或目录）</p>
+<p>短文件名目录项：所谓短文件名既文件名的“8.3”格式，此格式支持主文件名不能超过8字节，扩展名不能超过3字节。短文件名目录始终存放在一个目录项中。</p>
+<p>FDT第1字节又表明了该文件的状态，它有如下四种取值方式：<br>a.   00H–目录项的空目录。<br>b.   E5H–表示该目录项曾经使用过，但文件已被删除。<br>c.   2EH–表示子目录下的两个特殊文件 “. “或 “.. “目录项<br>d.   其它任何字符–表示一个文件名(或目录名)的第一个字符的ASCII码值.</p>
+<p>FAT第0xB个字节可以判别是长文件目录项还是短文件目录项。</p>
+<h2 id="嵌入式文件系统的应用"><a href="#嵌入式文件系统的应用" class="headerlink" title="嵌入式文件系统的应用"></a>嵌入式文件系统的应用</h2><h2 id="移植思路概述"><a href="#移植思路概述" class="headerlink" title="移植思路概述"></a>移植思路概述</h2><h3 id="文件系统底层接口函数适配"><a href="#文件系统底层接口函数适配" class="headerlink" title="文件系统底层接口函数适配"></a>文件系统底层接口函数适配</h3><h3 id="文件系统上层接口应用"><a href="#文件系统上层接口应用" class="headerlink" title="文件系统上层接口应用"></a>文件系统上层接口应用</h3><h2 id="嵌入式文件系统实现原理"><a href="#嵌入式文件系统实现原理" class="headerlink" title="嵌入式文件系统实现原理"></a>嵌入式文件系统实现原理</h2><h2 id="注意点及扩展思考"><a href="#注意点及扩展思考" class="headerlink" title="注意点及扩展思考"></a>注意点及扩展思考</h2><h3 id="设备是如何读取存储介质，并识别出其是何种文件系统的？"><a href="#设备是如何读取存储介质，并识别出其是何种文件系统的？" class="headerlink" title="设备是如何读取存储介质，并识别出其是何种文件系统的？"></a>设备是如何读取存储介质，并识别出其是何种文件系统的？</h3><h3 id="如何分析一个映像文件的文件系统类型？"><a href="#如何分析一个映像文件的文件系统类型？" class="headerlink" title="如何分析一个映像文件的文件系统类型？"></a>如何分析一个映像文件的文件系统类型？</h3><h3 id="扫盘到底是什么？文件系统是如何扫盘的？对文件号的排序是怎样的？"><a href="#扫盘到底是什么？文件系统是如何扫盘的？对文件号的排序是怎样的？" class="headerlink" title="扫盘到底是什么？文件系统是如何扫盘的？对文件号的排序是怎样的？"></a>扫盘到底是什么？文件系统是如何扫盘的？对文件号的排序是怎样的？</h3><p>什么是扫盘，每次读取不同的文件都需要重新扫盘吗</p>
+<p>是的，每次获取另一个文件时，都需要扫盘</p>
+<p>从根目录开始</p>
+<h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/Chary/p/12981056.html">博客园-详解FAT32文件系统</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/winafa/article/details/115319185">经典FAT文件系统格式详解</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2024/08/21/%E7%BB%8F%E5%85%B8%E8%93%9D%E7%89%99%E5%92%8CTWS%E7%9A%84%E8%BF%9E%E6%8E%A5%E5%8E%9F%E7%90%86/" rel="prev" title="经典蓝牙和TWS的连接原理">
+      <i class="fa fa-chevron-left"></i> 经典蓝牙和TWS的连接原理
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2024/09/04/USB%E6%8F%92%E6%8B%94%E6%A3%80%E6%B5%8B/" rel="next" title="USB插拔检测原理及应用">
+      USB插拔检测原理及应用 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E6%A6%82%E8%BF%B0"><span class="nav-number">2.</span> <span class="nav-text">文件系统概述</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-number">2.1.</span> <span class="nav-text">文件系统是什么？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%B1%BB%E5%9E%8B%E6%A6%82%E8%BF%B0%E5%8F%8A%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">2.2.</span> <span class="nav-text">文件系统类型概述及适用场景</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#FAT%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E8%A7%A3%E6%9E%90"><span class="nav-number">3.</span> <span class="nav-text">FAT文件系统解析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#FAT%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%BB%93%E6%9E%84"><span class="nav-number">3.1.</span> <span class="nav-text">FAT文件系统结构</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#DBR-%E5%BC%95%E5%AF%BC%E6%89%87%E5%8C%BA%E5%8F%8A%E4%BF%9D%E7%95%99%E6%89%87%E5%8C%BA"><span class="nav-number">3.1.1.</span> <span class="nav-text">DBR 引导扇区及保留扇区</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#FAT-%E6%96%87%E4%BB%B6%E5%88%86%E9%85%8D%E8%A1%A8"><span class="nav-number">3.1.2.</span> <span class="nav-text">FAT 文件分配表</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#DATA-%E6%95%B0%E6%8D%AE%E5%8C%BA"><span class="nav-number">3.1.3.</span> <span class="nav-text">DATA 数据区</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B5%8C%E5%85%A5%E5%BC%8F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%9A%84%E5%BA%94%E7%94%A8"><span class="nav-number">4.</span> <span class="nav-text">嵌入式文件系统的应用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A7%BB%E6%A4%8D%E6%80%9D%E8%B7%AF%E6%A6%82%E8%BF%B0"><span class="nav-number">5.</span> <span class="nav-text">移植思路概述</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%BA%95%E5%B1%82%E6%8E%A5%E5%8F%A3%E5%87%BD%E6%95%B0%E9%80%82%E9%85%8D"><span class="nav-number">5.1.</span> <span class="nav-text">文件系统底层接口函数适配</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E4%B8%8A%E5%B1%82%E6%8E%A5%E5%8F%A3%E5%BA%94%E7%94%A8"><span class="nav-number">5.2.</span> <span class="nav-text">文件系统上层接口应用</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B5%8C%E5%85%A5%E5%BC%8F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86"><span class="nav-number">6.</span> <span class="nav-text">嵌入式文件系统实现原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B3%A8%E6%84%8F%E7%82%B9%E5%8F%8A%E6%89%A9%E5%B1%95%E6%80%9D%E8%80%83"><span class="nav-number">7.</span> <span class="nav-text">注意点及扩展思考</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%BE%E5%A4%87%E6%98%AF%E5%A6%82%E4%BD%95%E8%AF%BB%E5%8F%96%E5%AD%98%E5%82%A8%E4%BB%8B%E8%B4%A8%EF%BC%8C%E5%B9%B6%E8%AF%86%E5%88%AB%E5%87%BA%E5%85%B6%E6%98%AF%E4%BD%95%E7%A7%8D%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%9A%84%EF%BC%9F"><span class="nav-number">7.1.</span> <span class="nav-text">设备是如何读取存储介质，并识别出其是何种文件系统的？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E5%88%86%E6%9E%90%E4%B8%80%E4%B8%AA%E6%98%A0%E5%83%8F%E6%96%87%E4%BB%B6%E7%9A%84%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%B1%BB%E5%9E%8B%EF%BC%9F"><span class="nav-number">7.2.</span> <span class="nav-text">如何分析一个映像文件的文件系统类型？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%89%AB%E7%9B%98%E5%88%B0%E5%BA%95%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E6%98%AF%E5%A6%82%E4%BD%95%E6%89%AB%E7%9B%98%E7%9A%84%EF%BC%9F%E5%AF%B9%E6%96%87%E4%BB%B6%E5%8F%B7%E7%9A%84%E6%8E%92%E5%BA%8F%E6%98%AF%E6%80%8E%E6%A0%B7%E7%9A%84%EF%BC%9F"><span class="nav-number">7.3.</span> <span class="nav-text">扫盘到底是什么？文件系统是如何扫盘的？对文件号的排序是怎样的？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E7%AB%99%E7%82%B9"><span class="nav-number">8.</span> <span class="nav-text">参考站点</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">cjd</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">41</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">18</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">cjd</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="Symbols count total">91k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">5:05</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

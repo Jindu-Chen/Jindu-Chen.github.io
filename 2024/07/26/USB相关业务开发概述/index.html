@@ -28,7 +28,7 @@
 <meta property="og:description" content="讲述个人对USB知识体系的认知，以及USB在业务开发中的应用等。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2024-07-25T16:00:00.000Z">
-<meta property="article:modified_time" content="2024-08-24T06:19:15.110Z">
+<meta property="article:modified_time" content="2024-09-05T11:08:22.041Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -225,7 +225,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-08-24 14:19:15" itemprop="dateModified" datetime="2024-08-24T14:19:15+08:00">2024-08-24</time>
+                <time title="Modified: 2024-09-05 19:08:22" itemprop="dateModified" datetime="2024-09-05T19:08:22+08:00">2024-09-05</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -235,6 +235,10 @@
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
                   <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">嵌入式</span></a>
                 </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/USB/" itemprop="url" rel="index"><span itemprop="name">USB</span></a>
+                </span>
             </span>
 
           <br>
@@ -243,7 +247,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>3.5k</span>
+              <span>3.6k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
@@ -386,7 +390,10 @@
 <h3 id="UAC"><a href="#UAC" class="headerlink" title="UAC"></a>UAC</h3><p>SPK、MIC</p>
 <h3 id="CDC"><a href="#CDC" class="headerlink" title="CDC"></a>CDC</h3><p><code>//apps/soundbox/task</code></p>
 <p>app-USB设备事件 》 从机事件 》 cdc处理</p>
-<h2 id="疑惑解答及扩展思考"><a href="#疑惑解答及扩展思考" class="headerlink" title="疑惑解答及扩展思考"></a>疑惑解答及扩展思考</h2><h4 id="端点与描述符的区别与联系？"><a href="#端点与描述符的区别与联系？" class="headerlink" title="端点与描述符的区别与联系？"></a>端点与描述符的区别与联系？</h4><ul>
+<h2 id="疑惑解答及扩展思考"><a href="#疑惑解答及扩展思考" class="headerlink" title="疑惑解答及扩展思考"></a>疑惑解答及扩展思考</h2><h4 id="USB2-0接口皆只有Vcc、GND、D-、D-四个引脚，为何有低速、全速、高速之分？"><a href="#USB2-0接口皆只有Vcc、GND、D-、D-四个引脚，为何有低速、全速、高速之分？" class="headerlink" title="USB2.0接口皆只有Vcc、GND、D+、D-四个引脚，为何有低速、全速、高速之分？"></a>USB2.0接口皆只有Vcc、GND、D+、D-四个引脚，为何有低速、全速、高速之分？</h4><p>低速（Low-Speed）：1.5 Mbps（兆比特每秒）<br>全速（Full-Speed）：12 Mbps<br>高速（High-Speed）：480 Mbps</p>
+<p>多种因素，包括硬件成本、功耗、散热、应用需求、向后兼容性、技术复杂性等。</p>
+<p>如键盘、鼠标等，仅用低速或全速设备即可；而USB闪存、U盘等，则需要全速&#x2F;高速设备。</p>
+<h4 id="端点与描述符的区别与联系？"><a href="#端点与描述符的区别与联系？" class="headerlink" title="端点与描述符的区别与联系？"></a>端点与描述符的区别与联系？</h4><ul>
 <li><p>端点是USB设备中用于数据传输的实际逻辑通道。</p>
 </li>
 <li><p>描述符则是用来描述端点以及其他USB设备特性的数据结构。</p>
@@ -414,8 +421,8 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2024/07/26/%E8%93%9D%E7%89%99%E5%BA%94%E7%94%A8%E4%B8%9A%E5%8A%A1%E5%BC%80%E5%8F%91/" rel="prev" title="蓝牙协议栈及基础业务应用概念简述">
-      <i class="fa fa-chevron-left"></i> 蓝牙协议栈及基础业务应用概念简述
+    <a href="/2024/07/16/%E5%B5%8C%E5%85%A5%E5%BC%8F%E5%BC%80%E5%8F%91%E4%B9%8B%E9%9F%B3%E9%A2%91%E6%9D%82%E9%A1%B9%E7%9F%A5%E8%AF%86%E8%AE%B0%E5%BD%95/" rel="prev" title="嵌入式之音频开发知识概述">
+      <i class="fa fa-chevron-left"></i> 嵌入式之音频开发知识概述
     </a></div>
       <div class="post-nav-item">
     <a href="/2024/08/03/%E4%BD%8E%E5%8A%9F%E8%80%97%E8%93%9D%E7%89%99BLE-Profile%E4%BB%8B%E7%BB%8D/" rel="next" title="BLE Profile概述">
@@ -479,7 +486,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#USB%E8%AE%BE%E5%A4%87%E5%AF%BC%E8%AE%BA"><span class="nav-number">1.</span> <span class="nav-text">USB设备导论</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#USB%E7%A1%AC%E4%BB%B6%E6%8E%A5%E5%8F%A3%E7%B1%BB%E5%9E%8B"><span class="nav-number">1.1.</span> <span class="nav-text">USB硬件接口类型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B8%B8%E8%A7%81%E7%9A%84USB%E8%AE%BE%E5%A4%87%E5%BA%94%E7%94%A8"><span class="nav-number">1.2.</span> <span class="nav-text">常见的USB设备应用</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#USB%E5%9F%BA%E6%9C%AC%E5%8E%9F%E7%90%86%E4%BB%8B%E7%BB%8D"><span class="nav-number">2.</span> <span class="nav-text">USB基本原理介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%8E%E6%8E%A5%E5%85%A5%E5%88%B0%E4%BD%BF%E7%94%A8"><span class="nav-number">2.1.</span> <span class="nav-text">从接入到使用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#USB%E9%80%9A%E4%BF%A1%E6%9E%84%E5%BB%BA%E8%BF%87%E7%A8%8B%E6%A6%82%E8%BF%B0"><span class="nav-number">2.2.</span> <span class="nav-text">USB通信构建过程概述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#USB%E4%B8%BB%E4%BB%8E%E8%AF%A6%E7%BB%86%E9%80%9A%E4%BF%A1%E8%BF%87%E7%A8%8B"><span class="nav-number">2.3.</span> <span class="nav-text">USB主从详细通信过程</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%AF%B7%E6%B1%82%E8%BF%87%E7%A8%8B"><span class="nav-number">2.3.1.</span> <span class="nav-text">请求过程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E8%BF%87%E7%A8%8B"><span class="nav-number">2.3.2.</span> <span class="nav-text">数据过程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%8A%B6%E6%80%81%E8%BF%87%E7%A8%8B"><span class="nav-number">2.3.3.</span> <span class="nav-text">状态过程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#USB%E9%80%9A%E4%BF%A1%E8%BF%87%E7%A8%8B%E5%B0%8F%E7%BB%93"><span class="nav-number">2.3.4.</span> <span class="nav-text">USB通信过程小结</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%8E%E6%9C%BA%E5%B1%9E%E6%80%A7%EF%BC%88USB%E6%8F%8F%E8%BF%B0%E7%AC%A6%EF%BC%89"><span class="nav-number">2.4.</span> <span class="nav-text">从机属性（USB描述符）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9E%9A%E4%B8%BE%E7%9A%84%E8%AF%A6%E7%BB%86%E8%BF%87%E7%A8%8B"><span class="nav-number">2.5.</span> <span class="nav-text">枚举的详细过程</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#USB%E8%AE%BE%E5%A4%87%E7%B1%BB%E5%88%AB%E4%B8%8E%E4%B8%9A%E5%8A%A1%E5%BA%94%E7%94%A8"><span class="nav-number">3.</span> <span class="nav-text">USB设备类别与业务应用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#PD%E5%BF%AB%E5%85%85%E5%8D%8F%E8%AE%AE"><span class="nav-number">3.1.</span> <span class="nav-text">PD快充协议</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#HID%E8%AE%BE%E5%A4%87"><span class="nav-number">3.2.</span> <span class="nav-text">HID设备</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#UAC"><span class="nav-number">3.3.</span> <span class="nav-text">UAC</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CDC"><span class="nav-number">3.4.</span> <span class="nav-text">CDC</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%96%91%E6%83%91%E8%A7%A3%E7%AD%94%E5%8F%8A%E6%89%A9%E5%B1%95%E6%80%9D%E8%80%83"><span class="nav-number">4.</span> <span class="nav-text">疑惑解答及扩展思考</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%AB%AF%E7%82%B9%E4%B8%8E%E6%8F%8F%E8%BF%B0%E7%AC%A6%E7%9A%84%E5%8C%BA%E5%88%AB%E4%B8%8E%E8%81%94%E7%B3%BB%EF%BC%9F"><span class="nav-number">4.0.1.</span> <span class="nav-text">端点与描述符的区别与联系？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%9B%B7%E7%94%B5%E6%8E%A5%E5%8F%A3%E4%B8%8EUSB%E6%8E%A5%E5%8F%A3%E7%9A%84%E5%8C%BA%E5%88%AB%E3%80%81%E8%81%94%E7%B3%BB%EF%BC%9F"><span class="nav-number">4.0.2.</span> <span class="nav-text">雷电接口与USB接口的区别、联系？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#USB%E6%8E%A5%E5%8F%A3%E7%9A%84%E7%AB%AF%E7%82%B9%E6%95%B0%E5%8F%97%E5%88%B0%E4%BB%80%E4%B9%88%E9%99%90%E5%88%B6%EF%BC%9F"><span class="nav-number">4.0.3.</span> <span class="nav-text">USB接口的端点数受到什么限制？</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E7%AB%99%E7%82%B9"><span class="nav-number">5.</span> <span class="nav-text">参考站点</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#USB%E8%AE%BE%E5%A4%87%E5%AF%BC%E8%AE%BA"><span class="nav-number">1.</span> <span class="nav-text">USB设备导论</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#USB%E7%A1%AC%E4%BB%B6%E6%8E%A5%E5%8F%A3%E7%B1%BB%E5%9E%8B"><span class="nav-number">1.1.</span> <span class="nav-text">USB硬件接口类型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B8%B8%E8%A7%81%E7%9A%84USB%E8%AE%BE%E5%A4%87%E5%BA%94%E7%94%A8"><span class="nav-number">1.2.</span> <span class="nav-text">常见的USB设备应用</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#USB%E5%9F%BA%E6%9C%AC%E5%8E%9F%E7%90%86%E4%BB%8B%E7%BB%8D"><span class="nav-number">2.</span> <span class="nav-text">USB基本原理介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%8E%E6%8E%A5%E5%85%A5%E5%88%B0%E4%BD%BF%E7%94%A8"><span class="nav-number">2.1.</span> <span class="nav-text">从接入到使用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#USB%E9%80%9A%E4%BF%A1%E6%9E%84%E5%BB%BA%E8%BF%87%E7%A8%8B%E6%A6%82%E8%BF%B0"><span class="nav-number">2.2.</span> <span class="nav-text">USB通信构建过程概述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#USB%E4%B8%BB%E4%BB%8E%E8%AF%A6%E7%BB%86%E9%80%9A%E4%BF%A1%E8%BF%87%E7%A8%8B"><span class="nav-number">2.3.</span> <span class="nav-text">USB主从详细通信过程</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%AF%B7%E6%B1%82%E8%BF%87%E7%A8%8B"><span class="nav-number">2.3.1.</span> <span class="nav-text">请求过程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E8%BF%87%E7%A8%8B"><span class="nav-number">2.3.2.</span> <span class="nav-text">数据过程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%8A%B6%E6%80%81%E8%BF%87%E7%A8%8B"><span class="nav-number">2.3.3.</span> <span class="nav-text">状态过程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#USB%E9%80%9A%E4%BF%A1%E8%BF%87%E7%A8%8B%E5%B0%8F%E7%BB%93"><span class="nav-number">2.3.4.</span> <span class="nav-text">USB通信过程小结</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%8E%E6%9C%BA%E5%B1%9E%E6%80%A7%EF%BC%88USB%E6%8F%8F%E8%BF%B0%E7%AC%A6%EF%BC%89"><span class="nav-number">2.4.</span> <span class="nav-text">从机属性（USB描述符）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9E%9A%E4%B8%BE%E7%9A%84%E8%AF%A6%E7%BB%86%E8%BF%87%E7%A8%8B"><span class="nav-number">2.5.</span> <span class="nav-text">枚举的详细过程</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#USB%E8%AE%BE%E5%A4%87%E7%B1%BB%E5%88%AB%E4%B8%8E%E4%B8%9A%E5%8A%A1%E5%BA%94%E7%94%A8"><span class="nav-number">3.</span> <span class="nav-text">USB设备类别与业务应用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#PD%E5%BF%AB%E5%85%85%E5%8D%8F%E8%AE%AE"><span class="nav-number">3.1.</span> <span class="nav-text">PD快充协议</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#HID%E8%AE%BE%E5%A4%87"><span class="nav-number">3.2.</span> <span class="nav-text">HID设备</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#UAC"><span class="nav-number">3.3.</span> <span class="nav-text">UAC</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CDC"><span class="nav-number">3.4.</span> <span class="nav-text">CDC</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%96%91%E6%83%91%E8%A7%A3%E7%AD%94%E5%8F%8A%E6%89%A9%E5%B1%95%E6%80%9D%E8%80%83"><span class="nav-number">4.</span> <span class="nav-text">疑惑解答及扩展思考</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#USB2-0%E6%8E%A5%E5%8F%A3%E7%9A%86%E5%8F%AA%E6%9C%89Vcc%E3%80%81GND%E3%80%81D-%E3%80%81D-%E5%9B%9B%E4%B8%AA%E5%BC%95%E8%84%9A%EF%BC%8C%E4%B8%BA%E4%BD%95%E6%9C%89%E4%BD%8E%E9%80%9F%E3%80%81%E5%85%A8%E9%80%9F%E3%80%81%E9%AB%98%E9%80%9F%E4%B9%8B%E5%88%86%EF%BC%9F"><span class="nav-number">4.0.1.</span> <span class="nav-text">USB2.0接口皆只有Vcc、GND、D+、D-四个引脚，为何有低速、全速、高速之分？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%AB%AF%E7%82%B9%E4%B8%8E%E6%8F%8F%E8%BF%B0%E7%AC%A6%E7%9A%84%E5%8C%BA%E5%88%AB%E4%B8%8E%E8%81%94%E7%B3%BB%EF%BC%9F"><span class="nav-number">4.0.2.</span> <span class="nav-text">端点与描述符的区别与联系？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%9B%B7%E7%94%B5%E6%8E%A5%E5%8F%A3%E4%B8%8EUSB%E6%8E%A5%E5%8F%A3%E7%9A%84%E5%8C%BA%E5%88%AB%E3%80%81%E8%81%94%E7%B3%BB%EF%BC%9F"><span class="nav-number">4.0.3.</span> <span class="nav-text">雷电接口与USB接口的区别、联系？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#USB%E6%8E%A5%E5%8F%A3%E7%9A%84%E7%AB%AF%E7%82%B9%E6%95%B0%E5%8F%97%E5%88%B0%E4%BB%80%E4%B9%88%E9%99%90%E5%88%B6%EF%BC%9F"><span class="nav-number">4.0.4.</span> <span class="nav-text">USB接口的端点数受到什么限制？</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E7%AB%99%E7%82%B9"><span class="nav-number">5.</span> <span class="nav-text">参考站点</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -493,14 +500,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">40</span>
+          <span class="site-state-item-count">41</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-count">18</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
@@ -542,12 +549,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">90k</span>
+    <span title="Symbols count total">91k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">5:02</span>
+    <span title="Reading time total">5:05</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
   </div>
