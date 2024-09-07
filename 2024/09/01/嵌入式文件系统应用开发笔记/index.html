@@ -29,7 +29,7 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://example.com/pictures/FAT%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%BC%95%E5%AF%BC%E6%89%87%E5%8C%BA%E5%88%86%E6%9E%90.png">
 <meta property="article:published_time" content="2024-08-31T16:00:00.000Z">
-<meta property="article:modified_time" content="2024-09-07T02:34:04.377Z">
+<meta property="article:modified_time" content="2024-09-07T02:41:32.627Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -227,7 +227,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-09-07 10:34:04" itemprop="dateModified" datetime="2024-09-07T10:34:04+08:00">2024-09-07</time>
+                <time title="Modified: 2024-09-07 10:41:32" itemprop="dateModified" datetime="2024-09-07T10:41:32+08:00">2024-09-07</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -249,7 +249,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>3.3k</span>
+              <span>3.2k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
@@ -303,16 +303,17 @@
 <p>小容量设备，选择文件系统时，要选择较小的簇大小，可以选择开销较少的FAT12等文件系统</p>
 </blockquote>
 </li>
-<li><p>不同文件系统的扫盘、文件增删读写等操作有何区别？</p>
+<li><p>不同文件系统的扫盘、文件增删读写等操作有何区别？扫盘到底是什么？文件系统是如何扫盘的？对文件号的排序是怎样的？</p>
 <blockquote>
-<p>影响扫盘时间？</p>
+<p>影响扫盘时间？<br>每次获取另一个文件时，都需要扫盘</p>
 </blockquote>
 </li>
 <li><p>如LittleFS对有限擦写寿命的Flash是<strong>如何实现擦写均衡的？掉电安全是如何实现的？</strong>等等原理实现？</p>
 </li>
 </ul>
-<p>未完待续……</p>
-<p><strong>本文内容大部摘抄自网络，在此基础上作修饰</strong></p>
+<br>
+
+<p><strong>以下内容大部摘抄自网络，在此基础上作修饰总结，未完待续……</strong></p>
 <hr>
 <h2 id="文件系统概述"><a href="#文件系统概述" class="headerlink" title="文件系统概述"></a>文件系统概述</h2><h3 id="文件系统是什么？"><a href="#文件系统是什么？" class="headerlink" title="文件系统是什么？"></a>文件系统是什么？</h3><p>文件系统是一个<strong>软件组件</strong>，用于管理和组织存储设备（如硬盘、U盘、SD卡等）的文件和目录。文件系统定义了文件如何被存储、命名、组织以及检索的方式。</p>
 <p>文件系统向应用程序或用户提供了一系列的接口，包括对文件&#x2F;目录的创建、删除、重命名、读取、写入、移动等等操作。</p>
@@ -362,10 +363,7 @@
 <p>短文件名目录项：所谓短文件名既文件名的“8.3”格式，此格式支持主文件名不能超过8字节，扩展名不能超过3字节。短文件名目录始终存放在一个目录项中。</p>
 <p>FDT第1字节又表明了该文件的状态，它有如下四种取值方式：<br>a.   00H–目录项的空目录。<br>b.   E5H–表示该目录项曾经使用过，但文件已被删除。<br>c.   2EH–表示子目录下的两个特殊文件 “. “或 “.. “目录项<br>d.   其它任何字符–表示一个文件名(或目录名)的第一个字符的ASCII码值.</p>
 <p>FAT第0xB个字节可以判别是长文件目录项还是短文件目录项。</p>
-<h2 id="嵌入式文件系统的应用"><a href="#嵌入式文件系统的应用" class="headerlink" title="嵌入式文件系统的应用"></a>嵌入式文件系统的应用</h2><h2 id="移植思路概述"><a href="#移植思路概述" class="headerlink" title="移植思路概述"></a>移植思路概述</h2><h3 id="文件系统底层接口函数适配"><a href="#文件系统底层接口函数适配" class="headerlink" title="文件系统底层接口函数适配"></a>文件系统底层接口函数适配</h3><h3 id="文件系统上层接口应用"><a href="#文件系统上层接口应用" class="headerlink" title="文件系统上层接口应用"></a>文件系统上层接口应用</h3><h2 id="嵌入式文件系统实现原理"><a href="#嵌入式文件系统实现原理" class="headerlink" title="嵌入式文件系统实现原理"></a>嵌入式文件系统实现原理</h2><h2 id="注意点及扩展思考"><a href="#注意点及扩展思考" class="headerlink" title="注意点及扩展思考"></a>注意点及扩展思考</h2><h3 id="设备是如何读取存储介质，并识别出其是何种文件系统的？"><a href="#设备是如何读取存储介质，并识别出其是何种文件系统的？" class="headerlink" title="设备是如何读取存储介质，并识别出其是何种文件系统的？"></a>设备是如何读取存储介质，并识别出其是何种文件系统的？</h3><h3 id="如何分析一个映像文件的文件系统类型？"><a href="#如何分析一个映像文件的文件系统类型？" class="headerlink" title="如何分析一个映像文件的文件系统类型？"></a>如何分析一个映像文件的文件系统类型？</h3><h3 id="扫盘到底是什么？文件系统是如何扫盘的？对文件号的排序是怎样的？"><a href="#扫盘到底是什么？文件系统是如何扫盘的？对文件号的排序是怎样的？" class="headerlink" title="扫盘到底是什么？文件系统是如何扫盘的？对文件号的排序是怎样的？"></a>扫盘到底是什么？文件系统是如何扫盘的？对文件号的排序是怎样的？</h3><p>什么是扫盘，每次读取不同的文件都需要重新扫盘吗</p>
-<p>是的，每次获取另一个文件时，都需要扫盘</p>
-<p>从根目录开始</p>
-<h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2><ul>
+<h2 id="嵌入式文件系统的应用"><a href="#嵌入式文件系统的应用" class="headerlink" title="嵌入式文件系统的应用"></a>嵌入式文件系统的应用</h2><h2 id="移植思路概述"><a href="#移植思路概述" class="headerlink" title="移植思路概述"></a>移植思路概述</h2><h3 id="文件系统底层接口函数适配"><a href="#文件系统底层接口函数适配" class="headerlink" title="文件系统底层接口函数适配"></a>文件系统底层接口函数适配</h3><h3 id="文件系统上层接口应用"><a href="#文件系统上层接口应用" class="headerlink" title="文件系统上层接口应用"></a>文件系统上层接口应用</h3><h2 id="嵌入式文件系统实现原理"><a href="#嵌入式文件系统实现原理" class="headerlink" title="嵌入式文件系统实现原理"></a>嵌入式文件系统实现原理</h2><h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2><ul>
 <li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/Chary/p/12981056.html">博客园-详解FAT32文件系统</a></li>
 <li><a target="_blank" rel="noopener" href="https://blog.csdn.net/winafa/article/details/115319185">经典FAT文件系统格式详解</a></li>
 </ul>
@@ -449,7 +447,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E7%BD%AE%E6%80%9D%E8%80%83%E4%B8%8E%E8%A7%A3%E7%AD%94"><span class="nav-number">1.</span> <span class="nav-text">前置思考与解答</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E6%A6%82%E8%BF%B0"><span class="nav-number">2.</span> <span class="nav-text">文件系统概述</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-number">2.1.</span> <span class="nav-text">文件系统是什么？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%B1%BB%E5%9E%8B%E6%A6%82%E8%BF%B0%E5%8F%8A%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">2.2.</span> <span class="nav-text">文件系统类型概述及适用场景</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#FAT%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E8%A7%A3%E6%9E%90"><span class="nav-number">3.</span> <span class="nav-text">FAT文件系统解析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#FAT%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%BB%93%E6%9E%84"><span class="nav-number">3.1.</span> <span class="nav-text">FAT文件系统结构</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#DBR-%E5%BC%95%E5%AF%BC%E6%89%87%E5%8C%BA%E5%8F%8A%E4%BF%9D%E7%95%99%E6%89%87%E5%8C%BA"><span class="nav-number">3.1.1.</span> <span class="nav-text">DBR 引导扇区及保留扇区</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#FAT-%E6%96%87%E4%BB%B6%E5%88%86%E9%85%8D%E8%A1%A8"><span class="nav-number">3.1.2.</span> <span class="nav-text">FAT 文件分配表</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#DATA-%E6%95%B0%E6%8D%AE%E5%8C%BA"><span class="nav-number">3.1.3.</span> <span class="nav-text">DATA 数据区</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B5%8C%E5%85%A5%E5%BC%8F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%9A%84%E5%BA%94%E7%94%A8"><span class="nav-number">4.</span> <span class="nav-text">嵌入式文件系统的应用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A7%BB%E6%A4%8D%E6%80%9D%E8%B7%AF%E6%A6%82%E8%BF%B0"><span class="nav-number">5.</span> <span class="nav-text">移植思路概述</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%BA%95%E5%B1%82%E6%8E%A5%E5%8F%A3%E5%87%BD%E6%95%B0%E9%80%82%E9%85%8D"><span class="nav-number">5.1.</span> <span class="nav-text">文件系统底层接口函数适配</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E4%B8%8A%E5%B1%82%E6%8E%A5%E5%8F%A3%E5%BA%94%E7%94%A8"><span class="nav-number">5.2.</span> <span class="nav-text">文件系统上层接口应用</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B5%8C%E5%85%A5%E5%BC%8F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86"><span class="nav-number">6.</span> <span class="nav-text">嵌入式文件系统实现原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B3%A8%E6%84%8F%E7%82%B9%E5%8F%8A%E6%89%A9%E5%B1%95%E6%80%9D%E8%80%83"><span class="nav-number">7.</span> <span class="nav-text">注意点及扩展思考</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%BE%E5%A4%87%E6%98%AF%E5%A6%82%E4%BD%95%E8%AF%BB%E5%8F%96%E5%AD%98%E5%82%A8%E4%BB%8B%E8%B4%A8%EF%BC%8C%E5%B9%B6%E8%AF%86%E5%88%AB%E5%87%BA%E5%85%B6%E6%98%AF%E4%BD%95%E7%A7%8D%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%9A%84%EF%BC%9F"><span class="nav-number">7.1.</span> <span class="nav-text">设备是如何读取存储介质，并识别出其是何种文件系统的？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E5%88%86%E6%9E%90%E4%B8%80%E4%B8%AA%E6%98%A0%E5%83%8F%E6%96%87%E4%BB%B6%E7%9A%84%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%B1%BB%E5%9E%8B%EF%BC%9F"><span class="nav-number">7.2.</span> <span class="nav-text">如何分析一个映像文件的文件系统类型？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%89%AB%E7%9B%98%E5%88%B0%E5%BA%95%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E6%98%AF%E5%A6%82%E4%BD%95%E6%89%AB%E7%9B%98%E7%9A%84%EF%BC%9F%E5%AF%B9%E6%96%87%E4%BB%B6%E5%8F%B7%E7%9A%84%E6%8E%92%E5%BA%8F%E6%98%AF%E6%80%8E%E6%A0%B7%E7%9A%84%EF%BC%9F"><span class="nav-number">7.3.</span> <span class="nav-text">扫盘到底是什么？文件系统是如何扫盘的？对文件号的排序是怎样的？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E7%AB%99%E7%82%B9"><span class="nav-number">8.</span> <span class="nav-text">参考站点</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E7%BD%AE%E6%80%9D%E8%80%83%E4%B8%8E%E8%A7%A3%E7%AD%94"><span class="nav-number">1.</span> <span class="nav-text">前置思考与解答</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E6%A6%82%E8%BF%B0"><span class="nav-number">2.</span> <span class="nav-text">文件系统概述</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-number">2.1.</span> <span class="nav-text">文件系统是什么？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%B1%BB%E5%9E%8B%E6%A6%82%E8%BF%B0%E5%8F%8A%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-number">2.2.</span> <span class="nav-text">文件系统类型概述及适用场景</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#FAT%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E8%A7%A3%E6%9E%90"><span class="nav-number">3.</span> <span class="nav-text">FAT文件系统解析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#FAT%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%BB%93%E6%9E%84"><span class="nav-number">3.1.</span> <span class="nav-text">FAT文件系统结构</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#DBR-%E5%BC%95%E5%AF%BC%E6%89%87%E5%8C%BA%E5%8F%8A%E4%BF%9D%E7%95%99%E6%89%87%E5%8C%BA"><span class="nav-number">3.1.1.</span> <span class="nav-text">DBR 引导扇区及保留扇区</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#FAT-%E6%96%87%E4%BB%B6%E5%88%86%E9%85%8D%E8%A1%A8"><span class="nav-number">3.1.2.</span> <span class="nav-text">FAT 文件分配表</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#DATA-%E6%95%B0%E6%8D%AE%E5%8C%BA"><span class="nav-number">3.1.3.</span> <span class="nav-text">DATA 数据区</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B5%8C%E5%85%A5%E5%BC%8F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%9A%84%E5%BA%94%E7%94%A8"><span class="nav-number">4.</span> <span class="nav-text">嵌入式文件系统的应用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A7%BB%E6%A4%8D%E6%80%9D%E8%B7%AF%E6%A6%82%E8%BF%B0"><span class="nav-number">5.</span> <span class="nav-text">移植思路概述</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%BA%95%E5%B1%82%E6%8E%A5%E5%8F%A3%E5%87%BD%E6%95%B0%E9%80%82%E9%85%8D"><span class="nav-number">5.1.</span> <span class="nav-text">文件系统底层接口函数适配</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E4%B8%8A%E5%B1%82%E6%8E%A5%E5%8F%A3%E5%BA%94%E7%94%A8"><span class="nav-number">5.2.</span> <span class="nav-text">文件系统上层接口应用</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B5%8C%E5%85%A5%E5%BC%8F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86"><span class="nav-number">6.</span> <span class="nav-text">嵌入式文件系统实现原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E7%AB%99%E7%82%B9"><span class="nav-number">7.</span> <span class="nav-text">参考站点</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
