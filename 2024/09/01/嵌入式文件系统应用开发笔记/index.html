@@ -31,7 +31,7 @@
 <meta property="og:image" content="http://example.com/pictures/FAT%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%BC%95%E5%AF%BC%E6%89%87%E5%8C%BA%E5%88%86%E6%9E%90.png">
 <meta property="og:image" content="http://example.com/pictures/FAT32%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9FFAT%E6%96%87%E4%BB%B6%E5%88%86%E9%85%8D%E8%A1%A8%E7%A4%BA%E6%84%8F.png">
 <meta property="article:published_time" content="2024-08-31T16:00:00.000Z">
-<meta property="article:modified_time" content="2024-09-09T02:00:35.618Z">
+<meta property="article:modified_time" content="2024-09-09T02:17:33.943Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -229,7 +229,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-09-09 10:00:35" itemprop="dateModified" datetime="2024-09-09T10:00:35+08:00">2024-09-09</time>
+                <time title="Modified: 2024-09-09 10:17:33" itemprop="dateModified" datetime="2024-09-09T10:17:33+08:00">2024-09-09</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -251,14 +251,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>5.2k</span>
+              <span>5.3k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>17 mins.</span>
+              <span>18 mins.</span>
             </span>
             <div class="post-description">讲述个人对嵌入式文件系统的学习、理解、思考、移植与应用开发</div>
 
@@ -337,7 +337,7 @@
 <p><strong>DBR及其保留扇区：</strong> DBR的含义是DOS引导记录，也称为操作系统引导记录，在DBR之后会有一些保留扇区。</p>
 <p><strong>FAT1：</strong> FAT的含义是文件分配表，FAT32一般有两份FAT，FAT1是第一份，也是主FAT。</p>
 <p><strong>FAT2：</strong> FAT2是FAT32的第二份文件分配表，也是FAT1的备份。</p>
-<p><strong>DATA：</strong> DATA也就是数据区，是FAT32文件系统的主要区域，其中包含目录区域。</p>
+<p><strong>DATA：</strong> DATA也就是数据区，是FAT32文件系统的主要区域，由目录区和文件数据。</p>
 <blockquote>
 <p>注意：FAT12&#x2F;FAT16 通常情况下根目录区位于2号簇，但FAT32文件系统并不一定，根目录区的位置偏移由引导扇区的BPB描述决定。</p>
 </blockquote>
@@ -364,19 +364,19 @@
 <li><p>结束标志：DBR的结束标志与MBR，EBR的结束标志相同，为“55 AA”。</p>
 </li>
 </ul>
-<h3 id="FAT-文件分配表"><a href="#FAT-文件分配表" class="headerlink" title="FAT 文件分配表"></a>FAT 文件分配表</h3><p>FAT表是用来记录簇号的，FAT表由FAT表项构成，每个表项对应一个簇号。（根目录、目录、文件都是属于文件数据，都会以表项的形式通过链表方式记录在FAT表中）</p>
+<h3 id="FAT-文件分配表"><a href="#FAT-文件分配表" class="headerlink" title="FAT 文件分配表"></a>FAT 文件分配表</h3><p><strong>FAT表是用来记录簇号的，FAT表由FAT表项构成，每个表项对应一个簇号。</strong>（根目录、目录、文件都是属于文件数据，都会以表项的形式通过链表方式记录在FAT表中）</p>
 <blockquote>
 <p>分区的数据区中每个簇都会映射到FAT表中的唯一一个FAT项，因为0号FAT和1号FAT被系统占用，用户的数据从2号FAT开始记录。</p>
 </blockquote>
-<p>FAT1 排序在 引导扇区、保留扇区后，紧接着就是FAT2</p>
-<p>FAT文件系统之所以有12，16，32不同的版本之分，其根本在于FAT表用来记录任意一簇链接的二进制位数。</p>
+<p>FAT文件系统之所以有12，16，32不同的版本之分，其根本在于单个FAT表项的二进制位数。</p>
 <p>以FAT16为例，每一簇在FAT表中占据2字节(二进制16位)。所以，FAT16最大可以表示的簇号为0xFFFF(十进制的65535)，以32K（最多只支持64个扇区）为簇的大小的话，FAT16可以管理的最大磁盘空间为：32KB×65535&#x3D;2048MB,这就是为什么FAT16不支持超过2GB分区的原因（DOS下）。</p>
 <p>下图为FAT1的第一个扇区：</p>
 <p><img src="/../pictures/FAT32%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9FFAT%E6%96%87%E4%BB%B6%E5%88%86%E9%85%8D%E8%A1%A8%E7%A4%BA%E6%84%8F.png" alt="alt text"></p>
 <p>文件系统擦写均衡策略，就是通过FAT表来管理的，每一个表项表示一个簇，擦写时随机选用簇来存放实际数据，而不是递增存放。</p>
 <p>第0项和第1项即文件系统的DBR扇区及FAT表等存放的位置，从第2项开始，为0F FF FF FF，表示这是一个小文件，只占用一个簇就结束了，然后第3、4项也是的。</p>
 <p>文件分配表，FAT32系统中，每32位就表示一个簇，簇号呈递增关系。 32位数据里的内容，则是簇链，表示文件的下一部分指向哪一个簇。 （刚初始化的文件分配表，通常都是连续的）</p>
-<p>第5簇中存放的数据是6，表示一个文件或文件夹的首簇。其内容为第6簇，就是说接下来的簇位于第6簇；<br>第6簇上面写的数据是7，就是说接下来的簇位于第7簇<br>第7簇，上面写的数据是8，也就是指向第8簇<br>第8簇，上面写的数据是9，也就是指向第9簇<br>第9簇的内容为”0F FF FF FF”，意即该文件已至尾簇。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">第5簇中存放的数据是6，表示一个文件或文件夹的首簇。其内容为第6簇，表示文件内容接下来的簇位于第6簇；</span><br><span class="line">第6簇上面写的数据是7，表示接着的簇位于第7簇</span><br><span class="line">第7簇，上面写的数据是8，也就是指向第8簇</span><br><span class="line">第8簇，上面写的数据是9，也就是指向第9簇</span><br><span class="line">第9簇的内容为”0F FF FF FF”，意即该文件已至尾簇。</span><br></pre></td></tr></table></figure>
+
 <p><strong>重点：FAT表追踪记录 文件内容或者文件夹 在数据区的存放连续性，并不描述文件或文件夹属性。</strong></p>
 <h3 id="DATA-数据区"><a href="#DATA-数据区" class="headerlink" title="DATA 数据区"></a>DATA 数据区</h3><p>数据区的位置在FAT2的后面，</p>
 <!-- 具体定位方式如下；
@@ -385,7 +385,7 @@
 3、通过上面的信息就可以找到数据区的起始位置，数据区 = 隐藏扇区数+DBR保留扇区+（每个FAT表扇区数*2）。 -->
 
 
-<p>数据区的内容主要由三部分组成：根目录，子目录和文件内容。在数据区中是以“簇”为单位进行存储的，通常2号簇被分配给根目录使用。</p>
+<p>数据区的内容主要由三部分组成：根目录，子目录和实际的文件数据内容。在数据区中是以“簇”为单位进行存储的，通常2号簇被分配给根目录使用。（重申：目录区和实际文件内容，在存储介质中的地址并不是递增关系，而是由FAT表记录）</p>
 <!-- 根据簇号得到在FAT中的扇区号和偏移：
 扇区号 = 簇号*4/每个扇区的字节数 + 隐藏扇区数 + 保留扇区数
 扇区偏移 = 簇号*4%每个扇区的字节数
@@ -406,9 +406,12 @@ d.   其它任何字符–表示一个文件名(或目录名)的第一个字符�
 FAT第0xB个字节可以判别是长文件目录项还是短文件目录项。 -->
 
 
-<h2 id="嵌入式文件系统的应用"><a href="#嵌入式文件系统的应用" class="headerlink" title="嵌入式文件系统的应用"></a>嵌入式文件系统的应用</h2><h2 id="移植思路概述"><a href="#移植思路概述" class="headerlink" title="移植思路概述"></a>移植思路概述</h2><h3 id="文件系统底层接口函数适配"><a href="#文件系统底层接口函数适配" class="headerlink" title="文件系统底层接口函数适配"></a>文件系统底层接口函数适配</h3><p>底层接口，即为操作存储介质的接口。</p>
+<h2 id="嵌入式文件系统的应用"><a href="#嵌入式文件系统的应用" class="headerlink" title="嵌入式文件系统的应用"></a>嵌入式文件系统的应用</h2><p>暂无</p>
+<h2 id="移植思路概述"><a href="#移植思路概述" class="headerlink" title="移植思路概述"></a>移植思路概述</h2><h3 id="文件系统底层接口函数适配"><a href="#文件系统底层接口函数适配" class="headerlink" title="文件系统底层接口函数适配"></a>文件系统底层接口函数适配</h3><p>底层接口，即为操作存储介质的接口。</p>
 <p>比如SD卡，有SD卡配置初始化、块读、块写、块擦除、块指针偏移等。</p>
-<h3 id="文件系统上层接口应用"><a href="#文件系统上层接口应用" class="headerlink" title="文件系统上层接口应用"></a>文件系统上层接口应用</h3><h2 id="嵌入式文件系统实现原理"><a href="#嵌入式文件系统实现原理" class="headerlink" title="嵌入式文件系统实现原理"></a>嵌入式文件系统实现原理</h2><h2 id="思考与拓展"><a href="#思考与拓展" class="headerlink" title="思考与拓展"></a>思考与拓展</h2><h4 id="FAT文件系统中-FAT表项和目录项-的区别？"><a href="#FAT文件系统中-FAT表项和目录项-的区别？" class="headerlink" title="FAT文件系统中 FAT表项和目录项 的区别？"></a>FAT文件系统中 FAT表项和目录项 的区别？</h4><p>FAT 表项是 FAT 文件系统中用于跟踪文件存储位置的信息。每个 FAT 表项对应于一个簇（Cluster），包含指向下一个簇的指针，形成一个链表，用于表示文件或目录的实际存储位置。</p>
+<h3 id="文件系统上层接口应用"><a href="#文件系统上层接口应用" class="headerlink" title="文件系统上层接口应用"></a>文件系统上层接口应用</h3><p>暂略</p>
+<h2 id="嵌入式文件系统实现原理"><a href="#嵌入式文件系统实现原理" class="headerlink" title="嵌入式文件系统实现原理"></a>嵌入式文件系统实现原理</h2><p>暂略</p>
+<h2 id="思考与拓展"><a href="#思考与拓展" class="headerlink" title="思考与拓展"></a>思考与拓展</h2><h4 id="FAT文件系统中-FAT表项和目录项-的区别？"><a href="#FAT文件系统中-FAT表项和目录项-的区别？" class="headerlink" title="FAT文件系统中 FAT表项和目录项 的区别？"></a>FAT文件系统中 FAT表项和目录项 的区别？</h4><p>FAT 表项是 FAT 文件系统中用于跟踪文件存储位置的信息。每个 FAT 表项对应于一个簇（Cluster），包含指向下一个簇的指针，形成一个链表，用于表示文件或目录的实际存储位置。</p>
 <p>存储位置：FAT 表项位于文件分配表（FAT）中，紧邻引导扇区（DBR）之后。<br>内容：每个 FAT 表项包含了一个簇号，指示了文件数据的下一个簇的位置。如果文件数据结束，则 FAT 表项中会有一个特殊的值来表示文件的结束。<br>FAT 表项使得系统能够追踪文件数据的连续性，即使这些数据在物理上是分散存储的。</p>
 <p>一个文件夹就占一个簇，只要是文件夹，文件夹本身就会至少占一个簇。（FAT12&#x2F;16中，根目录只能占一个簇）</p>
 <p>目录项则是用来描述文件或目录的元数据信息，包括但不限于文件名、扩展名、属性、创建时间、最后访问时间、最后修改时间、文件大小以及文件的第一个簇号等。</p>
@@ -423,13 +426,14 @@ FAT第0xB个字节可以判别是长文件目录项还是短文件目录项。 -
 <p>释放簇：删除文件或目录时，仅删除目录项，并在 FAT 表中，标记目录项指向的相关簇为空闲。而不会去清零文件数据。</p>
 <p>调整簇链：增删改查，更新 FAT 表项以反映新的簇链。不会全局更新FAT表，而是局部更新，<strong>如同链表插入和删除节点</strong>一样。</p>
 <p>另外，一个文件所存放的簇号，不一定就是连续的，其实这就是碎片化？</p>
-<h4 id="文件系统中文件检索与读取？文件号排序越靠后的，检索读取时间就越长吗？"><a href="#文件系统中文件检索与读取？文件号排序越靠后的，检索读取时间就越长吗？" class="headerlink" title="文件系统中文件检索与读取？文件号排序越靠后的，检索读取时间就越长吗？"></a>文件系统中文件检索与读取？文件号排序越靠后的，检索读取时间就越长吗？</h4><p>某种程序上来说，是的，按文件号读取的话，每次指定读取指定文件号，就需要从根目录区开始扫</p>
+<h4 id="文件系统中文件检索与读取？文件号排序越靠后的，检索读取时间就越长吗？"><a href="#文件系统中文件检索与读取？文件号排序越靠后的，检索读取时间就越长吗？" class="headerlink" title="文件系统中文件检索与读取？文件号排序越靠后的，检索读取时间就越长吗？"></a>文件系统中文件检索与读取？文件号排序越靠后的，检索读取时间就越长吗？</h4><p>某种程序上来说，是的，按文件号读取的话，首次指定读取指定文件号，就需要从根目录区开始扫</p>
 <p>每扫到一个文件项，就文件号计数加一，当文件号排序累加到与指定序号一致时，即表示找到了目标文件的目录项，接着从该目录项配置中，去到介质中指定偏移地址，读取实际的文件内容。</p>
 <p>设备扫盘，实际上是<strong>扫描DATA数据区的根目录区、子目录区的所有目录项</strong>。而不会扫描文件内容。</p>
 <blockquote>
 <p>增删文件后，需要重新扫盘，给文件号重新排序，避免混乱或者错序<br>获取下一个文件或者基于当前文件的情况下，读取靠后的文件号文件时，文件系统只需要基于当前的扫盘指针，继续往后扫即可。</p>
 </blockquote>
 <p>如果文件号排序越靠后，那么初次读取花费时间就越长。（断点续传时，会记录相应的偏移，无须重新定位文件，所以不耗时）</p>
+<p><strong>在嵌入式中，如果存储了数量非常多的文件，要重视访问文件时所消耗的扫盘时间，尤其是多线程环境，如果扫盘线程优先级靠后，且文件数量多，可能会出现明显的程序运行滞后（可考虑调高优先级）</strong></p>
 <p>另外，文件系统内容碎片化程度越高，访问时间也越长。</p>
 <h4 id="磁盘碎片化是什么意思？如何理解？"><a href="#磁盘碎片化是什么意思？如何理解？" class="headerlink" title="磁盘碎片化是什么意思？如何理解？"></a>磁盘碎片化是什么意思？如何理解？</h4><p>FAT表记录的簇链，在初始化时是沿着簇号递增链接的，随着增删改次数越来越多，簇链就变得杂乱，</p>
 <p>导致文件内容在数据区的簇号分布也是散乱的，那么每次在读取一个文件时，都要根据各种偏移或者信息，进行拼凑，导致性能下降。</p>
@@ -596,7 +600,7 @@ FAT第0xB个字节可以判别是长文件目录项还是短文件目录项。 -
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">5:12</span>
+    <span title="Reading time total">5:13</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
   </div>
