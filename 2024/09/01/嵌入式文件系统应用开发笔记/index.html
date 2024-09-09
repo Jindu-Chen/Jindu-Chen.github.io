@@ -31,7 +31,7 @@
 <meta property="og:image" content="http://example.com/pictures/FAT%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%BC%95%E5%AF%BC%E6%89%87%E5%8C%BA%E5%88%86%E6%9E%90.png">
 <meta property="og:image" content="http://example.com/pictures/FAT32%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9FFAT%E6%96%87%E4%BB%B6%E5%88%86%E9%85%8D%E8%A1%A8%E7%A4%BA%E6%84%8F.png">
 <meta property="article:published_time" content="2024-08-31T16:00:00.000Z">
-<meta property="article:modified_time" content="2024-09-09T03:16:39.081Z">
+<meta property="article:modified_time" content="2024-09-09T03:23:25.648Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -229,7 +229,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-09-09 11:16:39" itemprop="dateModified" datetime="2024-09-09T11:16:39+08:00">2024-09-09</time>
+                <time title="Modified: 2024-09-09 11:23:25" itemprop="dateModified" datetime="2024-09-09T11:23:25+08:00">2024-09-09</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -296,13 +296,13 @@
 <li><p><strong>使用文件系统会遇到的问题？如何排查和解决？</strong></p>
 <blockquote>
 <p>嵌入式文件系统API对不同文件系统类型的支持度有所不同，需要注意（如：部分设备对FAT12的支持不完善，比如空间占用统计功能不完整）</p>
-<p>SD卡某些情况下，会被电脑识别成损坏，但嵌入式设备能正常读卡，并播放部分歌曲。原因是：电脑扫描检测更完善，嵌入式设备不会做全盘的完整性检测。比如，FAT表的完整性、坏簇的检查等。</p>
+<p>SD卡某些情况下，会被电脑识别成损坏，但嵌入式设备能读卡，并正常播放部分歌曲（但中途可能会有卡顿、播放异常、跳歌等情况）。原因是：电脑扫描检测更完善，嵌入式设备不会做全盘的完整性检测。比如，FAT表的完整性、坏簇的检查等。</p>
 <p>注意文件系统的文件排序与实际存储的排序（创建文件的文件号与预期调用的不符，跟扫盘逻辑有关）</p>
 </blockquote>
 </li>
 <li><p><strong>在使用SD卡、MMC、SPI Flash、E2PROM等存储设备时，需要考虑什么问题？</strong></p>
 <blockquote>
-<p>小容量设备，选择文件系统时，要选择较小的簇大小，可以选择空间开销较少的FAT12等文件系统<br>容量较大，则选择FAT32或者其它文件系统，选择较大的簇，减少时间开销。<br>特别小容量的存储介质，不建议上文件系统，可以自行通过底层接口，进行二进制数据读写。</p>
+<p>小容量设备，选择文件系统时，要选择较小的簇大小，可以选择空间开销较少的FAT12等文件系统；<br>容量较大，则选择FAT32或者其它文件系统，选择较大的簇，减少时间开销；<br>特别小容量的存储介质，不建议上文件系统，可以自行通过底层接口，进行二进制数据读写。</p>
 </blockquote>
 </li>
 <li><p>不同文件系统的扫盘、文件增删读写等操作有何区别？扫盘到底是什么？文件系统是如何扫盘的？对文件号的排序是怎样的？获取下一个文件，需要扫盘吗？上一个文件呢？</p>
