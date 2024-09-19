@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":"enable","trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="本文讲述杰理SDK-Makefile的编译&#x2F;构建&#x2F;下载流程及目标程序的固件集，理解编译构建过程，有助于新手开发者熟悉SDK文件框架构成、配置编译链接选项、增删文件编译、了解各bin文件作用、进行程序空间优化等。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="杰理SDK-Makefile-编译构建下载流程分析">
+<meta property="og:url" content="http://example.com/2024/09/19/%E6%9D%B0%E7%90%86SDK-Makefile%E5%8F%8A%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%9B%BA%E4%BB%B6%E9%9B%86%E5%88%86%E6%9E%90/index.html">
+<meta property="og:site_name" content="Jindu-Chen">
+<meta property="og:description" content="本文讲述杰理SDK-Makefile的编译&#x2F;构建&#x2F;下载流程及目标程序的固件集，理解编译构建过程，有助于新手开发者熟悉SDK文件框架构成、配置编译链接选项、增删文件编译、了解各bin文件作用、进行程序空间优化等。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2024-09-18T16:00:00.000Z">
+<meta property="article:modified_time" content="2024-09-19T09:05:10.770Z">
+<meta property="article:author" content="cjd">
+<meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2024/09/19/%E6%9D%B0%E7%90%86SDK-Makefile%E5%8F%8A%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%9B%BA%E4%BB%B6%E9%9B%86%E5%88%86%E6%9E%90/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>杰理SDK-Makefile-编译构建下载流程分析 | Jindu-Chen</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Jindu-Chen</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">风物长宜放眼量</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/09/19/%E6%9D%B0%E7%90%86SDK-Makefile%E5%8F%8A%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%9B%BA%E4%BB%B6%E9%9B%86%E5%88%86%E6%9E%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="cjd">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jindu-Chen">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          杰理SDK-Makefile-编译构建下载流程分析
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2024-09-19 00:00:00 / Modified: 17:05:10" itemprop="dateCreated datePublished" datetime="2024-09-19T00:00:00+08:00">2024-09-19</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">嵌入式</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%9D%B0%E7%90%86/" itemprop="url" rel="index"><span itemprop="name">杰理</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>2.2k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>7 mins.</span>
+            </span>
+            <div class="post-description">本文讲述杰理SDK-Makefile的编译/构建/下载流程及目标程序的固件集，理解编译构建过程，有助于新手开发者熟悉SDK文件框架构成、配置编译链接选项、增删文件编译、了解各bin文件作用、进行程序空间优化等。</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>学习理解编译构建过程，有助于新手开发者熟悉SDK文件框架构成、配置编译链接选项、增删文件编译、了解各bin文件作用、进行程序空间优化等。</p>
+<p>那么本文即以杰理<code>jl701n_soundbox_release_v1.4.2/sdk</code>为例，讲述杰理SDK-Makefile及目标程序固件的编译构建过程，其它无论是可视化或非可视化SDK均可参考此篇文章。</p>
+<p>另外，本文主要为讲述基础原理、Makefile编译构建以及程序烧录升级过程，当然也包括部分环境及相关的配置开发介绍，但并不会详细指导如何搭建开发环境。</p>
+<h2 id="Makefile解析"><a href="#Makefile解析" class="headerlink" title="Makefile解析"></a>Makefile解析</h2><h3 id="编译工具链路径设置"><a href="#编译工具链路径设置" class="headerlink" title="编译工具链路径设置"></a>编译工具链路径设置</h3><p>在<code>Windows</code>环境下，通常默认安装杰理工具链路径位于<code>C:/JL</code>，而<code>701-SDK/br28</code>内核的编译链可执行文件路径则位于<code>C:/JL/pi32/bin</code>，工具说明如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">TOOL_DIR := C:/JL/pi32/bin</span><br><span class="line">CC    := clang.exe                # </span><br><span class="line">CXX   := clang.exe                # 定义C、C++编译器为clang，用于生成.o目标文件</span><br><span class="line">LD    := pi32v2-lto-wrapper.exe   # 定义链接器，用于生成可执行文件</span><br><span class="line">AR    := llvm-ar.exe              # 定义归档工具，用于生成.a静态库</span><br></pre></td></tr></table></figure>
+<br>
+
+<p>除编译工具外，还有相关的辅助构建工具，其可执行程序位于 **<code>/SDK/tools/utils</code>**，通常将此部分工具添加到系统环境变量中，便于编译时调用</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">MKDIR := mkdir_win -p   # mkdir_win.exe，用于递归创建多级目录</span><br><span class="line">RM    := rm -rf         # rm.exe，用于删除文件/目录</span><br><span class="line">FIXBAT  := tools\utils\fixbat.exe # 用于处理 utf8-&gt;gbk 编码问题</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+<br>
+
+
+<p>工具链自带的<strong>库文件、头文件路径如下：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">SYS_LIB_DIR := C:/JL/pi32/pi32v2-lib/r3-large</span><br><span class="line">SYS_INC_DIR := C:/JL/pi32/pi32v2-include</span><br></pre></td></tr></table></figure>
+<p><code>SYS_LIB_DIR</code>和<code>SYS_INC_DIR</code>用于编译链接时，查找系统库和头文件，通常包含了标准C库、数学库的实现以及函数声明，如<code>SYS_LIB_DIR</code>下包含<code>libc.a</code>、<code>libm.a</code>等，而<code>SYS_INC_DIR</code>下包含<code>stdint.h</code>、<code>stdio.h</code>、<code>stdlib.h</code>等。</p>
+<br>
+
+<p>以下为设置编译生成的中间文件路径，以及输出sdk.elf文件（elf描述了链接后生成的可执行文件）</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"># 输出文件设置</span><br><span class="line">OUT_ELF   := cpu/br28/tools/sdk.elf</span><br><span class="line">OBJ_FILE  := $(OUT_ELF).objs.txt</span><br><span class="line"># 编译路径设置</span><br><span class="line">BUILD_DIR := objs</span><br></pre></td></tr></table></figure>
+<p>其中sdk.elf是编译工具链输出的产物，而最终的下载固件是由<code>cpu/br28/tools/download.bat</code>对 sdk.elf 进一步处理得到的</p>
+<h4 id="编译参数"><a href="#编译参数" class="headerlink" title="编译参数"></a>编译参数</h4><p>编译参数，通常无须过多关注，保持默认即可</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">CFLAGS := \</span><br><span class="line">	-target pi32v2 \</span><br><span class="line">	-mcpu=r3 \</span><br><span class="line">	-integrated-as \</span><br><span class="line">	-flto \</span><br><span class="line">	-Wuninitialized \</span><br><span class="line">	-Wno-invalid-noreturn \</span><br><span class="line">	-fno-common \</span><br><span class="line">	-integrated-as \</span><br><span class="line">	-Oz \          # 表示最大限度的优化</span><br><span class="line">	-g \           # 生成调试信息，g0 g1 g2 g3 g，其中-g等于g3，表示最大优化</span><br><span class="line">	-flto \</span><br><span class="line">	-fallow-pointer-null \</span><br><span class="line">	-fprefer-gnu-section \</span><br><span class="line">	-Wno-shift-negative-value \</span><br><span class="line">	-Wundef \</span><br><span class="line">	-Wframe-larger-than=256 \</span><br><span class="line">	-Wincompatible-pointer-types \      # 警告不兼容的指针类型转换</span><br><span class="line">	-Wreturn-type \                     # 警告缺少返回值的函数</span><br><span class="line">	-Wimplicit-function-declaration \   # 缺失函数警告</span><br><span class="line">	-mllvm -pi32v2-large-program=true \</span><br><span class="line">	-fms-extensions \</span><br><span class="line">	-fdiscrete-bitfield-abi \</span><br><span class="line">	-w \       # 禁用所有编译警告</span><br></pre></td></tr></table></figure>
+
+<h4 id="全局宏定义设置"><a href="#全局宏定义设置" class="headerlink" title="全局宏定义设置"></a>全局宏定义设置</h4><p>节选如下，用于定义全局的宏定义，有需要可以自行在此添加，但通常不建议这样做</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">DEFINES := \</span><br><span class="line">	-DSUPPORT_MS_EXTENSIONS \</span><br><span class="line">	-DCONFIG_RELEASE_ENABLE \</span><br><span class="line">	-DCONFIG_CPU_BR28 \</span><br><span class="line">    ...</span><br><span class="line">    -DCONFIG_SOUNDBOX \</span><br><span class="line">	-DEVENT_HANDLER_NUM_CONFIG=2 \</span><br><span class="line">	-DEVENT_TOUCH_ENABLE_CONFIG=0 \</span><br><span class="line">	-DEVENT_POOL_SIZE_CONFIG=256 \</span><br><span class="line">    ...</span><br></pre></td></tr></table></figure>
+
+<h3 id="头文件搜索路径、源文件设置"><a href="#头文件搜索路径、源文件设置" class="headerlink" title="头文件搜索路径、源文件设置"></a>头文件搜索路径、源文件设置</h3><p>二次业务开发时，新建的.h头文件，需要将其路径添加到如下，使得编译器能够找到包含的头文件</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">INCLUDES := \</span><br><span class="line">	-Iinclude_lib \</span><br><span class="line">	-Iinclude_lib/driver \</span><br><span class="line">    ......</span><br><span class="line">	-Iapps/common \</span><br><span class="line">	-Iapps/common/device \</span><br><span class="line">	-Iapps/common/audio \</span><br><span class="line">	-Iapps/common/audio/live_audio \</span><br><span class="line">    ......</span><br></pre></td></tr></table></figure>
+
+<p>二次业务开发时，新建的.c源文件，需要将其路径添加到如下，使得编译器能够对源文件进行编译并链接进目标程序</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"># 需要编译的 .c 文件</span><br><span class="line">c_SRC_FILES := \</span><br><span class="line">	apps/common/audio/amplitude_statistic.c \</span><br><span class="line">	apps/common/audio/audio_digital_vol.c \</span><br><span class="line">	apps/common/audio/audio_export_demo.c \</span><br><span class="line">	apps/common/audio/audio_utils.c \</span><br><span class="line">	apps/common/audio/decode/audio_key_tone.c \</span><br><span class="line">    ......</span><br></pre></td></tr></table></figure>
+
+<p>其它用户新建的源文件，如.s、.S、.cc、.cpp等，自行添加即可，但一般不会用到</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"># 需要编译的 .S 文件</span><br><span class="line">S_SRC_FILES := \</span><br><span class="line">	apps/soundbox/sdk_version.z.S \</span><br><span class="line"></span><br><span class="line"># 需要编译的 .s 文件</span><br><span class="line">s_SRC_FILES :=</span><br><span class="line"></span><br><span class="line"># 需要编译的 .cpp 文件</span><br><span class="line">cpp_SRC_FILES :=</span><br><span class="line"></span><br><span class="line"># 需要编译的 .cc 文件</span><br><span class="line">cc_SRC_FILES :=</span><br><span class="line"></span><br><span class="line"># 需要编译的 .cxx 文件</span><br><span class="line">cxx_SRC_FILES :=</span><br></pre></td></tr></table></figure>
+
+<h3 id="链接参数设置（添加静态库时用到）"><a href="#链接参数设置（添加静态库时用到）" class="headerlink" title="链接参数设置（添加静态库时用到）"></a>链接参数设置（添加静态库时用到）</h3><p>节选如下</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"># 链接参数</span><br><span class="line">LFLAGS := \</span><br><span class="line">	--plugin-opt=-pi32v2-always-use-itblock=false \</span><br><span class="line">	--plugin-opt=-enable-ipra=true \</span><br><span class="line">	--gc-sections \         # 删除未使用的section，减少程序占用</span><br><span class="line">	--start-group \         # </span><br><span class="line">	cpu/br28/liba/cpu.a \</span><br><span class="line">	cpu/br28/liba/system.a \</span><br><span class="line">    ...</span><br><span class="line">    # 添加静态库时，按需求添加在--start-group和--end-group之间</span><br><span class="line">    ...</span><br><span class="line"> 	cpu/br28/liba/res.a \</span><br><span class="line">	--end-group \           # 与--start-group搭配</span><br><span class="line">	-Tcpu/br28/sdk.ld \     # 指定链接脚本 sdk.ld，控制内存布局和段定位</span><br><span class="line">	-M=cpu/br28/tools/sdk.map \ # 配置生成map文件，记录链接信息，用于调试分析</span><br><span class="line">	--plugin-opt=mcpu=r3 \</span><br><span class="line">	--plugin-opt=-mattr=+fprev1 \   </span><br></pre></td></tr></table></figure>
+
+<p>链接参数，核心点是注意<code>--start-group</code>和<code>--end-group</code>，此组参数的作用是保证顺序链接、控制不同库文件中的同名函数&#x2F;符号优先级、避免多个库中同名符号冲突</p>
+<blockquote>
+<p>进行库添加时，注意链接顺序</p>
+</blockquote>
+<p>比如如下，链接器会优先从 liba.a 中查找符号，然后是 libb.a，最后是 libc.a</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">--start-group</span><br><span class="line">liba.a</span><br><span class="line">libb.a</span><br><span class="line">libc.a</span><br><span class="line">--end-group</span><br></pre></td></tr></table></figure>
+
+<h3 id="预构建流程"><a href="#预构建流程" class="headerlink" title="预构建流程"></a>预构建流程</h3><p>在<code>Makefile</code>所在目录终端，输入命令<code>make -j</code>，即开始编译，其中<code>all</code>是默认目标，而<code>pre_build</code>是其依赖的第一个目标，即每开始正式编译前，都会先进行一次预构建过程</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">all: pre_build $(OUT_ELF)</span><br><span class="line">	$(info +POST-BUILD)</span><br><span class="line">	$(QUITE) $(RUN_POST_SCRIPT) sdk</span><br><span class="line"></span><br><span class="line"># 预构建</span><br><span class="line">pre_build:</span><br><span class="line">	$(info +PRE-BUILD)</span><br><span class="line">	$(QUITE) $(CC) $(CFLAGS) $(DEFINES) $(INCLUDES) -D__LD__ -E -P cpu/br28/sdk_used_list.c -o cpu/br28/sdk_used_list.used</span><br><span class="line">	$(QUITE) $(CC) $(CFLAGS) $(DEFINES) $(INCLUDES) -D__LD__ -E -P cpu/br28/sdk_ld.c -o cpu/br28/sdk.ld</span><br><span class="line">	$(QUITE) $(CC) $(CFLAGS) $(DEFINES) $(INCLUDES) -D__LD__ -E -P cpu/br28/tools/download.c -o $(POST_SCRIPT)</span><br><span class="line">	$(QUITE) $(FIXBAT) $(POST_SCRIPT)</span><br><span class="line">	$(QUITE) $(CC) $(CFLAGS) $(DEFINES) $(INCLUDES) -D__LD__ -E -P cpu/br28/tools/isd_config_rule.c -o cpu/br28/tools/isd_config.ini</span><br></pre></td></tr></table></figure>
+
+<p>预构建流程是杰理SDK编译前的必要步骤，其主要作用包括以下：</p>
+<ul>
+<li><p>处理sdk_used_list.c得到sdk_used_list.used，在链接参数中会引用此文件，主要是起到记录、声明作用</p>
+<blockquote>
+<p>链接参数<code>--plugin-opt=-used-symbol-file=cpu/br28/sdk_used_list.used</code><br>链接器会去匹配寻找该文件里的符号（函数&#x2F;变量声明），将这个符号在库中的实现链接到<code>sdk.ld</code>指定的地址。</p>
+</blockquote>
+</li>
+<li><p>处理cpu&#x2F;br28&#x2F;tools&#x2F;sdk_ld.c得到sdk.ld，主要是生成链接脚本，控制内存布局</p>
+</li>
+<li><p>处理cpu&#x2F;br28&#x2F;tools&#x2F;download.c得到download.bat，生成顶层下载脚本</p>
+<blockquote>
+<p>从sdk.elf提取不同节，得到相应的二进制文件，并组合成app.bin等操作<br>调用子脚本download.bat，进行二进制文件打包和程序下载流程</p>
+</blockquote>
+</li>
+<li><p><code>$(FIXBAT) $(POST_SCRIPT)</code> 调用fixbat.exe对download.bat处理编码转换问题</p>
+</li>
+<li><p>处理 cpu&#x2F;br28&#x2F;tools&#x2F;isd_config_rule.c 得到 isd_config.ini</p>
+<blockquote>
+<p>子脚本download.bat 调用 isd_download.exe 进行实际的flash下载（isd_config.ini为下载配置文件）<br><code>..\..\isd_download.exe ..\..\isd_config.ini -tonorflash -dev br28 -boot 0x120000 -div8 -wait 300 -uboot ..\..\uboot.boot -app ..\..\app.bin -res tone.cfg ..\..\cfg_tool.bin ..\..\eq_cfg_hw.bin p11_code.bin -uboot_compress</code></p>
+</blockquote>
+</li>
+</ul>
+<h3 id="源文件构建流程"><a href="#源文件构建流程" class="headerlink" title="源文件构建流程"></a>源文件构建流程</h3><ul>
+<li>使用通配符和转换规则，使<code>c_OBJS, S_OBJS, s_OBJS, cpp_OBJS, cxx_OBJS, cc_OBJS</code>分别映射包含所有源文件编译生成对应的 .o 目标文件</li>
+<li>定义<code>OBJS</code>包含所有类型的目标文件；定义<code>DEP_FILES</code>包含所有的.d依赖文件，用于增量编译判断用。</li>
+<li>修改 OBJS 和 DEP_FILES 的值，增加BUILD_DIR前缀，使得所有构建过程输出都位于BUILD_DIR目录下</li>
+<li><code>VERBOSE</code>控制编译过程输出详细日志，默认为0，可设置为1，如<code>make VERBOSE=1</code>; <code>LINK_AT</code>用于决定是否使用file函数</li>
+<li>定义构建伪目标<code>all、pre_build、clean</code>，规则、编译、依赖文件包含等<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">all依赖于pre_build和OUT_ELF（即sdk.elf）（层层目标依赖，直至源文件-&gt;目标文件的编译），直接输入make时，默认执行make all。其执行完编译链接流程后，最后调用脚本`cpu\br28\tools\download.bat`进行下载</span><br><span class="line"></span><br><span class="line">pre_build用于执行预处理步骤，如生成配置文件、链接脚本、下载脚本</span><br><span class="line"></span><br><span class="line">clean用于清理构建过程产生的中间文件，如rm -rf BUILD_DIR xxx</span><br></pre></td></tr></table></figure>
+<br></li>
+</ul>
+<h3 id="链接脚本、固件打包程序、下载脚本解析"><a href="#链接脚本、固件打包程序、下载脚本解析" class="headerlink" title="链接脚本、固件打包程序、下载脚本解析"></a>链接脚本、固件打包程序、下载脚本解析</h3><h4 id="sdk-ld-c分析"><a href="#sdk-ld-c分析" class="headerlink" title="sdk_ld.c分析"></a>sdk_ld.c分析</h4><p>maskrom_stubs.ld</p>
+<h4 id="顶层download-c分析"><a href="#顶层download-c分析" class="headerlink" title="顶层download.c分析"></a>顶层download.c分析</h4><p>暂无</p>
+<h4 id="子脚本download-bat分析"><a href="#子脚本download-bat分析" class="headerlink" title="子脚本download.bat分析"></a>子脚本download.bat分析</h4><h3 id="升级固件构成分析"><a href="#升级固件构成分析" class="headerlink" title="升级固件构成分析"></a>升级固件构成分析</h3><p>由download.c以及子脚本download.bat可得到，实际下载到芯片的flash构成，以及各固件的关系</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">单备份： jl_isd.bin + VM区 + 蓝牙配置区 = 程序flash占用空间</span><br><span class="line"></span><br><span class="line">jl_isd.bin = (isd_download.exe) uboot.boot + app.bin + tone_zh.cfg + cfg_tool.bin + p11_code.bin + stream.bin</span><br><span class="line"></span><br><span class="line">app.bin = text.bin + data.bin + data_code.bin + aec.bin + aac.bin + ps_ram_data_code.bin</span><br><span class="line"></span><br><span class="line">update.ufw = jl_isd.ufw = ufw_make.exe (jl_isd.fw + ota.bin)</span><br></pre></td></tr></table></figure>
+
+<p>VM区大小须满足 大于 提示各种升级所需的最小空间<br>其中 VM区 和 蓝牙配置区 的大小，可以在isd_config.ini中查看。</p>
+<p>压缩代码方法： 配置能关则关，音频编解码能关尽关， 提示音文件可以改成 16bit-16KHz-单声道的mp3文件</p>
+<h2 id="思考与拓展"><a href="#思考与拓展" class="headerlink" title="思考与拓展"></a>思考与拓展</h2><h3 id="杰理codeblock工程是如何进行构建编译的？与SDK根目录的Makefile构建方式的具体异同？哪个效率更优？"><a href="#杰理codeblock工程是如何进行构建编译的？与SDK根目录的Makefile构建方式的具体异同？哪个效率更优？" class="headerlink" title="杰理codeblock工程是如何进行构建编译的？与SDK根目录的Makefile构建方式的具体异同？哪个效率更优？"></a>杰理codeblock工程是如何进行构建编译的？与SDK根目录的Makefile构建方式的具体异同？哪个效率更优？</h3><h3 id="Maskrom的程序跟下载的固件有相关性吗？"><a href="#Maskrom的程序跟下载的固件有相关性吗？" class="headerlink" title="Maskrom的程序跟下载的固件有相关性吗？"></a>Maskrom的程序跟下载的固件有相关性吗？</h3><p>Maskrom是出厂自带的只读程序，主要用于引导启动、集成固件烧录升级功能等</p>
+<h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2>
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2024/09/04/USB%E6%8F%92%E6%8B%94%E6%A3%80%E6%B5%8B/" rel="prev" title="USB插拔检测原理及应用">
+      <i class="fa fa-chevron-left"></i> USB插拔检测原理及应用
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Makefile%E8%A7%A3%E6%9E%90"><span class="nav-number">2.</span> <span class="nav-text">Makefile解析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BC%96%E8%AF%91%E5%B7%A5%E5%85%B7%E9%93%BE%E8%B7%AF%E5%BE%84%E8%AE%BE%E7%BD%AE"><span class="nav-number">2.1.</span> <span class="nav-text">编译工具链路径设置</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%BC%96%E8%AF%91%E5%8F%82%E6%95%B0"><span class="nav-number">2.1.1.</span> <span class="nav-text">编译参数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%85%A8%E5%B1%80%E5%AE%8F%E5%AE%9A%E4%B9%89%E8%AE%BE%E7%BD%AE"><span class="nav-number">2.1.2.</span> <span class="nav-text">全局宏定义设置</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%B4%E6%96%87%E4%BB%B6%E6%90%9C%E7%B4%A2%E8%B7%AF%E5%BE%84%E3%80%81%E6%BA%90%E6%96%87%E4%BB%B6%E8%AE%BE%E7%BD%AE"><span class="nav-number">2.2.</span> <span class="nav-text">头文件搜索路径、源文件设置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%93%BE%E6%8E%A5%E5%8F%82%E6%95%B0%E8%AE%BE%E7%BD%AE%EF%BC%88%E6%B7%BB%E5%8A%A0%E9%9D%99%E6%80%81%E5%BA%93%E6%97%B6%E7%94%A8%E5%88%B0%EF%BC%89"><span class="nav-number">2.3.</span> <span class="nav-text">链接参数设置（添加静态库时用到）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%A2%84%E6%9E%84%E5%BB%BA%E6%B5%81%E7%A8%8B"><span class="nav-number">2.4.</span> <span class="nav-text">预构建流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%BA%90%E6%96%87%E4%BB%B6%E6%9E%84%E5%BB%BA%E6%B5%81%E7%A8%8B"><span class="nav-number">2.5.</span> <span class="nav-text">源文件构建流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%93%BE%E6%8E%A5%E8%84%9A%E6%9C%AC%E3%80%81%E5%9B%BA%E4%BB%B6%E6%89%93%E5%8C%85%E7%A8%8B%E5%BA%8F%E3%80%81%E4%B8%8B%E8%BD%BD%E8%84%9A%E6%9C%AC%E8%A7%A3%E6%9E%90"><span class="nav-number">2.6.</span> <span class="nav-text">链接脚本、固件打包程序、下载脚本解析</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#sdk-ld-c%E5%88%86%E6%9E%90"><span class="nav-number">2.6.1.</span> <span class="nav-text">sdk_ld.c分析</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%A1%B6%E5%B1%82download-c%E5%88%86%E6%9E%90"><span class="nav-number">2.6.2.</span> <span class="nav-text">顶层download.c分析</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AD%90%E8%84%9A%E6%9C%ACdownload-bat%E5%88%86%E6%9E%90"><span class="nav-number">2.6.3.</span> <span class="nav-text">子脚本download.bat分析</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8D%87%E7%BA%A7%E5%9B%BA%E4%BB%B6%E6%9E%84%E6%88%90%E5%88%86%E6%9E%90"><span class="nav-number">2.7.</span> <span class="nav-text">升级固件构成分析</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%9D%E8%80%83%E4%B8%8E%E6%8B%93%E5%B1%95"><span class="nav-number">3.</span> <span class="nav-text">思考与拓展</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9D%B0%E7%90%86codeblock%E5%B7%A5%E7%A8%8B%E6%98%AF%E5%A6%82%E4%BD%95%E8%BF%9B%E8%A1%8C%E6%9E%84%E5%BB%BA%E7%BC%96%E8%AF%91%E7%9A%84%EF%BC%9F%E4%B8%8ESDK%E6%A0%B9%E7%9B%AE%E5%BD%95%E7%9A%84Makefile%E6%9E%84%E5%BB%BA%E6%96%B9%E5%BC%8F%E7%9A%84%E5%85%B7%E4%BD%93%E5%BC%82%E5%90%8C%EF%BC%9F%E5%93%AA%E4%B8%AA%E6%95%88%E7%8E%87%E6%9B%B4%E4%BC%98%EF%BC%9F"><span class="nav-number">3.1.</span> <span class="nav-text">杰理codeblock工程是如何进行构建编译的？与SDK根目录的Makefile构建方式的具体异同？哪个效率更优？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Maskrom%E7%9A%84%E7%A8%8B%E5%BA%8F%E8%B7%9F%E4%B8%8B%E8%BD%BD%E7%9A%84%E5%9B%BA%E4%BB%B6%E6%9C%89%E7%9B%B8%E5%85%B3%E6%80%A7%E5%90%97%EF%BC%9F"><span class="nav-number">3.2.</span> <span class="nav-text">Maskrom的程序跟下载的固件有相关性吗？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E7%AB%99%E7%82%B9"><span class="nav-number">4.</span> <span class="nav-text">参考站点</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">cjd</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">42</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">cjd</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="Symbols count total">97k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">5:22</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
