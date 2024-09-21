@@ -28,7 +28,7 @@
 <meta property="og:description" content="本文讲述杰理SDK-Makefile的编译&#x2F;构建&#x2F;下载流程及目标程序的固件集，理解编译构建过程，有助于新手开发者熟悉SDK文件框架构成、配置编译链接选项、增删文件编译、了解各bin文件作用、进行程序空间优化等。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2024-09-18T16:00:00.000Z">
-<meta property="article:modified_time" content="2024-09-21T07:19:48.126Z">
+<meta property="article:modified_time" content="2024-09-21T07:24:31.781Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -225,7 +225,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-09-21 15:19:48" itemprop="dateModified" datetime="2024-09-21T15:19:48+08:00">2024-09-21</time>
+                <time title="Modified: 2024-09-21 15:24:31" itemprop="dateModified" datetime="2024-09-21T15:24:31+08:00">2024-09-21</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -276,7 +276,7 @@
 <li>各项变量定义，包括编译器路径、编译选项、源文件路径、链接选项等</li>
 <li>定义目标的层层依赖关系，以及达成目标的命令（会应用到以上变量）</li>
 </ul>
-<p>从文件结构来看，从上而下，通常的结构为：</p>
+<p>从 Makefile 内容来看，自上而下，通常的结构为：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">工具链路径</span><br><span class="line">编译参数</span><br><span class="line">宏定义</span><br><span class="line">头文件搜索路径</span><br><span class="line">源文件路径</span><br><span class="line">链接参数</span><br><span class="line"></span><br><span class="line">编译依赖声明（make工具检测.c源文件与.o目标文件时间戳，一致则跳过该文件编译）</span><br><span class="line"></span><br><span class="line">---</span><br><span class="line"></span><br><span class="line">默认目标（all）：依赖目标1 ...依赖目标n（如prebuild、固件sdk.elf等）</span><br><span class="line">	命令...</span><br><span class="line"></span><br><span class="line">其它目标（clean）：</span><br><span class="line">	命令...（rm -rf *）</span><br><span class="line"></span><br><span class="line">依赖目标1（prebuild）：</span><br><span class="line">	命令...</span><br><span class="line"></span><br><span class="line">依赖目标2（sdk.elf）：依赖目标2-1 ...依赖目标2-n</span><br><span class="line">	命令...</span><br><span class="line"></span><br><span class="line">依赖目标n-n：</span><br><span class="line">	命令...</span><br></pre></td></tr></table></figure>
 
 <br>
