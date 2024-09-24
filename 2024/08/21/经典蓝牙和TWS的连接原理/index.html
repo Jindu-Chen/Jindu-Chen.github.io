@@ -28,7 +28,7 @@
 <meta property="og:description" content="讲述经典蓝牙连接和TWS连接的原理，包括蓝牙状态介绍、配对流程、回连流程、TWS连接与回连流程、BT&#x2F;TWS各个地址概念等。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2024-08-20T16:00:00.000Z">
-<meta property="article:modified_time" content="2024-09-18T03:13:20.054Z">
+<meta property="article:modified_time" content="2024-09-23T12:45:18.643Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -225,7 +225,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-09-18 11:13:20" itemprop="dateModified" datetime="2024-09-18T11:13:20+08:00">2024-09-18</time>
+                <time title="Modified: 2024-09-23 20:45:18" itemprop="dateModified" datetime="2024-09-23T20:45:18+08:00">2024-09-23</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -247,7 +247,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>729</span>
+              <span>741</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
@@ -296,7 +296,7 @@
 <p>通常手机才会去 inquiry 扫描周围的设备</p>
 <p>TWS配对时，两个设备分别在page和page scan来回切换，当有一个处于page，一个处于page scan时，则可以建立连接</p>
 <p>TWS配对慢时，可能是因为状态切换周期过长，没卡上时间</p>
-<h2 id="杰理SDK之蓝牙连接相关代码"><a href="#杰理SDK之蓝牙连接相关代码" class="headerlink" title="杰理SDK之蓝牙连接相关代码"></a>杰理SDK之蓝牙连接相关代码</h2><p>c表示page，设备主动进行TWS Page<br>cp表示tws状态回来切换配对中；<br>I表示可搜索可发现连接<br>P表示可被回连，即 page scan<br>C表示设备主动Page手机</p>
+<h2 id="杰理SDK之蓝牙连接相关代码"><a href="#杰理SDK之蓝牙连接相关代码" class="headerlink" title="杰理SDK之蓝牙连接相关代码"></a>杰理SDK之蓝牙连接相关代码</h2><p>c表示page，设备主动进行TWS Page<br>cp表示tws状态回来切换配对中；小p表示设备处于tws_page_scan<br>I表示可搜索可发现连接<br>大P表示可被手机回连，即 page scan<br>C表示设备主动Page手机</p>
 <h2 id="思考与拓展"><a href="#思考与拓展" class="headerlink" title="思考与拓展"></a>思考与拓展</h2><h3 id="Link-Key是什么？"><a href="#Link-Key是什么？" class="headerlink" title="Link Key是什么？"></a>Link Key是什么？</h3><p>Link Key 通常是在两个设备首次配对时生成的，并且在后续的连接中用于快速建立信任关系</p>
 <p>作用：身份验证、加密通信</p>
 <h3 id="TWS的MAC地址，使用公共地址和不使用公共地址的区别"><a href="#TWS的MAC地址，使用公共地址和不使用公共地址的区别" class="headerlink" title="TWS的MAC地址，使用公共地址和不使用公共地址的区别"></a>TWS的MAC地址，使用公共地址和不使用公共地址的区别</h3><p>local bt_addr common remote</p>
@@ -447,12 +447,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">97k</span>
+    <span title="Symbols count total">98k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">5:24</span>
+    <span title="Reading time total">5:25</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
   </div>
