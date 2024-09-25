@@ -27,11 +27,13 @@
 <meta property="og:site_name" content="Jindu-Chen">
 <meta property="og:description" content="本文讲述杰理SDK-Makefile的编译&#x2F;构建&#x2F;下载流程及目标程序的固件集，理解编译构建过程，有助于新手开发者熟悉SDK文件框架构成、配置编译链接选项、增删文件编译、了解各bin文件作用、进行程序空间优化等。">
 <meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://example.com/pictures/%E7%BB%88%E7%AB%AF%E8%BE%93%E5%85%A5addr2line%E5%8F%8D%E7%BC%96%E8%AF%91%E5%87%BD%E6%95%B0.png">
 <meta property="article:published_time" content="2024-09-18T16:00:00.000Z">
-<meta property="article:modified_time" content="2024-09-25T01:13:29.981Z">
+<meta property="article:modified_time" content="2024-09-25T11:26:09.741Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/pictures/%E7%BB%88%E7%AB%AF%E8%BE%93%E5%85%A5addr2line%E5%8F%8D%E7%BC%96%E8%AF%91%E5%87%BD%E6%95%B0.png">
 
 <link rel="canonical" href="http://example.com/2024/09/19/%E6%9D%B0%E7%90%86SDK-Makefile%E5%8F%8A%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%9B%BA%E4%BB%B6%E9%9B%86%E5%88%86%E6%9E%90/">
 
@@ -225,7 +227,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-09-25 09:13:29" itemprop="dateModified" datetime="2024-09-25T09:13:29+08:00">2024-09-25</time>
+                <time title="Modified: 2024-09-25 19:26:09" itemprop="dateModified" datetime="2024-09-25T19:26:09+08:00">2024-09-25</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -247,7 +249,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>7.4k</span>
+              <span>3.5k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
@@ -289,6 +291,9 @@
 </blockquote>
 </li>
 <li><p><code>make clean</code>表示清除所有编译中间文件，先执行此条指令再<code>make</code>相当于 rebuild</p>
+<blockquote>
+<p>在终端输入<code>make clean;make -j</code>，指示 Shell 终端串行执行此两条指令</p>
+</blockquote>
 </li>
 </ul>
 <h3 id="编译工具链路径设置"><a href="#编译工具链路径设置" class="headerlink" title="编译工具链路径设置"></a>编译工具链路径设置</h3><p>在<code>Windows</code>环境下，通常默认安装杰理工具链路径位于<code>C:/JL</code>，而<code>701-SDK/br28</code>内核的编译链可执行文件路径则位于<code>C:/JL/pi32/bin</code>，工具说明如下：</p>
@@ -338,7 +343,7 @@
 
 <p>核心点是注意<code>--start-group</code>和<code>--end-group</code>，此组参数的作用是<strong>保证顺序链接、控制不同库文件中的同名函数&#x2F;符号优先级、避免多个库中同名符号冲突</strong></p>
 <blockquote>
-<p>进行库添加时，规范库的链接顺序<br>如，打补丁需要添加新的静态库时，须注意</p>
+<p>进行库添加时，规范库的链接顺序<br>如，打补丁需要添加新的静态库时，须注意。顺序不当，有可能会导致链接报错。</p>
 </blockquote>
 <br>
 
@@ -351,7 +356,7 @@
 <p><strong>预构建流程是杰理SDK编译前的必要步骤</strong>，其主要作用包括以下：</p>
 <ul>
 <li>处理<code>sdk_used_list.c</code>得到<code>sdk_used_list.used</code>，在链接参数中会引用此文件，主要是起到记录、声明作用<blockquote>
-<p>链接参数<code>--plugin-opt=-used-symbol-file=cpu/br28/sdk_used_list.used</code><br>链接器会去匹配寻找该文件里的符号（函数&#x2F;变量声明），将这个符号在库中的实现链接到<code>sdk.ld</code>指定的地址。</p>
+<p>链接参数<code>--plugin-opt=-used-symbol-file=cpu/br28/sdk_used_list.used</code><br>表示链接器会去匹配寻找该文件里的符号（函数&#x2F;变量声明），将这个符号在库中的实现链接到<code>sdk.ld</code>指定的地址。</p>
 </blockquote>
 </li>
 </ul>
@@ -388,9 +393,12 @@
 <br></li>
 </ul>
 <h3 id="链接脚本、固件打包程序、下载脚本解析"><a href="#链接脚本、固件打包程序、下载脚本解析" class="headerlink" title="链接脚本、固件打包程序、下载脚本解析"></a>链接脚本、固件打包程序、下载脚本解析</h3><h4 id="sdk-ld-c分析"><a href="#sdk-ld-c分析" class="headerlink" title="sdk_ld.c分析"></a>sdk_ld.c分析</h4><p>maskrom_stubs.ld</p>
+<p>涉及到 update_flag VM区 等的地址链接定位</p>
+<p>涉及到 配置 代码放RAM 的链接配置</p>
 <h4 id="顶层download-c分析"><a href="#顶层download-c分析" class="headerlink" title="顶层download.c分析"></a>顶层download.c分析</h4><p>暂无</p>
 <p>说明如何打包固件等</p>
-<h4 id="子脚本download-bat分析"><a href="#子脚本download-bat分析" class="headerlink" title="子脚本download.bat分析"></a>子脚本download.bat分析</h4><p>执行实际的下载升级</p>
+<h4 id="子脚本download-bat分析"><a href="#子脚本download-bat分析" class="headerlink" title="子脚本download.bat分析"></a>子脚本download.bat分析</h4><p>在可视化SDK中，子脚本download.bat 已经合并进 download.c 了</p>
+<p>执行实际的下载流程</p>
 <h3 id="升级固件构成分析"><a href="#升级固件构成分析" class="headerlink" title="升级固件构成分析"></a>升级固件构成分析</h3><p>由download.c以及子脚本download.bat可得到，实际下载到芯片的flash构成，以及各固件的关系</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">单备份： jl_isd.bin + VM区 + 蓝牙配置区 = 程序flash占用空间</span><br><span class="line"></span><br><span class="line">jl_isd.bin = (isd_download.exe) uboot.boot + app.bin + tone_zh.cfg + cfg_tool.bin + p11_code.bin + stream.bin</span><br><span class="line"></span><br><span class="line">app.bin = text.bin + data.bin + data_code.bin + aec.bin + aac.bin + ps_ram_data_code.bin</span><br><span class="line"></span><br><span class="line">update.ufw = jl_isd.ufw = ufw_make.exe (jl_isd.fw + ota.bin)</span><br></pre></td></tr></table></figure>
 
@@ -401,14 +409,22 @@
 <p>make与codeblock-IDE的构建工具 差异对比？</p>
 <p>归根到底无论是IDE还是Makefile，都是调用同一个编译器对源文件进行编译链接，编译速度理论上无差异。但构建组织速度存在差异</p>
 <p>Code::Blocks可以配置使用Makefile，也可以使用其内置的构建系统。另，可以通过配置ccache工具加速编译构建</p>
-<h3 id="Maskrom的程序跟下载的固件有相关性吗？"><a href="#Maskrom的程序跟下载的固件有相关性吗？" class="headerlink" title="Maskrom的程序跟下载的固件有相关性吗？"></a>Maskrom的程序跟下载的固件有相关性吗？</h3><p>Maskrom是出厂自带的只读程序，主要用于引导启动、集成固件烧录升级功能等</p>
+<h3 id="Maskrom的程序跟下载的固件有相关性吗？"><a href="#Maskrom的程序跟下载的固件有相关性吗？" class="headerlink" title="Maskrom的程序跟下载的固件有相关性吗？"></a>Maskrom的程序跟下载的固件有相关性吗？</h3><p>Maskrom是出厂自带的只读程序，主要用于引导启动、集成固件烧录功能等？</p>
 <h3 id="可以用C-编写杰理程序吗？"><a href="#可以用C-编写杰理程序吗？" class="headerlink" title="可以用C++编写杰理程序吗？"></a>可以用C++编写杰理程序吗？</h3><p>理论上可以，只要编译器支持即可</p>
 <p>毕竟编程语言只是程序流程描述，编译器负责将其解析其适合于芯片cpu的机器码。但越是高级的语言，其附带的特性就越多，因此会占用更多的资源。不建议用于资源紧张的嵌入式开发</p>
-<h3 id="什么情况下需要rebuild？"><a href="#什么情况下需要rebuild？" class="headerlink" title="什么情况下需要rebuild？"></a>什么情况下需要rebuild？</h3><p>当链接静态库有更新时，必须要 rebuild。另外，一些全局宏配置、功能的开启，有可能会影响到预构建相关的文件sdk_used_list.c、sdk_ld.c、download.c、isd_config_rule.c里的预编译条件变化，也需要rebuild。</p>
-<p>常规的.c源文件、.h头文件修改，不需要rebuild。</p>
-<p>因为在Makefile中，包含进源文件的路径集合，已经被全部声明了依赖关系。</p>
-<p>但库文件、预构建文件这部分没有被声明依赖关系的文件，即使有更新，make也不会检测到。需要rebuild，清除已有的编译中间文件，重新进行编译链接</p>
+<h3 id="什么情况下需要rebuild？"><a href="#什么情况下需要rebuild？" class="headerlink" title="什么情况下需要rebuild？"></a>什么情况下需要rebuild？</h3><p>全局宏配置、功能的开启&#x2F;关闭，有可能会影响到预构建相关的文件sdk_used_list.c、sdk_ld.c、download.c、isd_config_rule.c里预编译条件变化，需要rebuild。<br>当链接静态库有更新时，必须要 rebuild。如果静态库有引用到相关的配置宏的，也需要 rebuild。</p>
+<p>常规的.c源文件、.h头文件修改，不需要rebuild。<br>因为在Makefile中，包含进编译源文件的路径集合，已经被全部声明了依赖关系。</p>
+<p>但静态库文件、预构建文件这部分没有被声明依赖关系的文件，即使有更新，make也不会检测到。需要rebuild，清除已有的编译中间文件，重新进行编译链接</p>
 <h3 id="什么情况下需要擦除flash和VM？"><a href="#什么情况下需要擦除flash和VM？" class="headerlink" title="什么情况下需要擦除flash和VM？"></a>什么情况下需要擦除flash和VM？</h3><p>需要清除记忆的配置信息，如蓝牙配对信息、用户信息等，则擦除VM</p>
+<h3 id="编译工具链-addr2line-的使用"><a href="#编译工具链-addr2line-的使用" class="headerlink" title="编译工具链 addr2line 的使用"></a>编译工具链 addr2line 的使用</h3><p>由上文解释可知，sdk.elf是链接后生成的elf文件，其包含所有编译的源文件、编译的函数、编译的变量等，通过addr2line工具，可以直接反编译出指定地址的函数名、变量名等。</p>
+<blockquote>
+<p>ps: map、lst 文件都是由elf文件衍生的</p>
+</blockquote>
+<p>addr2line工具用于将内存地址转换为源代码中的函数名和行号</p>
+<blockquote>
+<p>参数： -e 指定 elf文件，-a 显示地址，-f 显示函数名，-i 显示行号</p>
+</blockquote>
+<p>在终端（如 PowerShell ）输入命令执行示例如下：<code>addr2line -e sdk.elf -a -f  0x0011BE9E 0x00119A40 0x00119A9A 0x06003AF8</code><br><img src="/../pictures/%E7%BB%88%E7%AB%AF%E8%BE%93%E5%85%A5addr2line%E5%8F%8D%E7%BC%96%E8%AF%91%E5%87%BD%E6%95%B0.png" alt="alt text"></p>
 <h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2>
     </div>
 
@@ -486,7 +502,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Makefile%E8%A7%A3%E6%9E%90"><span class="nav-number">2.</span> <span class="nav-text">Makefile解析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Makefile%E9%80%9A%E7%94%A8%E7%BB%93%E6%9E%84%E7%AE%80%E8%BF%B0"><span class="nav-number">2.1.</span> <span class="nav-text">Makefile通用结构简述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BC%96%E8%AF%91%E5%B7%A5%E5%85%B7%E9%93%BE%E8%B7%AF%E5%BE%84%E8%AE%BE%E7%BD%AE"><span class="nav-number">2.2.</span> <span class="nav-text">编译工具链路径设置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BC%96%E8%AF%91%E5%8F%82%E6%95%B0"><span class="nav-number">2.3.</span> <span class="nav-text">编译参数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%A8%E5%B1%80%E5%AE%8F%E5%AE%9A%E4%B9%89%E8%AE%BE%E7%BD%AE"><span class="nav-number">2.4.</span> <span class="nav-text">全局宏定义设置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%B4%E6%96%87%E4%BB%B6%E6%90%9C%E7%B4%A2%E8%B7%AF%E5%BE%84%E3%80%81%E6%BA%90%E6%96%87%E4%BB%B6%E8%AE%BE%E7%BD%AE"><span class="nav-number">2.5.</span> <span class="nav-text">头文件搜索路径、源文件设置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%93%BE%E6%8E%A5%E5%8F%82%E6%95%B0%E8%AE%BE%E7%BD%AE%EF%BC%88%E6%B7%BB%E5%8A%A0%E9%9D%99%E6%80%81%E5%BA%93%E6%97%B6%E7%94%A8%E5%88%B0%EF%BC%89"><span class="nav-number">2.6.</span> <span class="nav-text">链接参数设置（添加静态库时用到）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%A2%84%E6%9E%84%E5%BB%BA%E6%B5%81%E7%A8%8B"><span class="nav-number">2.7.</span> <span class="nav-text">预构建流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%BA%90%E6%96%87%E4%BB%B6%E6%9E%84%E5%BB%BA%E6%B5%81%E7%A8%8B"><span class="nav-number">2.8.</span> <span class="nav-text">源文件构建流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%93%BE%E6%8E%A5%E8%84%9A%E6%9C%AC%E3%80%81%E5%9B%BA%E4%BB%B6%E6%89%93%E5%8C%85%E7%A8%8B%E5%BA%8F%E3%80%81%E4%B8%8B%E8%BD%BD%E8%84%9A%E6%9C%AC%E8%A7%A3%E6%9E%90"><span class="nav-number">2.9.</span> <span class="nav-text">链接脚本、固件打包程序、下载脚本解析</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#sdk-ld-c%E5%88%86%E6%9E%90"><span class="nav-number">2.9.1.</span> <span class="nav-text">sdk_ld.c分析</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%A1%B6%E5%B1%82download-c%E5%88%86%E6%9E%90"><span class="nav-number">2.9.2.</span> <span class="nav-text">顶层download.c分析</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AD%90%E8%84%9A%E6%9C%ACdownload-bat%E5%88%86%E6%9E%90"><span class="nav-number">2.9.3.</span> <span class="nav-text">子脚本download.bat分析</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8D%87%E7%BA%A7%E5%9B%BA%E4%BB%B6%E6%9E%84%E6%88%90%E5%88%86%E6%9E%90"><span class="nav-number">2.10.</span> <span class="nav-text">升级固件构成分析</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%9D%E8%80%83%E4%B8%8E%E6%8B%93%E5%B1%95"><span class="nav-number">3.</span> <span class="nav-text">思考与拓展</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9D%B0%E7%90%86codeblock%E5%B7%A5%E7%A8%8B%E6%98%AF%E5%A6%82%E4%BD%95%E8%BF%9B%E8%A1%8C%E6%9E%84%E5%BB%BA%E7%BC%96%E8%AF%91%E7%9A%84%EF%BC%9F%E4%B8%8ESDK%E6%A0%B9%E7%9B%AE%E5%BD%95%E7%9A%84Makefile%E6%9E%84%E5%BB%BA%E6%96%B9%E5%BC%8F%E7%9A%84%E5%85%B7%E4%BD%93%E5%BC%82%E5%90%8C%EF%BC%9F%E5%93%AA%E4%B8%AA%E6%95%88%E7%8E%87%E6%9B%B4%E4%BC%98%EF%BC%9F"><span class="nav-number">3.1.</span> <span class="nav-text">杰理codeblock工程是如何进行构建编译的？与SDK根目录的Makefile构建方式的具体异同？哪个效率更优？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Maskrom%E7%9A%84%E7%A8%8B%E5%BA%8F%E8%B7%9F%E4%B8%8B%E8%BD%BD%E7%9A%84%E5%9B%BA%E4%BB%B6%E6%9C%89%E7%9B%B8%E5%85%B3%E6%80%A7%E5%90%97%EF%BC%9F"><span class="nav-number">3.2.</span> <span class="nav-text">Maskrom的程序跟下载的固件有相关性吗？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%AF%E4%BB%A5%E7%94%A8C-%E7%BC%96%E5%86%99%E6%9D%B0%E7%90%86%E7%A8%8B%E5%BA%8F%E5%90%97%EF%BC%9F"><span class="nav-number">3.3.</span> <span class="nav-text">可以用C++编写杰理程序吗？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%83%85%E5%86%B5%E4%B8%8B%E9%9C%80%E8%A6%81rebuild%EF%BC%9F"><span class="nav-number">3.4.</span> <span class="nav-text">什么情况下需要rebuild？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%83%85%E5%86%B5%E4%B8%8B%E9%9C%80%E8%A6%81%E6%93%A6%E9%99%A4flash%E5%92%8CVM%EF%BC%9F"><span class="nav-number">3.5.</span> <span class="nav-text">什么情况下需要擦除flash和VM？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E7%AB%99%E7%82%B9"><span class="nav-number">4.</span> <span class="nav-text">参考站点</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Makefile%E8%A7%A3%E6%9E%90"><span class="nav-number">2.</span> <span class="nav-text">Makefile解析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Makefile%E9%80%9A%E7%94%A8%E7%BB%93%E6%9E%84%E7%AE%80%E8%BF%B0"><span class="nav-number">2.1.</span> <span class="nav-text">Makefile通用结构简述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BC%96%E8%AF%91%E5%B7%A5%E5%85%B7%E9%93%BE%E8%B7%AF%E5%BE%84%E8%AE%BE%E7%BD%AE"><span class="nav-number">2.2.</span> <span class="nav-text">编译工具链路径设置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BC%96%E8%AF%91%E5%8F%82%E6%95%B0"><span class="nav-number">2.3.</span> <span class="nav-text">编译参数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%A8%E5%B1%80%E5%AE%8F%E5%AE%9A%E4%B9%89%E8%AE%BE%E7%BD%AE"><span class="nav-number">2.4.</span> <span class="nav-text">全局宏定义设置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%B4%E6%96%87%E4%BB%B6%E6%90%9C%E7%B4%A2%E8%B7%AF%E5%BE%84%E3%80%81%E6%BA%90%E6%96%87%E4%BB%B6%E8%AE%BE%E7%BD%AE"><span class="nav-number">2.5.</span> <span class="nav-text">头文件搜索路径、源文件设置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%93%BE%E6%8E%A5%E5%8F%82%E6%95%B0%E8%AE%BE%E7%BD%AE%EF%BC%88%E6%B7%BB%E5%8A%A0%E9%9D%99%E6%80%81%E5%BA%93%E6%97%B6%E7%94%A8%E5%88%B0%EF%BC%89"><span class="nav-number">2.6.</span> <span class="nav-text">链接参数设置（添加静态库时用到）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%A2%84%E6%9E%84%E5%BB%BA%E6%B5%81%E7%A8%8B"><span class="nav-number">2.7.</span> <span class="nav-text">预构建流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%BA%90%E6%96%87%E4%BB%B6%E6%9E%84%E5%BB%BA%E6%B5%81%E7%A8%8B"><span class="nav-number">2.8.</span> <span class="nav-text">源文件构建流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%93%BE%E6%8E%A5%E8%84%9A%E6%9C%AC%E3%80%81%E5%9B%BA%E4%BB%B6%E6%89%93%E5%8C%85%E7%A8%8B%E5%BA%8F%E3%80%81%E4%B8%8B%E8%BD%BD%E8%84%9A%E6%9C%AC%E8%A7%A3%E6%9E%90"><span class="nav-number">2.9.</span> <span class="nav-text">链接脚本、固件打包程序、下载脚本解析</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#sdk-ld-c%E5%88%86%E6%9E%90"><span class="nav-number">2.9.1.</span> <span class="nav-text">sdk_ld.c分析</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%A1%B6%E5%B1%82download-c%E5%88%86%E6%9E%90"><span class="nav-number">2.9.2.</span> <span class="nav-text">顶层download.c分析</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AD%90%E8%84%9A%E6%9C%ACdownload-bat%E5%88%86%E6%9E%90"><span class="nav-number">2.9.3.</span> <span class="nav-text">子脚本download.bat分析</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8D%87%E7%BA%A7%E5%9B%BA%E4%BB%B6%E6%9E%84%E6%88%90%E5%88%86%E6%9E%90"><span class="nav-number">2.10.</span> <span class="nav-text">升级固件构成分析</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%9D%E8%80%83%E4%B8%8E%E6%8B%93%E5%B1%95"><span class="nav-number">3.</span> <span class="nav-text">思考与拓展</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9D%B0%E7%90%86codeblock%E5%B7%A5%E7%A8%8B%E6%98%AF%E5%A6%82%E4%BD%95%E8%BF%9B%E8%A1%8C%E6%9E%84%E5%BB%BA%E7%BC%96%E8%AF%91%E7%9A%84%EF%BC%9F%E4%B8%8ESDK%E6%A0%B9%E7%9B%AE%E5%BD%95%E7%9A%84Makefile%E6%9E%84%E5%BB%BA%E6%96%B9%E5%BC%8F%E7%9A%84%E5%85%B7%E4%BD%93%E5%BC%82%E5%90%8C%EF%BC%9F%E5%93%AA%E4%B8%AA%E6%95%88%E7%8E%87%E6%9B%B4%E4%BC%98%EF%BC%9F"><span class="nav-number">3.1.</span> <span class="nav-text">杰理codeblock工程是如何进行构建编译的？与SDK根目录的Makefile构建方式的具体异同？哪个效率更优？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Maskrom%E7%9A%84%E7%A8%8B%E5%BA%8F%E8%B7%9F%E4%B8%8B%E8%BD%BD%E7%9A%84%E5%9B%BA%E4%BB%B6%E6%9C%89%E7%9B%B8%E5%85%B3%E6%80%A7%E5%90%97%EF%BC%9F"><span class="nav-number">3.2.</span> <span class="nav-text">Maskrom的程序跟下载的固件有相关性吗？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%AF%E4%BB%A5%E7%94%A8C-%E7%BC%96%E5%86%99%E6%9D%B0%E7%90%86%E7%A8%8B%E5%BA%8F%E5%90%97%EF%BC%9F"><span class="nav-number">3.3.</span> <span class="nav-text">可以用C++编写杰理程序吗？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%83%85%E5%86%B5%E4%B8%8B%E9%9C%80%E8%A6%81rebuild%EF%BC%9F"><span class="nav-number">3.4.</span> <span class="nav-text">什么情况下需要rebuild？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%83%85%E5%86%B5%E4%B8%8B%E9%9C%80%E8%A6%81%E6%93%A6%E9%99%A4flash%E5%92%8CVM%EF%BC%9F"><span class="nav-number">3.5.</span> <span class="nav-text">什么情况下需要擦除flash和VM？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BC%96%E8%AF%91%E5%B7%A5%E5%85%B7%E9%93%BE-addr2line-%E7%9A%84%E4%BD%BF%E7%94%A8"><span class="nav-number">3.6.</span> <span class="nav-text">编译工具链 addr2line 的使用</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E7%AB%99%E7%82%B9"><span class="nav-number">4.</span> <span class="nav-text">参考站点</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -549,12 +565,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">102k</span>
+    <span title="Symbols count total">98k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">2:50</span>
+    <span title="Reading time total">5:26</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
   </div>
