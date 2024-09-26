@@ -29,7 +29,7 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://example.com/pictures/%E7%BB%88%E7%AB%AF%E8%BE%93%E5%85%A5addr2line%E5%8F%8D%E7%BC%96%E8%AF%91%E5%87%BD%E6%95%B0.png">
 <meta property="article:published_time" content="2024-09-18T16:00:00.000Z">
-<meta property="article:modified_time" content="2024-09-26T02:22:43.315Z">
+<meta property="article:modified_time" content="2024-09-26T03:31:54.296Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -227,7 +227,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-09-26 10:22:43" itemprop="dateModified" datetime="2024-09-26T10:22:43+08:00">2024-09-26</time>
+                <time title="Modified: 2024-09-26 11:31:54" itemprop="dateModified" datetime="2024-09-26T11:31:54+08:00">2024-09-26</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -424,6 +424,7 @@
 <h3 id="OTA升级前后的程序VM区大小配置不一致，会导致升级失败？"><a href="#OTA升级前后的程序VM区大小配置不一致，会导致升级失败？" class="headerlink" title="OTA升级前后的程序VM区大小配置不一致，会导致升级失败？"></a>OTA升级前后的程序VM区大小配置不一致，会导致升级失败？</h3><p>旧程序配置了VM为48K，新程序配置为64K，验证了仅有此部分差异情况下，OTA升级不成功。</p>
 <p>可以通过分析链接脚本，查看程序的内存排布。</p>
 <p>VM区的大小配置，会影响到全局程序区的地址偏移链接，导致对指定地址区域的升级文件校验失败？</p>
+<p>配置 Makefile 下载时默认擦除所有： 在download.bat增加 -format all ?</p>
 <h3 id="编译工具链-addr2line-的使用"><a href="#编译工具链-addr2line-的使用" class="headerlink" title="编译工具链 addr2line 的使用"></a>编译工具链 addr2line 的使用</h3><p>由上文解释可知，sdk.elf是链接后生成的elf文件，其包含所有编译的源文件、编译的函数、编译的变量等，通过addr2line工具，可以直接反编译出指定地址的函数名、变量名等。</p>
 <blockquote>
 <p>ps: map、lst 文件都是由elf文件衍生的</p>
