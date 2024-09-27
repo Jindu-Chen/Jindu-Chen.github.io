@@ -25,27 +25,6 @@
     
     
     <entry>
-      <title>【USB】USB插拔检测原理及应用</title>
-      <link href="/2024/09/04/%E3%80%90USB%E3%80%91USB%E6%8F%92%E6%8B%94%E6%A3%80%E6%B5%8B/"/>
-      <url>/2024/09/04/%E3%80%90USB%E3%80%91USB%E6%8F%92%E6%8B%94%E6%A3%80%E6%B5%8B/</url>
-      
-        <content type="html"><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>本文大部分技术原理内容摘选自USB中文网</p><h2 id="USB2-0"><a href="#USB2-0" class="headerlink" title="USB2.0"></a>USB2.0</h2><p>USB供电电平为5V，通信电平为3.3V，上拉通常是3.3V上拉。（5V电平接10K上拉电阻）</p><ul><li>USB主机端D+和D-均有一个15K的下拉电阻</li><li>低速设备端D-上拉一个1.5K的电阻</li><li>高速&#x2F;全速设备端D+上拉一个1.5K的电阻</li></ul><p><img src="/../pictures/USB-2.0%E4%B8%BB%E6%9C%BA%E4%B8%8E%E8%AE%BE%E5%A4%87%E8%BF%9E%E6%8E%A5%E7%94%B5%E8%B7%AF%E5%9B%BE.png" alt="alt text"></p><h3 id="USB2-0设备连接状态检测"><a href="#USB2-0设备连接状态检测" class="headerlink" title="USB2.0设备连接状态检测"></a>USB2.0设备连接状态检测</h3><p>USB设备插入到主机端口后，会有以下一个典型流程：</p><ul><li>设备端检测到主机的VBus-5V供电后，D+&#x2F;D-由<code>SE0状态</code>转为<code>挂接3.3V上拉电阻</code>（低速设备端D-，高速&#x2F;全速设备端D+）</li><li>主机端读取D+&#x2F;D-电平变化，识别USB2.0-低速&#x2F;全速 设备接入</li><li>USB主机对插入的设备发送复位信号，进行设备复位</li></ul><br><ul><li>如果是主机上电前已连接的设备，设备端通过检测到主机下发的第一个复位信号来判断自身已连接</li><li>动态接入，设备端检测到自身的VBus电压升高（&gt;&#x3D;4.01V），判断自身已连接</li><li>设备端也可检测 D+&#x2F;D- 电平变化，判断是否已连接</li></ul><p>注意：</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">USB2.0高速设备在设备的连接检测时，是以USB2.0全速的工作状态进行通讯连接的。</span><br><span class="line"></span><br><span class="line">在USB主机端对设备复位后，USB高速设备会主动发送USB高速协商信号；</span><br><span class="line">主机端如果正确识别，则工作在全速状态的USB2.0高速设备切换到高速状态。</span><br></pre></td></tr></table></figure><p><strong>SE0状态：</strong></p><h3 id="USB2-0设备断开状态检测"><a href="#USB2-0设备断开状态检测" class="headerlink" title="USB2.0设备断开状态检测"></a>USB2.0设备断开状态检测</h3><ul><li>主机端-设备断开检测</li></ul><p>低速、全速设备：</p><p>高速设备：主机通过检测帧开始的包结束来判断设备是否断开，帧开始的间隔是125us，所以设备断开后，主机最多在125us就可以检测到设备断开</p><h2 id="USB3-0"><a href="#USB3-0" class="headerlink" title="USB3.0"></a>USB3.0</h2><h2 id="USB-OTG设备插拔检测-主从机识别软件方案"><a href="#USB-OTG设备插拔检测-主从机识别软件方案" class="headerlink" title="USB-OTG设备插拔检测-主从机识别软件方案"></a>USB-OTG设备插拔检测-主从机识别软件方案</h2><p>以杰理方案为例，周期轮询</p><p>如果设备一个USB端口同时使能 主机和从机 模式的话，则需要轮询识别接入的设备是主机还是从机</p><h2 id="思考与拓展"><a href="#思考与拓展" class="headerlink" title="思考与拓展"></a>思考与拓展</h2><h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2><ul><li><a href="https://www.usbzh.com/article/detail-634.html#:~:text=USB%E4%B8%BB%E6%9C%BA%E7%AB%AF%E6%A0%B9%E6%8D%AED+">USB2.0设备连接状态的检测</a></li><li><a href="https://blog.csdn.net/qq_37391577/article/details/131945122#:~:text=USB%203.0%E7%9A%84%E6%8E%A5%E5%8F%A3">USB协议之一 设备连接检测、断开检测</a></li></ul>]]></content>
-      
-      
-      <categories>
-          
-          <category> 嵌入式 </category>
-          
-          <category> USB </category>
-          
-      </categories>
-      
-      
-    </entry>
-    
-    
-    
-    <entry>
       <title>嵌入式之文件系统应用开发笔记</title>
       <link href="/2024/09/01/%E5%B5%8C%E5%85%A5%E5%BC%8F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91%E7%AC%94%E8%AE%B0/"/>
       <url>/2024/09/01/%E5%B5%8C%E5%85%A5%E5%BC%8F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91%E7%AC%94%E8%AE%B0/</url>
@@ -58,6 +37,27 @@
           <category> 嵌入式 </category>
           
           <category> 文件系统 </category>
+          
+      </categories>
+      
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>【USB】USB插拔检测原理及应用</title>
+      <link href="/2024/08/31/%E3%80%90USB%E3%80%91USB%E6%8F%92%E6%8B%94%E6%A3%80%E6%B5%8B/"/>
+      <url>/2024/08/31/%E3%80%90USB%E3%80%91USB%E6%8F%92%E6%8B%94%E6%A3%80%E6%B5%8B/</url>
+      
+        <content type="html"><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>本文大部分技术原理内容摘选自USB中文网</p><h2 id="USB2-0"><a href="#USB2-0" class="headerlink" title="USB2.0"></a>USB2.0</h2><p>USB供电电平为5V，通信电平为3.3V，上拉通常是3.3V上拉。（5V电平接10K上拉电阻）</p><ul><li>USB主机端D+和D-均有一个15K的下拉电阻</li><li>低速设备端D-上拉一个1.5K的电阻</li><li>高速&#x2F;全速设备端D+上拉一个1.5K的电阻</li></ul><p><img src="/../pictures/USB-2.0%E4%B8%BB%E6%9C%BA%E4%B8%8E%E8%AE%BE%E5%A4%87%E8%BF%9E%E6%8E%A5%E7%94%B5%E8%B7%AF%E5%9B%BE.png" alt="alt text"></p><h3 id="USB2-0设备连接状态检测"><a href="#USB2-0设备连接状态检测" class="headerlink" title="USB2.0设备连接状态检测"></a>USB2.0设备连接状态检测</h3><p>USB设备插入到主机端口后，会有以下一个典型流程：</p><ul><li>设备端检测到主机的VBus-5V供电后，D+&#x2F;D-由<code>SE0状态</code>转为<code>挂接3.3V上拉电阻</code>（低速设备端D-，高速&#x2F;全速设备端D+）</li><li>主机端读取D+&#x2F;D-电平变化，识别USB2.0-低速&#x2F;全速 设备接入</li><li>USB主机对插入的设备发送复位信号，进行设备复位</li></ul><br><ul><li>如果是主机上电前已连接的设备，设备端通过检测到主机下发的第一个复位信号来判断自身已连接</li><li>动态接入，设备端检测到自身的VBus电压升高（&gt;&#x3D;4.01V），判断自身已连接</li><li>设备端也可检测 D+&#x2F;D- 电平变化，判断是否已连接</li></ul><p>注意：</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">USB2.0高速设备在设备的连接检测时，是以USB2.0全速的工作状态进行通讯连接的。</span><br><span class="line"></span><br><span class="line">在USB主机端对设备复位后，USB高速设备会主动发送USB高速协商信号；</span><br><span class="line">主机端如果正确识别，则工作在全速状态的USB2.0高速设备切换到高速状态。</span><br></pre></td></tr></table></figure><p><strong>SE0状态：</strong></p><h3 id="USB2-0设备断开状态检测"><a href="#USB2-0设备断开状态检测" class="headerlink" title="USB2.0设备断开状态检测"></a>USB2.0设备断开状态检测</h3><ul><li>主机端-设备断开检测</li></ul><p>低速、全速设备：</p><p>高速设备：主机通过检测帧开始的包结束来判断设备是否断开，帧开始的间隔是125us，所以设备断开后，主机最多在125us就可以检测到设备断开</p><h2 id="USB3-0"><a href="#USB3-0" class="headerlink" title="USB3.0"></a>USB3.0</h2><h2 id="USB-OTG设备插拔检测-主从机识别软件方案"><a href="#USB-OTG设备插拔检测-主从机识别软件方案" class="headerlink" title="USB-OTG设备插拔检测-主从机识别软件方案"></a>USB-OTG设备插拔检测-主从机识别软件方案</h2><p>以杰理方案为例，周期轮询</p><p>如果设备一个USB端口同时使能 主机和从机 模式的话，则需要轮询识别接入的设备是主机还是从机</p><h2 id="思考与拓展"><a href="#思考与拓展" class="headerlink" title="思考与拓展"></a>思考与拓展</h2><h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2><ul><li><a href="https://www.usbzh.com/article/detail-634.html#:~:text=USB%E4%B8%BB%E6%9C%BA%E7%AB%AF%E6%A0%B9%E6%8D%AED+">USB2.0设备连接状态的检测</a></li><li><a href="https://blog.csdn.net/qq_37391577/article/details/131945122#:~:text=USB%203.0%E7%9A%84%E6%8E%A5%E5%8F%A3">USB协议之一 设备连接检测、断开检测</a></li></ul>]]></content>
+      
+      
+      <categories>
+          
+          <category> 嵌入式 </category>
+          
+          <category> USB </category>
           
       </categories>
       
@@ -317,9 +317,9 @@
       
       <categories>
           
-          <category> LiteOS </category>
-          
           <category> Linux </category>
+          
+          <category> LiteOS </category>
           
       </categories>
       
@@ -561,8 +561,8 @@
     
     <entry>
       <title>Makefile学习笔记</title>
-      <link href="/2023/12/15/Makefile%E7%9B%B8%E5%85%B3%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/"/>
-      <url>/2023/12/15/Makefile%E7%9B%B8%E5%85%B3%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</url>
+      <link href="/2023/12/15/%E3%80%90%E6%9E%84%E5%BB%BA%E3%80%91Makefile%E7%9B%B8%E5%85%B3%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/"/>
+      <url>/2023/12/15/%E3%80%90%E6%9E%84%E5%BB%BA%E3%80%91Makefile%E7%9B%B8%E5%85%B3%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</url>
       
         <content type="html"><![CDATA[<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>Makefile 问世并流行多年，互联网上早已拥有海量的相关学习文章、视频及书籍资料。因此这篇文章主要以个人的理解角度，来阐述 Makefile 的学习之路。</p><h2 id="基础知识-概念"><a href="#基础知识-概念" class="headerlink" title="基础知识&#x2F;概念"></a>基础知识&#x2F;概念</h2><h3 id="符号"><a href="#符号" class="headerlink" title="符号"></a>符号</h3><ul><li>符号<code>$</code><br>表示引用定义变量的值 </li><li>符号<code>$@</code><br>目标的集合</li><li>符号<code>$&lt;</code><br>依赖文件集合中的第一个文件；通常依赖文件是以(“%”)定义的，所以其表示为符合模式的一系列文件</li></ul><h3 id="Makefile格式"><a href="#Makefile格式" class="headerlink" title="Makefile格式"></a>Makefile格式</h3><ol><li>直接输入命令make，系统会默认以第一条规则的目标为最终目标; 也可以指定生成目标，比如make main、make clean</li></ol><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">目标....： 依赖文件集合...</span><br><span class="line">    命令1</span><br><span class="line">    命令2</span><br><span class="line">    ......</span><br></pre></td></tr></table></figure><h3 id="规则模式与语法"><a href="#规则模式与语法" class="headerlink" title="规则模式与语法"></a>规则模式与语法</h3><ul><li><p>模式规则</p></li><li><p>常用函数</p></li></ul><h2 id="进阶应用"><a href="#进阶应用" class="headerlink" title="进阶应用"></a>进阶应用</h2><h3 id="Makefile父子文件配置"><a href="#Makefile父子文件配置" class="headerlink" title="Makefile父子文件配置"></a>Makefile父子文件配置</h3><p>多目录管理</p><p>文件间变量如何共享？</p><p>如何组织工程</p><h3 id="make-menuconfig-原理"><a href="#make-menuconfig-原理" class="headerlink" title="make menuconfig 原理"></a>make menuconfig 原理</h3><h3 id="Automake-原理"><a href="#Automake-原理" class="headerlink" title="Automake 原理"></a>Automake 原理</h3><p>Automake是GNU构建系统的一部分，它旨在简化软件项目的构建过程。Automake通过简化Makefile的编写，提供了一种更加高级和可移植的方式来描述软件项目的构建规则。</p><p>Automake使用一种称为”Makefile.am”的文件来描述构建规则，然后通过”aclocal”、”autoconf”和”automake”等工具生成最终的Makefile。</p><p>使用Automake可以使得构建规则更加清晰、简洁，并且具有更好的可移植性。</p><p>Automake还提供了一些高级功能，如支持多目录构建、自动化依赖关系管理、自动生成文件等。</p><p>这些功能使得Automake成为一个强大的构建工具，特别适用于大型和复杂的软件项目。</p><h2 id="实际工程之应用开发"><a href="#实际工程之应用开发" class="headerlink" title="实际工程之应用开发"></a>实际工程之应用开发</h2><h3 id="在单片机中的应用点"><a href="#在单片机中的应用点" class="headerlink" title="在单片机中的应用点"></a>在单片机中的应用点</h3><p>make 构建编译工程的时候，调用其它可执行程序将 bootloader、app两个bin文件合并为一个镜像文件</p><p>make 相应指令，调用 J-Flash 将编译生成镜像下载到单片机中</p><h3 id="在Linux中的应用点"><a href="#在Linux中的应用点" class="headerlink" title="在Linux中的应用点"></a>在Linux中的应用点</h3><h2 id="注意项及疑惑解答"><a href="#注意项及疑惑解答" class="headerlink" title="注意项及疑惑解答"></a>注意项及疑惑解答</h2><h3 id="Makefile-文件与-mk-文件的区别与联系？"><a href="#Makefile-文件与-mk-文件的区别与联系？" class="headerlink" title="Makefile 文件与 .mk 文件的区别与联系？"></a>Makefile 文件与 .mk 文件的区别与联系？</h3><p>在实际使用中，通常将makefile文件的扩展名命名为.mk或者Makefile。在GNU Make工具中，.mk文件通常用于包含一组相关的规则，而Makefile文件通常用于包含整个项目的构建规则。</p><p>实际上，.mk文件和Makefile文件之间没有本质区别，它们都是Make工具所使用的构建规则文件。</p><p>通常情况下，.mk文件用于包含一组相关的规则，而Makefile文件用于包含整个项目的构建规则，但这只是一种惯例，实际上可以根据项目的需要来命名文件。</p><p>无论是.mk文件还是Makefile文件，它们都是Make工具所使用的构建规则文件，可以包含变量定义、目标规则、依赖关系等内容。</p><p>因此，在实际使用中，可以根据项目的需要来选择使用.mk文件或者Makefile文件，并没有严格的规定。</p><h3 id="在Makefile中，是如何将每个需要编译生成-o目标文件与-c源文件关联起来的"><a href="#在Makefile中，是如何将每个需要编译生成-o目标文件与-c源文件关联起来的" class="headerlink" title="在Makefile中，是如何将每个需要编译生成.o目标文件与.c源文件关联起来的"></a>在Makefile中，是如何将每个需要编译生成.o目标文件与.c源文件关联起来的</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"># addprefix用于在每个元素前面添加一个前缀：(OUTPUT_DIR)/</span><br><span class="line"># (C_SOURCES:.c=.o)将C源文件的后缀.c替换为.o，使得C_SOURCES中的每个.c都对应相应的.o文件</span><br><span class="line">C_OBJECTS = $(addprefix $(OUTPUT_DIR)/, $(C_SOURCES:.c=.o))</span><br><span class="line"></span><br><span class="line">$(OUTPUT_DIR)/%.o: %.c              # 模式规则，要生成.o文件，则要找到对应的.c</span><br><span class="line">    mkdir -p $(dir $@)              # 如果目录不存在，则创建；(dir@)表示目标文件$@的目录部分</span><br><span class="line">    $(CC) $(INCLUDE) $(CFLAGS) -MMD -c $&lt; -o $@</span><br></pre></td></tr></table></figure><br><h3 id="configure命令"><a href="#configure命令" class="headerlink" title=".&#x2F;configure命令"></a>.&#x2F;configure命令</h3><p>configure脚本由autoconf工具生成，在make命令之前先执行配置；执行此命令，配置编译器、库、工具等参数，并根据此参数生成一个Makefile</p><br>    <h3 id="编译、包含依赖文件，避免重复编译、提高效率"><a href="#编译、包含依赖文件，避免重复编译、提高效率" class="headerlink" title="编译、包含依赖文件，避免重复编译、提高效率"></a>编译、包含依赖文件，避免重复编译、提高效率</h3><p>在编译命令中加入<code>-MMD</code>选项，告诉编译器生成依赖关系文件<br>在Makefile里的目标文件编译规则命令之后，加入<code>-include $(wildcard $(OUTPUT_DIR)/*/*.d)</code></p><h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2>]]></content>
       
@@ -923,22 +923,22 @@
     
     
     <entry>
-      <title>about</title>
-      <link href="/about/index.html"/>
-      <url>/about/index.html</url>
+      <title>categories</title>
+      <link href="/categories/index.html"/>
+      <url>/categories/index.html</url>
       
-        <content type="html"><![CDATA[<h2 id="陈进渡"><a href="#陈进渡" class="headerlink" title="陈进渡"></a>陈进渡</h2><p>男 | 24岁 | 两年工作经验</p><p>18898517377 | <a href="mailto:&#x63;&#104;&#x65;&#x6e;&#106;&#x69;&#x6e;&#x64;&#117;&#64;&#x31;&#50;&#x36;&#46;&#99;&#111;&#109;">&#x63;&#104;&#x65;&#x6e;&#106;&#x69;&#x6e;&#x64;&#117;&#64;&#x31;&#50;&#x36;&#46;&#99;&#111;&#109;</a> | <a href="https://jindu-chen.github.io/">https://jindu-chen.github.io</a></p><p>嵌入式软件工程师</p><p>深圳大学 本科 机电与控制工程（2018.09 - 2022.06）</p><!-- ### 教育经历深圳大学 本科 机电与控制工程（2018.09 - 2022.06）### 个人技能- 熟练使用 ST、国民技术等 MCU 进行驱动与应用开发；掌握 SPI、IIC、UART 等外设原理及使用；- 熟练掌握C语言编程，熟悉 C++ 和汇编语言；- 熟练使用实时操作系统进行开发，如RT-Thread、OpenHarmony轻量系统或其它RTOS内核等；- 熟悉嵌入式Linux系统开发，熟悉设备驱动框架；- 熟悉软件分层设计、模块化设计、业务组件、芯片通用驱动编写；- 能看懂常用原理图，能熟练使用万用表、示波器、逻辑分析仪等测试工具；- 熟练应用开发/构建/辅助工具如 Keil、Git、Make、GCC、Markdown 等；具备良好的英文阅读能力（CET-6）### 工作经历**深圳市倍轻松科技股份有限公司 (2022.05 - 至今)**     嵌入式软件工程师 电子开发部<br>1. 通用业务模块代码编写及维护，分离代码层次结构，输出业务组件，以缩减同类型产品软件开发周期2. 国产32位芯片通用外设驱动代码编写及维护3. 独立完成多款新品项目软件设计，跟进技术立项、产品研发、生产上市4. 对接、维护公司现有项目工程，并进行迭代开发，包括颈部、眼部、头部按摩器等电子消费产品5. 进行产品适配OpenHarmony轻量系统开发，并通过OpenHarmony兼容性测评6. 编写及完善公司嵌入式业务开发规范文档### 项目经历#### 颈部按摩器 (2022.06 - 2022.11)**项目描述：**该产品为旗舰级电子消费产品，功能模块主要包含有蓝牙模组、无刷电机组、加热片、触摸IC、RGB-LED、IAP等，应用外设驱动主要有uart、iic、spi、pwm等。**责任描述：**1. 基于裸机的多任务轮询框架进行开发，应用回调函数、消息队列等方式实现子任务事件上报、主任务分发控制的业务框架，较好地实现了模块化设计，大大提高了工程的可读性以及可维护性。2. 编写各功能模块业务，封装可复用的代码，并整理输出，以缩减同类型产品功能开发进度。3. 对接app控制，整机联调，跟进产品测试以及生产上市流程**项目业绩：**为公司2022年度主打新品之一，后进行多次迭代开发及批量生产#### 颈部按摩器 (2022.10 - 2023.03)**项目描述：**  该产品采用国产32位MCU，基于RT-Thread操作系统开发，包括有无刷电机、加热热敷、BLE控制、OTA升级等功能，拥有多模式业务设计，并向用户提供丰富的自定义控制接口**责任描述：**1. 软件框架构建，代码设计应用包含状态模式、观察者模式、命令模式、面向对象等设计思想；编写统一接口的通用驱动，缩减芯片替换开发进程。2. 灵活运用命令行交互以及日志打印，高效完成业务逻辑开发以及软件调试，并便于后续bug查找，缩减开发周期。3. 软硬联调，紧密对接需求，跟进项目量产、维护与后续迭代开发工作4. 进行移植适配OpenHarmony轻量系统开发，并通过开放原子基金会的产品兼容性测评**项目业绩：**1. 主动积极挖掘需求，运用多层链表，使得按摩模式动作具备高扩展性；产品功能设计得到业务领导赞赏，在年中总结会中获得创新之星奖2. 该产品在2023年3月实现量产上市，截止至2023年5月，销售额已超一千万元3. 此项目后多次迭代开发，并获得开源鸿蒙生态产品兼容性证书，2023年度累计销售额超过五千万元，在公司自研产品中排名第二#### 电子灸疗器械系列**基于I.MX6ULL/RK3566的灸疗仪 (2023.03 - 2023.11)****项目描述：**  该项目是一款II类电子医疗器械，内置了屏幕触控、多通道温控、联网升级等功能。该产品通过电子灸疗片搭配药物，作用于人体穴位，主要应用于预防或治疗疾病。产品已通过医疗所前期检验，进入试产阶段**责任描述：**1. 私有协议开发，对接主机通讯，主要负责下位机的控制2. 对接客户需求与外协，参与嵌入式Linux系统和Qt界面的设计与开发3. 进行基于I.MX6ULL芯片的方案预研，完成u-boot、dtb、kernel、rootfs的修改与编译，组件驱动添加和裁剪**基于N32L40x的无线灸疗仪 (2023.10 - 至今)****项目描述：**  该产品为一拖二的设计，主要业务功能为热敷、蓝牙BLE控制、按键、灯光、主从机私有协议通信、OTA升级等**责任描述：**1. 进行主机及从机的软件架构设计，应用抽象程度高的裸机定时/任务链表轮询框架，较好地实现系统分层设计、业务模块化设计2. 应用开源组件 Letter_Shell、Log、Flexible_button、SFUD 等### 自我评价- 能够快速熟悉业务代码逻辑并具有独立开发能力- 热爱技术，喜欢接受挑战，具有强大的自驱力 -->]]></content>
+        <content type="html"><![CDATA[]]></content>
       
     </entry>
     
     
     
     <entry>
-      <title>categories</title>
-      <link href="/categories/index.html"/>
-      <url>/categories/index.html</url>
+      <title>about</title>
+      <link href="/about/index.html"/>
+      <url>/about/index.html</url>
       
-        <content type="html"><![CDATA[]]></content>
+        <content type="html"><![CDATA[<h2 id="陈进渡"><a href="#陈进渡" class="headerlink" title="陈进渡"></a>陈进渡</h2><p>男 | 24岁 | 两年工作经验</p><p>18898517377 | <a href="mailto:&#99;&#104;&#101;&#110;&#106;&#x69;&#x6e;&#100;&#117;&#64;&#x31;&#50;&#54;&#x2e;&#99;&#111;&#109;">&#99;&#104;&#101;&#110;&#106;&#x69;&#x6e;&#100;&#117;&#64;&#x31;&#50;&#54;&#x2e;&#99;&#111;&#109;</a> | <a href="https://jindu-chen.github.io/">https://jindu-chen.github.io</a></p><p>嵌入式软件工程师</p><p>深圳大学 本科 机电与控制工程（2018.09 - 2022.06）</p><!-- ### 教育经历深圳大学 本科 机电与控制工程（2018.09 - 2022.06）### 个人技能- 熟练使用 ST、国民技术等 MCU 进行驱动与应用开发；掌握 SPI、IIC、UART 等外设原理及使用；- 熟练掌握C语言编程，熟悉 C++ 和汇编语言；- 熟练使用实时操作系统进行开发，如RT-Thread、OpenHarmony轻量系统或其它RTOS内核等；- 熟悉嵌入式Linux系统开发，熟悉设备驱动框架；- 熟悉软件分层设计、模块化设计、业务组件、芯片通用驱动编写；- 能看懂常用原理图，能熟练使用万用表、示波器、逻辑分析仪等测试工具；- 熟练应用开发/构建/辅助工具如 Keil、Git、Make、GCC、Markdown 等；具备良好的英文阅读能力（CET-6）### 工作经历**深圳市倍轻松科技股份有限公司 (2022.05 - 至今)**     嵌入式软件工程师 电子开发部<br>1. 通用业务模块代码编写及维护，分离代码层次结构，输出业务组件，以缩减同类型产品软件开发周期2. 国产32位芯片通用外设驱动代码编写及维护3. 独立完成多款新品项目软件设计，跟进技术立项、产品研发、生产上市4. 对接、维护公司现有项目工程，并进行迭代开发，包括颈部、眼部、头部按摩器等电子消费产品5. 进行产品适配OpenHarmony轻量系统开发，并通过OpenHarmony兼容性测评6. 编写及完善公司嵌入式业务开发规范文档### 项目经历#### 颈部按摩器 (2022.06 - 2022.11)**项目描述：**该产品为旗舰级电子消费产品，功能模块主要包含有蓝牙模组、无刷电机组、加热片、触摸IC、RGB-LED、IAP等，应用外设驱动主要有uart、iic、spi、pwm等。**责任描述：**1. 基于裸机的多任务轮询框架进行开发，应用回调函数、消息队列等方式实现子任务事件上报、主任务分发控制的业务框架，较好地实现了模块化设计，大大提高了工程的可读性以及可维护性。2. 编写各功能模块业务，封装可复用的代码，并整理输出，以缩减同类型产品功能开发进度。3. 对接app控制，整机联调，跟进产品测试以及生产上市流程**项目业绩：**为公司2022年度主打新品之一，后进行多次迭代开发及批量生产#### 颈部按摩器 (2022.10 - 2023.03)**项目描述：**  该产品采用国产32位MCU，基于RT-Thread操作系统开发，包括有无刷电机、加热热敷、BLE控制、OTA升级等功能，拥有多模式业务设计，并向用户提供丰富的自定义控制接口**责任描述：**1. 软件框架构建，代码设计应用包含状态模式、观察者模式、命令模式、面向对象等设计思想；编写统一接口的通用驱动，缩减芯片替换开发进程。2. 灵活运用命令行交互以及日志打印，高效完成业务逻辑开发以及软件调试，并便于后续bug查找，缩减开发周期。3. 软硬联调，紧密对接需求，跟进项目量产、维护与后续迭代开发工作4. 进行移植适配OpenHarmony轻量系统开发，并通过开放原子基金会的产品兼容性测评**项目业绩：**1. 主动积极挖掘需求，运用多层链表，使得按摩模式动作具备高扩展性；产品功能设计得到业务领导赞赏，在年中总结会中获得创新之星奖2. 该产品在2023年3月实现量产上市，截止至2023年5月，销售额已超一千万元3. 此项目后多次迭代开发，并获得开源鸿蒙生态产品兼容性证书，2023年度累计销售额超过五千万元，在公司自研产品中排名第二#### 电子灸疗器械系列**基于I.MX6ULL/RK3566的灸疗仪 (2023.03 - 2023.11)****项目描述：**  该项目是一款II类电子医疗器械，内置了屏幕触控、多通道温控、联网升级等功能。该产品通过电子灸疗片搭配药物，作用于人体穴位，主要应用于预防或治疗疾病。产品已通过医疗所前期检验，进入试产阶段**责任描述：**1. 私有协议开发，对接主机通讯，主要负责下位机的控制2. 对接客户需求与外协，参与嵌入式Linux系统和Qt界面的设计与开发3. 进行基于I.MX6ULL芯片的方案预研，完成u-boot、dtb、kernel、rootfs的修改与编译，组件驱动添加和裁剪**基于N32L40x的无线灸疗仪 (2023.10 - 至今)****项目描述：**  该产品为一拖二的设计，主要业务功能为热敷、蓝牙BLE控制、按键、灯光、主从机私有协议通信、OTA升级等**责任描述：**1. 进行主机及从机的软件架构设计，应用抽象程度高的裸机定时/任务链表轮询框架，较好地实现系统分层设计、业务模块化设计2. 应用开源组件 Letter_Shell、Log、Flexible_button、SFUD 等### 自我评价- 能够快速熟悉业务代码逻辑并具有独立开发能力- 热爱技术，喜欢接受挑战，具有强大的自驱力 -->]]></content>
       
     </entry>
     

@@ -23,19 +23,19 @@
   <meta name="description" content="主要讲述USB插拔，包括USB2.0低速、全速&#x2F;高速、USB3.0等设备上下线检测原理，并介绍在嵌入式USB-OTG设备下的插拔检测软件设计方案。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="【USB】USB插拔检测原理及应用">
-<meta property="og:url" content="http://example.com/2024/09/04/%E3%80%90USB%E3%80%91USB%E6%8F%92%E6%8B%94%E6%A3%80%E6%B5%8B/index.html">
+<meta property="og:url" content="http://example.com/2024/08/31/%E3%80%90USB%E3%80%91USB%E6%8F%92%E6%8B%94%E6%A3%80%E6%B5%8B/index.html">
 <meta property="og:site_name" content="Jindu-Chen">
 <meta property="og:description" content="主要讲述USB插拔，包括USB2.0低速、全速&#x2F;高速、USB3.0等设备上下线检测原理，并介绍在嵌入式USB-OTG设备下的插拔检测软件设计方案。">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://example.com/pictures/USB-2.0%E4%B8%BB%E6%9C%BA%E4%B8%8E%E8%AE%BE%E5%A4%87%E8%BF%9E%E6%8E%A5%E7%94%B5%E8%B7%AF%E5%9B%BE.png">
-<meta property="article:published_time" content="2024-09-03T16:00:00.000Z">
-<meta property="article:modified_time" content="2024-09-27T03:35:04.904Z">
+<meta property="article:published_time" content="2024-08-30T16:00:00.000Z">
+<meta property="article:modified_time" content="2024-09-27T05:46:15.631Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="http://example.com/pictures/USB-2.0%E4%B8%BB%E6%9C%BA%E4%B8%8E%E8%AE%BE%E5%A4%87%E8%BF%9E%E6%8E%A5%E7%94%B5%E8%B7%AF%E5%9B%BE.png">
 
-<link rel="canonical" href="http://example.com/2024/09/04/%E3%80%90USB%E3%80%91USB%E6%8F%92%E6%8B%94%E6%A3%80%E6%B5%8B/">
+<link rel="canonical" href="http://example.com/2024/08/31/%E3%80%90USB%E3%80%91USB%E6%8F%92%E6%8B%94%E6%A3%80%E6%B5%8B/">
 
 
 <script id="page-configurations">
@@ -197,7 +197,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/09/04/%E3%80%90USB%E3%80%91USB%E6%8F%92%E6%8B%94%E6%A3%80%E6%B5%8B/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/08/31/%E3%80%90USB%E3%80%91USB%E6%8F%92%E6%8B%94%E6%A3%80%E6%B5%8B/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -220,14 +220,14 @@
               </span>
               <span class="post-meta-item-text">Posted on</span>
 
-              <time title="Created: 2024-09-04 00:00:00" itemprop="dateCreated datePublished" datetime="2024-09-04T00:00:00+08:00">2024-09-04</time>
+              <time title="Created: 2024-08-31 00:00:00" itemprop="dateCreated datePublished" datetime="2024-08-31T00:00:00+08:00">2024-08-31</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-09-27 11:35:04" itemprop="dateModified" datetime="2024-09-27T11:35:04+08:00">2024-09-27</time>
+                <time title="Modified: 2024-09-27 13:46:15" itemprop="dateModified" datetime="2024-09-27T13:46:15+08:00">2024-09-27</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -249,14 +249,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>797</span>
+              <span>584</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>1 mins.</span>
+              <span>2 mins.</span>
             </span>
             <div class="post-description">主要讲述USB插拔，包括USB2.0低速、全速/高速、USB3.0等设备上下线检测原理，并介绍在嵌入式USB-OTG设备下的插拔检测软件设计方案。</div>
 
@@ -320,12 +320,12 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2024/09/01/%E5%B5%8C%E5%85%A5%E5%BC%8F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91%E7%AC%94%E8%AE%B0/" rel="prev" title="嵌入式之文件系统应用开发笔记">
-      <i class="fa fa-chevron-left"></i> 嵌入式之文件系统应用开发笔记
+    <a href="/2024/08/21/%E3%80%90%E8%93%9D%E7%89%99%E3%80%91%E7%BB%8F%E5%85%B8%E8%93%9D%E7%89%99%E5%92%8CTWS%E7%9A%84%E8%BF%9E%E6%8E%A5%E5%8E%9F%E7%90%86/" rel="prev" title="【蓝牙】经典蓝牙和TWS的连接原理">
+      <i class="fa fa-chevron-left"></i> 【蓝牙】经典蓝牙和TWS的连接原理
     </a></div>
       <div class="post-nav-item">
-    <a href="/2024/09/19/%E6%9D%B0%E7%90%86SDK-Makefile%E5%8F%8A%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%9B%BA%E4%BB%B6%E9%9B%86%E5%88%86%E6%9E%90/" rel="next" title="杰理SDK-Makefile-编译构建下载流程分析">
-      杰理SDK-Makefile-编译构建下载流程分析 <i class="fa fa-chevron-right"></i>
+    <a href="/2024/09/01/%E5%B5%8C%E5%85%A5%E5%BC%8F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91%E7%AC%94%E8%AE%B0/" rel="next" title="嵌入式之文件系统应用开发笔记">
+      嵌入式之文件系统应用开发笔记 <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -448,12 +448,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">208k</span>
+    <span title="Symbols count total">98k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">5:46</span>
+    <span title="Reading time total">5:28</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
   </div>
