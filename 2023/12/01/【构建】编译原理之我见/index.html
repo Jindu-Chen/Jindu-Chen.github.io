@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":"enable","trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="讲述个人对C工程编译链接的一些浅薄见解，不涉及深层的编译原理；此外，也记录在开发中所遇到的与编译、链接相关的知识及其应用">
+<meta property="og:type" content="article">
+<meta property="og:title" content="编译&#x2F;链接原理及其在开发中之体现">
+<meta property="og:url" content="http://example.com/2023/12/01/%E3%80%90%E6%9E%84%E5%BB%BA%E3%80%91%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E4%B9%8B%E6%88%91%E8%A7%81/index.html">
+<meta property="og:site_name" content="Jindu-Chen">
+<meta property="og:description" content="讲述个人对C工程编译链接的一些浅薄见解，不涉及深层的编译原理；此外，也记录在开发中所遇到的与编译、链接相关的知识及其应用">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2023-11-30T16:00:00.000Z">
+<meta property="article:modified_time" content="2024-09-27T06:16:03.963Z">
+<meta property="article:author" content="cjd">
+<meta property="article:tag" content="C语言">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2023/12/01/%E3%80%90%E6%9E%84%E5%BB%BA%E3%80%91%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E4%B9%8B%E6%88%91%E8%A7%81/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>编译/链接原理及其在开发中之体现 | Jindu-Chen</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Jindu-Chen</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">风物长宜放眼量</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/12/01/%E3%80%90%E6%9E%84%E5%BB%BA%E3%80%91%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E4%B9%8B%E6%88%91%E8%A7%81/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="cjd">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jindu-Chen">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          编译/链接原理及其在开发中之体现
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-12-01 00:00:00" itemprop="dateCreated datePublished" datetime="2023-12-01T00:00:00+08:00">2023-12-01</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-09-27 14:16:03" itemprop="dateModified" datetime="2024-09-27T14:16:03+08:00">2024-09-27</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">嵌入式</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>2k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>7 mins.</span>
+            </span>
+            <div class="post-description">讲述个人对C工程编译链接的一些浅薄见解，不涉及深层的编译原理；此外，也记录在开发中所遇到的与编译、链接相关的知识及其应用</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="构建C工程中的一些疑惑解答"><a href="#构建C工程中的一些疑惑解答" class="headerlink" title="构建C工程中的一些疑惑解答"></a>构建C工程中的一些疑惑解答</h2><p>#include “.c”文件 可行吗？</p>
+<blockquote>
+<p>#include 指令执行在预处理阶段<br>主要用于包含头文件（.h 文件），以便在编译时插入对应的声明和宏定义等内容<br>理论上可行，但不推荐。要按照规范，.h用于声明，.c用于实现，利于阅读、模块化组织</p>
+</blockquote>
+<p>链接脚本与汇编源文件、C源文件的联系</p>
+<blockquote>
+<p>链接脚本是用于指示链接器如何链接代码、数据的描述文件</p>
+</blockquote>
+<hr>
+<ul>
+<li>四字节对齐：要求数据的存放起始地址必须是4的倍数<br>作用：<br>1、数据结构按照4字节对齐，使得处理器更有效访问，32位系统可以一次读完一个4字节长度变量<br>2、某些硬件要求数据需要在特定的边界上对齐，否则可能出现异常<br>  如STM32，Flash的写入、DMA访问、结构体成员、线程栈PSP、<strong>指针变量</strong>都需要考虑字节对齐<br>3、结构体本身没有4字节对齐，进行特定的跳转读取，可能导致异常</li>
+</ul>
+<hr>
+<h2 id="与编译链接相关之实用小知识"><a href="#与编译链接相关之实用小知识" class="headerlink" title="与编译链接相关之实用小知识"></a>与编译链接相关之实用小知识</h2><h3 id="printf重定向至串口"><a href="#printf重定向至串口" class="headerlink" title="printf重定向至串口"></a>printf重定向至串口</h3><p>开发调试时可以通过printf进行信息打印输出，但是通常编译器默认将printf重定向至屏幕，可以通过重定向至串口来输出：</p>
+<ul>
+<li><code>printf</code>是C标准库用于格式化输出到标准输出(stdout)的函数，其在<strong>C标准库里内会调用到接口<code>_write</code>，该接口是个弱函数，默认实现是输出至屏幕</strong>。</li>
+<li>那么用户可以自行实现<code>_write</code>函数，将数据输出至串口。编译器链接时会链接到用户自行实现的<code>_write</code>函数，而非默认的弱符号修饰的<code>_write</code>函数。</li>
+</ul>
+<p>当然，不同C库的实现方式也不同，这里以<code>gcc nano</code>为例。（其它C库如 ARM-microlib，或者 newlib 等，其重定向时不一定为重写<code>_write</code>函数，可能是<code>_io_putchar</code>函数、<code>_putchar</code>、<code>fputc</code>函数等）</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> _write(<span class="type">int</span> fd, <span class="type">char</span>* data, <span class="type">int</span> len)</span><br><span class="line">&#123;</span><br><span class="line">    drv_uart_write(DEV_UART1, (<span class="type">uint8_t</span> *)data, len);    <span class="comment">// 由开发者自行实现此接口</span></span><br><span class="line">    <span class="keyword">return</span> len;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="非典型知识"><a href="#非典型知识" class="headerlink" title="非典型知识"></a>非典型知识</h2><h3 id="a静态库文件和-o目标文件、-elf文件"><a href="#a静态库文件和-o目标文件、-elf文件" class="headerlink" title=".a静态库文件和.o目标文件、.elf文件"></a>.a静态库文件和.o目标文件、.elf文件</h3><p><strong>ELF文件格式：</strong> 一种广泛使用的文件格式，主要用于UNIX和类UNIX系统，包括Linux。ELF文件格式是Linux系统中程序编译、链接和加载的基础。它允许开发者创建模块化、可重定位的程序，并支持动态链接和加载<br>类型：可执行文件、可重定位文件（.o）、共享对象文件（.so 动态库）</p>
+<p>ELF头部（ELF Header）：描述了文件的总体特性，如文件类型、目标机器架构、程序入口地址、程序头表和节头表的位置等。<br>程序头表（Program Header Table）：列举了所有的段（segments），以及它们的属性，如加载到内存的地址、在文件中的偏移量、大小等。<br>节头表（Section Header Table）：包含了文件中各个节（sections）的描述，每个节包含了程序的一部分，如代码、数据或符号表。<br>节（Sections）：包含了实际的程序代码和数据，以及调试信息、符号表等辅助信息。<br>段（Segments）：在可执行文件或动态链接库中，节被组织成段，每个段代表一个内存区域，如文本段（代码）、数据段（初始化数据）和BSS段（未初始化数据）。<br><br></p>
+<p><strong>.elf文件：</strong> .elf 文件是遵循 ELF 格式的二进制文件，其是链接器处理多个 .o 文件后的产物。.o 文件是构成 .elf 文件的基本单元，多个 .o 文件通过链接器链接成一个 .elf 文件<br>内容：包含完整的可执行或可链接的代码和数据，包括.o文件的内容、重定位信息、节区信息、动态链接信息、调试信息等<br>作用：.elf 文件可以直接在支持ELF格式的操作系统上运行，或者作为动态库被其他程序加载。<br>特点：.elf 文件拥有实际的内存地址信息，因为它经过了链接器的地址分配和重定位</p>
+<blockquote>
+<p>在嵌入式设备上运行时，往往需要将其转换为不含调试信息且更适合加载到目标硬件的 .bin 或 .hex 格式</p>
+</blockquote>
+<br>
+
+<p><strong>.o文件：</strong> 格式由目标体系结构决定，通常为<code>ELF</code>，.o 文件是编译器（compiler）处理源代码文件（如 .c 或 .cpp）后的结果<br>内容：</p>
+<ul>
+<li>文件头：记录了文件的类型、大小、目标体系结构、编译器版本等</li>
+<li>代码段：包含了函数的代码，如操作码、数据段、代码段</li>
+<li>数据段：包含了函数的静态数据，如全局变量、静态变量</li>
+<li>符号表：记录了.o文件中所有符号的名称和地址，其可以是函数、变量、常量等</li>
+<li>重定位表：记录了.o文件之间相互引用的符号的地址<blockquote>
+<p>如：如果一个.o文件中有一个函数foo()，另一个.o文件中有一个变量a，而变量a的值由函数foo()返回，则需要在两个.o文件之间建立重定位关系</p>
+</blockquote>
+</li>
+</ul>
+<br>
+
+<p><strong>.a文件格式：</strong> 静态库文件，由多个.o文件链接而成</p>
+<ul>
+<li>.o文件的列表</li>
+<li>符号表：记录了文件中所有符号的名称和地址。符号可以是函数、变量、常量等</li>
+<li>重定位表：用于记录两个文件之间相互引用的符号的地址</li>
+</ul>
+<blockquote>
+<p>程序链接时，链接器会根据.a文件中的符号表和重定位表，将.a文件中的代码和数据链接到程序中</p>
+</blockquote>
+<p><strong>nm命令</strong>：用于查看目标文件（.o文件）和库文件（.a文件）中的符号表<strong>（-a：显示所有符号，-g：显示符号类型、地址、符号表中索引，-r：显示符号的重定位信息）</strong></p>
+<blockquote>
+<p>nm XXX.a</p>
+</blockquote>
+<p><strong>objdump命令</strong>：objdump命令用于反汇编目标文件（.o文件）和库文件（.a文件）<strong>（-d：反汇编代码段，-s：显示数据段，-t：显示符号表）</strong></p>
+<blockquote>
+<p>objdump -t 1.o</p>
+</blockquote>
+<p><strong>readelf命令</strong>：readelf命令用于查看目标文件（.o文件）和库文件（.a文件）的文件头、代码段、数据段等信息（-h：显示文件头信息，-S：显示代码段信息，-D：显示数据段信息）</p>
+<blockquote>
+<p>readelf -h XXX.a</p>
+</blockquote>
+<hr>
+<h2 id="C程序开发注意点"><a href="#C程序开发注意点" class="headerlink" title="C程序开发注意点"></a>C程序开发注意点</h2><h3 id="头文件包含"><a href="#头文件包含" class="headerlink" title="头文件包含"></a>头文件包含</h3><ul>
+<li>避免冗余的头文件包含，只有当用到时才添加其头文件</li>
+<li>头文件在预处理阶段会被复制到源文件中，过多包含不必要头文件会使得编译时间增加</li>
+<li>头文件中定义了相同变量、函数等，可能会引起不必要的冲突；或会使得链接器产出些潜在的错误链接问题</li>
+<li>尽量不要在头文件中包含头文件</li>
+</ul>
+<h3 id="修改编译优化级别"><a href="#修改编译优化级别" class="headerlink" title="修改编译优化级别"></a>修改编译优化级别</h3><ul>
+<li><p>改变编译等级可能会导致程序运行出错</p>
+<ul>
+<li>提高优化级别时出错，可考虑以下：<blockquote>
+<p>程序中没有放置正确的内存屏障，优化导致的乱序执行可能有问题<br>  部分代码设计需要严谨考虑时序性<br>  可能会忽略了链接脚本中指定的四字节对齐</p>
+</blockquote>
+</li>
+<li>降低优化级别时出错：<blockquote>
+<p>线程的堆栈可能偏小，导致栈溢出</p>
+</blockquote>
+</li>
+</ul>
+</li>
+<li><p>修改编译等级后导致运行出错的问题排查思路</p>
+</li>
+</ul>
+<h2 id="C编译过程"><a href="#C编译过程" class="headerlink" title="C编译过程"></a>C编译过程</h2><p>编译器的主要工作流程如下：</p>
+<blockquote>
+<p>源程序(source code)→预处理器(preprocessor)→编译器(compiler)→汇编程序(assembler)→目标程序(object code)→连接器(链接器，Linker)→可执行程序(executables)</p>
+</blockquote>
+<ul>
+<li>配置</li>
+<li>确定标准库和头文件位置</li>
+<li>确定依赖关系</li>
+<li>头文件预编译</li>
+<li>预处理</li>
+<li>编译</li>
+<li>链接</li>
+<li>安装</li>
+</ul>
+<h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/gongxianjin/p/16906719.html">ELF文件格式简介 — 见过最细致的ELF讲解</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/fa7d5554aca3">【硬核干货 | 程序的编译、链接、装载与运行】</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/C%E8%AF%AD%E8%A8%80/" rel="tag"># C语言</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/11/29/%E3%80%90Harmony%E3%80%91%E5%BF%83%E5%BE%97%EF%BC%9ALiteOS%E5%88%9D%E4%BD%93%E9%AA%8C/" rel="prev" title="LiteOS适配及开发笔记">
+      <i class="fa fa-chevron-left"></i> LiteOS适配及开发笔记
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2023/12/04/%E3%80%90MCU%E3%80%91%E9%80%9A%E8%BF%87VSCode-GDB-%E6%90%AD%E5%BB%BAWSL%E4%B8%8B%E7%9A%84%E5%B5%8C%E5%85%A5%E5%BC%8Fmcu%E8%B0%83%E8%AF%95%E7%8E%AF%E5%A2%83/" rel="next" title="通过VSCode + GDB 搭建WSL下的嵌入式MCU调试环境">
+      通过VSCode + GDB 搭建WSL下的嵌入式MCU调试环境 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9E%84%E5%BB%BAC%E5%B7%A5%E7%A8%8B%E4%B8%AD%E7%9A%84%E4%B8%80%E4%BA%9B%E7%96%91%E6%83%91%E8%A7%A3%E7%AD%94"><span class="nav-number">1.</span> <span class="nav-text">构建C工程中的一些疑惑解答</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%8E%E7%BC%96%E8%AF%91%E9%93%BE%E6%8E%A5%E7%9B%B8%E5%85%B3%E4%B9%8B%E5%AE%9E%E7%94%A8%E5%B0%8F%E7%9F%A5%E8%AF%86"><span class="nav-number">2.</span> <span class="nav-text">与编译链接相关之实用小知识</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#printf%E9%87%8D%E5%AE%9A%E5%90%91%E8%87%B3%E4%B8%B2%E5%8F%A3"><span class="nav-number">2.1.</span> <span class="nav-text">printf重定向至串口</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9D%9E%E5%85%B8%E5%9E%8B%E7%9F%A5%E8%AF%86"><span class="nav-number">3.</span> <span class="nav-text">非典型知识</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#a%E9%9D%99%E6%80%81%E5%BA%93%E6%96%87%E4%BB%B6%E5%92%8C-o%E7%9B%AE%E6%A0%87%E6%96%87%E4%BB%B6%E3%80%81-elf%E6%96%87%E4%BB%B6"><span class="nav-number">3.1.</span> <span class="nav-text">.a静态库文件和.o目标文件、.elf文件</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#C%E7%A8%8B%E5%BA%8F%E5%BC%80%E5%8F%91%E6%B3%A8%E6%84%8F%E7%82%B9"><span class="nav-number">4.</span> <span class="nav-text">C程序开发注意点</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%B4%E6%96%87%E4%BB%B6%E5%8C%85%E5%90%AB"><span class="nav-number">4.1.</span> <span class="nav-text">头文件包含</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BF%AE%E6%94%B9%E7%BC%96%E8%AF%91%E4%BC%98%E5%8C%96%E7%BA%A7%E5%88%AB"><span class="nav-number">4.2.</span> <span class="nav-text">修改编译优化级别</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#C%E7%BC%96%E8%AF%91%E8%BF%87%E7%A8%8B"><span class="nav-number">5.</span> <span class="nav-text">C编译过程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E7%AB%99%E7%82%B9"><span class="nav-number">6.</span> <span class="nav-text">参考站点</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">cjd</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">42</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">cjd</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="Symbols count total">98k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">5:28</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

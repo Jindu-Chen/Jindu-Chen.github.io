@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":"enable","trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="CmBacktrace是针对Cortex-M内核芯片提供程序运行异常时的堆栈回溯工具&#x2F;中间件，将其移植到单片机中，可以在程序异常时打印相应的故障信息包括函数调用链、变量值、寄存器值等，大大缩短bug排查时间。本文介绍CmBacktrace的移植适配过程、原理解析、实际应用以及一些扩展问题思考等。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="嵌入式单片机移植CmBacktrace">
+<meta property="og:url" content="http://example.com/2024/02/01/%E3%80%90MCU%E3%80%91%E5%B5%8C%E5%85%A5%E5%BC%8FMCU%E7%A7%BB%E6%A4%8DCmBacktrace/index.html">
+<meta property="og:site_name" content="Jindu-Chen">
+<meta property="og:description" content="CmBacktrace是针对Cortex-M内核芯片提供程序运行异常时的堆栈回溯工具&#x2F;中间件，将其移植到单片机中，可以在程序异常时打印相应的故障信息包括函数调用链、变量值、寄存器值等，大大缩短bug排查时间。本文介绍CmBacktrace的移植适配过程、原理解析、实际应用以及一些扩展问题思考等。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2024-01-31T16:00:00.000Z">
+<meta property="article:modified_time" content="2024-08-24T06:19:15.112Z">
+<meta property="article:author" content="cjd">
+<meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2024/02/01/%E3%80%90MCU%E3%80%91%E5%B5%8C%E5%85%A5%E5%BC%8FMCU%E7%A7%BB%E6%A4%8DCmBacktrace/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>嵌入式单片机移植CmBacktrace | Jindu-Chen</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Jindu-Chen</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">风物长宜放眼量</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/02/01/%E3%80%90MCU%E3%80%91%E5%B5%8C%E5%85%A5%E5%BC%8FMCU%E7%A7%BB%E6%A4%8DCmBacktrace/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="cjd">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jindu-Chen">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          嵌入式单片机移植CmBacktrace
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-02-01 00:00:00" itemprop="dateCreated datePublished" datetime="2024-02-01T00:00:00+08:00">2024-02-01</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-08-24 14:19:15" itemprop="dateModified" datetime="2024-08-24T14:19:15+08:00">2024-08-24</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/MCU/" itemprop="url" rel="index"><span itemprop="name">MCU</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">嵌入式</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>985</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>3 mins.</span>
+            </span>
+            <div class="post-description">CmBacktrace是针对Cortex-M内核芯片提供程序运行异常时的堆栈回溯工具/中间件，将其移植到单片机中，可以在程序异常时打印相应的故障信息包括函数调用链、变量值、寄存器值等，大大缩短bug排查时间。本文介绍CmBacktrace的移植适配过程、原理解析、实际应用以及一些扩展问题思考等。</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>工程源码移植见：<a target="_blank" rel="noopener" href="https://github.com/Jindu-Chen/CmBacktrace_Adapt">CmBacktrace源码移植教程-github</a></p>
+<p>官方源码地址 : <a target="_blank" rel="noopener" href="https://github.com/armink/CmBacktrace">https://github.com/armink/CmBacktrace</a></p>
+<p><strong>未完待续…</strong></p>
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>暂略</p>
+<h2 id="移植适配与应用"><a href="#移植适配与应用" class="headerlink" title="移植适配与应用"></a>移植适配与应用</h2><ul>
+<li><p>将相关源码加入工程</p>
+</li>
+<li><p>适配信息打印接口，如串口，将<code>printf</code>输出重定向至串口</p>
+</li>
+<li><p>注释掉原有的HardFault中断服务函数，避免与CmBacktrace源码的HardFault中断服务函数冲突</p>
+</li>
+<li><p>链接脚本中也要增加适配其宏定义（如果没有的话），如栈的起始结束地址<code>_bss</code>、代码段<code>__text_end</code>的起始结束地址等</p>
+</li>
+<li><p>在程序初始化时，调用CmBacktrace的初始化接口</p>
+</li>
+</ul>
+<h3 id="程序报错及解析"><a href="#程序报错及解析" class="headerlink" title="程序报错及解析"></a>程序报错及解析</h3><p>当程序运行错误时，CmBacktrace会轮询栈空间，将其中指向的内容（为falsh代码段区间的函数地址部分）打印出来，此即函数地址调用链。</p>
+<p>用户使用 addr2line 工具，配合 elf 文件，将函数地址转换为函数名，则可知函数调用链。</p>
+<p>如：<code>addr2line -e app.elf -a -f 080154c2 0800a3b2 08009092</code></p>
+<h3 id="addrline2工具"><a href="#addrline2工具" class="headerlink" title="addrline2工具"></a>addrline2工具</h3><p><code>addr2line</code> 是一个用于将程序地址转换为源代码文件名及行号的工具，其属于<code>GNU Binutils</code>工具包中的一部分。</p>
+<blockquote>
+<p><code>GNU Binutils</code>是GNU项目的一部分，是一套用于创建、修改和分析二进制文件的工具集合。其包括：汇编器（as）、链接器（ld）、反汇编器（objdump）、调试器、库管理器、对象查看器、地址转换工具（addr2line）等。<br>如WSL安装了GCC，则会包含整个GNU Binutils工具集。 如安装了<code>arm-none-eabi-</code>工具链，则会包含<code>arm-none-eabi-addr2line</code>。</p>
+</blockquote>
+<h2 id="原理解析"><a href="#原理解析" class="headerlink" title="原理解析"></a>原理解析</h2><p>要理清CmBacktrace的实现原理，首先要<strong>了解<code>ARM Cortex-M</code>内核的堆栈布局与管理、以及该内核对异常的处理流程</strong>。</p>
+<p>而CmBacktrace即是根据C语言的栈帧结构、以及Cortex-M内核的工作&#x2F;异常处理的原理，当触发异常时，对堆栈进行解析实现回溯，而后将信息输出至终端，如串口。</p>
+<p>如何通过cortex-m4内核的cpu寄存器值分析当前的栈帧调用链</p>
+<h3 id="堆栈布局与管理"><a href="#堆栈布局与管理" class="headerlink" title="堆栈布局与管理"></a>堆栈布局与管理</h3><h3 id="异常处理与上下文保存"><a href="#异常处理与上下文保存" class="headerlink" title="异常处理与上下文保存"></a>异常处理与上下文保存</h3><h3 id="CmBacktrace的工作原理"><a href="#CmBacktrace的工作原理" class="headerlink" title="CmBacktrace的工作原理"></a>CmBacktrace的工作原理</h3><p>核心代码如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">size_t</span> <span class="title function_">cm_backtrace_call_stack</span><span class="params">(<span class="type">uint32_t</span> *buffer, <span class="type">size_t</span> size, <span class="type">uint32_t</span> sp)</span> &#123;</span><br><span class="line">    <span class="type">uint32_t</span> stack_start_addr = main_stack_start_addr, pc;</span><br><span class="line">    <span class="type">size_t</span> depth = <span class="number">0</span>, stack_size = main_stack_size;</span><br><span class="line">    <span class="type">bool</span> regs_saved_lr_is_valid = <span class="literal">false</span>;</span><br><span class="line"></span><br><span class="line">    ......</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* copy called function address */</span></span><br><span class="line">    <span class="keyword">for</span> (; sp &lt; stack_start_addr + stack_size; sp += <span class="keyword">sizeof</span>(<span class="type">size_t</span>)) &#123;</span><br><span class="line">        <span class="comment">/* the *sp value may be LR, so need decrease a word to PC */</span></span><br><span class="line">        pc = *((<span class="type">uint32_t</span> *) sp) - <span class="keyword">sizeof</span>(<span class="type">size_t</span>);</span><br><span class="line">        <span class="comment">/* the Cortex-M using thumb instruction, so the pc must be an odd number */</span></span><br><span class="line">        <span class="keyword">if</span> (pc % <span class="number">2</span> == <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">continue</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">/* fix the PC address in thumb mode */</span></span><br><span class="line">        pc = *((<span class="type">uint32_t</span> *) sp) - <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">if</span> ((pc &gt;= code_start_addr + <span class="keyword">sizeof</span>(<span class="type">size_t</span>)) &amp;&amp; (pc &lt;= code_start_addr + code_size) &amp;&amp; (depth &lt; CMB_CALL_STACK_MAX_DEPTH)</span><br><span class="line">                <span class="comment">/* check the the instruction before PC address is &#x27;BL&#x27; or &#x27;BLX&#x27; */</span></span><br><span class="line">                &amp;&amp; disassembly_ins_is_bl_blx(pc - <span class="keyword">sizeof</span>(<span class="type">size_t</span>)) &amp;&amp; (depth &lt; size)) &#123;</span><br><span class="line">            <span class="comment">/* the second depth function may be already saved, so need ignore repeat */</span></span><br><span class="line">            <span class="keyword">if</span> ((depth == <span class="number">2</span>) &amp;&amp; regs_saved_lr_is_valid &amp;&amp; (pc == buffer[<span class="number">1</span>])) &#123;</span><br><span class="line">                <span class="keyword">continue</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            buffer[depth++] = pc;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> depth;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>以上函数传入 栈顶SP 地址，而后主要进入一个循环，从栈顶往栈底回溯，每4个字节读取一次，<strong>如果其存放的数据是属于代码区的</strong>（说明此是一个函数地址，大概率是函数调用链的地址，当然也可能是函数中的一个函数指针），则将其地址存入数组，并继续回溯。</p>
+<h2 id="注意点与扩展思考"><a href="#注意点与扩展思考" class="headerlink" title="注意点与扩展思考"></a>注意点与扩展思考</h2><h3 id="其它如Cortex-A内核如何回溯的？"><a href="#其它如Cortex-A内核如何回溯的？" class="headerlink" title="其它如Cortex-A内核如何回溯的？"></a>其它如Cortex-A内核如何回溯的？</h3><h3 id="RTOS与裸机下的CmBacktrace有何不同？"><a href="#RTOS与裸机下的CmBacktrace有何不同？" class="headerlink" title="RTOS与裸机下的CmBacktrace有何不同？"></a>RTOS与裸机下的CmBacktrace有何不同？</h3><p>裸机：只需关注当前执行流的堆栈跟踪，不需要考虑多线程或任务切换</p>
+<p>RTOS：需要考虑多线程或任务切换，需要考虑线程切换时的堆栈跟踪。要捕获当前运行任务的堆栈回溯信息，还要获取其他任务的堆栈信息。涉及到与 RTOS 内核的API交互，获取当前任务指针、任务堆栈基址、栈顶指针等信息</p>
+<h3 id="程序崩溃跳转至HardFault状态了，为何还能正常控制外设如DMA-UART打印故障信息？"><a href="#程序崩溃跳转至HardFault状态了，为何还能正常控制外设如DMA-UART打印故障信息？" class="headerlink" title="程序崩溃跳转至HardFault状态了，为何还能正常控制外设如DMA-UART打印故障信息？"></a>程序崩溃跳转至HardFault状态了，为何还能正常控制外设如DMA-UART打印故障信息？</h3><h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/512902251">STM32上的backtrace原理与分析</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2024/02/01/%E3%80%90%E7%A1%AC%E4%BB%B6%E3%80%91%E5%B5%8C%E5%85%A5%E5%BC%8F%E7%A1%AC%E4%BB%B6%E4%B9%8B%E4%B8%AA%E4%BA%BA%E7%90%86%E8%A7%A3/" rel="prev" title="嵌入式硬件--学习笔记">
+      <i class="fa fa-chevron-left"></i> 嵌入式硬件--学习笔记
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2024/02/02/%E3%80%90Harmony%E3%80%91OpenHarmony%E8%BD%BB%E9%87%8F%E7%B3%BB%E7%BB%9F-XTS%E5%AD%90%E7%B3%BB%E7%BB%9F%E7%BC%96%E8%AF%91%E9%80%82%E9%85%8D%E5%8F%8A%E6%B5%8B%E8%AF%95/" rel="next" title="OpenHarmony轻量系统--XTS子系统编译适配及测试">
+      OpenHarmony轻量系统--XTS子系统编译适配及测试 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A7%BB%E6%A4%8D%E9%80%82%E9%85%8D%E4%B8%8E%E5%BA%94%E7%94%A8"><span class="nav-number">2.</span> <span class="nav-text">移植适配与应用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A8%8B%E5%BA%8F%E6%8A%A5%E9%94%99%E5%8F%8A%E8%A7%A3%E6%9E%90"><span class="nav-number">2.1.</span> <span class="nav-text">程序报错及解析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#addrline2%E5%B7%A5%E5%85%B7"><span class="nav-number">2.2.</span> <span class="nav-text">addrline2工具</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8E%9F%E7%90%86%E8%A7%A3%E6%9E%90"><span class="nav-number">3.</span> <span class="nav-text">原理解析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A0%86%E6%A0%88%E5%B8%83%E5%B1%80%E4%B8%8E%E7%AE%A1%E7%90%86"><span class="nav-number">3.1.</span> <span class="nav-text">堆栈布局与管理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86%E4%B8%8E%E4%B8%8A%E4%B8%8B%E6%96%87%E4%BF%9D%E5%AD%98"><span class="nav-number">3.2.</span> <span class="nav-text">异常处理与上下文保存</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CmBacktrace%E7%9A%84%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86"><span class="nav-number">3.3.</span> <span class="nav-text">CmBacktrace的工作原理</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B3%A8%E6%84%8F%E7%82%B9%E4%B8%8E%E6%89%A9%E5%B1%95%E6%80%9D%E8%80%83"><span class="nav-number">4.</span> <span class="nav-text">注意点与扩展思考</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B6%E5%AE%83%E5%A6%82Cortex-A%E5%86%85%E6%A0%B8%E5%A6%82%E4%BD%95%E5%9B%9E%E6%BA%AF%E7%9A%84%EF%BC%9F"><span class="nav-number">4.1.</span> <span class="nav-text">其它如Cortex-A内核如何回溯的？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RTOS%E4%B8%8E%E8%A3%B8%E6%9C%BA%E4%B8%8B%E7%9A%84CmBacktrace%E6%9C%89%E4%BD%95%E4%B8%8D%E5%90%8C%EF%BC%9F"><span class="nav-number">4.2.</span> <span class="nav-text">RTOS与裸机下的CmBacktrace有何不同？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A8%8B%E5%BA%8F%E5%B4%A9%E6%BA%83%E8%B7%B3%E8%BD%AC%E8%87%B3HardFault%E7%8A%B6%E6%80%81%E4%BA%86%EF%BC%8C%E4%B8%BA%E4%BD%95%E8%BF%98%E8%83%BD%E6%AD%A3%E5%B8%B8%E6%8E%A7%E5%88%B6%E5%A4%96%E8%AE%BE%E5%A6%82DMA-UART%E6%89%93%E5%8D%B0%E6%95%85%E9%9A%9C%E4%BF%A1%E6%81%AF%EF%BC%9F"><span class="nav-number">4.3.</span> <span class="nav-text">程序崩溃跳转至HardFault状态了，为何还能正常控制外设如DMA-UART打印故障信息？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E7%AB%99%E7%82%B9"><span class="nav-number">5.</span> <span class="nav-text">参考站点</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">cjd</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">42</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">cjd</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="Symbols count total">98k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">5:28</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

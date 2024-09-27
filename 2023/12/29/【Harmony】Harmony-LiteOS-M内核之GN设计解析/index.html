@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":"enable","trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="要基于OpenHarmony-V4.0-Release源码工程进行LiteOS-M轻量系统的设备开发，那么熟悉了解其编译构建过程是必要的；本文以STM32&#x2F;N32G452的LiteOS移植工程为例，剖析其业务代码、内核代码的调用编译构建流程">
+<meta property="og:type" content="article">
+<meta property="og:title" content="OpenHarmony-LiteOS-M内核之编译构建及移植适配过程解析">
+<meta property="og:url" content="http://example.com/2023/12/29/%E3%80%90Harmony%E3%80%91Harmony-LiteOS-M%E5%86%85%E6%A0%B8%E4%B9%8BGN%E8%AE%BE%E8%AE%A1%E8%A7%A3%E6%9E%90/index.html">
+<meta property="og:site_name" content="Jindu-Chen">
+<meta property="og:description" content="要基于OpenHarmony-V4.0-Release源码工程进行LiteOS-M轻量系统的设备开发，那么熟悉了解其编译构建过程是必要的；本文以STM32&#x2F;N32G452的LiteOS移植工程为例，剖析其业务代码、内核代码的调用编译构建流程">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2023-12-28T16:00:00.000Z">
+<meta property="article:modified_time" content="2024-03-03T16:00:00.000Z">
+<meta property="article:author" content="cjd">
+<meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2023/12/29/%E3%80%90Harmony%E3%80%91Harmony-LiteOS-M%E5%86%85%E6%A0%B8%E4%B9%8BGN%E8%AE%BE%E8%AE%A1%E8%A7%A3%E6%9E%90/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>OpenHarmony-LiteOS-M内核之编译构建及移植适配过程解析 | Jindu-Chen</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Jindu-Chen</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">风物长宜放眼量</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/12/29/%E3%80%90Harmony%E3%80%91Harmony-LiteOS-M%E5%86%85%E6%A0%B8%E4%B9%8BGN%E8%AE%BE%E8%AE%A1%E8%A7%A3%E6%9E%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="cjd">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jindu-Chen">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          OpenHarmony-LiteOS-M内核之编译构建及移植适配过程解析
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-12-29 00:00:00" itemprop="dateCreated datePublished" datetime="2023-12-29T00:00:00+08:00">2023-12-29</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-03-04 00:00:00" itemprop="dateModified" datetime="2024-03-04T00:00:00+08:00">2024-03-04</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/LiteOS/" itemprop="url" rel="index"><span itemprop="name">LiteOS</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/OpenHarmony/" itemprop="url" rel="index"><span itemprop="name">OpenHarmony</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/RTOS/" itemprop="url" rel="index"><span itemprop="name">RTOS</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>3.2k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>11 mins.</span>
+            </span>
+            <div class="post-description">要基于OpenHarmony-V4.0-Release源码工程进行LiteOS-M轻量系统的设备开发，那么熟悉了解其编译构建过程是必要的；本文以STM32/N32G452的LiteOS移植工程为例，剖析其业务代码、内核代码的调用编译构建流程</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>阅读本文，须先参阅<a href="/2023/12/24/GN%E5%92%8Cninja%E7%9A%84%E5%8C%BA%E5%88%AB%E3%80%81%E8%81%94%E7%B3%BB%E5%92%8C%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91"><strong>GN与Ninja入门</strong></a></p>
+<p>本文内容大部为参考OpenHarmony相关站点文章，基于个人在移植适配&#x2F;开发过程中的理解，作进一步的整理，其中必然有许多不足或前期理解错误之处，仅作参考用即可</p>
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><h3 id="记于2023-12-29"><a href="#记于2023-12-29" class="headerlink" title="记于2023-12-29"></a>记于2023-12-29</h3><ul>
+<li>就目前而言，网上关于LiteOS-M的相关开发移植资料都是相当的少，官方文档也是写得不清不楚的，如果不是项目需求，估计没人愿意来做LiteOS-M的移植适配工作。。</li>
+<li>鄙人初次接触，此前参考了社区的STM32工程移植示例，成功移植LiteOS-M并在gcc+make开发环境运行</li>
+<li>但由于政策或者是项目需要，单纯的内核源码移植其实没什么用，跟别的RTOS内核没啥两样，由此，接触了一个新概念：<strong>XTS子系统</strong>，要获得开放原子基金会的认证，那么就需要通过这个XTS兼容性测评</li>
+<li>要把这个XTS测试组件编译进工程里面，鄙人目前一头雾水，特别还是基于国民技术N32G452芯片移植并编译测试，目前还在熟悉状态，考虑两种方式：<ul>
+<li>基于 <a target="_blank" rel="noopener" href="https://gitee.com/openharmony/kernel_liteos_m">https://gitee.com/openharmony/kernel_liteos_m</a> 所拉取的源码工程，进行熟悉构建开发</li>
+<li>基于 <a href="https://gitee.com/link?target=https://repo.huaweicloud.com/openharmony/os/4.0-Release/code-v4.0-Release.tar.gz">https://gitee.com/link?target=https%3A%2F%2Frepo.huaweicloud.com%2Fopenharmony%2Fos%2F4.0-Release%2Fcode-v4.0-Release.tar.gz</a> 整个OpenHarmony全量代码工程进行熟悉开发</li>
+</ul>
+</li>
+<li>但其社区移植工程都已经过时，不适配Harmony4.0 Release，编译无法通过，要想移植，只能自己摸索、熟悉GN+Ninja的构建方式，从头理顺开发过程<ul>
+<li>此前已经做了一部分的工作，包括命令行开发环境搭建、各种依赖搭建，但没有系统地进行整理，可以说是个遗憾</li>
+<li>另外感觉<strong>移植编译XTS子系统、通过兼容性测评</strong>这个时间周期会较长，而且是没有任何指导文档下的独立开发，本人对此预研项目持悲观态度，目前也不能把过多时间精力投入此处，且做且看吧！</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h3 id="记于2024-01-04"><a href="#记于2024-01-04" class="headerlink" title="记于2024-01-04"></a>记于2024-01-04</h3><ul>
+<li>进展远超预期</li>
+<li>截止今天已经完成了soc、board、vendor的移植适配工作，主要归功于华为云-连志安的博客，参考其对于GD32的移植范例及教程，快速地完成了国民技术的适配，包括底层驱动以及最简工程测试验证</li>
+<li>不禁感叹，<strong>前期的文献检索调研</strong>是相当重要的</li>
+<li>目前只剩下XTS子系统的编译链接，即可开始OpenHarmony兼容性测评认证工作</li>
+<li>参照零星示例，尝试在vendor&#x2F;xxx&#x2F;config.json添加了xts子系统，同时在BUILD.gn添加链接选项，可看到xts组件有编译，但没链接进bin文件，对整个XTS子系统添加、编译链接流程思路还是不清晰，需要时间</li>
+<li>捋清XTS添加核心步骤：生成相应的测试静态库、添加链接项或者修改链接脚本使得静态库能加入可执行文件、确保应用程序中有函数调用执行相关的测试操作</li>
+</ul>
+<hr>
+<h3 id="记于2024-01-11"><a href="#记于2024-01-11" class="headerlink" title="记于2024-01-11"></a>记于2024-01-11</h3><ul>
+<li>如果从习惯于集成开发环境之开发者角度来看，那OpenHarmony的轻量系统编译构建体系简直是一个大坑，复杂麻烦，相互依赖、嵌套调用关系多，需要熟悉的使用工具也多</li>
+<li>而且在OpenHarmony-V不断迭代发布情况下，其内相应的配置工程范例却没有更新适配，编译一堆报错。依赖关系还得开发者自己解决</li>
+<li>目前已经基于国民技术N32G452完成了内核子系统、部分子系统的适配，当然离通过兼容性测试还有一段距离</li>
+</ul>
+<h3 id="记于2024-03-04"><a href="#记于2024-03-04" class="headerlink" title="记于2024-03-04"></a>记于2024-03-04</h3><p>最终完成了生态认证，拿到证书，没啥用，只能说增长了嵌入式调试开发验证</p>
+<hr>
+<h2 id="轻量系统编译构建-命令执行简述"><a href="#轻量系统编译构建-命令执行简述" class="headerlink" title="轻量系统编译构建-命令执行简述"></a>轻量系统编译构建-命令执行简述</h2><h3 id="hb命令"><a href="#hb命令" class="headerlink" title="hb命令"></a>hb命令</h3><p>&emsp;&emsp;hb工具是一个命令行工具，其使用Python语言编写，能够调用gn和ninja工具来生成OpenHarmony的二进制文件。<br></p>
+<ul>
+<li>hb的源代码在<code>build/lite/hb</code>路径下，其入口函数为<code>__main__.py中的main()</code>，支持命令有：<code>set、env、build、clean</code></li>
+<li><strong>hb命令的具体实现位于<code>//build/lite/hb_internal</code>中</strong></li>
+</ul>
+<h3 id="hb-set"><a href="#hb-set" class="headerlink" title="hb set"></a>hb set</h3><ul>
+<li><code>hb set</code>的作用为生成产品配置文件，其会在工程根目录下生成ohos_config.json文件</li>
+<li>执行<code>hb set</code>时，脚本会遍历<code>//vendor/$&#123;product_company&#125;/$&#123;product_name&#125;</code>目录下的<code>config.json</code>文件，给出可选的产品选项<blockquote>
+<p>config.json文件中，product_name表示产品名，device_company和board用于关联出&#x2F;&#x2F;device&#x2F;board&#x2F;<device_company>&#x2F;<board>目录，匹配该目录下的<any_dir_name>&#x2F;config.gni文件<br>其中<any_dir_name>目录名可以是任意名称，但建议将其命名为适配内核名称（如：liteos_m、liteos_a、linux）<br>hb命令如果匹配到了多个config.gni，会将其中的kernel_type和kernel_version字段与vendor&#x2F;<device_company>下config.json文件中的字段进行匹配，从而确定参与编译的config.gni文件</p>
+</blockquote>
+</li>
+</ul>
+<h4 id="调用解决方案包Kconfig的具体步骤"><a href="#调用解决方案包Kconfig的具体步骤" class="headerlink" title="调用解决方案包Kconfig的具体步骤"></a>调用解决方案包Kconfig的具体步骤</h4><ul>
+<li><code>hb set</code>根据配置项的名称找到对应的 Kconfig 配置项。</li>
+<li>将配置项的值写入到 Kconfig 配置项的变量中。</li>
+<li>系统在<code>//kernel/liteos_m</code>使用 make menuconfig 命令配置，结果保存于 <code>//vendor/$&#123;product_company&#125;/$&#123;product_name&#125;/kernel_configs/debug.config</code> 文件，其包含配置项的值。</li>
+<li>编译时使用 gn 命令将 debug.config 文件中的配置项读取到 gn 文件中</li>
+</ul>
+<br>
+
+<p><code>//kernel/liteos_m/Kconfig</code>文件片段如下：移植开发板适配时，需要在board和soc目录下，添加补充相应的Kconfig文件</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">orsource &quot;../../device/board/*/Kconfig.liteos_m.shields&quot;</span><br><span class="line">orsource &quot;../../device/board/$(BOARD_COMPANY)/Kconfig.liteos_m.defconfig.boards&quot;</span><br><span class="line">orsource &quot;../../device/board/$(BOARD_COMPANY)/Kconfig.liteos_m.boards&quot;</span><br><span class="line">orsource &quot;../../device/soc/*/Kconfig.liteos_m.defconfig&quot;</span><br><span class="line">orsource &quot;../../device/soc/*/Kconfig.liteos_m.series&quot;</span><br><span class="line">orsource &quot;../../device/soc/*/Kconfig.liteos_m.soc&quot;</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="hb-build-copy"><a href="#hb-build-copy" class="headerlink" title="hb build (copy)"></a>hb build (copy)</h3><ul>
+<li>配置好产品解决方案、芯片开发板解决方案后，即可执行<code>hb set -&gt; hb build</code>进行编译</li>
+<li>hb build的作用是根据配置信息生成编译指导文件build.ninja。</li>
+<li>代码路径为：build&#x2F;lite&#x2F;hb&#x2F;build&#x2F;build.py<ul>
+<li>调用 gn_build 使用 gn gen生成 *.ninja 文件</li>
+<li>调用 ninja_build 使用 ninja -w dupbuild&#x3D;warn -C 生成 *.o *.so *.bin 等最后的文件</li>
+</ul>
+</li>
+</ul>
+<h3 id="build-lite-配置目录梳理"><a href="#build-lite-配置目录梳理" class="headerlink" title="build lite 配置目录梳理"></a>build lite 配置目录梳理</h3><p>复述自：<a target="_blank" rel="noopener" href="https://bbs.huaweicloud.com/blogs/336722">https://bbs.huaweicloud.com/blogs/336722</a></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">build/lite</span><br><span class="line">├── components                  # 组件描述文件</span><br><span class="line">├── hb                          # hb pip安装包源码</span><br><span class="line">├── make_rootfs                 # 文件系统镜像制作脚本</span><br><span class="line">├── config                      # 编译配置项</span><br><span class="line">│   ├── component               # 组件相关的模板定义</span><br><span class="line">│   ├── kernel                  # 内核相关的编译配置</span><br><span class="line">│   └── subsystem               # 子系统编译配置</span><br><span class="line">├── platform                    # ld脚本</span><br><span class="line">├── testfwk                     # 测试编译框架</span><br><span class="line">└── toolchain                   # 编译工具链配置，包括：编译器路径、编译选项、链接选项等</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>build&#x2F;lite&#x2F;ohos_var.gni</p>
+<ul>
+<li>定义了所有部件的全局变量</li>
+<li>用于读取产品解决方案的配置文件config.json中的配置项，解析为gn变量</li>
+<li>被build\lite\config\BUILDCONFIG.gn包含导入import</li>
+</ul>
+</li>
+<li><p>build\lite\config\BUILDCONFIG.gn</p>
+<ul>
+<li>用于配置编译构建，其会import导入产品解决方案和芯片开发板解决方案的配置文件</li>
+<li>解析开发板配置文件config.gni</li>
+</ul>
+</li>
+</ul>
+<h2 id="LiteOS-M内核之GN编译构建流程总览"><a href="#LiteOS-M内核之GN编译构建流程总览" class="headerlink" title="LiteOS-M内核之GN编译构建流程总览"></a>LiteOS-M内核之GN编译构建流程总览</h2><p>编译构建过程参考：<a target="_blank" rel="noopener" href="https://bbs.huaweicloud.com/blogs/336721">https://bbs.huaweicloud.com/blogs/336721</a></p>
+<ul>
+<li><code>hb build</code>-&gt;<code>build/lite/hb_internal/build/build.py</code></li>
+<li>读取板子配置，包括编译工具链、编译链接选项等</li>
+<li>读取的配置文件有：<ul>
+<li><code>build/lite/ohos_var.gni</code>：定义应用于所有组件的全局变量</li>
+<li><code>device/&#123;board&#125;/&#123;company&#125;/liteos_m/config.gni</code>：编译LiteOS-M内核的配置 – 需要前提配置好的芯片开发板解决方案</li>
+<li><code>vendor/&#123;company&#125;/&#123;board&#125;/config.json</code>：板子所应用的全量配置表，包括子系统、组件等 – 需要提前配置好的产品解决方案</li>
+</ul>
+</li>
+<li>调用gn gen命令，读取产品配置（板级配置、内核、组件等），生成out目录和ninja文件</li>
+<li>调用<code>ninja -C out/&#123;company&#125;/&#123;product&#125;/</code>开始编译</li>
+<li>打包、制作可执行文件<br></li>
+</ul>
+<p><strong><code>device/&#123;company&#125;/&#123;board&#125;/liteos_m/config.gni</code>文件</strong>：</p>
+<ul>
+<li>工程构建的全局配置文件，主要配置CPU型号、交叉编译工具链及全局编译、链接参数等信息</li>
+<li>其内部分参数如下：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">board_opt_flags : 编译器相关选项，一般为芯片架构、浮点类型、编译调试优化等级等选项。</span><br><span class="line">board_asmflags  ：汇编编译选项，与Makefile中的ASFLAGS变量对应。</span><br><span class="line">board_cflags    ：C代码编译选项，与Makefile中的CFLAGS变量对应。</span><br><span class="line">board_cxx_flags ：C++代码编译选项，与Makefile中的CXXFLAGS变量对应。</span><br><span class="line">board_ld_flags  ：链接选项，与Makefile中的LDFLAGS变量对应。</span><br></pre></td></tr></table></figure></li>
+</ul>
+<hr>
+<p>分析<code>build/lite/BUILD.gn</code>文件中<code>ohos</code>元目标如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">group(&quot;ohos&quot;) &#123;</span><br><span class="line">  deps = []</span><br><span class="line">  if (ohos_build_target == &quot;&quot;) &#123;</span><br><span class="line">    # Step 1: Read product configuration profile.</span><br><span class="line">    # 读取/vendor/&#123;company&#125;/&#123;board&#125;/config.json</span><br><span class="line">    product_cfg = read_file(&quot;$&#123;product_config_path&#125;/config.json&quot;, &quot;json&quot;)   </span><br><span class="line"></span><br><span class="line">    parts_targets_info = read_file(</span><br><span class="line">            &quot;$&#123;root_build_dir&#125;/build_configs/parts_info/parts_modules_info.json&quot;,</span><br><span class="line">            &quot;json&quot;)</span><br><span class="line"></span><br><span class="line">    # Step 2: Loop subsystems configured by product.</span><br><span class="line">    # 遍历板子的子系统配置</span><br><span class="line">    foreach(product_configed_subsystem, product_cfg.subsystems) &#123;</span><br><span class="line">      subsystem_name = product_configed_subsystem.subsystem</span><br><span class="line"></span><br><span class="line">      # 判断XTS子系统相关，暂未搞懂</span><br><span class="line">      if (build_xts || (!build_xts &amp;&amp; subsystem_name != &quot;xts&quot;)) &#123;</span><br><span class="line">        # Step 3: Read OS subsystems profile.</span><br><span class="line">        subsystem_parts_info = &#123;</span><br><span class="line">......&#125;&#125;&#125;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="编译构建调用-适配过程"><a href="#编译构建调用-适配过程" class="headerlink" title="编译构建调用&#x2F;适配过程"></a>编译构建调用&#x2F;适配过程</h2><p>主要分为以下几部分：</p>
+<ul>
+<li><code>vendor/&#123;company&#125;/&#123;board&#125;/</code>–产品配置方案</li>
+<li><code>device/soc/</code>–芯片解决方案</li>
+<li><code>device/board/</code>–开发板解决方案</li>
+<li><code>kernel/liteos_m</code>–轻量系统内核</li>
+</ul>
+<h2 id="产品解决方案代码"><a href="#产品解决方案代码" class="headerlink" title="产品解决方案代码"></a>产品解决方案代码</h2><p><strong>内核子系统适配：</strong></p>
+<ul>
+<li>在<code>//vendor/&#123;company&#125;/&#123;product&#125;/config.json</code>文件添加内核子系统及配置如下：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&quot;subsystems&quot;: [ </span><br><span class="line">    &#123;</span><br><span class="line">        &quot;subsystem&quot;: &quot;kernel&quot;,</span><br><span class="line">        &quot;components&quot;: [</span><br><span class="line">            &#123;</span><br><span class="line">                &quot;component&quot;: &quot;liteos_m&quot;</span><br><span class="line">            &#125;</span><br><span class="line">        ]</span><br><span class="line">    &#125;</span><br><span class="line">],</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="芯片解决方案代码"><a href="#芯片解决方案代码" class="headerlink" title="芯片解决方案代码"></a>芯片解决方案代码</h2><h2 id="硬件板解决方案代码"><a href="#硬件板解决方案代码" class="headerlink" title="硬件板解决方案代码"></a>硬件板解决方案代码</h2><p><strong><code>target_config.h</code>文件适配</strong>:</p>
+<ul>
+<li>在<code>//kernel/liteos_m/kernel/include/los_config.h</code>文件中，有包含一个名为target_config.h的头文件，如果没有这个头文件，则会编译出错</li>
+<li>该头文件主要定义一些与soc芯片相关的宏定义，可参考其它解决方案的target_config.h配置即可，或者可以根据编译错误提示进行添加或者删减</li>
+<li>在何处添加该头文件由用户决定，建议是存放于<code>//device/board/$&#123;company_product&#125;</code>目录下</li>
+<li>而后在<code>device/&#123;board&#125;/&#123;company&#125;/&#123;company_board&#125;/liteos_m/config.gni</code>添加该头文件的路径包含即可</li>
+<li>配置系统时钟、系统节拍<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">#define OS_SYS_CLOCK                                        SystemCoreClock   // SystemCoreClock为N32G452库的宏定义，具体可由用户设定，如72000000</span><br><span class="line">#define LOSCFG_BASE_CORE_TICK_PER_SECOND                    (1000UL)</span><br></pre></td></tr></table></figure></li>
+</ul>
+<p><strong>适配printf打印函数</strong>:<br>此处不过多赘述，用户自行实现重定向<code>int printf(char const  *fmt, ...)</code>函数即可<br><br></p>
+<h2 id="子系统适配"><a href="#子系统适配" class="headerlink" title="子系统适配"></a>子系统适配</h2><h3 id="OpenHarmony全量仓工程目录解析"><a href="#OpenHarmony全量仓工程目录解析" class="headerlink" title="OpenHarmony全量仓工程目录解析"></a>OpenHarmony全量仓工程目录解析</h3><p>建议大致了解整个工程目录框架</p>
+<h3 id="启动恢复子系统适配"><a href="#启动恢复子系统适配" class="headerlink" title="启动恢复子系统适配"></a>启动恢复子系统适配</h3><p>大致思路如下：<br></p>
+<p>对于Cortex-M内核来说，要适配此启动恢复子系统，实际上是要有完成两个工程的适配，分别是bootloader、app</p>
+<ul>
+<li>bootloader是个相对独立的工程，其包含芯片启动.S文件、system_xxx.c文件、main()函数几部分，主要作用就是完成应用程序升级功能。当然，前期适配过程中，只需要在初始化系统时钟，配置必要外设，然后<strong>直接设置app应用程序的栈顶指针，跳转至app程序段开始即可</strong></li>
+<li>app是独立的应用程序工程，此部分同样包含启动.S文件、等等相应部分</li>
+<li>芯片上电先跑bootloader，然后跳转到app</li>
+<li>当然，上述工程文件基本位于<code>//device/board/&#123;company&#125;/&#123;company_board&#125;</code>下，具体如何构建由开发者决定</li>
+<li>最后需要通过 <strong><code>merge_bin</code></strong> 将两个bin文件合并成最终的烧录bin文件</li>
+</ul>
+<br>
+在`//vendor/{company}/{product}/config.json`新增对应配置选项
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">      &quot;subsystem&quot;: &quot;startup&quot;,</span><br><span class="line">      &quot;components&quot;: [</span><br><span class="line">        &#123;</span><br><span class="line">          &quot;component&quot;: &quot;bootstrap_lite&quot;,</span><br><span class="line">          &quot;features&quot;: []</span><br><span class="line">        &#125;,</span><br><span class="line">        &#123;</span><br><span class="line">          &quot;component&quot;: &quot;syspara_lite&quot;,</span><br><span class="line">          &quot;features&quot;: []</span><br><span class="line">        &#125;</span><br><span class="line">      ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+另外，bootstrap_lite部件需要在`//device/board/{company}/{board}/xxx.ld`链接脚本添加相关的段 -- 关键词：**灌段**
+
+
+<h3 id="DFX子系统适配"><a href="#DFX子系统适配" class="headerlink" title="DFX子系统适配"></a>DFX子系统适配</h3><p>其是一个提升软件质量设计的工具集，主要包含两部分内容：</p>
+<ul>
+<li>DFR（可靠性）：提供流水日志、故障分析等功能</li>
+<li>DFT（可测试性）：提供测试桩、桩机、测试工具等功能</li>
+</ul>
+<h2 id="移植思路总结"><a href="#移植思路总结" class="headerlink" title="移植思路总结"></a>移植思路总结</h2><p>此部分内容直接转述自参考文章：<a target="_blank" rel="noopener" href="https://developer.huawei.com/consumer/cn/blog/topic/03889745165640019">https://developer.huawei.com/consumer/cn/blog/topic/03889745165640019</a></p>
+<p>移植类型可以分为三部分：ARCH、SoC、Board</p>
+<ul>
+<li>ARCH为架构级别移植，代码位于kernel&#x2F;liteos_m&#x2F;arch</li>
+<li>SoC为对已支持的架构做芯片厂商级的移植，代码位于device&#x2F;soc</li>
+<li>Board为对芯片下不同板子的移植，代码位于device&#x2F;board</li>
+<li>另，还有厂商配置相关代码，位于vendor，其主要用于编译系统、HDF配置(驱动框架的配置描述文件)：用于描述驱动程序的硬件资源、功能特性，使用Key-Value格式-由属性节点与子节点组成</li>
+</ul>
+<p>移植路线：**&#x2F;&#x2F;vendor -&gt; &#x2F;&#x2F;device&#x2F;board -&gt; &#x2F;&#x2F;device&#x2F;soc -&gt; ARCH**</p>
+<h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://bbs.huaweicloud.com/blogs/336721">移植案例与原理 - build lite编译构建过程</a></li>
+<li><a target="_blank" rel="noopener" href="https://bbs.huaweicloud.com/blogs/336722">移植案例与原理 - build lite配置目录全梳理</a></li>
+<li><a target="_blank" rel="noopener" href="https://developer.huawei.com/consumer/cn/blog/topic/03893164050570049">从零开始移植OpenHarmony轻量系统</a></li>
+<li><a target="_blank" rel="noopener" href="https://gitee.com/openharmony/docs/blob/master/zh-cn/device-dev/porting/porting-stm32f407-on-minisystem-eth.md">轻量系统STM32F407芯片移植案例</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/12/24/%E3%80%90%E6%9E%84%E5%BB%BA%E3%80%91GN%E5%92%8Cninja%E7%9A%84%E5%8C%BA%E5%88%AB%E3%80%81%E8%81%94%E7%B3%BB%E5%92%8C%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/" rel="prev" title="GN和Ninja构建工具的基础入门、进阶和应用开发">
+      <i class="fa fa-chevron-left"></i> GN和Ninja构建工具的基础入门、进阶和应用开发
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2024/01/01/%E3%80%90%E7%A1%AC%E4%BB%B6%E3%80%91%E7%A1%AC%E4%BB%B6%E5%9F%BA%E7%A1%80%E5%99%A8%E4%BB%B6%E7%9F%A5%E8%AF%86%E7%AE%80%E8%BF%B0/" rel="next" title="硬件基础器件知识记录">
+      硬件基础器件知识记录 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%B0%E4%BA%8E2023-12-29"><span class="nav-number">1.1.</span> <span class="nav-text">记于2023-12-29</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%B0%E4%BA%8E2024-01-04"><span class="nav-number">1.2.</span> <span class="nav-text">记于2024-01-04</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%B0%E4%BA%8E2024-01-11"><span class="nav-number">1.3.</span> <span class="nav-text">记于2024-01-11</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%B0%E4%BA%8E2024-03-04"><span class="nav-number">1.4.</span> <span class="nav-text">记于2024-03-04</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BD%BB%E9%87%8F%E7%B3%BB%E7%BB%9F%E7%BC%96%E8%AF%91%E6%9E%84%E5%BB%BA-%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E7%AE%80%E8%BF%B0"><span class="nav-number">2.</span> <span class="nav-text">轻量系统编译构建-命令执行简述</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#hb%E5%91%BD%E4%BB%A4"><span class="nav-number">2.1.</span> <span class="nav-text">hb命令</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#hb-set"><span class="nav-number">2.2.</span> <span class="nav-text">hb set</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%B0%83%E7%94%A8%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%E5%8C%85Kconfig%E7%9A%84%E5%85%B7%E4%BD%93%E6%AD%A5%E9%AA%A4"><span class="nav-number">2.2.1.</span> <span class="nav-text">调用解决方案包Kconfig的具体步骤</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#hb-build-copy"><span class="nav-number">2.3.</span> <span class="nav-text">hb build (copy)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#build-lite-%E9%85%8D%E7%BD%AE%E7%9B%AE%E5%BD%95%E6%A2%B3%E7%90%86"><span class="nav-number">2.4.</span> <span class="nav-text">build lite 配置目录梳理</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#LiteOS-M%E5%86%85%E6%A0%B8%E4%B9%8BGN%E7%BC%96%E8%AF%91%E6%9E%84%E5%BB%BA%E6%B5%81%E7%A8%8B%E6%80%BB%E8%A7%88"><span class="nav-number">3.</span> <span class="nav-text">LiteOS-M内核之GN编译构建流程总览</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BC%96%E8%AF%91%E6%9E%84%E5%BB%BA%E8%B0%83%E7%94%A8-%E9%80%82%E9%85%8D%E8%BF%87%E7%A8%8B"><span class="nav-number">4.</span> <span class="nav-text">编译构建调用&#x2F;适配过程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%A7%E5%93%81%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%E4%BB%A3%E7%A0%81"><span class="nav-number">5.</span> <span class="nav-text">产品解决方案代码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%8A%AF%E7%89%87%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%E4%BB%A3%E7%A0%81"><span class="nav-number">6.</span> <span class="nav-text">芯片解决方案代码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A1%AC%E4%BB%B6%E6%9D%BF%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%E4%BB%A3%E7%A0%81"><span class="nav-number">7.</span> <span class="nav-text">硬件板解决方案代码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AD%90%E7%B3%BB%E7%BB%9F%E9%80%82%E9%85%8D"><span class="nav-number">8.</span> <span class="nav-text">子系统适配</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#OpenHarmony%E5%85%A8%E9%87%8F%E4%BB%93%E5%B7%A5%E7%A8%8B%E7%9B%AE%E5%BD%95%E8%A7%A3%E6%9E%90"><span class="nav-number">8.1.</span> <span class="nav-text">OpenHarmony全量仓工程目录解析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%90%AF%E5%8A%A8%E6%81%A2%E5%A4%8D%E5%AD%90%E7%B3%BB%E7%BB%9F%E9%80%82%E9%85%8D"><span class="nav-number">8.2.</span> <span class="nav-text">启动恢复子系统适配</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DFX%E5%AD%90%E7%B3%BB%E7%BB%9F%E9%80%82%E9%85%8D"><span class="nav-number">8.3.</span> <span class="nav-text">DFX子系统适配</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A7%BB%E6%A4%8D%E6%80%9D%E8%B7%AF%E6%80%BB%E7%BB%93"><span class="nav-number">9.</span> <span class="nav-text">移植思路总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E7%AB%99%E7%82%B9"><span class="nav-number">10.</span> <span class="nav-text">参考站点</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">cjd</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">42</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">cjd</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="Symbols count total">98k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">5:28</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

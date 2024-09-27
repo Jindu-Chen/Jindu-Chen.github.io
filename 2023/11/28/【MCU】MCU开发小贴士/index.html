@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":"enable","trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="记录在嵌入式MCU开发中所遇知识点，包括但不限于Cortex-M内核、常用外设原理及应用编码等部分，以便检索与回顾">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MCU开发知识点记录与总结">
+<meta property="og:url" content="http://example.com/2023/11/28/%E3%80%90MCU%E3%80%91MCU%E5%BC%80%E5%8F%91%E5%B0%8F%E8%B4%B4%E5%A3%AB/index.html">
+<meta property="og:site_name" content="Jindu-Chen">
+<meta property="og:description" content="记录在嵌入式MCU开发中所遇知识点，包括但不限于Cortex-M内核、常用外设原理及应用编码等部分，以便检索与回顾">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2023-11-27T16:00:00.000Z">
+<meta property="article:modified_time" content="2024-08-24T06:19:15.109Z">
+<meta property="article:author" content="cjd">
+<meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2023/11/28/%E3%80%90MCU%E3%80%91MCU%E5%BC%80%E5%8F%91%E5%B0%8F%E8%B4%B4%E5%A3%AB/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>MCU开发知识点记录与总结 | Jindu-Chen</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Jindu-Chen</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">风物长宜放眼量</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/11/28/%E3%80%90MCU%E3%80%91MCU%E5%BC%80%E5%8F%91%E5%B0%8F%E8%B4%B4%E5%A3%AB/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="cjd">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jindu-Chen">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          MCU开发知识点记录与总结
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-11-28 00:00:00" itemprop="dateCreated datePublished" datetime="2023-11-28T00:00:00+08:00">2023-11-28</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-08-24 14:19:15" itemprop="dateModified" datetime="2024-08-24T14:19:15+08:00">2024-08-24</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/MCU/" itemprop="url" rel="index"><span itemprop="name">MCU</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>2.9k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>10 mins.</span>
+            </span>
+            <div class="post-description">记录在嵌入式MCU开发中所遇知识点，包括但不限于Cortex-M内核、常用外设原理及应用编码等部分，以便检索与回顾</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="内核相关部分"><a href="#内核相关部分" class="headerlink" title="内核相关部分"></a>内核相关部分</h2><h3 id="Cortex-M内核异常与中断"><a href="#Cortex-M内核异常与中断" class="headerlink" title="Cortex-M内核异常与中断"></a>Cortex-M内核异常与中断</h3><p><strong>Cortex-M内核主要包括如下几种异常：</strong></p>
+<p>Reset：上电时复位或者热复位时调用，其被视为一种特殊形式的异常，永久启用、固定优先级-3<br><br></p>
+<p>NMI：不可屏蔽中断，永久启用、固定优先级-2，不能被Reset以外的任何异常抢占，其可配置为软件触发或者外设信号触发，通常配置来用于处理严重的异常情况。当然，本人并没用过此异常</p>
+<ul>
+<li>NMI的应用场景由用户配置，如看门狗、<br></li>
+</ul>
+<p>HardFault：优先级-1</p>
+<ul>
+<li>在Cortex-M0内核中，只支持对齐访问，如果所编译的变量类型为非字节对齐（如int变量地址不能被4整除），可能会产生运行错误<br></li>
+</ul>
+<p>MemManage：由于内存保护相关故障触发的异常，可配置触发方式&#x2F;源，如非对齐内存访问、除零异常等</p>
+<ul>
+<li>例：如果指针变量并非为四字节对齐，同时内核使能了非对齐内存方法异常，那么当程序访问该指针变量时，会触发MemManage异常。当然，在GCC编译中也有相应的编译选项–<code>-munaligned-access</code>，为非字节对齐变量生成特定的程序指令</li>
+<li>如下代码所示，表示配置使能Cortex-M4内核的<code>USGFAULT, BUSFAULT, MEMFAULT</code>异常，启用DIV 0和未对齐异常内存访问<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">#define OS_NVIC_SHCSR                       0xE000ED24</span><br><span class="line">#define OS_NVIC_CCR                         0xE000ED14</span><br><span class="line">#define USGFAULT                        (1 &lt;&lt; 18)</span><br><span class="line">#define BUSFAULT                        (1 &lt;&lt; 17)</span><br><span class="line">#define MEMFAULT                        (1 &lt;&lt; 16)</span><br><span class="line">#define DIV0FAULT                       (1 &lt;&lt; 4)</span><br><span class="line">#define UNALIGNFAULT                    (1 &lt;&lt; 3)</span><br><span class="line"></span><br><span class="line">*(volatile UINT32 *)OS_NVIC_SHCSR |= (USGFAULT | BUSFAULT | MEMFAULT);</span><br><span class="line">*(volatile UINT32 *)OS_NVIC_CCR |= (DIV0FAULT | UNALIGNFAULT);</span><br></pre></td></tr></table></figure></li>
+</ul>
+<br>
+
+<p>BusFault：内存总线所检测的错误<br><br></p>
+<p>UsageFault：与指令执行相关的故障异常，包括：未定义指令、指令执行状态无效、异常返回错误<br>  如果在实际的函数指针强制转换调用中，传入参数与实际函数入参不一致，可能会导致未定义的行为错误<br><br></p>
+<p>SVCall：由SVC指令触发的异常，操作系统环境中，程序可使用SVC指令主动挂起异常，访问内核和设备驱动<br><br></p>
+<p>PendSV：实时操作系统可通过主动触发PendSV异常进行上下文切换<br><br></p>
+<p>SysTick：系统滴答定时器归零时触发的异常，通常用作系统节拍<br><br></p>
+<p>Interrupt（IRQ）：中断<br><br></p>
+<h3 id="全局开关中断操作"><a href="#全局开关中断操作" class="headerlink" title="全局开关中断操作"></a>全局开关中断操作</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">__disable_irq();    // 将 PRIMASK 寄存器的值设置为 1，禁止所有中断</span><br><span class="line">__enable_irq();     // 将 PRIMASK 寄存器的值设置为 0，开启所有中断</span><br><span class="line">__set_PRIMASK(1);   // PRIMASK 值为 1 ，所有可屏蔽中断的优先级为 1，表示所有可屏蔽中断均不能被中断处理程序处理，只能由 NMI 处理程序处理</span><br><span class="line">__set_PRIMASK(0);</span><br><span class="line"></span><br><span class="line">// 在 Cortex-M 架构中，FAULTMASK 寄存器控制所有异常的优先级</span><br><span class="line">__set_FAULTMASK(1);  // FAULTMASK 寄存器的值为 1 时，所有异常的优先级为 1，表示所有异常均不能被中断处理程序处理，只能由 NMI 处理程序处理</span><br><span class="line">__set_FAULTMASK(0);</span><br><span class="line"></span><br><span class="line">CPSID F        //关异常，FAULTMASK=1</span><br><span class="line">CPSIE F        //开异常，FAULTMASK=0</span><br></pre></td></tr></table></figure>
+
+<h3 id="MCU获取CPU使用率原理"><a href="#MCU获取CPU使用率原理" class="headerlink" title="MCU获取CPU使用率原理"></a>MCU获取CPU使用率原理</h3><ul>
+<li>理论来说，裸机程序不能获取CPU使用率</li>
+<li>在RTOS下，可以通过计时器来测量CPU在空闲任务的运行时间，计算其占整体运行时间的比率即可得到CPU使用率<ul>
+<li>CPU使用率 &#x3D; (CPU总运行时间 - CPU空闲时间) &#x2F; CPU总运行时间</li>
+<li>通过使用计时器，可以计算上电运行以后的 CPU总使用率，也可以计算 一个时间周期内 CPU的使用率</li>
+</ul>
+</li>
+</ul>
+<h2 id="系统相关部分"><a href="#系统相关部分" class="headerlink" title="系统相关部分"></a>系统相关部分</h2><h3 id="芯片时钟频率选择"><a href="#芯片时钟频率选择" class="headerlink" title="芯片时钟频率选择"></a>芯片时钟频率选择</h3><p>选择芯片时钟频率，可以综合考虑芯片的性能需求、功耗需求、发热需求等</p>
+<ul>
+<li>性能：如果运行任务复杂，如包括图形处理、视频处理、复杂数运算等，须选择高频率</li>
+<li>功耗：如果产品对耗电有要求，可以考虑选用较低同时能够满足使用的频率，需要结合硬件综合评估</li>
+<li>发热：高频率会增加芯片的发热量，产品设计空间密闭狭小情况下，需要考虑芯片可能过热工作</li>
+<li>工艺：芯片制造工艺不够精湛，在高时钟频率下工作，可能会不稳定。 （当然，本人没遇到过相关情况）</li>
+</ul>
+<h2 id="外设接口相关部分"><a href="#外设接口相关部分" class="headerlink" title="外设接口相关部分"></a>外设接口相关部分</h2><h3 id="GPIO的输出速度"><a href="#GPIO的输出速度" class="headerlink" title="GPIO的输出速度"></a>GPIO的输出速度</h3><ul>
+<li>根据外部设备要求进行配置<ul>
+<li>常规的控制LED灯、按键等，采用2MHz即可</li>
+<li>GPIO模拟SPI、I2C等总线，可以配置为10MHz</li>
+<li>控制DDR、USB等超高速接口，配置50MHZ</li>
+</ul>
+</li>
+<li>GPIO的输出速度越高，其驱动电路的功耗就越高</li>
+</ul>
+<h3 id="内部与外部晶振"><a href="#内部与外部晶振" class="headerlink" title="内部与外部晶振"></a>内部与外部晶振</h3><ul>
+<li>内部晶振精度较外部晶振低</li>
+<li>一般情况下，使用内部晶振足以满足常用需求，包括spi、iic、uart的外设通信</li>
+<li>如果要求时钟精度高，或应用于精密仪器等场景，或用到高速外设如usb、sdio的高精度时钟要求场景，考虑用外部晶振<ul>
+<li>SDIO 接口要求时钟信号的精度为 2% 或以下<ul>
+<li>存储卡、扩展卡、无线模块</li>
+<li>高速图像传感器、高速存储卡</li>
+</ul>
+</li>
+<li>USB 接口要求时钟信号的精度为 5% 或以下<ul>
+<li>鼠标、键盘、打印机、网络摄像头、耳机</li>
+<li>高速摄像头、高速打印机、高品质音频设备</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="外设接口的通信频率"><a href="#外设接口的通信频率" class="headerlink" title="外设接口的通信频率"></a>外设接口的通信频率</h3><h4 id="MCU常用外设的通信速率范围"><a href="#MCU常用外设的通信速率范围" class="headerlink" title="MCU常用外设的通信速率范围"></a>MCU常用外设的通信速率范围</h4><table>
+<thead>
+<tr>
+<th>接口类型</th>
+<th>通信频率</th>
+<th>精度</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>SDIO</td>
+<td>25 MHz~50 MHz</td>
+<td>2% 以下</td>
+</tr>
+<tr>
+<td>USB</td>
+<td>12 MHz~480 MHz</td>
+<td>5% 以下</td>
+</tr>
+<tr>
+<td>I2C</td>
+<td>100 kHz~400 kHz</td>
+<td>1% 以下</td>
+</tr>
+<tr>
+<td>SPI</td>
+<td>1 MHz~20 MHz</td>
+<td>1% 以下</td>
+</tr>
+<tr>
+<td>UART</td>
+<td>1200 bps~921600 bps</td>
+<td>1% 以下</td>
+</tr>
+</tbody></table>
+<h3 id="UART外设"><a href="#UART外设" class="headerlink" title="UART外设"></a>UART外设</h3><ul>
+<li>UART(通用异步收发传输器)是一种设备、通信的基础，规定了数据的格式和帧结构；RS232和RS485是基于UART的电气接口标准，其规定了电气特性和物理特性</li>
+<li>TTL电平的通信速率：MCU的UART外设<strong>理论最高速率取决于其外设的时钟源</strong><ul>
+<li>可通过芯片手册查看时钟树，获取外设的时钟频率</li>
+</ul>
+</li>
+<li>RS232为点对点通信，其标准传输速率须在20Kbps下，抗干扰能力差，传输最大距离不超过15m</li>
+<li>RS485的理论最高传输速率为10Mbps，可一对多通信，理论最大传输距离1500米(9600bps)</li>
+<li>测试较高波特率场景要求时，可以<strong>通过示波器抓取uart外设波形，计算其误差是否满足</strong>，或者通过逻辑分析仪在收发两端分别测试验证</li>
+</ul>
+<p>以下转述参考文章: <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/534135274">UART波特率对时钟精度的要求有多高？</a></p>
+<blockquote>
+<p>分频误差：波特率是根据系统时钟分频产生的，而系统时钟和波特率可能不是整数倍的关系，所以分频时也会产生误差。但是，当系统时钟较高，或者波特率较低时，这个误差影响很小。</p>
+</blockquote>
+<blockquote>
+<p>时钟误差：波特率的主要误差还是取决于系统时钟的误差。串口通讯对时钟误差的要求有多高呢？<br>每一个字节都有一个起始位做同步，所以误差只会在一个字节内累计。在最后一个位采样时，误差最大，允许极限误差为0.5位。<br>按照每个字节10位计算，最大允许误差为±0.5&#x2F;10&#x3D;±0.05，即±5%。<br>考虑到串口通讯涉及收发两端，两端都可能存在误差，所以，每端的误差最好控制在±2.5%以内。当数据位、校验位等较多时，要求的时钟误差就更高一些。<br>考虑到上面所说的分频误差，一般来说，当时钟误差小于±2%时，串口通信是比较可靠的。</p>
+</blockquote>
+<h4 id="UART通信协议"><a href="#UART通信协议" class="headerlink" title="UART通信协议"></a>UART通信协议</h4><ul>
+<li>空闲状态</li>
+<li>起始位</li>
+<li>数据位</li>
+<li>奇偶检验位</li>
+<li>停止位</li>
+</ul>
+<h4 id="空闲位和空闲中断"><a href="#空闲位和空闲中断" class="headerlink" title="空闲位和空闲中断"></a>空闲位和空闲中断</h4><p>空闲位：在UART通信中两个字节或者两个帧之间的 <strong>一位高电平</strong>，用于表示线路的空闲状态；当接收端检测到线路从”1”跳转到”0”(起始位)时，可以知道下一字节开始传输</p>
+<ul>
+<li>当一次发送多个字节时，每字节间会有个空闲位(可配置？看实际设计)，用于区分字节<br></li>
+</ul>
+<p>空闲中断：在接收到数据之后，如果<strong>在一个字节的时间内</strong>没有再接收到数据，就会产生空闲中断</p>
+<ul>
+<li>其一般用于接收不定长数据，用于<strong>标识一个数据包&#x2F;一帧数据</strong></li>
+</ul>
+<h3 id="SPI外设"><a href="#SPI外设" class="headerlink" title="SPI外设"></a>SPI外设</h3><p>SPI 的 MOSI、MISO引脚在空闲状态下为低电平，SCK空闲电平可以指定</p>
+<p>QSPI</p>
+<h3 id="IIS接口"><a href="#IIS接口" class="headerlink" title="IIS接口"></a>IIS接口</h3><p>IIS（Inter-IC Sound），又称集成电路内置音频总线，是飞利浦在1986年定义的数字音频传输标准，与IIC并无相关性。</p>
+<p>相对其它协议，IIS接口协议相对简单，没有地址和片选机制。在总线上，只能同时存在一个主设备和发射设备：提供时钟的为主设备，主设备可以是发射设备、接收设备或者协调两者的其它控制设备皆可。</p>
+<blockquote>
+<p>主要应用于处理器与音频编解码器之间的音频数据传输<br><br></p>
+</blockquote>
+<p>IIS协议定义了三根信号线：<strong>时钟信号SCK、数据信号SD、左右声道选择信号WS</strong></p>
+<ul>
+<li>SCK&#x2F;BCLK 位时钟：等于通道数 * 位宽 * 采样率</li>
+<li>SDIN&#x2F;DIN 数据线：串行数据，以二进制补码形式在数据线上传输，在WS变化后的第一个SCK脉冲先传输最高位</li>
+<li>WS&#x2F;LRCLK 声道选择信号：用于区分左右声道的数据，0表示左声道，1表示右声道。也叫帧时钟，等于声音的采样频率</li>
+<li>MCLK 主时钟（可选）：提供主时钟频率给接收端，确保采样率的准确性。 在高质量音频输出、使用外部音频解码器、多通道音频传输时，主时钟是必须的。</li>
+</ul>
+<h4 id="标准IIS模式"><a href="#标准IIS模式" class="headerlink" title="标准IIS模式"></a>标准IIS模式</h4><h2 id="其它部分"><a href="#其它部分" class="headerlink" title="其它部分"></a>其它部分</h2><h3 id="bin文件合并大小"><a href="#bin文件合并大小" class="headerlink" title="bin文件合并大小"></a>bin文件合并大小</h3><p>假如一个bin文件大小为6KB，烧录地址为0x8000000，另一个bin文件大小为60KB，烧录地址为0x8002800（偏移10KB），那么<strong>此两bin文件合并大小为70KB</strong>，而非66KB</p>
+<h3 id="为什么一个内存地址对应一个字节"><a href="#为什么一个内存地址对应一个字节" class="headerlink" title="为什么一个内存地址对应一个字节"></a>为什么一个内存地址对应一个字节</h3><p>一个内存地址，通常对应一个内存单元，在大部分计算机系统中，一个内存单元通常是一个字节，因为字节是计算机处理数据的基本单位。即一个地址表示的是一个8-bit大小的空间。</p>
+<p>在某些特定硬件或者设计中，一个地址可能会对应不同的数据单位，STM32有特定设计把一片内存映射成位带，一个地址对应 1 位。或者在某些系统设计中，一个地址对应的是16-bit大小空间。</p>
+<h3 id="大端-小端存储"><a href="#大端-小端存储" class="headerlink" title="大端&#x2F;小端存储"></a>大端&#x2F;小端存储</h3><p>多字节数据存储的字节顺序问题：</p>
+<ul>
+<li>大端存储（Big-endian）是指数据的高位字节存储在低地址，低位字节存储在高地址。</li>
+<li>小端存储（Little-endian）是指数据的低位字节存储在低地址，高位字节存储在高地址。</li>
+</ul>
+<p>例，32bit的16进制数 0x12345678 在内存中的存放方式：</p>
+<p>大端内存地址	0x1000	0x1001	0x1002	0x1003<br>大端存放内容	0x12	0x34	0x56	0x78</p>
+<p>小端内存地址	0x1000	0x1001	0x1002	0x1003<br>小端存放内容	0x78	0x56	0x34	0x12</p>
+<h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/ssc_zcys/article/details/105871643">内存地址（理解）</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/11/04/%E3%80%90%E7%BC%96%E7%A8%8B%E3%80%91%E5%B5%8C%E5%85%A5%E5%BC%8F%E8%BD%AF%E4%BB%B6%E6%9E%B6%E6%9E%84%E8%AE%BE%E8%AE%A1/" rel="prev" title="嵌入式MCU软件架构设计">
+      <i class="fa fa-chevron-left"></i> 嵌入式MCU软件架构设计
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2023/11/28/%E3%80%90Linux%E3%80%91Linux%E7%9F%A5%E8%AF%86%E5%B0%8F%E8%B4%B4%E5%A3%AB/" rel="next" title="Linux知识小贴士">
+      Linux知识小贴士 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%86%85%E6%A0%B8%E7%9B%B8%E5%85%B3%E9%83%A8%E5%88%86"><span class="nav-number">1.</span> <span class="nav-text">内核相关部分</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Cortex-M%E5%86%85%E6%A0%B8%E5%BC%82%E5%B8%B8%E4%B8%8E%E4%B8%AD%E6%96%AD"><span class="nav-number">1.1.</span> <span class="nav-text">Cortex-M内核异常与中断</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%A8%E5%B1%80%E5%BC%80%E5%85%B3%E4%B8%AD%E6%96%AD%E6%93%8D%E4%BD%9C"><span class="nav-number">1.2.</span> <span class="nav-text">全局开关中断操作</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MCU%E8%8E%B7%E5%8F%96CPU%E4%BD%BF%E7%94%A8%E7%8E%87%E5%8E%9F%E7%90%86"><span class="nav-number">1.3.</span> <span class="nav-text">MCU获取CPU使用率原理</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%B3%BB%E7%BB%9F%E7%9B%B8%E5%85%B3%E9%83%A8%E5%88%86"><span class="nav-number">2.</span> <span class="nav-text">系统相关部分</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%8A%AF%E7%89%87%E6%97%B6%E9%92%9F%E9%A2%91%E7%8E%87%E9%80%89%E6%8B%A9"><span class="nav-number">2.1.</span> <span class="nav-text">芯片时钟频率选择</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%96%E8%AE%BE%E6%8E%A5%E5%8F%A3%E7%9B%B8%E5%85%B3%E9%83%A8%E5%88%86"><span class="nav-number">3.</span> <span class="nav-text">外设接口相关部分</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#GPIO%E7%9A%84%E8%BE%93%E5%87%BA%E9%80%9F%E5%BA%A6"><span class="nav-number">3.1.</span> <span class="nav-text">GPIO的输出速度</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%86%85%E9%83%A8%E4%B8%8E%E5%A4%96%E9%83%A8%E6%99%B6%E6%8C%AF"><span class="nav-number">3.2.</span> <span class="nav-text">内部与外部晶振</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%96%E8%AE%BE%E6%8E%A5%E5%8F%A3%E7%9A%84%E9%80%9A%E4%BF%A1%E9%A2%91%E7%8E%87"><span class="nav-number">3.3.</span> <span class="nav-text">外设接口的通信频率</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#MCU%E5%B8%B8%E7%94%A8%E5%A4%96%E8%AE%BE%E7%9A%84%E9%80%9A%E4%BF%A1%E9%80%9F%E7%8E%87%E8%8C%83%E5%9B%B4"><span class="nav-number">3.3.1.</span> <span class="nav-text">MCU常用外设的通信速率范围</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#UART%E5%A4%96%E8%AE%BE"><span class="nav-number">3.4.</span> <span class="nav-text">UART外设</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#UART%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE"><span class="nav-number">3.4.1.</span> <span class="nav-text">UART通信协议</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%A9%BA%E9%97%B2%E4%BD%8D%E5%92%8C%E7%A9%BA%E9%97%B2%E4%B8%AD%E6%96%AD"><span class="nav-number">3.4.2.</span> <span class="nav-text">空闲位和空闲中断</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SPI%E5%A4%96%E8%AE%BE"><span class="nav-number">3.5.</span> <span class="nav-text">SPI外设</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#IIS%E6%8E%A5%E5%8F%A3"><span class="nav-number">3.6.</span> <span class="nav-text">IIS接口</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%A0%87%E5%87%86IIS%E6%A8%A1%E5%BC%8F"><span class="nav-number">3.6.1.</span> <span class="nav-text">标准IIS模式</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B6%E5%AE%83%E9%83%A8%E5%88%86"><span class="nav-number">4.</span> <span class="nav-text">其它部分</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#bin%E6%96%87%E4%BB%B6%E5%90%88%E5%B9%B6%E5%A4%A7%E5%B0%8F"><span class="nav-number">4.1.</span> <span class="nav-text">bin文件合并大小</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%80%E4%B8%AA%E5%86%85%E5%AD%98%E5%9C%B0%E5%9D%80%E5%AF%B9%E5%BA%94%E4%B8%80%E4%B8%AA%E5%AD%97%E8%8A%82"><span class="nav-number">4.2.</span> <span class="nav-text">为什么一个内存地址对应一个字节</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%A7%E7%AB%AF-%E5%B0%8F%E7%AB%AF%E5%AD%98%E5%82%A8"><span class="nav-number">4.3.</span> <span class="nav-text">大端&#x2F;小端存储</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E7%AB%99%E7%82%B9"><span class="nav-number">5.</span> <span class="nav-text">参考站点</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">cjd</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">42</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">cjd</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="Symbols count total">98k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">5:28</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

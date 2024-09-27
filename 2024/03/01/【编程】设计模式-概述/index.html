@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":"enable","trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="早就听过设计模式、也阅览过一些与设计模式相关的文章，相信即使是未曾了解过设计模式的嵌入式软件工程师，或多或少的都在日常开发中有应用到相关的设计思想，因此，写下本文，以系统总结本人在嵌入式C语言开发工作中对设计模式的理解及应用。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="嵌入式单片机C语言开发之设计模式概述">
+<meta property="og:url" content="http://example.com/2024/03/01/%E3%80%90%E7%BC%96%E7%A8%8B%E3%80%91%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E6%A6%82%E8%BF%B0/index.html">
+<meta property="og:site_name" content="Jindu-Chen">
+<meta property="og:description" content="早就听过设计模式、也阅览过一些与设计模式相关的文章，相信即使是未曾了解过设计模式的嵌入式软件工程师，或多或少的都在日常开发中有应用到相关的设计思想，因此，写下本文，以系统总结本人在嵌入式C语言开发工作中对设计模式的理解及应用。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2024-02-29T16:00:00.000Z">
+<meta property="article:modified_time" content="2024-08-24T06:19:15.116Z">
+<meta property="article:author" content="cjd">
+<meta property="article:tag" content="C语言">
+<meta property="article:tag" content="设计模式">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2024/03/01/%E3%80%90%E7%BC%96%E7%A8%8B%E3%80%91%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E6%A6%82%E8%BF%B0/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>嵌入式单片机C语言开发之设计模式概述 | Jindu-Chen</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Jindu-Chen</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">风物长宜放眼量</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/03/01/%E3%80%90%E7%BC%96%E7%A8%8B%E3%80%91%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E6%A6%82%E8%BF%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="cjd">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jindu-Chen">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          嵌入式单片机C语言开发之设计模式概述
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2024-03-01 00:00:00" itemprop="dateCreated datePublished" datetime="2024-03-01T00:00:00+08:00">2024-03-01</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-08-24 14:19:15" itemprop="dateModified" datetime="2024-08-24T14:19:15+08:00">2024-08-24</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">嵌入式</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/C%E8%AF%AD%E8%A8%80/" itemprop="url" rel="index"><span itemprop="name">C语言</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">设计模式</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>1.9k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>6 mins.</span>
+            </span>
+            <div class="post-description">早就听过设计模式、也阅览过一些与设计模式相关的文章，相信即使是未曾了解过设计模式的嵌入式软件工程师，或多或少的都在日常开发中有应用到相关的设计思想，因此，写下本文，以系统总结本人在嵌入式C语言开发工作中对设计模式的理解及应用。</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>刚入职时就听导师谈起设计模式，也被建议去看《设计模式》这本书，当时只觉高深莫测，兴冲冲地去买了书籍回来打算在工作之余细细研读一番，脑海里还臆想着通读完此书即可功力大成</p>
+<p>只可惜，作为一名嵌入式C语言开发小白，根本看不懂用 Java语言 写的《设计模式》，硬着头皮读了几天书也就弃下了。眼瞅着看书这条路径走不通，当然要换种思路了，总要跟设计模式扯上点关系不是？</p>
+<p>于是，又去网上搜罗拜读了一堆适宜小白阅览的文章，想着如何给私有的C业务代码应用上各种设计模式，好展示一番代码功底</p>
+<p>后来，在知乎看到了一条评论：“<strong>往往都是那些毕业一两年的小白楞头青，才会整天想着设计模式如此如此，非得本末倒置地给业务强行用上各种设计模式，仿佛只有这样才能满足其那颗躁动的心</strong>”。受此评论触动，深觉业务开发才是技术之本，应当去多研读工程业务之源码，没必要硬磕设计模式，当所了解与所开发的业务越来越繁杂的时候，那么设计模式及其相关思想的应用落地也就是必然的事情了。</p>
+<hr>
+<p>现如今，已工作一年有余，也接触开发了不少项目，个中也有较多业务逻辑用到设计模式的思想，因此有必要系统回顾并总结一下在嵌入式开发中所应用到的设计模式</p>
+<h2 id="设计模式概述"><a href="#设计模式概述" class="headerlink" title="设计模式概述"></a>设计模式概述</h2><p>本章节阐述本人对设计模式浅薄的书面理解。</p>
+<p>首先，我们需要理清<strong>设计思想</strong>与<strong>设计模式</strong>这两个概念：</p>
+<p>通常我们会说，进行软件设计，最重要的是思想，对于一个嵌入式软件工程师来说，首要的就是设计思想。当一个项目交到手上，我们会想这个工程能不能实现、其功能业务理论可行性，而<strong>探讨可行性，即是在构思软件的大致解决思路和方法，这就是软件顶层思想的具体实践</strong>了。而在正式开展编码工作之前，当然要明确下代码的架构设计，比如：如何对业务进行划分具体模块、如何对整体工程划分层次、如何设计交互接口等等，这些都是属于设计思想的范畴。</p>
+<p>当然，只有设计理论，没有编码设计实践是万万不行的。而设计模式即是设计思想的具体实践，我们说想要在代码上应用到我们的思想，最好是不要闭门造车，要多参考他人的代码设计方法，如设计模式，其是前人基于设计思想提炼出来的经过无数验证的成熟模型。参考使用设计模式可以帮助更好地组织代码、提高可维护性、保证软件的可靠性。</p>
+<p>以上纯属废话，鄙人对设计模式其实也没明确的概念，也不建议事事都要扯上设计模式，私以为如果<strong>一个软件模块的可读性良好、逻辑层次清晰明了、方便进行扩展设计和维护、能够很好地实现目标业务功能</strong>，那么其即属于优秀的软件设计。</p>
+<h2 id="实际开发应用分析"><a href="#实际开发应用分析" class="headerlink" title="实际开发应用分析"></a>实际开发应用分析</h2><p>未完待续。。。。。。</p>
+<h3 id="状态模式及其应用分析"><a href="#状态模式及其应用分析" class="headerlink" title="状态模式及其应用分析"></a>状态模式及其应用分析</h3><p>状态机广泛应用于嵌入式业务开发中</p>
+<ul>
+<li>设备状态机：整机设备在其工作周期中存在不同的状态，每个状态下接收到不同的事件，会有不同的响应操作，此时在整个设备顶层业务开发中可以应用状态模式。</li>
+<li>通信协议封包、解包设计：解包时，可以定义当前对 缓存数据 的解包状态，如获取到起始位、包头解析、数据解析、包校验等等、通过状态机设计，可以实现高效严谨通用的解包库函数设计。</li>
+<li>通信协议应用业务：在通信协议处理中，也存在状态的切换和不同状态下的处理回复，比如握手、握手回复、获取相关信息、等等，可以应用状态模式来设计 设备间通信协议的交互。</li>
+</ul>
+<p>当然模块内业务根据需要也可以应用状态模式，在不同的状态下接收到不同的事件，从而执行相应的操作</p>
+<h3 id="观察者模式及其应用分析"><a href="#观察者模式及其应用分析" class="headerlink" title="观察者模式及其应用分析"></a>观察者模式及其应用分析</h3><p>观察者模式：</p>
+<p>如：在按键示例中，按键事件可以当作被观察者，受按键触发的其它操作为观察者，当轮询检测到按键按下时，调用所有观察者回调函数</p>
+<p>如：温度监控</p>
+<p>如：状态变化</p>
+<h3 id="命令模式及其应用分析"><a href="#命令模式及其应用分析" class="headerlink" title="命令模式及其应用分析"></a>命令模式及其应用分析</h3><p>命令模式，通俗点理解就是通过一层转换，将输入的命令码对应成相应的执行操作。（<strong>ps：有大神说该模式的核心在于把命令下达与命令执行在时间上进行分离</strong>）</p>
+<p>一个代码实例如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">tiny_ev_map_func</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  <span class="type">uint16_t</span> cmd;</span><br><span class="line">  <span class="type">void</span> (*func)(<span class="type">void</span>);  </span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">tiny_ev_map_func</span> <span class="title">main_ev_func_list</span>[] =</span></span><br><span class="line">&#123;</span><br><span class="line">    &#123;MAIN_EV_CHARGER_INSERT, func_ev_pm_charge_insert&#125;,</span><br><span class="line">    &#123;MAIN_EV_CHARGER_FINISH, func_ev_pm_charge_finish&#125;,</span><br><span class="line">    &#123;MAIN_EV_BAT_ELE_QUANTITY, func_ev_pm_ele_quantity&#125;,</span><br><span class="line">    &#123;MAIN_EV_BAT_TEMPERATURE, func_ev_pm_temperture&#125;,</span><br><span class="line">    &#123;MAIN_EV_BAT_TEMP_ABNORMAL, func_ev_pm_temp_abnormal&#125;,</span><br><span class="line">    &#123;MAIN_EV_BTN_FIRST, func_ev_btn_first&#125;,</span><br><span class="line">    &#123;MAIN_EV_BTN_SECOND, func_ev_btn_second&#125;,</span><br><span class="line">    &#123;MAIN_EV_HEATER_COMPLEX, func_ev_heater_complex&#125;,</span><br><span class="line">    &#123;MAIN_EV_HEATER_SWITCH, func_ev_heater_switch&#125;,</span><br><span class="line">    &#123;MAIN_EV_HEATER_TEMP_USER, func_ev_heater_temp_user&#125;,</span><br><span class="line">    &#123;MAIN_EV_HEATER_TEMP_RT, func_ev_heater_temp_rt&#125;,</span><br><span class="line">    &#123;MAIN_EV_HEATER_ERROR, func_ev_heater_error&#125;,</span><br><span class="line">    &#123;MAIN_EV_MASSAGE_EV_SWITCH, func_ev_massage_switch&#125;,</span><br><span class="line">    &#123;MAIN_EV_MASSAGE_EV_MODE, func_ev_massage_mode&#125;,</span><br><span class="line">    &#123;MAIN_EV_MASSAGE_EV_ERROR, func_ev_massage_error&#125;,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">module_func_map_cmd</span><span class="params">(<span class="type">uint16_t</span> cmd)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; ARRAY_SIZE(main_ev_func_list); ++i)</span><br><span class="line">        <span class="keyword">if</span> (main_ev_func_list[i].cmd == cmd)</span><br><span class="line">            main_ev_func_list[i].func();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="适配器模式及其应用分析"><a href="#适配器模式及其应用分析" class="headerlink" title="适配器模式及其应用分析"></a>适配器模式及其应用分析</h3><p>用于将一个接口转换成另一个接口，从而实现更好的模块层级间调用、接口兼容、解耦</p>
+<p>用于不同硬件设备的兼容、不同软件模块的兼容等</p>
+<h3 id="外观模式及其应用分析"><a href="#外观模式及其应用分析" class="headerlink" title="外观模式及其应用分析"></a>外观模式及其应用分析</h3><p>外观模式用于隐藏一系列复杂接口，为外部或者上层应用提供一个统一简单的接口，使得开发者无须关心其内复杂的实现，并可降低代码耦合度</p>
+<p>如 RT-Thread 设备驱动框架：</p>
+<ul>
+<li>I&#x2F;O 设备管理层：应用程序通过 I&#x2F;O 设备提供的标准接口访问底层设备，使得设备驱动的升级和迭代不会对上层应用产生影响</li>
+<li>设备驱动框架层：抽象同类硬件设备驱动，如 ADC、PWM、UART等分类</li>
+<li>设备驱动层：驱使硬件设备工作的底层程序</li>
+</ul>
+<h3 id="中介者模式及其应用分析"><a href="#中介者模式及其应用分析" class="headerlink" title="中介者模式及其应用分析"></a>中介者模式及其应用分析</h3><p>该模式通过引入一个中介者对象，将原本需要直接交互的多个对象之间的关系转化为中介者与这些对象之间的关系，从而实现了解耦。</p>
+<p>中介者模式用于协调复杂交互，使得各个硬件接口不需要显式地相互引用，从而降低耦合度。</p>
+<h3 id="访问者模式及其应用分析"><a href="#访问者模式及其应用分析" class="headerlink" title="访问者模式及其应用分析"></a>访问者模式及其应用分析</h3><p>较为复杂，暂未理解，后续补充</p>
+<h2 id="示例代码实现"><a href="#示例代码实现" class="headerlink" title="示例代码实现"></a>示例代码实现</h2><p>此处略，后续文章补充</p>
+<h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2><ul>
+<li><p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/104212509">C常用设计模式——命令模式</a></p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/wqx521/article/details/93589663">C语言设计模式——命令模式</a></p>
+</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/C%E8%AF%AD%E8%A8%80/" rel="tag"># C语言</a>
+              <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" rel="tag"># 设计模式</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2024/02/08/%E3%80%90MCU%E3%80%91%E5%91%BD%E4%BB%A4%E8%A1%8C%E8%B0%83%E8%AF%95%E6%8E%A7%E5%88%B6%E5%8F%B0%E5%8E%9F%E7%90%86%E5%89%96%E6%9E%90/" rel="prev" title="嵌入式开发之命令行调试-Shell全剖析">
+      <i class="fa fa-chevron-left"></i> 嵌入式开发之命令行调试-Shell全剖析
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2024/04/02/%E4%B8%B2%E8%A1%8C%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE%E5%BC%80%E5%8F%91%E5%8F%8A%E5%85%B6%E5%BA%94%E7%94%A8/" rel="next" title="私有通信协议栈的开发设计与应用">
+      私有通信协议栈的开发设计与应用 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F%E6%A6%82%E8%BF%B0"><span class="nav-number">2.</span> <span class="nav-text">设计模式概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E9%99%85%E5%BC%80%E5%8F%91%E5%BA%94%E7%94%A8%E5%88%86%E6%9E%90"><span class="nav-number">3.</span> <span class="nav-text">实际开发应用分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%8A%B6%E6%80%81%E6%A8%A1%E5%BC%8F%E5%8F%8A%E5%85%B6%E5%BA%94%E7%94%A8%E5%88%86%E6%9E%90"><span class="nav-number">3.1.</span> <span class="nav-text">状态模式及其应用分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A7%82%E5%AF%9F%E8%80%85%E6%A8%A1%E5%BC%8F%E5%8F%8A%E5%85%B6%E5%BA%94%E7%94%A8%E5%88%86%E6%9E%90"><span class="nav-number">3.2.</span> <span class="nav-text">观察者模式及其应用分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%91%BD%E4%BB%A4%E6%A8%A1%E5%BC%8F%E5%8F%8A%E5%85%B6%E5%BA%94%E7%94%A8%E5%88%86%E6%9E%90"><span class="nav-number">3.3.</span> <span class="nav-text">命令模式及其应用分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%80%82%E9%85%8D%E5%99%A8%E6%A8%A1%E5%BC%8F%E5%8F%8A%E5%85%B6%E5%BA%94%E7%94%A8%E5%88%86%E6%9E%90"><span class="nav-number">3.4.</span> <span class="nav-text">适配器模式及其应用分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%96%E8%A7%82%E6%A8%A1%E5%BC%8F%E5%8F%8A%E5%85%B6%E5%BA%94%E7%94%A8%E5%88%86%E6%9E%90"><span class="nav-number">3.5.</span> <span class="nav-text">外观模式及其应用分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%AD%E4%BB%8B%E8%80%85%E6%A8%A1%E5%BC%8F%E5%8F%8A%E5%85%B6%E5%BA%94%E7%94%A8%E5%88%86%E6%9E%90"><span class="nav-number">3.6.</span> <span class="nav-text">中介者模式及其应用分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%BF%E9%97%AE%E8%80%85%E6%A8%A1%E5%BC%8F%E5%8F%8A%E5%85%B6%E5%BA%94%E7%94%A8%E5%88%86%E6%9E%90"><span class="nav-number">3.7.</span> <span class="nav-text">访问者模式及其应用分析</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0"><span class="nav-number">4.</span> <span class="nav-text">示例代码实现</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E7%AB%99%E7%82%B9"><span class="nav-number">5.</span> <span class="nav-text">参考站点</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">cjd</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">42</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">cjd</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="Symbols count total">98k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">5:28</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

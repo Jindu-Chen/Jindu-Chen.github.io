@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":"enable","trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="主要讲述MCU如何具体实现自动初始化的几种方式，基本原理为：给所有需要初始化的函数声明一个段，在段的首末设定锚点，通过执行首末地址之间的所有函数指针，从而实现隐式的函数初始化。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="嵌入式自动初始化">
+<meta property="og:url" content="http://example.com/2023/12/22/%E3%80%90MCU%E3%80%91%E5%B5%8C%E5%85%A5%E5%BC%8FMCU%E8%87%AA%E5%8A%A8%E5%88%9D%E5%A7%8B%E5%8C%96/index.html">
+<meta property="og:site_name" content="Jindu-Chen">
+<meta property="og:description" content="主要讲述MCU如何具体实现自动初始化的几种方式，基本原理为：给所有需要初始化的函数声明一个段，在段的首末设定锚点，通过执行首末地址之间的所有函数指针，从而实现隐式的函数初始化。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2023-12-21T16:00:00.000Z">
+<meta property="article:modified_time" content="2024-08-24T06:19:15.113Z">
+<meta property="article:author" content="cjd">
+<meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2023/12/22/%E3%80%90MCU%E3%80%91%E5%B5%8C%E5%85%A5%E5%BC%8FMCU%E8%87%AA%E5%8A%A8%E5%88%9D%E5%A7%8B%E5%8C%96/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>嵌入式自动初始化 | Jindu-Chen</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Jindu-Chen</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">风物长宜放眼量</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/12/22/%E3%80%90MCU%E3%80%91%E5%B5%8C%E5%85%A5%E5%BC%8FMCU%E8%87%AA%E5%8A%A8%E5%88%9D%E5%A7%8B%E5%8C%96/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="cjd">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Jindu-Chen">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          嵌入式自动初始化
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2023-12-22 00:00:00" itemprop="dateCreated datePublished" datetime="2023-12-22T00:00:00+08:00">2023-12-22</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-08-24 14:19:15" itemprop="dateModified" datetime="2024-08-24T14:19:15+08:00">2024-08-24</time>
+              </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>1.4k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>5 mins.</span>
+            </span>
+            <div class="post-description">主要讲述MCU如何具体实现自动初始化的几种方式，基本原理为：给所有需要初始化的函数声明一个段，在段的首末设定锚点，通过执行首末地址之间的所有函数指针，从而实现隐式的函数初始化。</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><h3 id="普通驱动初始化方式"><a href="#普通驱动初始化方式" class="headerlink" title="普通驱动初始化方式"></a>普通驱动初始化方式</h3><p>常见的编写方式为 每个模块在其文件内部编写初始化函数实例，然后通过头文件导出初始化函数接口；主任务包含各模块的头文件，然后逐一调用其初始化函数<br></p>
+<p>这种初始化操作有以下特点：</p>
+<ul>
+<li>显式的初始化调用较为直观，可以清楚地掌握程序的初始化流程顺序</li>
+<li>头文件处理繁琐、不利于模块间的解耦合</li>
+<li>编码难度较低</li>
+</ul>
+<h3 id="自动初始化方式"><a href="#自动初始化方式" class="headerlink" title="自动初始化方式"></a>自动初始化方式</h3><p>与常用初始化相对的即是隐式初始化，隐式初始化不用暴露模块的初始化接口，可以更好地解耦合。<br></p>
+<p>但相对应的，其初始化函数的调用、以及执行顺序不好把握<br></p>
+<p>另外，这种隐式的声明给审阅代码、移植工程也带来一定不便，开发者需要花费时间掌握工程的隐式初始化接口。<br></p>
+<h4 id="Linux下的驱动初始化"><a href="#Linux下的驱动初始化" class="headerlink" title="Linux下的驱动初始化"></a>Linux下的驱动初始化</h4><p>Linux使用<strong>模块机制</strong>来实现驱动程序的自动初始化<br></p>
+<ul>
+<li>模块是Linux内核中的一个可加载组件，其可以包含驱动程序、函数库或其它代码</li>
+<li>驱动程序模块加载到内核中时，内核会调用其初始化函数执行初始化工作，如：注册驱动程序的设备节点、初始化驱动程序的资源等<br></li>
+</ul>
+<p>Linux提供了两个宏：<code>module_init()</code>、<code>module_exit()</code>分别用于注册驱动程序的初始化和卸载函数</p>
+<ul>
+<li>如<code>module_init(init_function);</code></li>
+<li>如：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">static int __init my_driver_init(void)</span><br><span class="line">&#123;</span><br><span class="line">    // 完成驱动程序的初始化工作</span><br><span class="line"></span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br><span class="line">module_init(my_driver_init);</span><br></pre></td></tr></table></figure></li>
+<li><code>module_init()</code><strong>宏将驱动初始化函数的地址存储到一个全局变量中</strong></li>
+<li>内核启动时会调用<code>kernel_init()-&gt;init_module()-&gt;遍历执行所有通过module_init()注册的初始化函数</code></li>
+</ul>
+<h2 id="前提知识"><a href="#前提知识" class="headerlink" title="前提知识"></a>前提知识</h2><ul>
+<li><code>__attribute__((used))</code>是一个函数属性，其告诉编译器保留函数在目标文件中，即使其没被调用</li>
+<li><code>__attribute__((section(&quot;name&quot;)))</code>属性用于将变量或函数放置在指定的段</li>
+</ul>
+<h2 id="Keil环境下的自动初始化"><a href="#Keil环境下的自动初始化" class="headerlink" title="Keil环境下的自动初始化"></a>Keil环境下的自动初始化</h2><ul>
+<li><p>Keil的 ARM链接器会生成用于标识段首末地址的变量，如<code>initcall0init$$Base</code>为段名<code>initcall0init</code>的首地址；<code>initcall0init$$Limit</code>表示末地址</p>
+</li>
+<li><p>段的声明会将函数指针存储在输出文件的Data段中，属性为RO只读</p>
+</li>
+</ul>
+<p><strong>应用代码示例如下：</strong></p>
+<ul>
+<li>以下为实现自动初始化的头文件<ul>
+<li><code>act_auto_initialize()</code>是用以实现自动初始化的调用</li>
+<li>4个宏定义是对需要被调用的函数指针定义了4个显式执行次序<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">#define  __used  __attribute__((__used__))</span><br><span class="line"></span><br><span class="line">typedef void (*initcall_t)(void);</span><br><span class="line"></span><br><span class="line">#define __define_initcall(fn, id) \</span><br><span class="line">    static const initcall_t __initcall_##fn##id __used \</span><br><span class="line">    __attribute__((__section__(&quot;initcall&quot; #id &quot;init&quot;))) = fn; </span><br><span class="line"></span><br><span class="line">#define INIT_SYSTEM_EXPORT(fn)      __define_initcall(fn, 0)</span><br><span class="line">#define INIT_BOARD_EXPORT(fn)       __define_initcall(fn, 1)</span><br><span class="line">#define INIT_DEVICE_EXPORT(fn)      __define_initcall(fn, 2)</span><br><span class="line">#define INIT_APP_EXPORT(fn)         __define_initcall(fn, 3)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">void act_auto_initialize(void);</span><br></pre></td></tr></table></figure></li>
+</ul>
+</li>
+<li>以下为自动初始化的实现<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line">void act_auto_initialize(void)</span><br><span class="line">&#123;</span><br><span class="line">    extern initcall_t initcall0init$$Base[];</span><br><span class="line">    extern initcall_t initcall0init$$Limit[];</span><br><span class="line">    extern initcall_t initcall1init$$Base[];</span><br><span class="line">    extern initcall_t initcall1init$$Limit[];</span><br><span class="line">    extern initcall_t initcall2init$$Base[];</span><br><span class="line">    extern initcall_t initcall2init$$Limit[];</span><br><span class="line">    extern initcall_t initcall3init$$Base[];</span><br><span class="line">    extern initcall_t initcall3init$$Limit[];</span><br><span class="line">    </span><br><span class="line">    initcall_t *fn;</span><br><span class="line">    </span><br><span class="line">    for (fn = initcall0init$$Base;</span><br><span class="line">            fn &lt; initcall0init$$Limit;</span><br><span class="line">            fn++)</span><br><span class="line">    &#123;</span><br><span class="line">        if(fn)</span><br><span class="line">            (*fn)();</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    for (fn = initcall1init$$Base;</span><br><span class="line">            fn &lt; initcall1init$$Limit;</span><br><span class="line">            fn++)</span><br><span class="line">    &#123;</span><br><span class="line">        if(fn)</span><br><span class="line">            (*fn)();</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    for (fn = initcall2init$$Base;</span><br><span class="line">            fn &lt; initcall2init$$Limit;</span><br><span class="line">            fn++)</span><br><span class="line">    &#123;</span><br><span class="line">        if(fn)</span><br><span class="line">            (*fn)();</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    for (fn = initcall3init$$Base;</span><br><span class="line">            fn &lt; initcall3init$$Limit;</span><br><span class="line">            fn++)</span><br><span class="line">    &#123;</span><br><span class="line">        if(fn)</span><br><span class="line">            (*fn)();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="适用于GCC环境下的自动初始化"><a href="#适用于GCC环境下的自动初始化" class="headerlink" title="适用于GCC环境下的自动初始化"></a>适用于GCC环境下的自动初始化</h2><p>GCC环境下，可以采用事先定义两个静态函数的段，将需要初始化的函数指针声明到这个段的中间，通过执行两个静态函数地址之间的所有函数指针即可。<br></p>
+<p><strong>以下源码示例片段摘选自rt-thread：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line">#define SECTION(x)                  __attribute__((section(x)))</span><br><span class="line">typedef int (*init_fn_t)(void);</span><br><span class="line">#define INIT_EXPORT(fn, level)                                                       \</span><br><span class="line">    RT_USED const init_fn_t __rt_init_##fn SECTION(&quot;.rti_fn.&quot; level) = fn      // 定义一个函数指针常量，并声明到指定的段名中</span><br><span class="line"></span><br><span class="line">static int rti_start(void)</span><br><span class="line">&#123;</span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br><span class="line">INIT_EXPORT(rti_start, &quot;0&quot;);</span><br><span class="line">static int rti_board_start(void)</span><br><span class="line">&#123;</span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br><span class="line">INIT_EXPORT(rti_board_start, &quot;0.end&quot;);</span><br><span class="line">static int rti_board_end(void)</span><br><span class="line">&#123;</span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br><span class="line">INIT_EXPORT(rti_board_end, &quot;1.end&quot;);</span><br><span class="line">static int rti_end(void)</span><br><span class="line">&#123;</span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br><span class="line">INIT_EXPORT(rti_end, &quot;6.end&quot;);</span><br><span class="line"></span><br><span class="line">// 系统在初始化时调用此函数</span><br><span class="line">void rt_components_init(void)  </span><br><span class="line">&#123;</span><br><span class="line">  volatile const init_fn_t *fn_ptr;</span><br><span class="line"></span><br><span class="line">  for (fn_ptr = &amp;__rt_init_rti_board_start; fn_ptr &lt; &amp;__rt_init_rti_board_end; fn_ptr++)</span><br><span class="line">  &#123;</span><br><span class="line">      (*fn_ptr)();</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  volatile const init_fn_t *fn_ptr;</span><br><span class="line"></span><br><span class="line">  for (fn_ptr = &amp;__rt_init_rti_board_start; fn_ptr &lt; &amp;__rt_init_rti_board_end; fn_ptr++)</span><br><span class="line">  &#123;</span><br><span class="line">      (*fn_ptr)();</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>以下为初始化函数应用接口，宏定义声明传入函数指针(函数名)即可：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">#define INIT_BOARD_EXPORT(fn)           INIT_EXPORT(fn, &quot;1&quot;)</span><br><span class="line">#define INIT_PREV_EXPORT(fn)            INIT_EXPORT(fn, &quot;2&quot;)</span><br><span class="line">#define INIT_DEVICE_EXPORT(fn)          INIT_EXPORT(fn, &quot;3&quot;)</span><br><span class="line">#define INIT_COMPONENT_EXPORT(fn)       INIT_EXPORT(fn, &quot;4&quot;)</span><br><span class="line">#define INIT_ENV_EXPORT(fn)             INIT_EXPORT(fn, &quot;5&quot;)</span><br><span class="line">#define INIT_APP_EXPORT(fn)             INIT_EXPORT(fn, &quot;6&quot;)</span><br><span class="line"></span><br><span class="line">//应用示例</span><br><span class="line">void function_need_to_init(void)</span><br><span class="line">&#123;</span><br><span class="line">  // xxx</span><br><span class="line">&#125;</span><br><span class="line">INIT_BOARD_EXPORT(function_need_to_init);</span><br></pre></td></tr></table></figure>
+<br>
+
+<h2 id="注意项"><a href="#注意项" class="headerlink" title="注意项"></a>注意项</h2><p><strong>不同的段名在内存映射中的排序：</strong></p>
+<ul>
+<li>通常，map文件中的段是按照首字母顺序排序的</li>
+<li>另，依照rt-thread方式所编译生成<code>.map</code>文件的段排序如下，供参考：<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">.rti_fn.0                                0x08018e6c   Section        4  components.o(.rti_fn.0)</span><br><span class="line">__tagsym$$used                           0x08018e6c   Number         0  components.o(.rti_fn.0)</span><br><span class="line">.rti_fn.0.end                            0x08018e70   Section        4  components.o(.rti_fn.0.end)</span><br><span class="line">__tagsym$$used                           0x08018e70   Number         0  components.o(.rti_fn.0.end)</span><br><span class="line">.rti_fn.1                                0x08018e74   Section        4  user_board_interface.o(.rti_fn.1)</span><br><span class="line">__tagsym$$used                           0x08018e74   Number         0  user_board_interface.o(.rti_fn.1)</span><br><span class="line">.rti_fn.1.end                            0x08018e78   Section        4  components.o(.rti_fn.1.end)</span><br><span class="line">__tagsym$$used                           0x08018e78   Number         0  components.o(.rti_fn.1.end)</span><br><span class="line">.rti_fn.6                                0x08018e7c   Section        4  shell.o(.rti_fn.6)</span><br><span class="line">__tagsym$$used                           0x08018e7c   Number         0  shell.o(.rti_fn.6)</span><br><span class="line">.rti_fn.6.end                            0x08018e80   Section        4  components.o(.rti_fn.6.end)</span><br></pre></td></tr></table></figure>
+<br></li>
+</ul>
+<p><strong>初始化函数指针声明在同一个段中的顺序：</strong></p>
+<ul>
+<li>实际上，此种自动初始化是函数指针的段声明，本质上是变量的声明</li>
+<li>同一源文件中，其声明顺序按照它们在源代码中的布局顺序进行排列</li>
+<li>不同源文件中，为按照源文件的顺序<ul>
+<li>编译时可以使用<code>-M</code>选项，生成包含目标文件依赖关系的文件，通过该本文可以查看源文件顺序</li>
+<li>另外，可以通过<code>.map</code>文件查看段的声明顺序，从而知道初始化顺序<br></li>
+</ul>
+</li>
+</ul>
+<p><strong>编译选项之 函数分段 对初始化顺序的影响：</strong></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/12/21/git%E4%BD%BF%E7%94%A8%E5%B0%8F%E8%B4%B4%E5%A3%AB/" rel="prev" title="Git使用小贴士">
+      <i class="fa fa-chevron-left"></i> Git使用小贴士
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2023/12/24/%E3%80%90%E6%9E%84%E5%BB%BA%E3%80%91GN%E5%92%8Cninja%E7%9A%84%E5%8C%BA%E5%88%AB%E3%80%81%E8%81%94%E7%B3%BB%E5%92%8C%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91/" rel="next" title="GN和Ninja构建工具的基础入门、进阶和应用开发">
+      GN和Ninja构建工具的基础入门、进阶和应用开发 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%83%8C%E6%99%AF"><span class="nav-number">1.</span> <span class="nav-text">背景</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%99%AE%E9%80%9A%E9%A9%B1%E5%8A%A8%E5%88%9D%E5%A7%8B%E5%8C%96%E6%96%B9%E5%BC%8F"><span class="nav-number">1.1.</span> <span class="nav-text">普通驱动初始化方式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%87%AA%E5%8A%A8%E5%88%9D%E5%A7%8B%E5%8C%96%E6%96%B9%E5%BC%8F"><span class="nav-number">1.2.</span> <span class="nav-text">自动初始化方式</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Linux%E4%B8%8B%E7%9A%84%E9%A9%B1%E5%8A%A8%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="nav-number">1.2.1.</span> <span class="nav-text">Linux下的驱动初始化</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E6%8F%90%E7%9F%A5%E8%AF%86"><span class="nav-number">2.</span> <span class="nav-text">前提知识</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Keil%E7%8E%AF%E5%A2%83%E4%B8%8B%E7%9A%84%E8%87%AA%E5%8A%A8%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="nav-number">3.</span> <span class="nav-text">Keil环境下的自动初始化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%80%82%E7%94%A8%E4%BA%8EGCC%E7%8E%AF%E5%A2%83%E4%B8%8B%E7%9A%84%E8%87%AA%E5%8A%A8%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="nav-number">4.</span> <span class="nav-text">适用于GCC环境下的自动初始化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B3%A8%E6%84%8F%E9%A1%B9"><span class="nav-number">5.</span> <span class="nav-text">注意项</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">cjd</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">42</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">cjd</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="Symbols count total">98k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">5:28</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
