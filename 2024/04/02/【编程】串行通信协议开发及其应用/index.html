@@ -23,17 +23,17 @@
   <meta name="description" content="通信协议是设备间协同工作的关键，当然此处所说的通信协议并不是指硬件层的 UART、IIC、SPI 等通信接口，也不是指 BLE、WI-FI、USB 此类数据传输协议，其是特指在已经实现设备间数据透明传输通路的基础上，再封装的一层私有协议，用于规范设备间业务数据&#x2F;功能&#x2F;命令等的交互，从而实现稳定可靠的多设备多模块间协同工作。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="私有通信协议栈的开发设计与应用">
-<meta property="og:url" content="http://example.com/2024/04/02/%E4%B8%B2%E8%A1%8C%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE%E5%BC%80%E5%8F%91%E5%8F%8A%E5%85%B6%E5%BA%94%E7%94%A8/index.html">
+<meta property="og:url" content="http://example.com/2024/04/02/%E3%80%90%E7%BC%96%E7%A8%8B%E3%80%91%E4%B8%B2%E8%A1%8C%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE%E5%BC%80%E5%8F%91%E5%8F%8A%E5%85%B6%E5%BA%94%E7%94%A8/index.html">
 <meta property="og:site_name" content="Jindu-Chen">
 <meta property="og:description" content="通信协议是设备间协同工作的关键，当然此处所说的通信协议并不是指硬件层的 UART、IIC、SPI 等通信接口，也不是指 BLE、WI-FI、USB 此类数据传输协议，其是特指在已经实现设备间数据透明传输通路的基础上，再封装的一层私有协议，用于规范设备间业务数据&#x2F;功能&#x2F;命令等的交互，从而实现稳定可靠的多设备多模块间协同工作。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2024-04-01T16:00:00.000Z">
-<meta property="article:modified_time" content="2024-08-24T06:19:15.111Z">
+<meta property="article:modified_time" content="2024-09-30T02:39:31.918Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
 
-<link rel="canonical" href="http://example.com/2024/04/02/%E4%B8%B2%E8%A1%8C%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE%E5%BC%80%E5%8F%91%E5%8F%8A%E5%85%B6%E5%BA%94%E7%94%A8/">
+<link rel="canonical" href="http://example.com/2024/04/02/%E3%80%90%E7%BC%96%E7%A8%8B%E3%80%91%E4%B8%B2%E8%A1%8C%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE%E5%BC%80%E5%8F%91%E5%8F%8A%E5%85%B6%E5%BA%94%E7%94%A8/">
 
 
 <script id="page-configurations">
@@ -195,7 +195,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/04/02/%E4%B8%B2%E8%A1%8C%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE%E5%BC%80%E5%8F%91%E5%8F%8A%E5%85%B6%E5%BA%94%E7%94%A8/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/04/02/%E3%80%90%E7%BC%96%E7%A8%8B%E3%80%91%E4%B8%B2%E8%A1%8C%E9%80%9A%E4%BF%A1%E5%8D%8F%E8%AE%AE%E5%BC%80%E5%8F%91%E5%8F%8A%E5%85%B6%E5%BA%94%E7%94%A8/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -225,7 +225,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-08-24 14:19:15" itemprop="dateModified" datetime="2024-08-24T14:19:15+08:00">2024-08-24</time>
+                <time title="Modified: 2024-09-30 10:39:31" itemprop="dateModified" datetime="2024-09-30T10:39:31+08:00">2024-09-30</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
