@@ -28,7 +28,7 @@
 <meta property="og:description" content="讲述经典蓝牙连接和TWS连接的原理，包括蓝牙状态介绍、配对流程、回连流程、TWS连接与回连流程、BT&#x2F;TWS各个地址概念等。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2024-08-20T16:00:00.000Z">
-<meta property="article:modified_time" content="2024-09-27T03:33:31.873Z">
+<meta property="article:modified_time" content="2024-10-29T11:35:08.214Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -225,7 +225,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-09-27 11:33:31" itemprop="dateModified" datetime="2024-09-27T11:33:31+08:00">2024-09-27</time>
+                <time title="Modified: 2024-10-29 19:35:08" itemprop="dateModified" datetime="2024-10-29T19:35:08+08:00">2024-10-29</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -247,14 +247,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>741</span>
+              <span>760</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>2 mins.</span>
+              <span>3 mins.</span>
             </span>
             <div class="post-description">讲述经典蓝牙连接和TWS连接的原理，包括蓝牙状态介绍、配对流程、回连流程、TWS连接与回连流程、BT/TWS各个地址概念等。</div>
 
@@ -267,12 +267,13 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h2 id="蓝牙状态"><a href="#蓝牙状态" class="headerlink" title="蓝牙状态"></a>蓝牙状态</h2><p>主要介绍以下四种蓝牙设备状态：</p>
+        <h2 id="蓝牙状态"><a href="#蓝牙状态" class="headerlink" title="蓝牙状态"></a>蓝牙状态</h2><p>经典蓝牙的基本状态如下：</p>
 <ul>
 <li>Page寻呼：主动对其它蓝牙设备发起连接</li>
 <li>Page Scan：可被其它蓝牙设备发起连接。（当设备处于Page Scan状态时，才能被发起Page的蓝牙设备连接）</li>
 <li>Inquiry扫描：主动搜索和发现周围的蓝牙设备。（通常由手机发起）</li>
 <li>Inquiry Scan：可被其它蓝牙设备搜索与发起连接。（当设备处于Inquiry Scan状态时，才能被发起Inquiry的蓝牙设备搜索）</li>
+<li>standby：蓝牙设备默认状态，此模式下设备处于低功耗状态</li>
 </ul>
 <blockquote>
 <p>经典蓝牙不讲述广播概念，其广播过程可以理解为设备通过 Inquiry 和 Inquiry Scan 状态进行发现和建立连接的过程。</p>
@@ -447,12 +448,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">99k</span>
+    <span title="Symbols count total">100k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">5:30</span>
+    <span title="Reading time total">5:32</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
   </div>
