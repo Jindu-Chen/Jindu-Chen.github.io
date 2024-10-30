@@ -31,7 +31,7 @@
 <meta property="og:image" content="http://example.com/pictures/%E3%80%90%E8%93%9D%E7%89%99%E3%80%91%E8%93%9D%E7%89%99%E5%88%86%E6%9E%90%E4%BB%AA%E6%8A%93%E5%8C%85%E7%B1%BB%E5%9E%8B%E5%B1%82%E6%AC%A1.png">
 <meta property="og:image" content="http://example.com/pictures/%E3%80%90%E8%93%9D%E7%89%99%E3%80%91%E8%93%9D%E7%89%99%E5%88%86%E6%9E%90%E4%BB%AALE%E6%95%B0%E6%8D%AE%E5%8C%85%E7%95%8C%E9%9D%A2%E7%A4%BA%E6%84%8F.png">
 <meta property="article:published_time" content="2024-10-21T16:00:00.000Z">
-<meta property="article:modified_time" content="2024-10-29T13:31:34.226Z">
+<meta property="article:modified_time" content="2024-10-30T01:12:35.910Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -229,7 +229,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-10-29 21:31:34" itemprop="dateModified" datetime="2024-10-29T21:31:34+08:00">2024-10-29</time>
+                <time title="Modified: 2024-10-30 09:12:35" itemprop="dateModified" datetime="2024-10-30T09:12:35+08:00">2024-10-30</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -255,7 +255,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>1.1k</span>
+              <span>1.2k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
@@ -277,7 +277,13 @@
       
         <p><strong>未完待续…</strong></p>
 <hr>
-<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>以<code>EllisysBluetoothAnalyzer</code>工具</p>
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>本文以<code>EllisysBluetoothAnalyzer</code>工具为基础，主要介绍蓝牙数据包抓包分析。</p>
+<p>学习使用蓝牙分析仪以及数据包解析，有助于加快问题诊断与解决</p>
+<ul>
+<li>分析蓝牙空中数据包流程，判断蓝牙流程是否符合设计期望</li>
+<li>识别、排查通信问题，如丢包、重传、延迟等</li>
+<li>界定问题对象，通过抓包分析是手机还是设备端的流程&#x2F;兼容设计问题；比如音乐无声、音量同步、SIRI开关等</li>
+</ul>
 <h2 id="蓝牙分析仪工具配置与使用"><a href="#蓝牙分析仪工具配置与使用" class="headerlink" title="蓝牙分析仪工具配置与使用"></a>蓝牙分析仪工具配置与使用</h2><h3 id="搜索、过滤与监听"><a href="#搜索、过滤与监听" class="headerlink" title="搜索、过滤与监听"></a>搜索、过滤与监听</h3><p>配置监听目标设备</p>
 <p>通常添加监听的目标 包括设备与手机</p>
 <h3 id="Linkkey的获取与配置解密"><a href="#Linkkey的获取与配置解密" class="headerlink" title="Linkkey的获取与配置解密"></a>Linkkey的获取与配置解密</h3><p>从手机端获取 &#x2F;data&#x2F;misc&#x2F;bluedroid&#x2F;bt_config.conf<br>从设备端获取</p>
