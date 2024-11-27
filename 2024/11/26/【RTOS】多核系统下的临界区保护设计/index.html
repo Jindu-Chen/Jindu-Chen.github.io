@@ -34,7 +34,7 @@
 <meta property="og:image" content="http://example.com/pictures/%E3%80%90RTOS%E3%80%91%E8%93%9D%E7%89%99%E5%8F%91%E5%B0%84-%E6%A8%A1%E6%8B%9F%E7%A1%AC%E4%BB%B6fifo%E9%97%AE%E9%A2%98%E4%BB%A3%E7%A0%81.png">
 <meta property="og:image" content="http://example.com/pictures/%E3%80%90RTOS%E3%80%91%E8%93%9D%E7%89%99%E5%8F%91%E5%B0%84%E5%99%A8%E6%B7%BB%E5%8A%A0%E4%B8%B4%E7%95%8C%E5%8C%BA%E4%BB%A3%E7%A0%81%E4%BF%9D%E6%8A%A4%E4%BF%AE%E5%A4%8D.png">
 <meta property="article:published_time" content="2024-11-25T16:00:00.000Z">
-<meta property="article:modified_time" content="2024-11-27T13:15:08.152Z">
+<meta property="article:modified_time" content="2024-11-27T13:18:38.239Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -232,7 +232,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-11-27 21:15:08" itemprop="dateModified" datetime="2024-11-27T21:15:08+08:00">2024-11-27</time>
+                <time title="Modified: 2024-11-27 21:18:38" itemprop="dateModified" datetime="2024-11-27T21:18:38+08:00">2024-11-27</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -258,14 +258,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>2.8k</span>
+              <span>1.9k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>5 mins.</span>
+              <span>6 mins.</span>
             </span>
             <div class="post-description">本文简要讲述临界区，重点以701N-142/143的两个共性问题为例，介绍多核系统下的临界区保护设计。</div>
 
@@ -285,7 +285,7 @@
 <li>总述多核系统下的线程调度策略，以及其临界区保护设计</li>
 </ul>
 <p>本文相当部分理论内容摘选、总结自杰理培训文档，内部链接见文末参考站点</p>
-<h2 id="临界区概念简述"><a href="#临界区概念简述" class="headerlink" title="临界区概念简述"></a>临界区概念简述</h2><p><strong>临界区代码：</strong> 涉及共享资源（如外设）访问的代码区</p>
+<h2 id="临界区概念简述"><a href="#临界区概念简述" class="headerlink" title="临界区概念简述"></a>临界区概念简述</h2><p><strong>临界区代码：</strong> 涉及共享资源（如外设、全局变量&#x2F;指针、buffer等）访问的代码区</p>
 <p>以下情况，可能会导致数据不一致，或不可预知的问题</p>
 <ul>
 <li>一个线程在执行临界区代码中，被更高优先级线程抢占执行</li>
@@ -534,12 +534,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">105k</span>
+    <span title="Symbols count total">104k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">2:55</span>
+    <span title="Reading time total">5:47</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
   </div>
