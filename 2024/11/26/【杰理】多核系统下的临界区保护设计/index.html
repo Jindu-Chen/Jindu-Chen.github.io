@@ -20,19 +20,19 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":"enable","trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="以杰理方案为例">
+  <meta name="description" content="本文简要讲述临界区，以701N-142&#x2F;143的两个共性问题为例，着重介绍多核系统下的临界区保护设计。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="【RTOS】多核系统下的临界区保护设计以及案例分析">
 <meta property="og:url" content="http://example.com/2024/11/26/%E3%80%90%E6%9D%B0%E7%90%86%E3%80%91%E5%A4%9A%E6%A0%B8%E7%B3%BB%E7%BB%9F%E4%B8%8B%E7%9A%84%E4%B8%B4%E7%95%8C%E5%8C%BA%E4%BF%9D%E6%8A%A4%E8%AE%BE%E8%AE%A1/index.html">
 <meta property="og:site_name" content="Jindu-Chen">
-<meta property="og:description" content="以杰理方案为例">
+<meta property="og:description" content="本文简要讲述临界区，以701N-142&#x2F;143的两个共性问题为例，着重介绍多核系统下的临界区保护设计。">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://example.com/pictures/%E3%80%90RTOS%E3%80%91iis-dma%E4%B8%AD%E6%96%AD%E4%B8%8E%E8%A7%A3%E7%A0%81%E7%BA%BF%E7%A8%8B%E8%AE%BF%E9%97%AE%E4%B8%B4%E7%95%8C%E5%8C%BA%E6%AD%BB%E6%9C%BA.png">
 <meta property="og:image" content="http://example.com/pictures/%E3%80%90RTOS%E3%80%91iis-%E8%BE%93%E5%85%A548KHz-%E6%AD%BB%E6%9C%BA%E6%96%AD%E8%A8%80%E9%87%8E%E6%8C%87%E9%92%88.png">
 <meta property="og:image" content="http://example.com/pictures/%E3%80%90RTOS%E3%80%91%E5%A4%9A%E6%A0%B8%E7%AB%9E%E4%BA%89%E9%97%AE%E9%A2%98%E7%A4%BA%E6%84%8F.png">
 <meta property="og:image" content="http://example.com/pictures/%E3%80%90RTOS%E3%80%91iis-dma%E4%B8%8E%E8%A7%A3%E7%A0%81%E7%BA%BF%E7%A8%8B%E6%B7%BB%E5%8A%A0%E8%87%AA%E6%97%8B%E9%94%81-%E9%94%81%E4%BD%8F%E5%A4%9A%E6%A0%B8.png">
 <meta property="article:published_time" content="2024-11-25T16:00:00.000Z">
-<meta property="article:modified_time" content="2024-11-27T09:41:29.345Z">
+<meta property="article:modified_time" content="2024-11-27T10:09:07.998Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -230,7 +230,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-11-27 17:41:29" itemprop="dateModified" datetime="2024-11-27T17:41:29+08:00">2024-11-27</time>
+                <time title="Modified: 2024-11-27 18:09:07" itemprop="dateModified" datetime="2024-11-27T18:09:07+08:00">2024-11-27</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -256,7 +256,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>1.7k</span>
+              <span>1.8k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
@@ -265,7 +265,7 @@
                 <span class="post-meta-item-text">Reading time &asymp;</span>
               <span>6 mins.</span>
             </span>
-            <div class="post-description">以杰理方案为例</div>
+            <div class="post-description">本文简要讲述临界区，以701N-142/143的两个共性问题为例，着重介绍多核系统下的临界区保护设计。</div>
 
         </div>
       </header>
@@ -298,8 +298,9 @@
 <ul>
 <li>函数内部使用静态变量</li>
 <li>函数内部修改全局变量（访问、修改 其它线程会使用到的变量）</li>
-<li>存在操作依赖于外部状态、外部变量<br>实际开发中，存在相当多的不可重入函数，必须要在上述第二第三点处，添加临界区保护。</li>
+<li>存在操作依赖于外部状态、外部变量</li>
 </ul>
+<p>实际开发中，存在相当多的不可重入函数，必须要在上述第二第三点处，添加临界区保护。</p>
 <br>
 
 <p><strong>线程安全函数：</strong> 可以被多线程同时调用的函数，如<code>memcpy</code>、<code>memset</code>等C库函数，或如下示例</p>
@@ -329,22 +330,25 @@
 <p>几个额外信息如下：</p>
 <ul>
 <li><code>alink_isr</code>中断，注册在cpu0<blockquote>
-<p>audio_link.c -&gt; <code>request_irq(IRQ_ALINK0_IDX, 3, alink0_dma_isr, 0);</code>，表示注册在<code>cpu-&gt;core0</code></p>
+<p>audio_link.c -&gt; <code>request_irq(IRQ_ALINK0_IDX, 3, alink0_dma_isr, 0);</code>，即注册在<code>cpu-&gt;core0</code></p>
 </blockquote>
 </li>
 <li>从<code>task_table.c</code>来看，线程<code>audio_dec</code>运行在cpu1核（固定核心调度的前提下）</li>
 </ul>
-<p>在配置IIS输入48KHz，压测出现了概率死机，打印如下，底层判断为野指针访问断言：<br><img src="/../pictures/%E3%80%90RTOS%E3%80%91iis-%E8%BE%93%E5%85%A548KHz-%E6%AD%BB%E6%9C%BA%E6%96%AD%E8%A8%80%E9%87%8E%E6%8C%87%E9%92%88.png" alt="alt text"></p>
+<br>
+
+<p><strong>问题：</strong>在配置IIS输入48KHz，压测出现了概率死机，打印如下，底层<strong>判断为野指针访问断言</strong>：<br><img src="/../pictures/%E3%80%90RTOS%E3%80%91iis-%E8%BE%93%E5%85%A548KHz-%E6%AD%BB%E6%9C%BA%E6%96%AD%E8%A8%80%E9%87%8E%E6%8C%87%E9%92%88.png" alt="alt text"></p>
 <h4 id="问题原因分析"><a href="#问题原因分析" class="headerlink" title="问题原因分析"></a>问题原因分析</h4><p>死机原因解析为：</p>
 <ul>
 <li>解码线程运行在<code>cpu1</code>核，执行<code>local_irq_disable</code>禁用<strong>cpu1对应的中断</strong></li>
-<li>进入临界区，将<code>audio-&gt;track</code>指针变量释放，但还没重新赋值</li>
-<li>此时注册在<code>cpu0</code>核的<code>alink_iis_dma</code>中断触发，并行访问<code>audio-&gt;track</code>指针 —— 导致了野指针访问断言死机</li>
+<li>解码线程进入临界区，将<code>audio-&gt;track</code>指针变量释放，但还没重新赋值</li>
+<li>此时注册在<code>cpu0</code>核的<code>alink_iis_dma</code>中断函数触发，并行访问<code>audio-&gt;track</code>指针 —— 导致了野指针访问断言死机</li>
 </ul>
 <p>示意图如下：<br><img src="/../pictures/%E3%80%90RTOS%E3%80%91%E5%A4%9A%E6%A0%B8%E7%AB%9E%E4%BA%89%E9%97%AE%E9%A2%98%E7%A4%BA%E6%84%8F.png" alt="【RTOS】多核竞争问题示意"></p>
 <h4 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h4><p>改为<code>spin_lock</code>自旋锁，<strong>锁住多核</strong>，保证<code>audio-&gt;track</code>指针变量的访问安全</p>
 <p><img src="/../pictures/%E3%80%90RTOS%E3%80%91iis-dma%E4%B8%8E%E8%A7%A3%E7%A0%81%E7%BA%BF%E7%A8%8B%E6%B7%BB%E5%8A%A0%E8%87%AA%E6%97%8B%E9%94%81-%E9%94%81%E4%BD%8F%E5%A4%9A%E6%A0%B8.png" alt="iis-dma与解码线程添加自旋锁-锁住多核"></p>
-<h3 id="中断与线程操作共享fifo——发射声音卡顿"><a href="#中断与线程操作共享fifo——发射声音卡顿" class="headerlink" title="中断与线程操作共享fifo——发射声音卡顿"></a>中断与线程操作共享fifo——发射声音卡顿</h3><h4 id="701-142-143-发射器-相关缺陷代码描述"><a href="#701-142-143-发射器-相关缺陷代码描述" class="headerlink" title="701-142&#x2F;143-发射器-相关缺陷代码描述"></a>701-142&#x2F;143-发射器-相关缺陷代码描述</h4><p>缺陷代码位于<code>IIS输入-蓝牙发射</code>音频流之间的<code>audio_bt_emitter_hw.c-&gt;audio_bt_emitter_hw_output()</code>节点</p>
+<h3 id="中断与线程操作共享fifo——发射声音卡顿"><a href="#中断与线程操作共享fifo——发射声音卡顿" class="headerlink" title="中断与线程操作共享fifo——发射声音卡顿"></a>中断与线程操作共享fifo——发射声音卡顿</h3><p>未完待续。。。。。。</p>
+<h4 id="701-142-143-发射器-相关缺陷代码描述"><a href="#701-142-143-发射器-相关缺陷代码描述" class="headerlink" title="701-142&#x2F;143-发射器-相关缺陷代码描述"></a>701-142&#x2F;143-发射器-相关缺陷代码描述</h4><p>缺陷代码位于<code>IIS输入-蓝牙发射</code>音频流之间的<code>audio_bt_emitter_hw.c-&gt;audio_bt_emitter_hw_output()</code>节点</p>
 <blockquote>
 <p>此节点位于 MIXER 后，蓝牙发射sbc编码前，是一个用<code>硬件定时器回调</code>模拟硬件发射的<code>fifo</code>临界区<br>解码线程的音频数据流写入fifo<br>定时器中断触发从fifo取数，推送到编码线程</p>
 </blockquote>
@@ -371,7 +375,7 @@
 <p>先启动cpu0，再启动cpu1</p>
 <p>系统调度器时基中断依赖于cpu0，禁用了cpu0，也相当于禁用了全局线程调度，但不能禁止cpu1起中断</p>
 <h3 id="固定cpu核心调度"><a href="#固定cpu核心调度" class="headerlink" title="固定cpu核心调度"></a>固定cpu核心调度</h3><p>701-143beta2版本默认是随机核心调度</p>
-<p>另外，大部分中断都是注册于cpu0的</p>
+<p>注：701N 大部分中断都注册于cpu0，</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 底层定义了 weak 弱函数，上层重写函数可决定核心调度方式</span></span><br><span class="line">u8 <span class="title function_">OSAfiinityConfig</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;OSAfiinityConfig fuck&gt;&gt;&gt;&gt;&gt;\n&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>; <span class="comment">//1：固定核；0：随机分配</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2><ul>
