@@ -20,25 +20,27 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":"enable","trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="本文简要讲述临界区，以701N-142&#x2F;143的两个共性问题为例，着重介绍多核系统下的临界区保护设计。">
+  <meta name="description" content="本文简要讲述临界区，重点以701N-142&#x2F;143的两个共性问题为例，介绍多核系统下的临界区保护设计。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="【RTOS】多核系统下的临界区保护设计以及案例分析">
-<meta property="og:url" content="http://example.com/2024/11/26/%E3%80%90%E6%9D%B0%E7%90%86%E3%80%91%E5%A4%9A%E6%A0%B8%E7%B3%BB%E7%BB%9F%E4%B8%8B%E7%9A%84%E4%B8%B4%E7%95%8C%E5%8C%BA%E4%BF%9D%E6%8A%A4%E8%AE%BE%E8%AE%A1/index.html">
+<meta property="og:url" content="http://example.com/2024/11/26/%E3%80%90RTOS%E3%80%91%E5%A4%9A%E6%A0%B8%E7%B3%BB%E7%BB%9F%E4%B8%8B%E7%9A%84%E4%B8%B4%E7%95%8C%E5%8C%BA%E4%BF%9D%E6%8A%A4%E8%AE%BE%E8%AE%A1/index.html">
 <meta property="og:site_name" content="Jindu-Chen">
-<meta property="og:description" content="本文简要讲述临界区，以701N-142&#x2F;143的两个共性问题为例，着重介绍多核系统下的临界区保护设计。">
+<meta property="og:description" content="本文简要讲述临界区，重点以701N-142&#x2F;143的两个共性问题为例，介绍多核系统下的临界区保护设计。">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://example.com/pictures/%E3%80%90RTOS%E3%80%91iis-dma%E4%B8%AD%E6%96%AD%E4%B8%8E%E8%A7%A3%E7%A0%81%E7%BA%BF%E7%A8%8B%E8%AE%BF%E9%97%AE%E4%B8%B4%E7%95%8C%E5%8C%BA%E6%AD%BB%E6%9C%BA.png">
 <meta property="og:image" content="http://example.com/pictures/%E3%80%90RTOS%E3%80%91iis-%E8%BE%93%E5%85%A548KHz-%E6%AD%BB%E6%9C%BA%E6%96%AD%E8%A8%80%E9%87%8E%E6%8C%87%E9%92%88.png">
 <meta property="og:image" content="http://example.com/pictures/%E3%80%90RTOS%E3%80%91%E5%A4%9A%E6%A0%B8%E7%AB%9E%E4%BA%89%E9%97%AE%E9%A2%98%E7%A4%BA%E6%84%8F.png">
 <meta property="og:image" content="http://example.com/pictures/%E3%80%90RTOS%E3%80%91iis-dma%E4%B8%8E%E8%A7%A3%E7%A0%81%E7%BA%BF%E7%A8%8B%E6%B7%BB%E5%8A%A0%E8%87%AA%E6%97%8B%E9%94%81-%E9%94%81%E4%BD%8F%E5%A4%9A%E6%A0%B8.png">
+<meta property="og:image" content="http://example.com/pictures/%E3%80%90RTOS%E3%80%91%E8%93%9D%E7%89%99%E5%8F%91%E5%B0%84-%E6%A8%A1%E6%8B%9F%E7%A1%AC%E4%BB%B6fifo%E9%97%AE%E9%A2%98%E4%BB%A3%E7%A0%81.png">
+<meta property="og:image" content="http://example.com/pictures/%E3%80%90RTOS%E3%80%91%E8%93%9D%E7%89%99%E5%8F%91%E5%B0%84%E5%99%A8%E6%B7%BB%E5%8A%A0%E4%B8%B4%E7%95%8C%E5%8C%BA%E4%BB%A3%E7%A0%81%E4%BF%9D%E6%8A%A4%E4%BF%AE%E5%A4%8D.png">
 <meta property="article:published_time" content="2024-11-25T16:00:00.000Z">
-<meta property="article:modified_time" content="2024-11-27T10:09:07.998Z">
+<meta property="article:modified_time" content="2024-11-27T13:15:08.152Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="http://example.com/pictures/%E3%80%90RTOS%E3%80%91iis-dma%E4%B8%AD%E6%96%AD%E4%B8%8E%E8%A7%A3%E7%A0%81%E7%BA%BF%E7%A8%8B%E8%AE%BF%E9%97%AE%E4%B8%B4%E7%95%8C%E5%8C%BA%E6%AD%BB%E6%9C%BA.png">
 
-<link rel="canonical" href="http://example.com/2024/11/26/%E3%80%90%E6%9D%B0%E7%90%86%E3%80%91%E5%A4%9A%E6%A0%B8%E7%B3%BB%E7%BB%9F%E4%B8%8B%E7%9A%84%E4%B8%B4%E7%95%8C%E5%8C%BA%E4%BF%9D%E6%8A%A4%E8%AE%BE%E8%AE%A1/">
+<link rel="canonical" href="http://example.com/2024/11/26/%E3%80%90RTOS%E3%80%91%E5%A4%9A%E6%A0%B8%E7%B3%BB%E7%BB%9F%E4%B8%8B%E7%9A%84%E4%B8%B4%E7%95%8C%E5%8C%BA%E4%BF%9D%E6%8A%A4%E8%AE%BE%E8%AE%A1/">
 
 
 <script id="page-configurations">
@@ -200,7 +202,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2024/11/26/%E3%80%90%E6%9D%B0%E7%90%86%E3%80%91%E5%A4%9A%E6%A0%B8%E7%B3%BB%E7%BB%9F%E4%B8%8B%E7%9A%84%E4%B8%B4%E7%95%8C%E5%8C%BA%E4%BF%9D%E6%8A%A4%E8%AE%BE%E8%AE%A1/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/11/26/%E3%80%90RTOS%E3%80%91%E5%A4%9A%E6%A0%B8%E7%B3%BB%E7%BB%9F%E4%B8%8B%E7%9A%84%E4%B8%B4%E7%95%8C%E5%8C%BA%E4%BF%9D%E6%8A%A4%E8%AE%BE%E8%AE%A1/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -230,7 +232,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-11-27 18:09:07" itemprop="dateModified" datetime="2024-11-27T18:09:07+08:00">2024-11-27</time>
+                <time title="Modified: 2024-11-27 21:15:08" itemprop="dateModified" datetime="2024-11-27T21:15:08+08:00">2024-11-27</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -256,16 +258,16 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>1.8k</span>
+              <span>2.8k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>6 mins.</span>
+              <span>5 mins.</span>
             </span>
-            <div class="post-description">本文简要讲述临界区，以701N-142/143的两个共性问题为例，着重介绍多核系统下的临界区保护设计。</div>
+            <div class="post-description">本文简要讲述临界区，重点以701N-142/143的两个共性问题为例，介绍多核系统下的临界区保护设计。</div>
 
         </div>
       </header>
@@ -292,6 +294,7 @@
 <li>cpu0与cpu1双核，同时在执行临界区代码</li>
 </ul>
 <p>因此，在多线程、多核心编程开发中，尤其要注意临界区保护设计！</p>
+<p><strong>重点：在嵌入式开发中，相当一部分的概率性问题，是由于临界区保护设计缺陷所引起的！</strong></p>
 <hr>
 <p>另，与临界区相关的几个概念如下：</p>
 <p><strong>不可重入函数：</strong> 如果函数在未完成执行前被再次调用，会导致数据不一致或其它不可预知的问题。此类型函数有如下特征：</p>
@@ -337,7 +340,7 @@
 </ul>
 <br>
 
-<p><strong>问题：</strong>在配置IIS输入48KHz，压测出现了概率死机，打印如下，底层<strong>判断为野指针访问断言</strong>：<br><img src="/../pictures/%E3%80%90RTOS%E3%80%91iis-%E8%BE%93%E5%85%A548KHz-%E6%AD%BB%E6%9C%BA%E6%96%AD%E8%A8%80%E9%87%8E%E6%8C%87%E9%92%88.png" alt="alt text"></p>
+<p><strong>问题：</strong> 在配置IIS输入48KHz，压测出现了概率死机，打印如下，底层<strong>判断为野指针访问断言</strong>：<br><img src="/../pictures/%E3%80%90RTOS%E3%80%91iis-%E8%BE%93%E5%85%A548KHz-%E6%AD%BB%E6%9C%BA%E6%96%AD%E8%A8%80%E9%87%8E%E6%8C%87%E9%92%88.png" alt="alt text"></p>
 <h4 id="问题原因分析"><a href="#问题原因分析" class="headerlink" title="问题原因分析"></a>问题原因分析</h4><p>死机原因解析为：</p>
 <ul>
 <li>解码线程运行在<code>cpu1</code>核，执行<code>local_irq_disable</code>禁用<strong>cpu1对应的中断</strong></li>
@@ -352,9 +355,18 @@
 <blockquote>
 <p>此节点位于 MIXER 后，蓝牙发射sbc编码前，是一个用<code>硬件定时器回调</code>模拟硬件发射的<code>fifo</code>临界区<br>解码线程的音频数据流写入fifo<br>定时器中断触发从fifo取数，推送到编码线程</p>
 </blockquote>
-<h4 id="问题原因分析-1"><a href="#问题原因分析-1" class="headerlink" title="问题原因分析"></a>问题原因分析</h4><p><strong>没有对fifo操作做临界区保护</strong></p>
-<p>线程在操作fifo，写数据、更新写指针过程中， 硬件中断触发读取临界区fifo，误将刚写入的数据清零 —— 导致了发射出去的音频，有不间断的零数据</p>
-<h4 id="解决方案-1"><a href="#解决方案-1" class="headerlink" title="解决方案"></a>解决方案</h4><p>添加函数防重入设计、添加fifo临界区保护自旋锁设计</p>
+<p>以下为临界区设计缺陷代码之一<br><img src="/../pictures/%E3%80%90RTOS%E3%80%91%E8%93%9D%E7%89%99%E5%8F%91%E5%B0%84-%E6%A8%A1%E6%8B%9F%E7%A1%AC%E4%BB%B6fifo%E9%97%AE%E9%A2%98%E4%BB%A3%E7%A0%81.png" alt="蓝牙发射-模拟硬件fifo问题代码"></p>
+<h4 id="问题原因分析-1"><a href="#问题原因分析-1" class="headerlink" title="问题原因分析"></a>问题原因分析</h4><ul>
+<li><strong>没有对fifo操作做临界区保护</strong></li>
+<li><code>audio_bt_emitter_hw_output</code>不止被一个线程独立调用，存在概率重入风险</li>
+</ul>
+<p>线程在操作fifo，写数据、更新写指针过程中， 硬件中断触发读取临界区fifo，误将刚写入的数据清零 —— 导致了发射出去的音频，有不间断的零数据。</p>
+<h4 id="解决方案-1"><a href="#解决方案-1" class="headerlink" title="解决方案"></a>解决方案</h4><p><strong>部分修改示意如下：</strong></p>
+<ul>
+<li>非线程安全函数，添加防重入设计</li>
+<li>多核下，中断与线程涉及的临界区fifo代码，添加自旋锁保护</li>
+</ul>
+<p><img src="/../pictures/%E3%80%90RTOS%E3%80%91%E8%93%9D%E7%89%99%E5%8F%91%E5%B0%84%E5%99%A8%E6%B7%BB%E5%8A%A0%E4%B8%B4%E7%95%8C%E5%8C%BA%E4%BB%A3%E7%A0%81%E4%BF%9D%E6%8A%A4%E4%BF%AE%E5%A4%8D.png" alt="蓝牙发射器添加临界区代码保护修复"></p>
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><h3 id="JL701N-多核系统的调度策略"><a href="#JL701N-多核系统的调度策略" class="headerlink" title="JL701N-多核系统的调度策略"></a>JL701N-多核系统的调度策略</h3><p>……暂略</p>
 <h3 id="临界区保护设计要点"><a href="#临界区保护设计要点" class="headerlink" title="临界区保护设计要点"></a>临界区保护设计要点</h3><ul>
 <li><p>从单核系统上移植功能代码到多核系统，要着重<strong>注意修改临界区保护方式</strong></p>
@@ -522,12 +534,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">104k</span>
+    <span title="Symbols count total">105k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">5:47</span>
+    <span title="Reading time total">2:55</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
   </div>
