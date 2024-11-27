@@ -32,7 +32,7 @@
 <meta property="og:image" content="http://example.com/pictures/%E3%80%90RTOS%E3%80%91%E5%A4%9A%E6%A0%B8%E7%AB%9E%E4%BA%89%E9%97%AE%E9%A2%98%E7%A4%BA%E6%84%8F.png">
 <meta property="og:image" content="http://example.com/pictures/%E3%80%90RTOS%E3%80%91iis-dma%E4%B8%8E%E8%A7%A3%E7%A0%81%E7%BA%BF%E7%A8%8B%E6%B7%BB%E5%8A%A0%E8%87%AA%E6%97%8B%E9%94%81-%E9%94%81%E4%BD%8F%E5%A4%9A%E6%A0%B8.png">
 <meta property="article:published_time" content="2024-11-25T16:00:00.000Z">
-<meta property="article:modified_time" content="2024-11-27T09:30:36.753Z">
+<meta property="article:modified_time" content="2024-11-27T09:41:29.345Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -230,7 +230,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-11-27 17:30:36" itemprop="dateModified" datetime="2024-11-27T17:30:36+08:00">2024-11-27</time>
+                <time title="Modified: 2024-11-27 17:41:29" itemprop="dateModified" datetime="2024-11-27T17:41:29+08:00">2024-11-27</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -256,14 +256,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>1.6k</span>
+              <span>1.7k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>5 mins.</span>
+              <span>6 mins.</span>
             </span>
             <div class="post-description">以杰理方案为例</div>
 
@@ -279,7 +279,7 @@
         <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>本文主要分为以下三个部分：</p>
 <ul>
 <li>简单介绍临界区的概念以及保护机制，并说明单核系统与多核系统的相关设计差异</li>
-<li>讲述701-142&#x2F;701-143beta2-音箱SDK开发中碰到的两个共性问题案例（其均是<strong>多核系统下的临界区保护设计缺陷</strong>所引起的）</li>
+<li>讲述701-142&#x2F;701-143beta2-音箱SDK开发中碰到的<strong>两个共性问题案例</strong>（其均是<strong>多核系统下的临界区保护设计缺陷</strong>所引起的）</li>
 <li>总述多核系统下的线程调度策略，以及其临界区保护设计</li>
 </ul>
 <p>本文相当部分理论内容摘选、总结自杰理培训文档，内部链接见文末参考站点</p>
@@ -307,19 +307,24 @@
 <li>不使用函数内部静态变量</li>
 <li>通常由外界调用者传入其私有参数指针，避免<strong>数据竞争</strong><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 正弦波生成函数，线程安全，可被多个线程同时访问</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">get_sine_data</span><span class="params">(u16 *s_cnt, s16 *data, u16 points, u8 ch)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">while</span> (points--) &#123;</span><br><span class="line">        <span class="keyword">if</span> (*s_cnt &gt;= <span class="number">48</span>) &#123;</span><br><span class="line">            *s_cnt = <span class="number">0</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        *data++ = tsin_48k[*s_cnt];</span><br><span class="line">        <span class="keyword">if</span> (ch == <span class="number">2</span>) &#123;</span><br><span class="line">            *data++ = tsin_48k[*s_cnt];</span><br><span class="line">        &#125;</span><br><span class="line">        (*s_cnt)++;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 使用示例</span></span><br><span class="line"><span class="type">static</span> u16 user_cnt;</span><br><span class="line">get_sine_data(&amp;user_cnt,in-&gt;data,in-&gt;data_len/<span class="number">2</span>/<span class="number">2</span>,<span class="number">2</span>);</span><br></pre></td></tr></table></figure></li>
 </ul>
-<h3 id="临界区保护机制"><a href="#临界区保护机制" class="headerlink" title="临界区保护机制"></a>临界区保护机制</h3><p><strong>互斥锁（mutex）：</strong> 多线程间保护</p>
-<ul>
-<li>不能用于中断，只能用于线程与线程之间的临界区保护</li>
-</ul>
-<p><strong>禁用中断（local_irq_disable）：</strong> 单核系统的中断与线程间保护</p>
+<h3 id="临界区保护机制"><a href="#临界区保护机制" class="headerlink" title="临界区保护机制"></a>临界区保护机制</h3><p><strong>禁用中断（local_irq_disable）：</strong> 单核系统的中断与线程间保护</p>
 <ul>
 <li>禁用硬件中断访问共享资源，同时也禁用了系统调度器进行线程调度</li>
 <li>但在多核系统中，特指<strong>禁用注册在当前核的中断</strong>，而不是禁用全局中断</li>
 </ul>
-<p><strong>自旋锁（spin_lock）：</strong> 多核系统下的临界区保护</p>
+<p><strong>自旋锁（spin_lock）：</strong> 专门为多核系统设计的一种临界区保护方式</p>
+<ul>
+<li>自旋等待：当前cpu核 查询到 锁被另一个cpu核持有，其会在原地等待，直到锁被释放</li>
+<li>不会触发系统调度器调度，避免了线程上下文切换的开销</li>
+<li>适用于持有时间非常短的临界区锁，因为长时间的自旋会浪费CPU资源</li>
+</ul>
+<p><strong>互斥锁（mutex）：</strong> 多线程间保护</p>
+<ul>
+<li>不能用于中断，只能用于线程与线程之间的临界区保护</li>
+</ul>
 <p><strong>信号量（Sem）：</strong> </p>
 <p><strong>原子操作（Atomic）：</strong> </p>
-<h2 id="多核系统-临界区保护设计缺陷案例分析"><a href="#多核系统-临界区保护设计缺陷案例分析" class="headerlink" title="多核系统-临界区保护设计缺陷案例分析"></a>多核系统-临界区保护设计缺陷案例分析</h2><h3 id="中断与线程访问共享指针变量——概率死机"><a href="#中断与线程访问共享指针变量——概率死机" class="headerlink" title="中断与线程访问共享指针变量——概率死机"></a>中断与线程访问共享指针变量——概率死机</h3><h4 id="相关缺陷代码描述"><a href="#相关缺陷代码描述" class="headerlink" title="相关缺陷代码描述"></a>相关缺陷代码描述</h4><p><img src="/../pictures/%E3%80%90RTOS%E3%80%91iis-dma%E4%B8%AD%E6%96%AD%E4%B8%8E%E8%A7%A3%E7%A0%81%E7%BA%BF%E7%A8%8B%E8%AE%BF%E9%97%AE%E4%B8%B4%E7%95%8C%E5%8C%BA%E6%AD%BB%E6%9C%BA.png" alt="701-142/143-iis输入临界区代码"></p>
+<h2 id="多核系统-临界区保护设计缺陷案例分析"><a href="#多核系统-临界区保护设计缺陷案例分析" class="headerlink" title="多核系统-临界区保护设计缺陷案例分析"></a>多核系统-临界区保护设计缺陷案例分析</h2><h3 id="中断与线程访问共享指针变量——概率死机"><a href="#中断与线程访问共享指针变量——概率死机" class="headerlink" title="中断与线程访问共享指针变量——概率死机"></a>中断与线程访问共享指针变量——概率死机</h3><h4 id="701-142-143-iis输入-相关缺陷代码描述"><a href="#701-142-143-iis输入-相关缺陷代码描述" class="headerlink" title="701-142&#x2F;143-iis输入-相关缺陷代码描述"></a>701-142&#x2F;143-iis输入-相关缺陷代码描述</h4><p><img src="/../pictures/%E3%80%90RTOS%E3%80%91iis-dma%E4%B8%AD%E6%96%AD%E4%B8%8E%E8%A7%A3%E7%A0%81%E7%BA%BF%E7%A8%8B%E8%AE%BF%E9%97%AE%E4%B8%B4%E7%95%8C%E5%8C%BA%E6%AD%BB%E6%9C%BA.png" alt="701-142/143-iis输入临界区代码"></p>
 <p>以上<code>IIS-DMA-IN</code>是在alink_isr中断内调用的，以上禁用中断代码为通过audio_dec线程调用的</p>
 <p>几个额外信息如下：</p>
 <ul>
@@ -339,7 +344,7 @@
 <p>示意图如下：<br><img src="/../pictures/%E3%80%90RTOS%E3%80%91%E5%A4%9A%E6%A0%B8%E7%AB%9E%E4%BA%89%E9%97%AE%E9%A2%98%E7%A4%BA%E6%84%8F.png" alt="【RTOS】多核竞争问题示意"></p>
 <h4 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h4><p>改为<code>spin_lock</code>自旋锁，<strong>锁住多核</strong>，保证<code>audio-&gt;track</code>指针变量的访问安全</p>
 <p><img src="/../pictures/%E3%80%90RTOS%E3%80%91iis-dma%E4%B8%8E%E8%A7%A3%E7%A0%81%E7%BA%BF%E7%A8%8B%E6%B7%BB%E5%8A%A0%E8%87%AA%E6%97%8B%E9%94%81-%E9%94%81%E4%BD%8F%E5%A4%9A%E6%A0%B8.png" alt="iis-dma与解码线程添加自旋锁-锁住多核"></p>
-<h3 id="中断与线程操作共享fifo——发射声音卡顿"><a href="#中断与线程操作共享fifo——发射声音卡顿" class="headerlink" title="中断与线程操作共享fifo——发射声音卡顿"></a>中断与线程操作共享fifo——发射声音卡顿</h3><h4 id="相关缺陷代码描述-1"><a href="#相关缺陷代码描述-1" class="headerlink" title="相关缺陷代码描述"></a>相关缺陷代码描述</h4><p>缺陷代码位于<code>IIS输入-蓝牙发射</code>音频流之间的<code>audio_bt_emitter_hw.c-&gt;audio_bt_emitter_hw_output()</code>节点</p>
+<h3 id="中断与线程操作共享fifo——发射声音卡顿"><a href="#中断与线程操作共享fifo——发射声音卡顿" class="headerlink" title="中断与线程操作共享fifo——发射声音卡顿"></a>中断与线程操作共享fifo——发射声音卡顿</h3><h4 id="701-142-143-发射器-相关缺陷代码描述"><a href="#701-142-143-发射器-相关缺陷代码描述" class="headerlink" title="701-142&#x2F;143-发射器-相关缺陷代码描述"></a>701-142&#x2F;143-发射器-相关缺陷代码描述</h4><p>缺陷代码位于<code>IIS输入-蓝牙发射</code>音频流之间的<code>audio_bt_emitter_hw.c-&gt;audio_bt_emitter_hw_output()</code>节点</p>
 <blockquote>
 <p>此节点位于 MIXER 后，蓝牙发射sbc编码前，是一个用<code>硬件定时器回调</code>模拟硬件发射的<code>fifo</code>临界区<br>解码线程的音频数据流写入fifo<br>定时器中断触发从fifo取数，推送到编码线程</p>
 </blockquote>
@@ -359,10 +364,12 @@
 </li>
 <li><p>临界区代码设计避免执行耗时过长</p>
 </li>
+<li><p>自旋锁一定要成对使用、禁止嵌套调用，否则会出现死锁现象，<strong>谨慎、规范设计</strong></p>
+</li>
 </ul>
 <h2 id="思考与拓展"><a href="#思考与拓展" class="headerlink" title="思考与拓展"></a>思考与拓展</h2><h3 id="JL701N-实时系统启动调度过程"><a href="#JL701N-实时系统启动调度过程" class="headerlink" title="JL701N-实时系统启动调度过程"></a>JL701N-实时系统启动调度过程</h3><p>……</p>
 <p>先启动cpu0，再启动cpu1</p>
-<p>系统调度时基中断依赖于cpu0，禁用了cpu0，也相当于禁用了全局线程调度，但不能禁止cpu1起中断</p>
+<p>系统调度器时基中断依赖于cpu0，禁用了cpu0，也相当于禁用了全局线程调度，但不能禁止cpu1起中断</p>
 <h3 id="固定cpu核心调度"><a href="#固定cpu核心调度" class="headerlink" title="固定cpu核心调度"></a>固定cpu核心调度</h3><p>701-143beta2版本默认是随机核心调度</p>
 <p>另外，大部分中断都是注册于cpu0的</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 底层定义了 weak 弱函数，上层重写函数可决定核心调度方式</span></span><br><span class="line">u8 <span class="title function_">OSAfiinityConfig</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;OSAfiinityConfig fuck&gt;&gt;&gt;&gt;&gt;\n&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>; <span class="comment">//1：固定核；0：随机分配</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
@@ -448,7 +455,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%B4%E7%95%8C%E5%8C%BA%E6%A6%82%E5%BF%B5%E7%AE%80%E8%BF%B0"><span class="nav-number">2.</span> <span class="nav-text">临界区概念简述</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%B4%E7%95%8C%E5%8C%BA%E4%BF%9D%E6%8A%A4%E6%9C%BA%E5%88%B6"><span class="nav-number">2.1.</span> <span class="nav-text">临界区保护机制</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%9A%E6%A0%B8%E7%B3%BB%E7%BB%9F-%E4%B8%B4%E7%95%8C%E5%8C%BA%E4%BF%9D%E6%8A%A4%E8%AE%BE%E8%AE%A1%E7%BC%BA%E9%99%B7%E6%A1%88%E4%BE%8B%E5%88%86%E6%9E%90"><span class="nav-number">3.</span> <span class="nav-text">多核系统-临界区保护设计缺陷案例分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%AD%E6%96%AD%E4%B8%8E%E7%BA%BF%E7%A8%8B%E8%AE%BF%E9%97%AE%E5%85%B1%E4%BA%AB%E6%8C%87%E9%92%88%E5%8F%98%E9%87%8F%E2%80%94%E2%80%94%E6%A6%82%E7%8E%87%E6%AD%BB%E6%9C%BA"><span class="nav-number">3.1.</span> <span class="nav-text">中断与线程访问共享指针变量——概率死机</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%9B%B8%E5%85%B3%E7%BC%BA%E9%99%B7%E4%BB%A3%E7%A0%81%E6%8F%8F%E8%BF%B0"><span class="nav-number">3.1.1.</span> <span class="nav-text">相关缺陷代码描述</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%97%AE%E9%A2%98%E5%8E%9F%E5%9B%A0%E5%88%86%E6%9E%90"><span class="nav-number">3.1.2.</span> <span class="nav-text">问题原因分析</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="nav-number">3.1.3.</span> <span class="nav-text">解决方案</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%AD%E6%96%AD%E4%B8%8E%E7%BA%BF%E7%A8%8B%E6%93%8D%E4%BD%9C%E5%85%B1%E4%BA%ABfifo%E2%80%94%E2%80%94%E5%8F%91%E5%B0%84%E5%A3%B0%E9%9F%B3%E5%8D%A1%E9%A1%BF"><span class="nav-number">3.2.</span> <span class="nav-text">中断与线程操作共享fifo——发射声音卡顿</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%9B%B8%E5%85%B3%E7%BC%BA%E9%99%B7%E4%BB%A3%E7%A0%81%E6%8F%8F%E8%BF%B0-1"><span class="nav-number">3.2.1.</span> <span class="nav-text">相关缺陷代码描述</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%97%AE%E9%A2%98%E5%8E%9F%E5%9B%A0%E5%88%86%E6%9E%90-1"><span class="nav-number">3.2.2.</span> <span class="nav-text">问题原因分析</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88-1"><span class="nav-number">3.2.3.</span> <span class="nav-text">解决方案</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#JL701N-%E5%A4%9A%E6%A0%B8%E7%B3%BB%E7%BB%9F%E7%9A%84%E8%B0%83%E5%BA%A6%E7%AD%96%E7%95%A5"><span class="nav-number">4.1.</span> <span class="nav-text">JL701N-多核系统的调度策略</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%B4%E7%95%8C%E5%8C%BA%E4%BF%9D%E6%8A%A4%E8%AE%BE%E8%AE%A1%E8%A6%81%E7%82%B9"><span class="nav-number">4.2.</span> <span class="nav-text">临界区保护设计要点</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%9D%E8%80%83%E4%B8%8E%E6%8B%93%E5%B1%95"><span class="nav-number">5.</span> <span class="nav-text">思考与拓展</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#JL701N-%E5%AE%9E%E6%97%B6%E7%B3%BB%E7%BB%9F%E5%90%AF%E5%8A%A8%E8%B0%83%E5%BA%A6%E8%BF%87%E7%A8%8B"><span class="nav-number">5.1.</span> <span class="nav-text">JL701N-实时系统启动调度过程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9B%BA%E5%AE%9Acpu%E6%A0%B8%E5%BF%83%E8%B0%83%E5%BA%A6"><span class="nav-number">5.2.</span> <span class="nav-text">固定cpu核心调度</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E7%AB%99%E7%82%B9"><span class="nav-number">6.</span> <span class="nav-text">参考站点</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%B4%E7%95%8C%E5%8C%BA%E6%A6%82%E5%BF%B5%E7%AE%80%E8%BF%B0"><span class="nav-number">2.</span> <span class="nav-text">临界区概念简述</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%B4%E7%95%8C%E5%8C%BA%E4%BF%9D%E6%8A%A4%E6%9C%BA%E5%88%B6"><span class="nav-number">2.1.</span> <span class="nav-text">临界区保护机制</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%9A%E6%A0%B8%E7%B3%BB%E7%BB%9F-%E4%B8%B4%E7%95%8C%E5%8C%BA%E4%BF%9D%E6%8A%A4%E8%AE%BE%E8%AE%A1%E7%BC%BA%E9%99%B7%E6%A1%88%E4%BE%8B%E5%88%86%E6%9E%90"><span class="nav-number">3.</span> <span class="nav-text">多核系统-临界区保护设计缺陷案例分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%AD%E6%96%AD%E4%B8%8E%E7%BA%BF%E7%A8%8B%E8%AE%BF%E9%97%AE%E5%85%B1%E4%BA%AB%E6%8C%87%E9%92%88%E5%8F%98%E9%87%8F%E2%80%94%E2%80%94%E6%A6%82%E7%8E%87%E6%AD%BB%E6%9C%BA"><span class="nav-number">3.1.</span> <span class="nav-text">中断与线程访问共享指针变量——概率死机</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#701-142-143-iis%E8%BE%93%E5%85%A5-%E7%9B%B8%E5%85%B3%E7%BC%BA%E9%99%B7%E4%BB%A3%E7%A0%81%E6%8F%8F%E8%BF%B0"><span class="nav-number">3.1.1.</span> <span class="nav-text">701-142&#x2F;143-iis输入-相关缺陷代码描述</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%97%AE%E9%A2%98%E5%8E%9F%E5%9B%A0%E5%88%86%E6%9E%90"><span class="nav-number">3.1.2.</span> <span class="nav-text">问题原因分析</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="nav-number">3.1.3.</span> <span class="nav-text">解决方案</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%AD%E6%96%AD%E4%B8%8E%E7%BA%BF%E7%A8%8B%E6%93%8D%E4%BD%9C%E5%85%B1%E4%BA%ABfifo%E2%80%94%E2%80%94%E5%8F%91%E5%B0%84%E5%A3%B0%E9%9F%B3%E5%8D%A1%E9%A1%BF"><span class="nav-number">3.2.</span> <span class="nav-text">中断与线程操作共享fifo——发射声音卡顿</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#701-142-143-%E5%8F%91%E5%B0%84%E5%99%A8-%E7%9B%B8%E5%85%B3%E7%BC%BA%E9%99%B7%E4%BB%A3%E7%A0%81%E6%8F%8F%E8%BF%B0"><span class="nav-number">3.2.1.</span> <span class="nav-text">701-142&#x2F;143-发射器-相关缺陷代码描述</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%97%AE%E9%A2%98%E5%8E%9F%E5%9B%A0%E5%88%86%E6%9E%90-1"><span class="nav-number">3.2.2.</span> <span class="nav-text">问题原因分析</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88-1"><span class="nav-number">3.2.3.</span> <span class="nav-text">解决方案</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#JL701N-%E5%A4%9A%E6%A0%B8%E7%B3%BB%E7%BB%9F%E7%9A%84%E8%B0%83%E5%BA%A6%E7%AD%96%E7%95%A5"><span class="nav-number">4.1.</span> <span class="nav-text">JL701N-多核系统的调度策略</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%B4%E7%95%8C%E5%8C%BA%E4%BF%9D%E6%8A%A4%E8%AE%BE%E8%AE%A1%E8%A6%81%E7%82%B9"><span class="nav-number">4.2.</span> <span class="nav-text">临界区保护设计要点</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%9D%E8%80%83%E4%B8%8E%E6%8B%93%E5%B1%95"><span class="nav-number">5.</span> <span class="nav-text">思考与拓展</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#JL701N-%E5%AE%9E%E6%97%B6%E7%B3%BB%E7%BB%9F%E5%90%AF%E5%8A%A8%E8%B0%83%E5%BA%A6%E8%BF%87%E7%A8%8B"><span class="nav-number">5.1.</span> <span class="nav-text">JL701N-实时系统启动调度过程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9B%BA%E5%AE%9Acpu%E6%A0%B8%E5%BF%83%E8%B0%83%E5%BA%A6"><span class="nav-number">5.2.</span> <span class="nav-text">固定cpu核心调度</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E7%AB%99%E7%82%B9"><span class="nav-number">6.</span> <span class="nav-text">参考站点</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -516,7 +523,7 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">5:46</span>
+    <span title="Reading time total">5:47</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
   </div>
