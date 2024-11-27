@@ -31,10 +31,11 @@
 <meta property="og:image" content="http://example.com/pictures/%E3%80%90RTOS%E3%80%91iis-%E8%BE%93%E5%85%A548KHz-%E6%AD%BB%E6%9C%BA%E6%96%AD%E8%A8%80%E9%87%8E%E6%8C%87%E9%92%88.png">
 <meta property="og:image" content="http://example.com/pictures/%E3%80%90RTOS%E3%80%91%E5%A4%9A%E6%A0%B8%E7%AB%9E%E4%BA%89%E9%97%AE%E9%A2%98%E7%A4%BA%E6%84%8F.png">
 <meta property="og:image" content="http://example.com/pictures/%E3%80%90RTOS%E3%80%91iis-dma%E4%B8%8E%E8%A7%A3%E7%A0%81%E7%BA%BF%E7%A8%8B%E6%B7%BB%E5%8A%A0%E8%87%AA%E6%97%8B%E9%94%81-%E9%94%81%E4%BD%8F%E5%A4%9A%E6%A0%B8.png">
+<meta property="og:image" content="http://example.com/pictures/%E3%80%90RTOS%E3%80%91%E8%93%9D%E7%89%99%E5%8F%91%E5%B0%84%E5%99%A8%E6%A8%A1%E6%8B%9F%E7%A1%AC%E4%BB%B6fifo%E8%8A%82%E7%82%B9.png">
 <meta property="og:image" content="http://example.com/pictures/%E3%80%90RTOS%E3%80%91%E8%93%9D%E7%89%99%E5%8F%91%E5%B0%84-%E6%A8%A1%E6%8B%9F%E7%A1%AC%E4%BB%B6fifo%E9%97%AE%E9%A2%98%E4%BB%A3%E7%A0%81.png">
 <meta property="og:image" content="http://example.com/pictures/%E3%80%90RTOS%E3%80%91%E8%93%9D%E7%89%99%E5%8F%91%E5%B0%84%E5%99%A8%E6%B7%BB%E5%8A%A0%E4%B8%B4%E7%95%8C%E5%8C%BA%E4%BB%A3%E7%A0%81%E4%BF%9D%E6%8A%A4%E4%BF%AE%E5%A4%8D.png">
 <meta property="article:published_time" content="2024-11-25T16:00:00.000Z">
-<meta property="article:modified_time" content="2024-11-27T13:21:33.394Z">
+<meta property="article:modified_time" content="2024-11-27T13:35:27.827Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -232,7 +233,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-11-27 21:21:33" itemprop="dateModified" datetime="2024-11-27T21:21:33+08:00">2024-11-27</time>
+                <time title="Modified: 2024-11-27 21:35:27" itemprop="dateModified" datetime="2024-11-27T21:35:27+08:00">2024-11-27</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -353,15 +354,16 @@
 <h3 id="中断与线程操作共享fifo——发射声音卡顿"><a href="#中断与线程操作共享fifo——发射声音卡顿" class="headerlink" title="中断与线程操作共享fifo——发射声音卡顿"></a>中断与线程操作共享fifo——发射声音卡顿</h3><p>未完待续。。。。。。</p>
 <h4 id="701-142-143-发射器-相关缺陷代码描述"><a href="#701-142-143-发射器-相关缺陷代码描述" class="headerlink" title="701-142&#x2F;143-发射器-相关缺陷代码描述"></a>701-142&#x2F;143-发射器-相关缺陷代码描述</h4><p>缺陷代码位于<code>IIS输入-蓝牙发射</code>音频流之间的<code>audio_bt_emitter_hw.c-&gt;audio_bt_emitter_hw_output()</code>节点</p>
 <blockquote>
-<p>此节点位于 MIXER 后，蓝牙发射sbc编码前，是一个用<code>硬件定时器回调</code>模拟硬件发射的<code>fifo</code>临界区<br>解码线程的音频数据流写入fifo<br>定时器中断触发从fifo取数，推送到编码线程</p>
+<p>此节点位于 MIXER 后，蓝牙发射sbc编码前，是一个用<code>硬件定时器回调</code>模拟硬件发射的<code>fifo</code>临界区<br>解码线程的音频数据流写入<code>bt_emitter_fifo</code><br>定时器中断触发从<code>bt_emitter_fifo</code>取数，推送到编码线程</p>
 </blockquote>
-<p>以下为临界区设计缺陷代码之一<br><img src="/../pictures/%E3%80%90RTOS%E3%80%91%E8%93%9D%E7%89%99%E5%8F%91%E5%B0%84-%E6%A8%A1%E6%8B%9F%E7%A1%AC%E4%BB%B6fifo%E9%97%AE%E9%A2%98%E4%BB%A3%E7%A0%81.png" alt="蓝牙发射-模拟硬件fifo问题代码"></p>
+<p><img src="/../pictures/%E3%80%90RTOS%E3%80%91%E8%93%9D%E7%89%99%E5%8F%91%E5%B0%84%E5%99%A8%E6%A8%A1%E6%8B%9F%E7%A1%AC%E4%BB%B6fifo%E8%8A%82%E7%82%B9.png" alt="音频流模拟硬件fifo节点"></p>
+<p>以下为该音频节点临界区设计缺陷代码节选：<br><img src="/../pictures/%E3%80%90RTOS%E3%80%91%E8%93%9D%E7%89%99%E5%8F%91%E5%B0%84-%E6%A8%A1%E6%8B%9F%E7%A1%AC%E4%BB%B6fifo%E9%97%AE%E9%A2%98%E4%BB%A3%E7%A0%81.png" alt="蓝牙发射-模拟硬件fifo问题代码"></p>
 <h4 id="问题原因分析-1"><a href="#问题原因分析-1" class="headerlink" title="问题原因分析"></a>问题原因分析</h4><ul>
 <li><strong>没有对fifo操作做临界区保护</strong></li>
 <li><code>audio_bt_emitter_hw_output</code>不止被一个线程独立调用，存在概率重入风险</li>
 </ul>
 <p>线程在操作fifo，写数据、更新写指针过程中， 硬件中断触发读取临界区fifo，误将刚写入的数据清零 —— 导致了发射出去的音频，有不间断的零数据。</p>
-<h4 id="解决方案-1"><a href="#解决方案-1" class="headerlink" title="解决方案"></a>解决方案</h4><p><strong>部分修改示意如下：</strong></p>
+<h4 id="解决方案-1"><a href="#解决方案-1" class="headerlink" title="解决方案"></a>解决方案</h4><p><em>部分修改示意如下：</em></p>
 <ul>
 <li>非线程安全函数，添加防重入设计</li>
 <li>多核下，中断与线程涉及的临界区fifo代码，添加自旋锁保护</li>
