@@ -29,9 +29,12 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://example.com/pictures/%E3%80%90%E8%93%9D%E7%89%99%E3%80%91%E8%93%9D%E7%89%99%E5%88%86%E6%9E%90%E4%BB%AA%E6%8A%93%E5%8C%85%E6%AD%A3%E7%A1%AE%E7%A4%BA%E6%84%8F.png">
 <meta property="og:image" content="http://example.com/pictures/%E3%80%90%E8%93%9D%E7%89%99%E3%80%91%E8%93%9D%E7%89%99%E5%88%86%E6%9E%90%E4%BB%AA%E6%8A%93%E5%8C%85%E7%B1%BB%E5%9E%8B%E5%B1%82%E6%AC%A1.png">
+<meta property="og:image" content="http://example.com/pictures/%E3%80%90%E8%93%9D%E7%89%99%E3%80%91%E5%88%86%E6%9E%90%E4%BB%AA%E9%9F%B3%E9%87%8F%E6%8E%A7%E5%88%B6%E7%A4%BA%E6%84%8F.png">
+<meta property="og:image" content="http://example.com/pictures/%E3%80%90%E8%93%9D%E7%89%99%E3%80%91%E5%88%86%E6%9E%90%E4%BB%AA%E6%9A%82%E5%81%9C%E6%92%AD%E6%94%BE%E4%BB%A5%E5%8F%8A%E4%B8%8A%E4%B8%8B%E6%9B%B2%E7%A4%BA%E6%84%8F.png">
+<meta property="og:image" content="http://example.com/pictures/vivo%E6%89%8B%E6%9C%BAsiri%E8%AF%AD%E9%9F%B3%E5%8A%A9%E6%89%8B%E5%85%BC%E5%AE%B9%E6%80%A7%E9%97%AE%E9%A2%98%E6%8A%93%E5%8C%85.png">
 <meta property="og:image" content="http://example.com/pictures/%E3%80%90%E8%93%9D%E7%89%99%E3%80%91%E8%93%9D%E7%89%99%E5%88%86%E6%9E%90%E4%BB%AALE%E6%95%B0%E6%8D%AE%E5%8C%85%E7%95%8C%E9%9D%A2%E7%A4%BA%E6%84%8F.png">
 <meta property="article:published_time" content="2024-10-21T16:00:00.000Z">
-<meta property="article:modified_time" content="2024-11-25T09:39:55.259Z">
+<meta property="article:modified_time" content="2024-11-27T07:32:01.313Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -229,7 +232,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-11-25 17:39:55" itemprop="dateModified" datetime="2024-11-25T17:39:55+08:00">2024-11-25</time>
+                <time title="Modified: 2024-11-27 15:32:01" itemprop="dateModified" datetime="2024-11-27T15:32:01+08:00">2024-11-27</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -255,14 +258,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>5.5k</span>
+              <span>3.6k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>9 mins.</span>
+              <span>12 mins.</span>
             </span>
             <div class="post-description">讲述 EllisysBluetoothAnalyzer 蓝牙分析仪工具的配置与使用，以及经典蓝牙数据包分析方法，并以杰理方案为例，讲述相关的嵌入式业务案例，其它方案可类比分析。</div>
 
@@ -340,7 +343,7 @@
 <p>其中，公共分组包含如下几种类型包：</p>
 <ul>
 <li><strong>ID Packet</strong>：用于蓝牙设备的寻呼、查询与响应。只有ACCESSCODE的packet。inquiry msg就是一个ID Packet。</li>
-<li><strong>NULL Packet</strong>：只有ACCESS CODE和HEADER。一般来说他是用来返回链路信息的，比如什么rx buffer状态，或者ARQN之类的。他不需要对端的确认。</li>
+<li><strong>NULL Packet</strong>：只有ACCESS CODE和HEADER。一般来说他是用来返回链路信<br>息的，比如什么rx buffer状态，或者ARQN之类的。他不需要对端的确认。</li>
 <li><strong>POLL Packet</strong>：和NULL Packet类似，比较大的差别就在于它需要对端回确认信息。注意tws从机不能回POLL Packet？。比如，设备在手机端音频停止后，可能会一直发POLL包，确认手机端情况，但会增加功耗？</li>
 <li><strong>FHS Packet</strong>：包含了发送的clk信息和address信息，在page等开始的同步过程中起到了很大的作用</li>
 <li><strong>DM1 Packet</strong>：所有逻辑链路的控制信息都需要允许这种包，也能传输数据，仅限于ACL链路中。可以认为是一种ACL的包。</li>
@@ -377,7 +380,7 @@
 <h3 id="LMP链路管理协议"><a href="#LMP链路管理协议" class="headerlink" title="LMP链路管理协议"></a>LMP链路管理协议</h3><p>LMP：位于基带层之上，负责链路管理。</p>
 <p>在这一层上，有哪些明显的蓝牙通信节点？暂略，通过此层界定蓝牙问题是高层软件流程或者是蓝牙底层配置？</p>
 <h3 id="L2CAP逻辑链路控制与适配协议"><a href="#L2CAP逻辑链路控制与适配协议" class="headerlink" title="L2CAP逻辑链路控制与适配协议"></a>L2CAP逻辑链路控制与适配协议</h3><p>L2CAP：位于 LMP 之上，负责数据传输服务。</p>
-<p>L2CAP（Logical Link Control and Adaptation Protocol）是蓝牙协议栈中的一个关键协议，位于基带层（Baseband）之上，为上层协议（如 RFCOMM、SDP、ATT 等）提供数据传输服务。L2CAP 的主要作用是将基带层提供的低层连接抽象化，为高层协议提供更灵活、更高效的传输机制。</p>
+<p>L2CAP（Logical Link Control and Adaptation Protocol）是蓝牙协议栈中的一个关键协议，位于基带层（Baseband）之上，为<strong>上层协议（如 RFCOMM、SDP、ATT 等）提供数据传输服务</strong>。L2CAP 的主要作用是将基带层提供的低层连接抽象化，为高层协议提供更灵活、更高效的传输机制。</p>
 <p>首次配对与回连过程</p>
 <h3 id="HFP-AT命令集"><a href="#HFP-AT命令集" class="headerlink" title="HFP-AT命令集"></a>HFP-AT命令集</h3><p>AT Exchange 是指通过 AT 命令进行的通信交换。</p>
 <p>AT 命令（Attention Command）是一组用于控制调制解调器和其他通信设备的标准命令。</p>
@@ -399,6 +402,11 @@
 <td align="center"><code>AT + BVRA=0\r</code></td>
 <td align="center">关闭SIRI</td>
 <td align="center"></td>
+</tr>
+<tr>
+<td align="center"><code>+CIEV=&lt;event&gt;,&lt;value&gt;</code></td>
+<td align="center">报告事件类型及对应的值</td>
+<td align="center">涉及通话状态事件变化较多</td>
 </tr>
 <tr>
 <td align="center"><code>AT + VTS=123\r</code></td>
@@ -484,16 +492,15 @@
 <h2 id="经典蓝牙数据包节点分析"><a href="#经典蓝牙数据包节点分析" class="headerlink" title="经典蓝牙数据包节点分析"></a>经典蓝牙数据包节点分析</h2><h3 id="蓝牙搜索与配对、连接过程"><a href="#蓝牙搜索与配对、连接过程" class="headerlink" title="蓝牙搜索与配对、连接过程"></a>蓝牙搜索与配对、连接过程</h3><p>Inquiry</p>
 <p>加密<br>获取厂商</p>
 <p>抓包对应蓝牙上层业务的事件为哪些？</p>
+<p>通过蓝牙分析<code>LMPstartencryption_req</code>命令，初步界定是底层连接，还是协议层的问题。</p>
 <h3 id="蓝牙回连过程"><a href="#蓝牙回连过程" class="headerlink" title="蓝牙回连过程"></a>蓝牙回连过程</h3><p>Paging<br>ID Packet<br>FHS Packet</p>
 <p>LMP Features Exchange</p>
 <p>可能在此流程中产生的问题、差异有哪些？</p>
 <p>抓包对应蓝牙上层业务的事件为哪些？</p>
-<h3 id="蓝牙高级音频过程"><a href="#蓝牙高级音频过程" class="headerlink" title="蓝牙高级音频过程"></a>蓝牙高级音频过程</h3><p>暂停、播放、切换上下曲、音量控制等，在蓝牙抓包上的体现是怎样的<br>AVRCP - status</p>
-<p>音频停止后，可能会一直发POLL包确认对端状况，以便实时更新，功耗大、</p>
-<p>A2DP </p>
-<p>AVDTP</p>
-<p>ACL</p>
-<p>抓包对应蓝牙上层业务的事件为哪些？</p>
+<h3 id="蓝牙高级音频过程"><a href="#蓝牙高级音频过程" class="headerlink" title="蓝牙高级音频过程"></a>蓝牙高级音频过程</h3><p>高级音频音量控制示意如下：<br><img src="/../pictures/%E3%80%90%E8%93%9D%E7%89%99%E3%80%91%E5%88%86%E6%9E%90%E4%BB%AA%E9%9F%B3%E9%87%8F%E6%8E%A7%E5%88%B6%E7%A4%BA%E6%84%8F.png" alt="蓝牙分析仪音量控制"></p>
+<p>高级音频暂停、上下曲示意如下：<br><img src="/../pictures/%E3%80%90%E8%93%9D%E7%89%99%E3%80%91%E5%88%86%E6%9E%90%E4%BB%AA%E6%9A%82%E5%81%9C%E6%92%AD%E6%94%BE%E4%BB%A5%E5%8F%8A%E4%B8%8A%E4%B8%8B%E6%9B%B2%E7%A4%BA%E6%84%8F.png" alt="蓝牙分析仪暂停、上下曲示意"></p>
+<p>另外，音频停止后，可能会一直发POLL包确认对端状况，此设计下功耗大。 可以通过分析抓包确认</p>
+<p><code>：高级音频哪些包对应蓝牙上层业务的事件有哪些？</code></p>
 <h3 id="蓝牙通话过程相关节点"><a href="#蓝牙通话过程相关节点" class="headerlink" title="蓝牙通话过程相关节点"></a>蓝牙通话过程相关节点</h3><p>来电时、播放来电号码时、挂断时、键盘输入、调节通话音量时，在蓝牙抓包上的体现是怎样的</p>
 <p>HSP HFP</p>
 <p>SCO&#x2F;eSCO</p>
@@ -513,11 +520,11 @@
 <h3 id="SIRI语音助手-手机兼容性"><a href="#SIRI语音助手-手机兼容性" class="headerlink" title="SIRI语音助手-手机兼容性"></a>SIRI语音助手-手机兼容性</h3><p>标准的蓝牙hfp-at指令，是at+bvra&#x3D;1是打开siri，&#x3D;0是关闭。 对于苹果是适用的。</p>
 <ul>
 <li>存在部分安卓手机 发bvra&#x3D;1打开，&#x3D;0关闭不了。  再发一次at+bvra&#x3D;1，才关闭。</li>
-<li>另，如oppo手机，收到at+bvra&#x3D;1后打开了siri，然后回复ok，接着马上又回复了at+bvra&#x3D;0。  导致了设备马上回调了 siri状态为0。</li>
+<li>另，如vivo手机，收到at+bvra&#x3D;1后打开了siri，然后回复ok，接着马上又回复了at+bvra&#x3D;0。  导致了设备马上回调了 siri状态为0。</li>
 </ul>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">在应用层上，判断如果是500ms内回调状态为0，则抛弃不认这个状态。 因为手机正式结束siri时，会再回调一次。</span><br><span class="line">开siri时，记录一下当前时间戳。</span><br><span class="line">在回调状态处，判断当前跟保存时间戳的差值， 如果差值极小，则break不认这个状态。</span><br></pre></td></tr></table></figure>
-
-<p>通过抓包分析，进一步确认手机兼容性软件设计行为后，可以尝试考虑从设备端来规避，从而达到目的。</p>
+<p>如下图所示，通过抓包分析，确认为手机自身软件设计不当导致的兼容性问题：</p>
+<p><img src="/../pictures/vivo%E6%89%8B%E6%9C%BAsiri%E8%AF%AD%E9%9F%B3%E5%8A%A9%E6%89%8B%E5%85%BC%E5%AE%B9%E6%80%A7%E9%97%AE%E9%A2%98%E6%8A%93%E5%8C%85.png" alt="VIVO手机回复siri异常抓包分析"></p>
+<p>进一步确认手机兼容性软件设计行为后，可以尝试考虑从设备端来规避，从而达到目的。</p>
 <p>但更多情况下，设备端是不可能完美适配所有手机的，那么需要<strong>从抓包分析中拿出证据说明理论不可行性</strong>。</p>
 <blockquote>
 <p>如果对比样机可行，那么需要抓包样机发掘差异，分析我们的软件设计流程或者分析是否有遗漏</p>
@@ -558,7 +565,10 @@
     <a href="/2024/09/19/%E3%80%90%E6%9D%B0%E7%90%86%E3%80%91%E6%9D%B0%E7%90%86SDK-Makefile%E5%8F%8A%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%9B%BA%E4%BB%B6%E9%9B%86%E5%88%86%E6%9E%90/" rel="prev" title="【杰理】杰理SDK-Makefile-编译构建下载流程分析">
       <i class="fa fa-chevron-left"></i> 【杰理】杰理SDK-Makefile-编译构建下载流程分析
     </a></div>
-      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/2024/11/26/%E3%80%90%E6%9D%B0%E7%90%86%E3%80%91%E5%A4%9A%E6%A0%B8%E7%B3%BB%E7%BB%9F%E4%B8%8B%E7%9A%84%E4%B8%B4%E7%95%8C%E5%8C%BA%E4%BF%9D%E6%8A%A4%E8%AE%BE%E8%AE%A1/" rel="next" title="【杰理】多核系统下的临界区保护设计以及案例分析">
+      【杰理】多核系统下的临界区保护设计以及案例分析 <i class="fa fa-chevron-right"></i>
+    </a></div>
     </div>
       </footer>
     
@@ -631,7 +641,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">43</span>
+          <span class="site-state-item-count">44</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -680,12 +690,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">104k</span>
+    <span title="Symbols count total">103k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">2:53</span>
+    <span title="Reading time total">5:44</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
   </div>
