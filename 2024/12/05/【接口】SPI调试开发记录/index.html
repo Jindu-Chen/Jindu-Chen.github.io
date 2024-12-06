@@ -28,7 +28,7 @@
 <meta property="og:description" content="本文讲述SPI，不限于外设接口原理与配置、应用方案介绍、SPI-NorFlash&#x2F;SPI-NandFlash等的初始化、读、写原理与过程调试记录。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2024-12-04T16:00:00.000Z">
-<meta property="article:modified_time" content="2024-12-05T13:30:49.346Z">
+<meta property="article:modified_time" content="2024-12-06T00:37:34.912Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -217,10 +217,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2024-12-05 00:00:00 / Modified: 21:30:49" itemprop="dateCreated datePublished" datetime="2024-12-05T00:00:00+08:00">2024-12-05</time>
+              <time title="Created: 2024-12-05 00:00:00" itemprop="dateCreated datePublished" datetime="2024-12-05T00:00:00+08:00">2024-12-05</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2024-12-06 08:37:34" itemprop="dateModified" datetime="2024-12-06T08:37:34+08:00">2024-12-06</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -241,14 +247,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>448</span>
+              <span>466</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>1 mins.</span>
+              <span>2 mins.</span>
             </span>
             <div class="post-description">本文讲述SPI，不限于外设接口原理与配置、应用方案介绍、SPI-NorFlash/SPI-NandFlash等的初始化、读、写原理与过程调试记录。</div>
 
@@ -269,6 +275,7 @@
 <h2 id="SPI接口应用开发"><a href="#SPI接口应用开发" class="headerlink" title="SPI接口应用开发"></a>SPI接口应用开发</h2><h3 id="SPI-Nandflash"><a href="#SPI-Nandflash" class="headerlink" title="SPI-Nandflash"></a>SPI-Nandflash</h3><h4 id="NandFlash原理"><a href="#NandFlash原理" class="headerlink" title="NandFlash原理"></a>NandFlash原理</h4><p>地址线和数据线复用：不支持随机访问，不能直接执行代码。</p>
 <p>适用于大容量存储，如U盘、固态硬盘（SSD）等</p>
 <h4 id="SPI-NandFlash-读写时序"><a href="#SPI-NandFlash-读写时序" class="headerlink" title="SPI-NandFlash 读写时序"></a>SPI-NandFlash 读写时序</h4><p>暂略</p>
+<h4 id="NandFlash-文件系统接口"><a href="#NandFlash-文件系统接口" class="headerlink" title="NandFlash 文件系统接口"></a>NandFlash 文件系统接口</h4><p>暂略</p>
 <h3 id="SPI-Norflash"><a href="#SPI-Norflash" class="headerlink" title="SPI-Norflash"></a>SPI-Norflash</h3><h4 id="NorFlash原理"><a href="#NorFlash原理" class="headerlink" title="NorFlash原理"></a>NorFlash原理</h4><p>地址线和数据线分开：支持随机访问，可以直接执行代码。<br>高可靠性，成本较高</p>
 <h4 id="SPI-Norflash-读写时序"><a href="#SPI-Norflash-读写时序" class="headerlink" title="SPI-Norflash 读写时序"></a>SPI-Norflash 读写时序</h4><p>初始化，读取id</p>
 <p>注意写保护引脚</p>
@@ -276,9 +283,9 @@
 <p>读取数据：<br>发读命令<br>发读地址<br>dummy clock，发1Byte 0数据<br>开始读</p>
 <p>半双工-双线读<br>发双线读命令<br>发读24bit地址<br>dummy clock，发1Byte 0数据<br>配置spi双线读<br>开始读<br>读完片选拉高</p>
 <p>四线读<br>发四线读命令<br>发读32bit地址<br>dummy clock，发1Byte 0数据<br>开始读</p>
-<h3 id="SPI-RGB"><a href="#SPI-RGB" class="headerlink" title="SPI-RGB"></a>SPI-RGB</h3><p>简述</p>
+<h4 id="NorFlash-文件系统接口"><a href="#NorFlash-文件系统接口" class="headerlink" title="NorFlash 文件系统接口"></a>NorFlash 文件系统接口</h4><h3 id="SPI-RGB"><a href="#SPI-RGB" class="headerlink" title="SPI-RGB"></a>SPI-RGB</h3><p>简述</p>
 <h3 id="SPI-SD卡"><a href="#SPI-SD卡" class="headerlink" title="SPI-SD卡"></a>SPI-SD卡</h3><p>简述</p>
-<h2 id="SPI接口调试问题点"><a href="#SPI接口调试问题点" class="headerlink" title="SPI接口调试问题点"></a>SPI接口调试问题点</h2><p>前期配置时，引脚注意不要冲突</p>
+<h3 id="SPI-LCD"><a href="#SPI-LCD" class="headerlink" title="SPI-LCD"></a>SPI-LCD</h3><h2 id="SPI接口调试问题点"><a href="#SPI接口调试问题点" class="headerlink" title="SPI接口调试问题点"></a>SPI接口调试问题点</h2><p>前期配置时，引脚注意不要冲突</p>
 <p>写入数据前，不保证是否已有数据，需要先擦除</p>
 <p>注意spi的引脚配置正常</p>
 <h2 id="思考与拓展"><a href="#思考与拓展" class="headerlink" title="思考与拓展"></a>思考与拓展</h2><h3 id="SPI通信速度上限与配置"><a href="#SPI通信速度上限与配置" class="headerlink" title="SPI通信速度上限与配置"></a>SPI通信速度上限与配置</h3><p>部分flash，spi的时钟相位配置成pha为1，才能够设置时钟？</p>
@@ -359,7 +366,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SPI%E6%8E%A5%E5%8F%A3%E4%B8%8E%E5%BA%94%E7%94%A8%E6%A6%82%E8%BF%B0"><span class="nav-number">2.</span> <span class="nav-text">SPI接口与应用概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SPI%E5%A4%96%E8%AE%BE%E6%8E%A5%E5%8F%A3%E5%8E%9F%E7%90%86%E4%B8%8E%E5%BA%94%E7%94%A8%E9%85%8D%E7%BD%AE"><span class="nav-number">3.</span> <span class="nav-text">SPI外设接口原理与应用配置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SPI%E6%8E%A5%E5%8F%A3%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91"><span class="nav-number">4.</span> <span class="nav-text">SPI接口应用开发</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#SPI-Nandflash"><span class="nav-number">4.1.</span> <span class="nav-text">SPI-Nandflash</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#NandFlash%E5%8E%9F%E7%90%86"><span class="nav-number">4.1.1.</span> <span class="nav-text">NandFlash原理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SPI-NandFlash-%E8%AF%BB%E5%86%99%E6%97%B6%E5%BA%8F"><span class="nav-number">4.1.2.</span> <span class="nav-text">SPI-NandFlash 读写时序</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SPI-Norflash"><span class="nav-number">4.2.</span> <span class="nav-text">SPI-Norflash</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#NorFlash%E5%8E%9F%E7%90%86"><span class="nav-number">4.2.1.</span> <span class="nav-text">NorFlash原理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SPI-Norflash-%E8%AF%BB%E5%86%99%E6%97%B6%E5%BA%8F"><span class="nav-number">4.2.2.</span> <span class="nav-text">SPI-Norflash 读写时序</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SPI-RGB"><span class="nav-number">4.3.</span> <span class="nav-text">SPI-RGB</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SPI-SD%E5%8D%A1"><span class="nav-number">4.4.</span> <span class="nav-text">SPI-SD卡</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SPI%E6%8E%A5%E5%8F%A3%E8%B0%83%E8%AF%95%E9%97%AE%E9%A2%98%E7%82%B9"><span class="nav-number">5.</span> <span class="nav-text">SPI接口调试问题点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%9D%E8%80%83%E4%B8%8E%E6%8B%93%E5%B1%95"><span class="nav-number">6.</span> <span class="nav-text">思考与拓展</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#SPI%E9%80%9A%E4%BF%A1%E9%80%9F%E5%BA%A6%E4%B8%8A%E9%99%90%E4%B8%8E%E9%85%8D%E7%BD%AE"><span class="nav-number">6.1.</span> <span class="nav-text">SPI通信速度上限与配置</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E7%AB%99%E7%82%B9"><span class="nav-number">7.</span> <span class="nav-text">参考站点</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SPI%E6%8E%A5%E5%8F%A3%E4%B8%8E%E5%BA%94%E7%94%A8%E6%A6%82%E8%BF%B0"><span class="nav-number">2.</span> <span class="nav-text">SPI接口与应用概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SPI%E5%A4%96%E8%AE%BE%E6%8E%A5%E5%8F%A3%E5%8E%9F%E7%90%86%E4%B8%8E%E5%BA%94%E7%94%A8%E9%85%8D%E7%BD%AE"><span class="nav-number">3.</span> <span class="nav-text">SPI外设接口原理与应用配置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SPI%E6%8E%A5%E5%8F%A3%E5%BA%94%E7%94%A8%E5%BC%80%E5%8F%91"><span class="nav-number">4.</span> <span class="nav-text">SPI接口应用开发</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#SPI-Nandflash"><span class="nav-number">4.1.</span> <span class="nav-text">SPI-Nandflash</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#NandFlash%E5%8E%9F%E7%90%86"><span class="nav-number">4.1.1.</span> <span class="nav-text">NandFlash原理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SPI-NandFlash-%E8%AF%BB%E5%86%99%E6%97%B6%E5%BA%8F"><span class="nav-number">4.1.2.</span> <span class="nav-text">SPI-NandFlash 读写时序</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#NandFlash-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E6%8E%A5%E5%8F%A3"><span class="nav-number">4.1.3.</span> <span class="nav-text">NandFlash 文件系统接口</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SPI-Norflash"><span class="nav-number">4.2.</span> <span class="nav-text">SPI-Norflash</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#NorFlash%E5%8E%9F%E7%90%86"><span class="nav-number">4.2.1.</span> <span class="nav-text">NorFlash原理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#SPI-Norflash-%E8%AF%BB%E5%86%99%E6%97%B6%E5%BA%8F"><span class="nav-number">4.2.2.</span> <span class="nav-text">SPI-Norflash 读写时序</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#NorFlash-%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E6%8E%A5%E5%8F%A3"><span class="nav-number">4.2.3.</span> <span class="nav-text">NorFlash 文件系统接口</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SPI-RGB"><span class="nav-number">4.3.</span> <span class="nav-text">SPI-RGB</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SPI-SD%E5%8D%A1"><span class="nav-number">4.4.</span> <span class="nav-text">SPI-SD卡</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SPI-LCD"><span class="nav-number">4.5.</span> <span class="nav-text">SPI-LCD</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SPI%E6%8E%A5%E5%8F%A3%E8%B0%83%E8%AF%95%E9%97%AE%E9%A2%98%E7%82%B9"><span class="nav-number">5.</span> <span class="nav-text">SPI接口调试问题点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%9D%E8%80%83%E4%B8%8E%E6%8B%93%E5%B1%95"><span class="nav-number">6.</span> <span class="nav-text">思考与拓展</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#SPI%E9%80%9A%E4%BF%A1%E9%80%9F%E5%BA%A6%E4%B8%8A%E9%99%90%E4%B8%8E%E9%85%8D%E7%BD%AE"><span class="nav-number">6.1.</span> <span class="nav-text">SPI通信速度上限与配置</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E7%AB%99%E7%82%B9"><span class="nav-number">7.</span> <span class="nav-text">参考站点</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
