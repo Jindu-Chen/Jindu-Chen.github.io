@@ -28,7 +28,7 @@
 <meta property="og:description" content="日常使用Linux的一些操作总结，不限定范围，涉及运维、辅助开发等相关应用点">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2023-11-27T16:00:00.000Z">
-<meta property="article:modified_time" content="2024-09-30T09:20:07.591Z">
+<meta property="article:modified_time" content="2024-12-30T09:00:09.419Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -225,7 +225,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-09-30 17:20:07" itemprop="dateModified" datetime="2024-09-30T17:20:07+08:00">2024-09-30</time>
+                <time title="Modified: 2024-12-30 17:00:09" itemprop="dateModified" datetime="2024-12-30T17:00:09+08:00">2024-12-30</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -243,14 +243,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>1.4k</span>
+              <span>3.6k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>5 mins.</span>
+              <span>6 mins.</span>
             </span>
             <div class="post-description">日常使用Linux的一些操作总结，不限定范围，涉及运维、辅助开发等相关应用点</div>
 
@@ -263,7 +263,31 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h4 id="内网但非同一网段环境下开启NFS服务"><a href="#内网但非同一网段环境下开启NFS服务" class="headerlink" title="内网但非同一网段环境下开启NFS服务"></a>内网但非同一网段环境下开启NFS服务</h4><ul>
+        <h4 id="同一局域网下，Linux远程执行Windows主机下的批处理文件（-bat文件）"><a href="#同一局域网下，Linux远程执行Windows主机下的批处理文件（-bat文件）" class="headerlink" title="同一局域网下，Linux远程执行Windows主机下的批处理文件（.bat文件）"></a>同一局域网下，Linux远程执行Windows主机下的批处理文件（.bat文件）</h4><p>Linux主机使用SSH远程登录到Windows主机<br><code>ssh username@windows_ip_address</code></p>
+<p>操控进入到Windows下的目标目录:<br><code>cd path_to_bat_file_directory</code></p>
+<p>使用<code>plink</code>命令执行<code>.bat</code>批处理文件：<br><code>plink -ssh -l username -pw password windows_ip_address “path_to_bat_file.bat”</code></p>
+<h4 id="Linux与Windows通过samba服务共享文件夹"><a href="#Linux与Windows通过samba服务共享文件夹" class="headerlink" title="Linux与Windows通过samba服务共享文件夹"></a>Linux与Windows通过samba服务共享文件夹</h4><p><strong><code>Linux</code>主机操作：</strong></p>
+<ul>
+<li><p>安装<code>Samba</code>服务：<code>sudo apt install samba</code></p>
+</li>
+<li><p>创建私有目录，并赋予可权限</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> <span class="built_in">mkdir</span> -p /srv/samba/share</span><br><span class="line"><span class="built_in">sudo</span> <span class="built_in">chmod</span> -R 755 /srv/samba/share</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>配置<code>Samba</code>服务<br><code>sudo vim /etc/samba/smb.conf</code></p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 在文件末尾添加如下：</span></span><br><span class="line"><span class="section">[shared]</span></span><br><span class="line">  <span class="attr">path</span> = /srv/samba/share</span><br><span class="line">  <span class="attr">available</span> = <span class="literal">yes</span></span><br><span class="line">  valid <span class="attr">users</span> = chenjd</span><br><span class="line">  <span class="attr">browsable</span> = <span class="literal">yes</span></span><br><span class="line">  read <span class="attr">only</span> = <span class="literal">no</span></span><br><span class="line">  <span class="attr">writable</span> = <span class="literal">yes</span></span><br><span class="line">  guest <span class="attr">ok</span> = <span class="literal">yes</span></span><br><span class="line">  create <span class="attr">mask</span> = <span class="number">0777</span></span><br><span class="line">  directory <span class="attr">mask</span> = <span class="number">0777</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>重启<code>Samba</code>服务</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> systemctl restart smbd</span><br><span class="line"><span class="built_in">sudo</span> systemctl <span class="built_in">enable</span> smbd</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>设置防火墙规则：<code>sudo ufw allow &#39;Samba&#39;</code></p>
+</li>
+</ul>
+<p><strong><code>Windows</code>主机操作：</strong></p>
+<ul>
+<li>在文件资源管理器的地址栏中输入<code>\\192.168.112.240\share</code>，其中<code>192.168.112.240</code>为Windows主机的IP地址，<code>share</code>为共享文件夹的名称</li>
+<li>可以添加网络驱动器，添加映射文件夹到盘符，如<code>Z:</code></li>
+</ul>
+<h4 id="同一局域网环境下开启NFS服务"><a href="#同一局域网环境下开启NFS服务" class="headerlink" title="同一局域网环境下开启NFS服务"></a>同一局域网环境下开启NFS服务</h4><ul>
 <li>在Linux主机和Windows主机之间开启NFS服务 之 Windows10通过NFS挂载Linux目录<ul>
 <li>在Linux主机上配置NFS服务器<ul>
 <li>输入命令<code>sudo apt-get install nfs-kernel-server rpcbind</code>安装NFS服务器和PRCBIND</li>
@@ -462,7 +486,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%86%85%E7%BD%91%E4%BD%86%E9%9D%9E%E5%90%8C%E4%B8%80%E7%BD%91%E6%AE%B5%E7%8E%AF%E5%A2%83%E4%B8%8B%E5%BC%80%E5%90%AFNFS%E6%9C%8D%E5%8A%A1"><span class="nav-number">1.</span> <span class="nav-text">内网但非同一网段环境下开启NFS服务</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BF%9C%E7%A8%8B%E7%AB%AF%E5%8F%A3%E6%B5%81%E9%87%8F%E9%80%9A%E8%BF%87SSH%E6%98%A0%E5%B0%84%E5%88%B0%E6%9C%AC%E5%9C%B0"><span class="nav-number">2.</span> <span class="nav-text">远程端口流量通过SSH映射到本地</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Linux%E7%BB%99%E6%A0%B9%E7%9B%AE%E5%BD%95%E6%89%A9%E5%AE%B9"><span class="nav-number">3.</span> <span class="nav-text">Linux给根目录扩容</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BD%AF%E4%BB%B6%E8%B5%84%E6%BA%90%E8%8E%B7%E5%8F%96%E3%80%81%E4%B8%8B%E8%BD%BD%E3%80%81%E5%AE%89%E8%A3%85%E7%9B%B8%E5%85%B3"><span class="nav-number"></span> <span class="nav-text">软件资源获取、下载、安装相关</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%91%BD%E4%BB%A4%E8%A1%8C%E6%93%8D%E4%BD%9C%E7%9B%B8%E5%85%B3"><span class="nav-number"></span> <span class="nav-text">命令行操作相关</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#xxx-sh%E5%92%8Csh-xxx-sh"><span class="nav-number">1.</span> <span class="nav-text">.&#x2F;xxx.sh和sh xxx.sh</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Linux%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4"><span class="nav-number"></span> <span class="nav-text">Linux常用命令</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%A7%A3%E5%8E%8B%E7%BC%A9%E7%9B%B8%E5%85%B3"><span class="nav-number">1.</span> <span class="nav-text">解压缩相关</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%90%8C%E4%B8%80%E5%B1%80%E5%9F%9F%E7%BD%91%E4%B8%8B%EF%BC%8CLinux%E8%BF%9C%E7%A8%8B%E6%89%A7%E8%A1%8CWindows%E4%B8%BB%E6%9C%BA%E4%B8%8B%E7%9A%84%E6%89%B9%E5%A4%84%E7%90%86%E6%96%87%E4%BB%B6%EF%BC%88-bat%E6%96%87%E4%BB%B6%EF%BC%89"><span class="nav-number">1.</span> <span class="nav-text">同一局域网下，Linux远程执行Windows主机下的批处理文件（.bat文件）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Linux%E4%B8%8EWindows%E9%80%9A%E8%BF%87samba%E6%9C%8D%E5%8A%A1%E5%85%B1%E4%BA%AB%E6%96%87%E4%BB%B6%E5%A4%B9"><span class="nav-number">2.</span> <span class="nav-text">Linux与Windows通过samba服务共享文件夹</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%90%8C%E4%B8%80%E5%B1%80%E5%9F%9F%E7%BD%91%E7%8E%AF%E5%A2%83%E4%B8%8B%E5%BC%80%E5%90%AFNFS%E6%9C%8D%E5%8A%A1"><span class="nav-number">3.</span> <span class="nav-text">同一局域网环境下开启NFS服务</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BF%9C%E7%A8%8B%E7%AB%AF%E5%8F%A3%E6%B5%81%E9%87%8F%E9%80%9A%E8%BF%87SSH%E6%98%A0%E5%B0%84%E5%88%B0%E6%9C%AC%E5%9C%B0"><span class="nav-number">4.</span> <span class="nav-text">远程端口流量通过SSH映射到本地</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Linux%E7%BB%99%E6%A0%B9%E7%9B%AE%E5%BD%95%E6%89%A9%E5%AE%B9"><span class="nav-number">5.</span> <span class="nav-text">Linux给根目录扩容</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BD%AF%E4%BB%B6%E8%B5%84%E6%BA%90%E8%8E%B7%E5%8F%96%E3%80%81%E4%B8%8B%E8%BD%BD%E3%80%81%E5%AE%89%E8%A3%85%E7%9B%B8%E5%85%B3"><span class="nav-number"></span> <span class="nav-text">软件资源获取、下载、安装相关</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%91%BD%E4%BB%A4%E8%A1%8C%E6%93%8D%E4%BD%9C%E7%9B%B8%E5%85%B3"><span class="nav-number"></span> <span class="nav-text">命令行操作相关</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#xxx-sh%E5%92%8Csh-xxx-sh"><span class="nav-number">1.</span> <span class="nav-text">.&#x2F;xxx.sh和sh xxx.sh</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Linux%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4"><span class="nav-number"></span> <span class="nav-text">Linux常用命令</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%A7%A3%E5%8E%8B%E7%BC%A9%E7%9B%B8%E5%85%B3"><span class="nav-number">1.</span> <span class="nav-text">解压缩相关</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -476,7 +500,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">45</span>
+          <span class="site-state-item-count">46</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -516,7 +540,7 @@
 <div class="copyright">
   
   &copy; 
-  <span itemprop="copyrightYear">2024</span>
+  <span itemprop="copyrightYear">2025</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
@@ -525,12 +549,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">105k</span>
+    <span title="Symbols count total">113k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">5:49</span>
+    <span title="Reading time total">3:08</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
   </div>

@@ -28,7 +28,7 @@
 <meta property="og:description" content="&emsp;&emsp;写下此篇文章，系统性地总结个人对硬件开发的认知，以作回顾，本意不是为了深入硬件开发，因为每个细分领域的差异都是巨大的，而人的精力是有限的。 &emsp;&emsp;但是，作为一个嵌入式软件开发人员，应当要对硬件有所了解，适当地学习认识硬件，相信对嵌入式开发本业也能起到一定的反哺作用。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2024-01-31T16:00:00.000Z">
-<meta property="article:modified_time" content="2024-09-30T09:14:37.456Z">
+<meta property="article:modified_time" content="2025-01-17T07:22:43.166Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -225,7 +225,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-09-30 17:14:37" itemprop="dateModified" datetime="2024-09-30T17:14:37+08:00">2024-09-30</time>
+                <time title="Modified: 2025-01-17 15:22:43" itemprop="dateModified" datetime="2025-01-17T15:22:43+08:00">2025-01-17</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -247,14 +247,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>1.8k</span>
+              <span>2.2k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>6 mins.</span>
+              <span>4 mins.</span>
             </span>
             <div class="post-description">&emsp;&emsp;写下此篇文章，系统性地总结个人对硬件开发的认知，以作回顾，本意不是为了深入硬件开发，因为每个细分领域的差异都是巨大的，而人的精力是有限的。<br>
 &emsp;&emsp;但是，作为一个嵌入式软件开发人员，应当要对硬件有所了解，适当地学习认识硬件，相信对嵌入式开发本业也能起到一定的反哺作用。
@@ -298,6 +298,7 @@
 <h3 id="串扰抑制"><a href="#串扰抑制" class="headerlink" title="串扰抑制"></a>串扰抑制</h3><h3 id="阻抗匹配"><a href="#阻抗匹配" class="headerlink" title="阻抗匹配"></a>阻抗匹配</h3><p>理想的阻抗匹配状态是信号源的输出阻抗与负载阻抗相等，这时信号传输效率最高，几乎没有反射，能量损失最小。</p>
 <p>如电池，输出阻抗主要是欧姆阻抗，反映电池内部的电阻特性。同一电池状态，不同供电电流下，电池电压不一样。可以说这个电压电流比值差，就是输出阻抗。</p>
 <p>阻抗匹配不仅适用于高频信号传输（如微波电路中的传输线），也适用于低频电路，如音频放大器与扬声器之间的连接。</p>
+<p>在低频通信中，线阻可以近似看作是纯电阻。 但高频信号下，导线带来的感抗和容抗 不可忽视。</p>
 <p>“反射”指的是当信号遇到阻抗不匹配的界面时，部分能量不能被负载吸收，而是被反射回信号源的现象<br>这种现象类似于光从一种介质进入另一种介质时发生的反射。在电信号传输中，如果信号源的输出阻抗（Source Impedance）与负载阻抗（Load Impedance）不相等，就会在它们的连接点产生阻抗失配，从而引发反射。</p>
 <p><strong>如何匹配阻抗？</strong><br>终端匹配：在信号链路的末端添加一个与传输线阻抗相等的电阻，直接吸收反射信号。</p>
 <h3 id="环路阻抗"><a href="#环路阻抗" class="headerlink" title="环路阻抗"></a>环路阻抗</h3><p>环路阻抗通常指的是在电路中形成闭合回路的阻抗特性，特别是在讨论反馈系统（如放大器的反馈网络）时。<br>它涉及到信号从输出到输入的整个路径上的总阻抗，包括所有元器件（如电阻、电容、电感）的贡献。<br>环路阻抗对系统的稳定性、增益以及频率响应有着直接影响。在反馈放大器设计中，环路增益的计算就需要考虑环路阻抗，以确保系统稳定工作，避免自激振荡。</p>
@@ -417,7 +418,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">45</span>
+          <span class="site-state-item-count">46</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -457,7 +458,7 @@
 <div class="copyright">
   
   &copy; 
-  <span itemprop="copyrightYear">2024</span>
+  <span itemprop="copyrightYear">2025</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
@@ -466,12 +467,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">105k</span>
+    <span title="Symbols count total">113k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">5:49</span>
+    <span title="Reading time total">3:08</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
   </div>
