@@ -28,7 +28,7 @@
 <meta property="og:description" content="讲述嵌入式时钟，包括但不限于ST、JL等厂商片子的时钟系统软件开发与应用。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2025-03-02T16:00:00.000Z">
-<meta property="article:modified_time" content="2025-03-03T07:05:48.835Z">
+<meta property="article:modified_time" content="2025-03-03T07:30:49.086Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -219,7 +219,7 @@
               <span class="post-meta-item-text">Posted on</span>
               
 
-              <time title="Created: 2025-03-03 00:00:00 / Modified: 15:05:48" itemprop="dateCreated datePublished" datetime="2025-03-03T00:00:00+08:00">2025-03-03</time>
+              <time title="Created: 2025-03-03 00:00:00 / Modified: 15:30:49" itemprop="dateCreated datePublished" datetime="2025-03-03T00:00:00+08:00">2025-03-03</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -241,7 +241,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>314</span>
+              <span>553</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
@@ -262,13 +262,23 @@
 
       
         <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>本文主要从嵌入式软件开发的角度，讲述时钟系统配置与开发。</p>
-<h2 id="时钟系统简述"><a href="#时钟系统简述" class="headerlink" title="时钟系统简述"></a>时钟系统简述</h2><h3 id="数字电路-时钟的本质"><a href="#数字电路-时钟的本质" class="headerlink" title="数字电路-时钟的本质"></a>数字电路-时钟的本质</h3><p>时钟的本质是周期性变化的信号，为数字系统提供统一的时序参考。通过稳定的频率和相位关系，确保系统中所有操作（如指令执行、数据传输等），在严格的时间窗口内完成，避免逻辑混乱。</p>
+<h2 id="时钟简述"><a href="#时钟简述" class="headerlink" title="时钟简述"></a>时钟简述</h2><h3 id="数字电路-时钟的本质"><a href="#数字电路-时钟的本质" class="headerlink" title="数字电路-时钟的本质"></a>数字电路-时钟的本质</h3><p>时钟的本质是周期性变化的信号，为数字系统提供统一的时序参考。通过稳定的频率和相位关系，确保系统中所有操作（如指令执行、数据传输等），在严格的时间窗口内完成，避免逻辑混乱。</p>
 <p>数字电路依赖于同步设计，而时钟通过周期性脉冲信号，强制系统在离散的时间点上更新状态，实现同步，使得逻辑电路在一个周期完成相应的逻辑运算，规避<code>过渡状态</code>（数字电路运算延时导致的状态），避免信号混乱。</p>
-<h3 id="时钟系统组成"><a href="#时钟系统组成" class="headerlink" title="时钟系统组成"></a>时钟系统组成</h3><p>晶振</p>
+<h2 id="时钟系统组成"><a href="#时钟系统组成" class="headerlink" title="时钟系统组成"></a>时钟系统组成</h2><p>通常，一个简单、常见的时钟系统可以由以下几个部分组成：</p>
+<ul>
+<li>时钟源（Clock Source）</li>
+<li>时钟分频器（Clock Divider）</li>
+<li>锁相环（Phase-Locked Loop，PLL）</li>
+<li>时钟选择器（Clock Selector）</li>
+<li>时钟分布网络</li>
+<li>时钟管理单元（Clock Management Unit，CMU）</li>
+</ul>
+<p>相应地，从嵌入式软件的角度，配置时钟也从上述几个方面展开。</p>
+<h3 id="时钟源"><a href="#时钟源" class="headerlink" title="时钟源"></a>时钟源</h3><p>晶振</p>
 <p>时钟树</p>
-<h2 id="系统时钟之软件配置"><a href="#系统时钟之软件配置" class="headerlink" title="系统时钟之软件配置"></a>系统时钟之软件配置</h2><h3 id="时钟系统初始化"><a href="#时钟系统初始化" class="headerlink" title="时钟系统初始化"></a>时钟系统初始化</h3><p>如何从零配置一个时钟的启动？<br>晶振起振与软件有无关系？</p>
+<h3 id="锁相环（PLL）"><a href="#锁相环（PLL）" class="headerlink" title="锁相环（PLL）"></a>锁相环（PLL）</h3><h2 id="系统时钟之软件配置"><a href="#系统时钟之软件配置" class="headerlink" title="系统时钟之软件配置"></a>系统时钟之软件配置</h2><h3 id="时钟系统初始化"><a href="#时钟系统初始化" class="headerlink" title="时钟系统初始化"></a>时钟系统初始化</h3><p>如何从零配置一个时钟的启动？<br>晶振起振与软件有无关系？</p>
 <h2 id="时钟系统进阶应用"><a href="#时钟系统进阶应用" class="headerlink" title="时钟系统进阶应用"></a>时钟系统进阶应用</h2><h3 id="时钟映射到引脚"><a href="#时钟映射到引脚" class="headerlink" title="时钟映射到引脚"></a>时钟映射到引脚</h3><h3 id="时钟变频设置"><a href="#时钟变频设置" class="headerlink" title="时钟变频设置"></a>时钟变频设置</h3><p>配置时钟主频变频时，需要注意不要影响其它模块</p>
-<h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2><ul>
+<h2 id="思考与拓展"><a href="#思考与拓展" class="headerlink" title="思考与拓展"></a>思考与拓展</h2><h4 id="晶振配置及相关问题，与嵌入式软件的关系？"><a href="#晶振配置及相关问题，与嵌入式软件的关系？" class="headerlink" title="晶振配置及相关问题，与嵌入式软件的关系？"></a>晶振配置及相关问题，与嵌入式软件的关系？</h4><h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2><ul>
 <li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/zxr-blog/p/17949926#_label7">博客园-时钟源&amp;时钟树RCC</a></li>
 </ul>
 
@@ -348,7 +358,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%97%B6%E9%92%9F%E7%B3%BB%E7%BB%9F%E7%AE%80%E8%BF%B0"><span class="nav-number">2.</span> <span class="nav-text">时钟系统简述</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B0%E5%AD%97%E7%94%B5%E8%B7%AF-%E6%97%B6%E9%92%9F%E7%9A%84%E6%9C%AC%E8%B4%A8"><span class="nav-number">2.1.</span> <span class="nav-text">数字电路-时钟的本质</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%97%B6%E9%92%9F%E7%B3%BB%E7%BB%9F%E7%BB%84%E6%88%90"><span class="nav-number">2.2.</span> <span class="nav-text">时钟系统组成</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%B3%BB%E7%BB%9F%E6%97%B6%E9%92%9F%E4%B9%8B%E8%BD%AF%E4%BB%B6%E9%85%8D%E7%BD%AE"><span class="nav-number">3.</span> <span class="nav-text">系统时钟之软件配置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%97%B6%E9%92%9F%E7%B3%BB%E7%BB%9F%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="nav-number">3.1.</span> <span class="nav-text">时钟系统初始化</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%97%B6%E9%92%9F%E7%B3%BB%E7%BB%9F%E8%BF%9B%E9%98%B6%E5%BA%94%E7%94%A8"><span class="nav-number">4.</span> <span class="nav-text">时钟系统进阶应用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%97%B6%E9%92%9F%E6%98%A0%E5%B0%84%E5%88%B0%E5%BC%95%E8%84%9A"><span class="nav-number">4.1.</span> <span class="nav-text">时钟映射到引脚</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%97%B6%E9%92%9F%E5%8F%98%E9%A2%91%E8%AE%BE%E7%BD%AE"><span class="nav-number">4.2.</span> <span class="nav-text">时钟变频设置</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E7%AB%99%E7%82%B9"><span class="nav-number">5.</span> <span class="nav-text">参考站点</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%97%B6%E9%92%9F%E7%AE%80%E8%BF%B0"><span class="nav-number">2.</span> <span class="nav-text">时钟简述</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B0%E5%AD%97%E7%94%B5%E8%B7%AF-%E6%97%B6%E9%92%9F%E7%9A%84%E6%9C%AC%E8%B4%A8"><span class="nav-number">2.1.</span> <span class="nav-text">数字电路-时钟的本质</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%97%B6%E9%92%9F%E7%B3%BB%E7%BB%9F%E7%BB%84%E6%88%90"><span class="nav-number">3.</span> <span class="nav-text">时钟系统组成</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%97%B6%E9%92%9F%E6%BA%90"><span class="nav-number">3.1.</span> <span class="nav-text">时钟源</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%94%81%E7%9B%B8%E7%8E%AF%EF%BC%88PLL%EF%BC%89"><span class="nav-number">3.2.</span> <span class="nav-text">锁相环（PLL）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%B3%BB%E7%BB%9F%E6%97%B6%E9%92%9F%E4%B9%8B%E8%BD%AF%E4%BB%B6%E9%85%8D%E7%BD%AE"><span class="nav-number">4.</span> <span class="nav-text">系统时钟之软件配置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%97%B6%E9%92%9F%E7%B3%BB%E7%BB%9F%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="nav-number">4.1.</span> <span class="nav-text">时钟系统初始化</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%97%B6%E9%92%9F%E7%B3%BB%E7%BB%9F%E8%BF%9B%E9%98%B6%E5%BA%94%E7%94%A8"><span class="nav-number">5.</span> <span class="nav-text">时钟系统进阶应用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%97%B6%E9%92%9F%E6%98%A0%E5%B0%84%E5%88%B0%E5%BC%95%E8%84%9A"><span class="nav-number">5.1.</span> <span class="nav-text">时钟映射到引脚</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%97%B6%E9%92%9F%E5%8F%98%E9%A2%91%E8%AE%BE%E7%BD%AE"><span class="nav-number">5.2.</span> <span class="nav-text">时钟变频设置</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%9D%E8%80%83%E4%B8%8E%E6%8B%93%E5%B1%95"><span class="nav-number">6.</span> <span class="nav-text">思考与拓展</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%99%B6%E6%8C%AF%E9%85%8D%E7%BD%AE%E5%8F%8A%E7%9B%B8%E5%85%B3%E9%97%AE%E9%A2%98%EF%BC%8C%E4%B8%8E%E5%B5%8C%E5%85%A5%E5%BC%8F%E8%BD%AF%E4%BB%B6%E7%9A%84%E5%85%B3%E7%B3%BB%EF%BC%9F"><span class="nav-number">6.0.1.</span> <span class="nav-text">晶振配置及相关问题，与嵌入式软件的关系？</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E7%AB%99%E7%82%B9"><span class="nav-number">7.</span> <span class="nav-text">参考站点</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -411,12 +421,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">107k</span>
+    <span title="Symbols count total">108k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">5:58</span>
+    <span title="Reading time total">2:59</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
   </div>
