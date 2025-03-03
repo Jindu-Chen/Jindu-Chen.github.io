@@ -20,15 +20,15 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":"enable","trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="讲述嵌入式时钟，包括但不限于ST、JL等厂商片子的时钟系统软件开发与应用。">
+  <meta name="description" content="本文从嵌入式软件开发的角度，简要讲述时钟系统的原理、组成、寄存器配置与开发、进阶应用等，引述示例包括但不限于ST、JL等厂商片子的时钟系统。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="【MCU】嵌入式软件之时钟系统配置与开发">
 <meta property="og:url" content="http://example.com/2025/03/03/%E3%80%90MCU%E3%80%91%E5%B5%8C%E5%85%A5%E5%BC%8F%E4%B9%8B%E6%97%B6%E9%92%9F%E5%BC%80%E5%8F%91/index.html">
 <meta property="og:site_name" content="Jindu-Chen">
-<meta property="og:description" content="讲述嵌入式时钟，包括但不限于ST、JL等厂商片子的时钟系统软件开发与应用。">
+<meta property="og:description" content="本文从嵌入式软件开发的角度，简要讲述时钟系统的原理、组成、寄存器配置与开发、进阶应用等，引述示例包括但不限于ST、JL等厂商片子的时钟系统。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2025-03-02T16:00:00.000Z">
-<meta property="article:modified_time" content="2025-03-03T07:30:49.086Z">
+<meta property="article:modified_time" content="2025-03-03T07:35:47.652Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -219,7 +219,7 @@
               <span class="post-meta-item-text">Posted on</span>
               
 
-              <time title="Created: 2025-03-03 00:00:00 / Modified: 15:30:49" itemprop="dateCreated datePublished" datetime="2025-03-03T00:00:00+08:00">2025-03-03</time>
+              <time title="Created: 2025-03-03 00:00:00 / Modified: 15:35:47" itemprop="dateCreated datePublished" datetime="2025-03-03T00:00:00+08:00">2025-03-03</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -241,16 +241,16 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>553</span>
+              <span>469</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>1 mins.</span>
+              <span>2 mins.</span>
             </span>
-            <div class="post-description">讲述嵌入式时钟，包括但不限于ST、JL等厂商片子的时钟系统软件开发与应用。</div>
+            <div class="post-description">本文从嵌入式软件开发的角度，简要讲述时钟系统的原理、组成、寄存器配置与开发、进阶应用等，引述示例包括但不限于ST、JL等厂商片子的时钟系统。</div>
 
         </div>
       </header>
@@ -261,7 +261,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>本文主要从嵌入式软件开发的角度，讲述时钟系统配置与开发。</p>
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>本文从嵌入式软件开发的角度，简要讲述时钟系统的原理、组成、寄存器配置与开发、进阶应用等，引述示例包括但不限于ST、JL等厂商片子的时钟系统。</p>
 <h2 id="时钟简述"><a href="#时钟简述" class="headerlink" title="时钟简述"></a>时钟简述</h2><h3 id="数字电路-时钟的本质"><a href="#数字电路-时钟的本质" class="headerlink" title="数字电路-时钟的本质"></a>数字电路-时钟的本质</h3><p>时钟的本质是周期性变化的信号，为数字系统提供统一的时序参考。通过稳定的频率和相位关系，确保系统中所有操作（如指令执行、数据传输等），在严格的时间窗口内完成，避免逻辑混乱。</p>
 <p>数字电路依赖于同步设计，而时钟通过周期性脉冲信号，强制系统在离散的时间点上更新状态，实现同步，使得逻辑电路在一个周期完成相应的逻辑运算，规避<code>过渡状态</code>（数字电路运算延时导致的状态），避免信号混乱。</p>
 <h2 id="时钟系统组成"><a href="#时钟系统组成" class="headerlink" title="时钟系统组成"></a>时钟系统组成</h2><p>通常，一个简单、常见的时钟系统可以由以下几个部分组成：</p>
@@ -426,7 +426,7 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">2:59</span>
+    <span title="Reading time total">5:59</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
   </div>
