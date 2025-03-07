@@ -28,7 +28,7 @@
 <meta property="og:description" content="本文从嵌入式软件开发的角度，简要讲述时钟系统的原理、组成、寄存器配置与开发、进阶应用等，引述示例包括但不限于ST、JL等厂商片子的时钟系统。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2025-03-02T16:00:00.000Z">
-<meta property="article:modified_time" content="2025-03-03T07:35:47.652Z">
+<meta property="article:modified_time" content="2025-03-03T08:58:14.830Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -219,7 +219,7 @@
               <span class="post-meta-item-text">Posted on</span>
               
 
-              <time title="Created: 2025-03-03 00:00:00 / Modified: 15:35:47" itemprop="dateCreated datePublished" datetime="2025-03-03T00:00:00+08:00">2025-03-03</time>
+              <time title="Created: 2025-03-03 00:00:00 / Modified: 16:58:14" itemprop="dateCreated datePublished" datetime="2025-03-03T00:00:00+08:00">2025-03-03</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -241,14 +241,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>469</span>
+              <span>959</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>2 mins.</span>
+              <span>3 mins.</span>
             </span>
             <div class="post-description">本文从嵌入式软件开发的角度，简要讲述时钟系统的原理、组成、寄存器配置与开发、进阶应用等，引述示例包括但不限于ST、JL等厂商片子的时钟系统。</div>
 
@@ -274,11 +274,27 @@
 <li>时钟管理单元（Clock Management Unit，CMU）</li>
 </ul>
 <p>相应地，从嵌入式软件的角度，配置时钟也从上述几个方面展开。</p>
-<h3 id="时钟源"><a href="#时钟源" class="headerlink" title="时钟源"></a>时钟源</h3><p>晶振</p>
-<p>时钟树</p>
-<h3 id="锁相环（PLL）"><a href="#锁相环（PLL）" class="headerlink" title="锁相环（PLL）"></a>锁相环（PLL）</h3><h2 id="系统时钟之软件配置"><a href="#系统时钟之软件配置" class="headerlink" title="系统时钟之软件配置"></a>系统时钟之软件配置</h2><h3 id="时钟系统初始化"><a href="#时钟系统初始化" class="headerlink" title="时钟系统初始化"></a>时钟系统初始化</h3><p>如何从零配置一个时钟的启动？<br>晶振起振与软件有无关系？</p>
-<h2 id="时钟系统进阶应用"><a href="#时钟系统进阶应用" class="headerlink" title="时钟系统进阶应用"></a>时钟系统进阶应用</h2><h3 id="时钟映射到引脚"><a href="#时钟映射到引脚" class="headerlink" title="时钟映射到引脚"></a>时钟映射到引脚</h3><h3 id="时钟变频设置"><a href="#时钟变频设置" class="headerlink" title="时钟变频设置"></a>时钟变频设置</h3><p>配置时钟主频变频时，需要注意不要影响其它模块</p>
-<h2 id="思考与拓展"><a href="#思考与拓展" class="headerlink" title="思考与拓展"></a>思考与拓展</h2><h4 id="晶振配置及相关问题，与嵌入式软件的关系？"><a href="#晶振配置及相关问题，与嵌入式软件的关系？" class="headerlink" title="晶振配置及相关问题，与嵌入式软件的关系？"></a>晶振配置及相关问题，与嵌入式软件的关系？</h4><h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2><ul>
+<h3 id="时钟源"><a href="#时钟源" class="headerlink" title="时钟源"></a>时钟源</h3><h4 id="有源晶振"><a href="#有源晶振" class="headerlink" title="有源晶振"></a>有源晶振</h4><h4 id="无源晶振（石英晶体）"><a href="#无源晶振（石英晶体）" class="headerlink" title="无源晶振（石英晶体）"></a>无源晶振（石英晶体）</h4><p>石英晶体具有压电效应，即当对它施加机械应力时会产生电荷，反之，施加电场也会导致其机械变形。<br>每块石英晶体都有一个固有的谐振频率，这个频率由晶体的尺寸、形状和切割方式决定。</p>
+<p>原理-振荡电路</p>
+<h3 id="锁相环（PLL）"><a href="#锁相环（PLL）" class="headerlink" title="锁相环（PLL）"></a>锁相环（PLL）</h3><h3 id="时钟分布网络"><a href="#时钟分布网络" class="headerlink" title="时钟分布网络"></a>时钟分布网络</h3><p>时钟树，了解各总线、外设模块的时钟分配，才能去配置 目的模块的时钟</p>
+<h2 id="系统时钟之软件配置"><a href="#系统时钟之软件配置" class="headerlink" title="系统时钟之软件配置"></a>系统时钟之软件配置</h2><h3 id="时钟系统初始化"><a href="#时钟系统初始化" class="headerlink" title="时钟系统初始化"></a>时钟系统初始化</h3><p>系统上电启动后，默认使用内部时钟源（内部RC振荡器）作为初始时钟。</p>
+<p>时钟系统初始化：配置外部晶振、切换时钟源、PLL、分频器、总线&#x2F;外设时钟配置等等</p>
+<p>如何从零配置一个时钟的启动？以寄存器说明</p>
+<h2 id="时钟系统进阶应用"><a href="#时钟系统进阶应用" class="headerlink" title="时钟系统进阶应用"></a>时钟系统进阶应用</h2><h3 id="时钟门控"><a href="#时钟门控" class="headerlink" title="时钟门控"></a>时钟门控</h3><p>关闭未使用模块的时钟信号，减少动态功耗。<br>通过硬件或软件控制时钟使能信号。</p>
+<p>外设管理：关闭未使用外设的时钟。</p>
+<p>软件：通过寄存器配置控制时钟使能。</p>
+<h3 id="时钟映射到引脚"><a href="#时钟映射到引脚" class="headerlink" title="时钟映射到引脚"></a>时钟映射到引脚</h3><h3 id="动态时钟频率调度"><a href="#动态时钟频率调度" class="headerlink" title="动态时钟频率调度"></a>动态时钟频率调度</h3><p>配置时钟主频变频时，需要注意不要影响其它模块，比如SPI</p>
+<ul>
+<li>暂停关键操作，暂停DMA传输、外设通信等</li>
+<li>设置PLL、分频器等参数，生成目标频率</li>
+<li>切换系统时钟源，等待时钟稳定</li>
+<li>重新配置外设时钟，比如SPI</li>
+</ul>
+<h3 id="时钟校准与补偿"><a href="#时钟校准与补偿" class="headerlink" title="时钟校准与补偿"></a>时钟校准与补偿</h3><h2 id="思考与拓展"><a href="#思考与拓展" class="headerlink" title="思考与拓展"></a>思考与拓展</h2><h4 id="有源晶振和无源晶振分别是？为什么外部不直接使用高频晶振？为什么通常都是先倍频再分频的配置方式？"><a href="#有源晶振和无源晶振分别是？为什么外部不直接使用高频晶振？为什么通常都是先倍频再分频的配置方式？" class="headerlink" title="有源晶振和无源晶振分别是？为什么外部不直接使用高频晶振？为什么通常都是先倍频再分频的配置方式？"></a>有源晶振和无源晶振分别是？为什么外部不直接使用高频晶振？为什么通常都是先倍频再分频的配置方式？</h4><h4 id="软件如何检测外部晶振是否配置成功？如何排查晶振问题？"><a href="#软件如何检测外部晶振是否配置成功？如何排查晶振问题？" class="headerlink" title="软件如何检测外部晶振是否配置成功？如何排查晶振问题？"></a>软件如何检测外部晶振是否配置成功？如何排查晶振问题？</h4><p>晶振就绪硬件位检测</p>
+<h4 id="为什么SoC一般都采用动态频率调整的调度方式？"><a href="#为什么SoC一般都采用动态频率调整的调度方式？" class="headerlink" title="为什么SoC一般都采用动态频率调整的调度方式？"></a>为什么SoC一般都采用动态频率调整的调度方式？</h4><p>功耗优化<br>性能优化<br>温度管理<br>支持多种工作模式</p>
+<h4 id="什么场景下可以省掉外部晶振器件？"><a href="#什么场景下可以省掉外部晶振器件？" class="headerlink" title="什么场景下可以省掉外部晶振器件？"></a>什么场景下可以省掉外部晶振器件？</h4><p>没有高精度、高频率的模块工作时，可以省掉外部晶振器件。比如不使用USB、蓝牙、WIFI等模块时。</p>
+<h4 id="时钟与指令周期的关系？"><a href="#时钟与指令周期的关系？" class="headerlink" title="时钟与指令周期的关系？"></a>时钟与指令周期的关系？</h4><p>时钟周期、指令周期、机器周期、总线周期</p>
+<h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2><ul>
 <li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/zxr-blog/p/17949926#_label7">博客园-时钟源&amp;时钟树RCC</a></li>
 </ul>
 
@@ -358,7 +374,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%97%B6%E9%92%9F%E7%AE%80%E8%BF%B0"><span class="nav-number">2.</span> <span class="nav-text">时钟简述</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B0%E5%AD%97%E7%94%B5%E8%B7%AF-%E6%97%B6%E9%92%9F%E7%9A%84%E6%9C%AC%E8%B4%A8"><span class="nav-number">2.1.</span> <span class="nav-text">数字电路-时钟的本质</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%97%B6%E9%92%9F%E7%B3%BB%E7%BB%9F%E7%BB%84%E6%88%90"><span class="nav-number">3.</span> <span class="nav-text">时钟系统组成</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%97%B6%E9%92%9F%E6%BA%90"><span class="nav-number">3.1.</span> <span class="nav-text">时钟源</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%94%81%E7%9B%B8%E7%8E%AF%EF%BC%88PLL%EF%BC%89"><span class="nav-number">3.2.</span> <span class="nav-text">锁相环（PLL）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%B3%BB%E7%BB%9F%E6%97%B6%E9%92%9F%E4%B9%8B%E8%BD%AF%E4%BB%B6%E9%85%8D%E7%BD%AE"><span class="nav-number">4.</span> <span class="nav-text">系统时钟之软件配置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%97%B6%E9%92%9F%E7%B3%BB%E7%BB%9F%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="nav-number">4.1.</span> <span class="nav-text">时钟系统初始化</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%97%B6%E9%92%9F%E7%B3%BB%E7%BB%9F%E8%BF%9B%E9%98%B6%E5%BA%94%E7%94%A8"><span class="nav-number">5.</span> <span class="nav-text">时钟系统进阶应用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%97%B6%E9%92%9F%E6%98%A0%E5%B0%84%E5%88%B0%E5%BC%95%E8%84%9A"><span class="nav-number">5.1.</span> <span class="nav-text">时钟映射到引脚</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%97%B6%E9%92%9F%E5%8F%98%E9%A2%91%E8%AE%BE%E7%BD%AE"><span class="nav-number">5.2.</span> <span class="nav-text">时钟变频设置</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%9D%E8%80%83%E4%B8%8E%E6%8B%93%E5%B1%95"><span class="nav-number">6.</span> <span class="nav-text">思考与拓展</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%99%B6%E6%8C%AF%E9%85%8D%E7%BD%AE%E5%8F%8A%E7%9B%B8%E5%85%B3%E9%97%AE%E9%A2%98%EF%BC%8C%E4%B8%8E%E5%B5%8C%E5%85%A5%E5%BC%8F%E8%BD%AF%E4%BB%B6%E7%9A%84%E5%85%B3%E7%B3%BB%EF%BC%9F"><span class="nav-number">6.0.1.</span> <span class="nav-text">晶振配置及相关问题，与嵌入式软件的关系？</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E7%AB%99%E7%82%B9"><span class="nav-number">7.</span> <span class="nav-text">参考站点</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%97%B6%E9%92%9F%E7%AE%80%E8%BF%B0"><span class="nav-number">2.</span> <span class="nav-text">时钟简述</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B0%E5%AD%97%E7%94%B5%E8%B7%AF-%E6%97%B6%E9%92%9F%E7%9A%84%E6%9C%AC%E8%B4%A8"><span class="nav-number">2.1.</span> <span class="nav-text">数字电路-时钟的本质</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%97%B6%E9%92%9F%E7%B3%BB%E7%BB%9F%E7%BB%84%E6%88%90"><span class="nav-number">3.</span> <span class="nav-text">时钟系统组成</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%97%B6%E9%92%9F%E6%BA%90"><span class="nav-number">3.1.</span> <span class="nav-text">时钟源</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9C%89%E6%BA%90%E6%99%B6%E6%8C%AF"><span class="nav-number">3.1.1.</span> <span class="nav-text">有源晶振</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%97%A0%E6%BA%90%E6%99%B6%E6%8C%AF%EF%BC%88%E7%9F%B3%E8%8B%B1%E6%99%B6%E4%BD%93%EF%BC%89"><span class="nav-number">3.1.2.</span> <span class="nav-text">无源晶振（石英晶体）</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%94%81%E7%9B%B8%E7%8E%AF%EF%BC%88PLL%EF%BC%89"><span class="nav-number">3.2.</span> <span class="nav-text">锁相环（PLL）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%97%B6%E9%92%9F%E5%88%86%E5%B8%83%E7%BD%91%E7%BB%9C"><span class="nav-number">3.3.</span> <span class="nav-text">时钟分布网络</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%B3%BB%E7%BB%9F%E6%97%B6%E9%92%9F%E4%B9%8B%E8%BD%AF%E4%BB%B6%E9%85%8D%E7%BD%AE"><span class="nav-number">4.</span> <span class="nav-text">系统时钟之软件配置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%97%B6%E9%92%9F%E7%B3%BB%E7%BB%9F%E5%88%9D%E5%A7%8B%E5%8C%96"><span class="nav-number">4.1.</span> <span class="nav-text">时钟系统初始化</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%97%B6%E9%92%9F%E7%B3%BB%E7%BB%9F%E8%BF%9B%E9%98%B6%E5%BA%94%E7%94%A8"><span class="nav-number">5.</span> <span class="nav-text">时钟系统进阶应用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%97%B6%E9%92%9F%E9%97%A8%E6%8E%A7"><span class="nav-number">5.1.</span> <span class="nav-text">时钟门控</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%97%B6%E9%92%9F%E6%98%A0%E5%B0%84%E5%88%B0%E5%BC%95%E8%84%9A"><span class="nav-number">5.2.</span> <span class="nav-text">时钟映射到引脚</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8A%A8%E6%80%81%E6%97%B6%E9%92%9F%E9%A2%91%E7%8E%87%E8%B0%83%E5%BA%A6"><span class="nav-number">5.3.</span> <span class="nav-text">动态时钟频率调度</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%97%B6%E9%92%9F%E6%A0%A1%E5%87%86%E4%B8%8E%E8%A1%A5%E5%81%BF"><span class="nav-number">5.4.</span> <span class="nav-text">时钟校准与补偿</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%9D%E8%80%83%E4%B8%8E%E6%8B%93%E5%B1%95"><span class="nav-number">6.</span> <span class="nav-text">思考与拓展</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9C%89%E6%BA%90%E6%99%B6%E6%8C%AF%E5%92%8C%E6%97%A0%E6%BA%90%E6%99%B6%E6%8C%AF%E5%88%86%E5%88%AB%E6%98%AF%EF%BC%9F%E4%B8%BA%E4%BB%80%E4%B9%88%E5%A4%96%E9%83%A8%E4%B8%8D%E7%9B%B4%E6%8E%A5%E4%BD%BF%E7%94%A8%E9%AB%98%E9%A2%91%E6%99%B6%E6%8C%AF%EF%BC%9F%E4%B8%BA%E4%BB%80%E4%B9%88%E9%80%9A%E5%B8%B8%E9%83%BD%E6%98%AF%E5%85%88%E5%80%8D%E9%A2%91%E5%86%8D%E5%88%86%E9%A2%91%E7%9A%84%E9%85%8D%E7%BD%AE%E6%96%B9%E5%BC%8F%EF%BC%9F"><span class="nav-number">6.0.1.</span> <span class="nav-text">有源晶振和无源晶振分别是？为什么外部不直接使用高频晶振？为什么通常都是先倍频再分频的配置方式？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BD%AF%E4%BB%B6%E5%A6%82%E4%BD%95%E6%A3%80%E6%B5%8B%E5%A4%96%E9%83%A8%E6%99%B6%E6%8C%AF%E6%98%AF%E5%90%A6%E9%85%8D%E7%BD%AE%E6%88%90%E5%8A%9F%EF%BC%9F%E5%A6%82%E4%BD%95%E6%8E%92%E6%9F%A5%E6%99%B6%E6%8C%AF%E9%97%AE%E9%A2%98%EF%BC%9F"><span class="nav-number">6.0.2.</span> <span class="nav-text">软件如何检测外部晶振是否配置成功？如何排查晶振问题？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88SoC%E4%B8%80%E8%88%AC%E9%83%BD%E9%87%87%E7%94%A8%E5%8A%A8%E6%80%81%E9%A2%91%E7%8E%87%E8%B0%83%E6%95%B4%E7%9A%84%E8%B0%83%E5%BA%A6%E6%96%B9%E5%BC%8F%EF%BC%9F"><span class="nav-number">6.0.3.</span> <span class="nav-text">为什么SoC一般都采用动态频率调整的调度方式？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E5%9C%BA%E6%99%AF%E4%B8%8B%E5%8F%AF%E4%BB%A5%E7%9C%81%E6%8E%89%E5%A4%96%E9%83%A8%E6%99%B6%E6%8C%AF%E5%99%A8%E4%BB%B6%EF%BC%9F"><span class="nav-number">6.0.4.</span> <span class="nav-text">什么场景下可以省掉外部晶振器件？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%97%B6%E9%92%9F%E4%B8%8E%E6%8C%87%E4%BB%A4%E5%91%A8%E6%9C%9F%E7%9A%84%E5%85%B3%E7%B3%BB%EF%BC%9F"><span class="nav-number">6.0.5.</span> <span class="nav-text">时钟与指令周期的关系？</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E7%AB%99%E7%82%B9"><span class="nav-number">7.</span> <span class="nav-text">参考站点</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -421,12 +437,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">108k</span>
+    <span title="Symbols count total">109k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">5:59</span>
+    <span title="Reading time total">6:03</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
   </div>

@@ -29,7 +29,7 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="http://example.com/pictures/20240803-BLE%E5%B9%BF%E6%92%AD%E8%BF%9E%E6%8E%A5%E5%AF%B9%E6%8E%A5%E5%9B%BE.png">
 <meta property="article:published_time" content="2024-08-02T16:00:00.000Z">
-<meta property="article:modified_time" content="2024-10-15T00:56:47.445Z">
+<meta property="article:modified_time" content="2025-03-07T06:44:17.681Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -227,7 +227,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-10-15 08:56:47" itemprop="dateModified" datetime="2024-10-15T08:56:47+08:00">2024-10-15</time>
+                <time title="Modified: 2025-03-07 14:44:17" itemprop="dateModified" datetime="2025-03-07T14:44:17+08:00">2025-03-07</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -253,14 +253,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>2.9k</span>
+              <span>3.6k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>10 mins.</span>
+              <span>12 mins.</span>
             </span>
             <div class="post-description">本文以个人理解角度，主要讲述低功耗蓝牙BLE的GATT层相关概念，包括Profile、Profile_data、服务、特征声明、特征值等以及其应用分析。</div>
 
@@ -417,17 +417,62 @@
 </blockquote>
 </li>
 </ul>
-<h3 id="Profile-data解析"><a href="#Profile-data解析" class="headerlink" title="Profile_data解析"></a>Profile_data解析</h3><p>以下为一profile_data示例，从行列角度描述，有：</p>
-<p>长度表示、类型表示、服务句柄、UUID（2字节或者16字节）</p>
+<h3 id="Profile-data解析"><a href="#Profile-data解析" class="headerlink" title="Profile_data解析"></a>Profile_data解析</h3><p><code>profile_data[]</code> 是一个 二进制格式的GATT（通用属性配置文件）描述数组，用于定义BLE设备的服务（Service）、特征（Characteristic）及权限。<br>每个条目对应一个<code>属性（Attribute）</code>，按顺序存储以下信息：</p>
+<p>属性句柄（Handle）：2字节，唯一标识属性的地址。<br>属性类型（Type）：2字节，表示属性类型（如服务、特征、描述符）。<br>属性值（Value）：变长数据，具体内容由属性类型决定。</p>
+<p><strong>句柄递增规则：</strong> 主服务、特征声明、特征值、CCCD的句柄按顺序递增</p>
+<p>字段逐字节解析（以第一个服务声明为例）</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">0x0a</span>, <span class="number">0x00</span>, <span class="number">0x02</span>, <span class="number">0x00</span>, <span class="number">0x01</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x28</span>, <span class="number">0x00</span>, <span class="number">0x18</span></span><br></pre></td></tr></table></figure>
+<table>
+<thead>
+<tr>
+<th>字节位置</th>
+<th>值（十六进制）</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>0</td>
+<td>0x0a</td>
+<td>条目总长度：10字节（后续9字节需+1，因长度本身占1字节）。</td>
+</tr>
+<tr>
+<td>1-2</td>
+<td>0x00 0x02</td>
+<td>属性句柄：小端序，值为 0x0002。</td>
+</tr>
+<tr>
+<td>3-4</td>
+<td>0x00 0x28</td>
+<td>属性类型：小端序，0x2800 表示 主服务声明（Primary Service）。</td>
+</tr>
+<tr>
+<td>5-6</td>
+<td>0x00 0x01</td>
+<td>服务UUID长度&#x2F;标志：此处为16位UUID，值为 0x0001（无关，通常忽略）。</td>
+</tr>
+<tr>
+<td>7-8</td>
+<td>0x00 0x18</td>
+<td>服务UUID：小端序，0x1800 对应 GAP服务（通用访问）。</td>
+</tr>
+</tbody></table>
+<p><strong>数据结构原理</strong></p>
 <ul>
-<li>服务声明：</li>
-<li>第一个特征值声明：</li>
-<li>第一个特征值值：</li>
-<li>第二个特征值声明：</li>
-<li>第二个特征值值：</li>
+<li>层级结构<br>  服务（Service） 包含多个 特征（Characteristic）。<br>  特征 包含值、权限及可选的 描述符（Descriptor）（如CCCD）。</li>
+<li>句柄分配<br>  句柄按顺序递增，确保唯一性。<br>  例如，服务声明句柄为 0x0002，其下特征值句柄为 0x0003，依此类推。</li>
+<li>动态值（DYNAMIC）<br>  若特征值标记为 DYNAMIC，实际数据由应用层通过回调函数实时提供，而非硬编码在配置中。</li>
+<li>小端序存储<br>  UUID、句柄等16位值均按小端序（低位在前）存储。例如 0x1800 存储为 0x00 0x18。</li>
 </ul>
+<p>以下为一profile_data示例：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">const</span> <span class="type">uint8_t</span> profile_data[] = &#123;</span><br><span class="line">    <span class="comment">//////////////////////////////////////////////////////</span></span><br><span class="line">    <span class="comment">//</span></span><br><span class="line">    <span class="comment">// 0x0001 PRIMARY_SERVICE  1800</span></span><br><span class="line">    <span class="comment">//</span></span><br><span class="line">    <span class="comment">//////////////////////////////////////////////////////</span></span><br><span class="line">    <span class="number">0x0a</span>, <span class="number">0x00</span>, <span class="number">0x02</span>, <span class="number">0x00</span>, <span class="number">0x01</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x28</span>, <span class="number">0x00</span>, <span class="number">0x18</span>,</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* CHARACTERISTIC,  2a00, READ | WRITE | DYNAMIC, */</span></span><br><span class="line">    <span class="comment">// 0x0002 CHARACTERISTIC 2a00 READ | WRITE | DYNAMIC</span></span><br><span class="line">    <span class="number">0x0d</span>, <span class="number">0x00</span>, <span class="number">0x02</span>, <span class="number">0x00</span>, <span class="number">0x02</span>, <span class="number">0x00</span>, <span class="number">0x03</span>, <span class="number">0x28</span>, <span class="number">0x0a</span>, <span class="number">0x03</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x2a</span>,</span><br><span class="line">    <span class="comment">// 0x0003 VALUE 2a00 READ | WRITE | DYNAMIC</span></span><br><span class="line">    <span class="number">0x08</span>, <span class="number">0x00</span>, <span class="number">0x0a</span>, <span class="number">0x01</span>, <span class="number">0x03</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x2a</span>,</span><br><span class="line"></span><br><span class="line">    <span class="comment">//////////////////////////////////////////////////////</span></span><br><span class="line">    <span class="comment">//</span></span><br><span class="line">    <span class="comment">// 0x0004 PRIMARY_SERVICE  ae30</span></span><br><span class="line">    <span class="comment">//</span></span><br><span class="line">    <span class="comment">//////////////////////////////////////////////////////</span></span><br><span class="line">    <span class="number">0x0a</span>, <span class="number">0x00</span>, <span class="number">0x02</span>, <span class="number">0x00</span>, <span class="number">0x04</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x28</span>, <span class="number">0x30</span>, <span class="number">0xae</span>,</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* CHARACTERISTIC,  ae01, WRITE_WITHOUT_RESPONSE | DYNAMIC, */</span></span><br><span class="line">    <span class="comment">// 0x0005 CHARACTERISTIC ae01 WRITE_WITHOUT_RESPONSE | DYNAMIC</span></span><br><span class="line">    <span class="number">0x0d</span>, <span class="number">0x00</span>, <span class="number">0x02</span>, <span class="number">0x00</span>, <span class="number">0x05</span>, <span class="number">0x00</span>, <span class="number">0x03</span>, <span class="number">0x28</span>, <span class="number">0x04</span>, <span class="number">0x06</span>, <span class="number">0x00</span>, <span class="number">0x01</span>, <span class="number">0xae</span>,</span><br><span class="line">    <span class="comment">// 0x0006 VALUE ae01 WRITE_WITHOUT_RESPONSE | DYNAMIC</span></span><br><span class="line">    <span class="number">0x08</span>, <span class="number">0x00</span>, <span class="number">0x04</span>, <span class="number">0x01</span>, <span class="number">0x06</span>, <span class="number">0x00</span>, <span class="number">0x01</span>, <span class="number">0xae</span>,</span><br><span class="line"></span><br><span class="line">    ......</span><br><span class="line"></span><br><span class="line">        <span class="comment">//////////////////////////////////////////////////////</span></span><br><span class="line">    <span class="comment">//</span></span><br><span class="line">    <span class="comment">// 0x0021 PRIMARY_SERVICE  E49A25F8-F69A-11E8-8EB2-F2801F1B9FD1</span></span><br><span class="line">    <span class="comment">//</span></span><br><span class="line">    <span class="comment">//////////////////////////////////////////////////////</span></span><br><span class="line">    <span class="number">0x18</span>, <span class="number">0x00</span>, <span class="number">0x02</span>, <span class="number">0x00</span>, <span class="number">0x21</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x28</span>, <span class="number">0xd1</span>, <span class="number">0x9f</span>, <span class="number">0x1b</span>, <span class="number">0x1f</span>, <span class="number">0x80</span>, <span class="number">0xf2</span>, <span class="number">0xb2</span>, <span class="number">0x8e</span>, <span class="number">0xe8</span>, <span class="number">0x11</span>, <span class="number">0x9a</span>, <span class="number">0xf6</span>, <span class="number">0xf8</span>, <span class="number">0x25</span>, <span class="number">0x9a</span>, <span class="number">0xe4</span>,</span><br><span class="line"></span><br><span class="line">     <span class="comment">/* CHARACTERISTIC,  E49A25E0-F69A-11E8-8EB2-F2801F1B9FD1, WRITE_WITHOUT_RESPONSE | DYNAMIC | NOTIFY, */</span></span><br><span class="line">    <span class="comment">// 0x0022 CHARACTERISTIC E49A25E0-F69A-11E8-8EB2-F2801F1B9FD1 WRITE_WITHOUT_RESPONSE | DYNAMIC | NOTIFY</span></span><br><span class="line">    <span class="number">0x1b</span>, <span class="number">0x00</span>, <span class="number">0x02</span>, <span class="number">0x00</span>, <span class="number">0x22</span>, <span class="number">0x00</span>, <span class="number">0x03</span>, <span class="number">0x28</span>, <span class="number">0x14</span>, <span class="number">0x23</span>, <span class="number">0x00</span>, <span class="number">0xd1</span>, <span class="number">0x9f</span>, <span class="number">0x1b</span>, <span class="number">0x1f</span>, <span class="number">0x80</span>, <span class="number">0xf2</span>, <span class="number">0xb2</span>, <span class="number">0x8e</span>, <span class="number">0xe8</span>, <span class="number">0x11</span>, <span class="number">0x9a</span>, <span class="number">0xf6</span>, <span class="number">0xe0</span>, <span class="number">0x25</span>, <span class="number">0x9a</span>, <span class="number">0xe4</span>,</span><br><span class="line">    <span class="comment">// 0x0023 VALUE E49A25E0-F69A-11E8-8EB2-F2801F1B9FD1 WRITE_WITHOUT_RESPONSE | DYNAMIC | NOTIFY</span></span><br><span class="line">    <span class="number">0x16</span>, <span class="number">0x00</span>, <span class="number">0x14</span>, <span class="number">0x03</span>, <span class="number">0x23</span>, <span class="number">0x00</span>, <span class="number">0xd1</span>, <span class="number">0x9f</span>, <span class="number">0x1b</span>, <span class="number">0x1f</span>, <span class="number">0x80</span>, <span class="number">0xf2</span>, <span class="number">0xb2</span>, <span class="number">0x8e</span>, <span class="number">0xe8</span>, <span class="number">0x11</span>, <span class="number">0x9a</span>, <span class="number">0xf6</span>, <span class="number">0xe0</span>, <span class="number">0x25</span>, <span class="number">0x9a</span>, <span class="number">0xe4</span>,</span><br><span class="line">    <span class="comment">// 0x0024 CLIENT_CHARACTERISTIC_CONFIGURATION</span></span><br><span class="line">    <span class="number">0x0a</span>, <span class="number">0x00</span>, <span class="number">0x0a</span>, <span class="number">0x01</span>, <span class="number">0x24</span>, <span class="number">0x00</span>, <span class="number">0x02</span>, <span class="number">0x29</span>, <span class="number">0x00</span>, <span class="number">0x00</span>,</span><br><span class="line"></span><br><span class="line">     <span class="comment">/* CHARACTERISTIC,  E49A28E1-F69A-11E8-8EB2-F2801F1B9FD1, READ | NOTIFY, */</span></span><br><span class="line">    <span class="comment">// 0x0025 CHARACTERISTIC E49A28E1-F69A-11E8-8EB2-F2801F1B9FD1 READ | NOTIFY</span></span><br><span class="line">    <span class="number">0x1b</span>, <span class="number">0x00</span>, <span class="number">0x02</span>, <span class="number">0x00</span>, <span class="number">0x25</span>, <span class="number">0x00</span>, <span class="number">0x03</span>, <span class="number">0x28</span>, <span class="number">0x12</span>, <span class="number">0x26</span>, <span class="number">0x00</span>, <span class="number">0xd1</span>, <span class="number">0x9f</span>, <span class="number">0x1b</span>, <span class="number">0x1f</span>, <span class="number">0x80</span>, <span class="number">0xf2</span>, <span class="number">0xb2</span>, <span class="number">0x8e</span>, <span class="number">0xe8</span>, <span class="number">0x11</span>, <span class="number">0x9a</span>, <span class="number">0xf6</span>, <span class="number">0xe1</span>, <span class="number">0x28</span>, <span class="number">0x9a</span>, <span class="number">0xe4</span>,</span><br><span class="line">    <span class="comment">// 0x0026 VALUE E49A28E1-F69A-11E8-8EB2-F2801F1B9FD1 READ | NOTIFY</span></span><br><span class="line">    <span class="number">0x16</span>, <span class="number">0x00</span>, <span class="number">0x12</span>, <span class="number">0x02</span>, <span class="number">0x26</span>, <span class="number">0x00</span>, <span class="number">0xd1</span>, <span class="number">0x9f</span>, <span class="number">0x1b</span>, <span class="number">0x1f</span>, <span class="number">0x80</span>, <span class="number">0xf2</span>, <span class="number">0xb2</span>, <span class="number">0x8e</span>, <span class="number">0xe8</span>, <span class="number">0x11</span>, <span class="number">0x9a</span>, <span class="number">0xf6</span>, <span class="number">0xe1</span>, <span class="number">0x28</span>, <span class="number">0x9a</span>, <span class="number">0xe4</span>,</span><br><span class="line">    <span class="comment">// 0x0027 CLIENT_CHARACTERISTIC_CONFIGURATION</span></span><br><span class="line">    <span class="number">0x0a</span>, <span class="number">0x00</span>, <span class="number">0x0a</span>, <span class="number">0x01</span>, <span class="number">0x27</span>, <span class="number">0x00</span>, <span class="number">0x02</span>, <span class="number">0x29</span>, <span class="number">0x00</span>, <span class="number">0x00</span>,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
+<p><strong>服务类型与结构如下：</strong></p>
+<ol>
+<li>主服务声明（Primary Service）<br>属性类型：0x2800（固定值）。<br>属性值：服务UUID（16位或128位）。<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 示例：声明UUID为0x1800的GAP服务</span></span><br><span class="line"><span class="number">0x0a</span>, <span class="number">0x00</span>, [句柄], <span class="number">0x00</span>, <span class="number">0x28</span>, [UUID低字节], [UUID高字节]</span><br></pre></td></tr></table></figure></li>
+<li>特征声明（Characteristic Declaration）<br>属性类型：0x2803（固定值）。<br>属性值：包含特征权限、值句柄和特征UUID。<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 示例：声明一个可读、可通知的特征（UUID 0xFFC2）</span></span><br><span class="line"><span class="number">0x0d</span>, <span class="number">0x00</span>, [句柄], <span class="number">0x03</span>, <span class="number">0x28</span>, </span><br><span class="line"><span class="number">0x12</span>,           <span class="comment">// 权限：READ(0x02) + NOTIFY(0x10) = 0x12</span></span><br><span class="line"><span class="number">0x08</span>, <span class="number">0x00</span>,     <span class="comment">// 特征值句柄：0x0008</span></span><br><span class="line"><span class="number">0xC2</span>, <span class="number">0xFF</span>      <span class="comment">// 特征UUID：0xFFC2（小端序）</span></span><br></pre></td></tr></table></figure></li>
+<li>特征值（Characteristic Value）<br>属性类型：特征UUID（如 0x2A00 表示设备名称）。<br>属性值：实际数据或动态生成标志（DYNAMIC）。<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 示例：特征值动态生成（由应用层提供）</span></span><br><span class="line"><span class="number">0x08</span>, <span class="number">0x00</span>, [句柄], <span class="number">0x01</span>, <span class="number">0x2A</span>, <span class="number">0x00</span>, <span class="number">0x00</span>  <span class="comment">// 0x2A00为设备名称特征</span></span><br></pre></td></tr></table></figure></li>
+<li>客户端特征配置描述符（CCCD）<br>属性类型：0x2902（固定值）。<br>属性值：配置通知（Notify）或指示（Indicate）的开关。<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 示例：CCCD描述符，句柄为0x0009</span></span><br><span class="line"><span class="number">0x0a</span>, <span class="number">0x00</span>, [句柄], <span class="number">0x02</span>, <span class="number">0x29</span>, <span class="number">0x00</span>, <span class="number">0x00</span>  <span class="comment">// 0x2902为CCCD类型</span></span><br></pre></td></tr></table></figure></li>
+</ol>
 <h3 id="初始化、服务及回调注册"><a href="#初始化、服务及回调注册" class="headerlink" title="初始化、服务及回调注册"></a>初始化、服务及回调注册</h3><p>根据业务需求，定义好<code>profile_data</code>后，调用<code>ble_profile_init</code>函数进行初始化，并注册服务及回调函数。</p>
 <h3 id="业务数据处理"><a href="#业务数据处理" class="headerlink" title="业务数据处理"></a>业务数据处理</h3><p>当设备收到数据，会在相应回调中触发 case 相应的事件枚举。该枚举即对应相应的profile_data句柄。</p>
 <p><code>att_server_init(multi_profile_data, att_read_callback, att_write_callback);</code></p>
@@ -584,12 +629,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">108k</span>
+    <span title="Symbols count total">109k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">5:59</span>
+    <span title="Reading time total">6:03</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
   </div>
