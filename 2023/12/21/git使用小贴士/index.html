@@ -28,7 +28,7 @@
 <meta property="og:description" content="主要记录Git的常用命令、一些非典型操作及其意义解析，也包括在 Git 应用中所遇到的一些问题及解决方案，便于检索与回顾">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2023-12-20T16:00:00.000Z">
-<meta property="article:modified_time" content="2024-08-24T06:19:15.111Z">
+<meta property="article:modified_time" content="2025-03-19T13:04:33.623Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -225,7 +225,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-08-24 14:19:15" itemprop="dateModified" datetime="2024-08-24T14:19:15+08:00">2024-08-24</time>
+                <time title="Modified: 2025-03-19 21:04:33" itemprop="dateModified" datetime="2025-03-19T21:04:33+08:00">2025-03-19</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -243,7 +243,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>3.8k</span>
+              <span>3.9k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
@@ -606,7 +606,7 @@
 </li>
 <li><p>此前已经被跟踪的文件，添加.gitignore无效</p>
 <blockquote>
-<p>执行<code>git rm --cached /path/to/remove</code>取消跟踪，然后提交推送</p>
+<p>执行<code>git rm --cached /path/to/remove</code>取消跟踪，然后提交推送<br>比如：<code>git rm --cached **/*.c.o</code>，表示递归删除所有.c.o文件的跟踪信息</p>
 </blockquote>
 </li>
 <li><p>强行跟踪被.gitignore忽略的某个指定文件<br><code>git add -f /path/to/add</code>或者 在.gitignore文件后添加<code>!path/to/track</code>(<code>!</code>表示覆盖前面的忽略规则)<br>如：<code>git add -f hello.bin</code> or 添加<code>!hello.bin</code></p>
