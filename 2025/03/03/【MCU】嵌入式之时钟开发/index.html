@@ -28,7 +28,7 @@
 <meta property="og:description" content="本文从嵌入式软件开发的角度，简要讲述时钟系统的原理、组成、寄存器配置与开发、进阶应用等，引述示例包括但不限于ST、JL等厂商片子的时钟系统。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2025-03-02T16:00:00.000Z">
-<meta property="article:modified_time" content="2025-03-03T08:58:14.830Z">
+<meta property="article:modified_time" content="2025-05-26T07:56:02.776Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -217,10 +217,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
-              
 
-              <time title="Created: 2025-03-03 00:00:00 / Modified: 16:58:14" itemprop="dateCreated datePublished" datetime="2025-03-03T00:00:00+08:00">2025-03-03</time>
+              <time title="Created: 2025-03-03 00:00:00" itemprop="dateCreated datePublished" datetime="2025-03-03T00:00:00+08:00">2025-03-03</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2025-05-26 15:56:02" itemprop="dateModified" datetime="2025-05-26T15:56:02+08:00">2025-05-26</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -241,7 +247,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>959</span>
+              <span>1.5k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
@@ -274,7 +280,9 @@
 <li>时钟管理单元（Clock Management Unit，CMU）</li>
 </ul>
 <p>相应地，从嵌入式软件的角度，配置时钟也从上述几个方面展开。</p>
-<h3 id="时钟源"><a href="#时钟源" class="headerlink" title="时钟源"></a>时钟源</h3><h4 id="有源晶振"><a href="#有源晶振" class="headerlink" title="有源晶振"></a>有源晶振</h4><h4 id="无源晶振（石英晶体）"><a href="#无源晶振（石英晶体）" class="headerlink" title="无源晶振（石英晶体）"></a>无源晶振（石英晶体）</h4><p>石英晶体具有压电效应，即当对它施加机械应力时会产生电荷，反之，施加电场也会导致其机械变形。<br>每块石英晶体都有一个固有的谐振频率，这个频率由晶体的尺寸、形状和切割方式决定。</p>
+<h3 id="时钟源"><a href="#时钟源" class="headerlink" title="时钟源"></a>时钟源</h3><h4 id="有源晶振"><a href="#有源晶振" class="headerlink" title="有源晶振"></a>有源晶振</h4><p>内置振荡电路和放大元件，直接输出时钟信号，稳定性更高</p>
+<h4 id="无源晶振（石英晶体）"><a href="#无源晶振（石英晶体）" class="headerlink" title="无源晶振（石英晶体）"></a>无源晶振（石英晶体）</h4><p>需要外部电路驱动才能振荡。</p>
+<p>石英晶体具有压电效应，即当对它施加机械应力时会产生电荷，反之，施加电场也会导致其机械变形。<br>每块石英晶体都有一个固有的谐振频率，这个频率由晶体的尺寸、形状和切割方式决定。</p>
 <p>原理-振荡电路</p>
 <h3 id="锁相环（PLL）"><a href="#锁相环（PLL）" class="headerlink" title="锁相环（PLL）"></a>锁相环（PLL）</h3><h3 id="时钟分布网络"><a href="#时钟分布网络" class="headerlink" title="时钟分布网络"></a>时钟分布网络</h3><p>时钟树，了解各总线、外设模块的时钟分配，才能去配置 目的模块的时钟</p>
 <h2 id="系统时钟之软件配置"><a href="#系统时钟之软件配置" class="headerlink" title="系统时钟之软件配置"></a>系统时钟之软件配置</h2><h3 id="时钟系统初始化"><a href="#时钟系统初始化" class="headerlink" title="时钟系统初始化"></a>时钟系统初始化</h3><p>系统上电启动后，默认使用内部时钟源（内部RC振荡器）作为初始时钟。</p>
@@ -283,13 +291,16 @@
 <h2 id="时钟系统进阶应用"><a href="#时钟系统进阶应用" class="headerlink" title="时钟系统进阶应用"></a>时钟系统进阶应用</h2><h3 id="时钟门控"><a href="#时钟门控" class="headerlink" title="时钟门控"></a>时钟门控</h3><p>关闭未使用模块的时钟信号，减少动态功耗。<br>通过硬件或软件控制时钟使能信号。</p>
 <p>外设管理：关闭未使用外设的时钟。</p>
 <p>软件：通过寄存器配置控制时钟使能。</p>
-<h3 id="时钟映射到引脚"><a href="#时钟映射到引脚" class="headerlink" title="时钟映射到引脚"></a>时钟映射到引脚</h3><h3 id="动态时钟频率调度"><a href="#动态时钟频率调度" class="headerlink" title="动态时钟频率调度"></a>动态时钟频率调度</h3><p>配置时钟主频变频时，需要注意不要影响其它模块，比如SPI</p>
+<h3 id="时钟映射到引脚"><a href="#时钟映射到引脚" class="headerlink" title="时钟映射到引脚"></a>时钟映射到引脚</h3><h3 id="动态时钟频率调度"><a href="#动态时钟频率调度" class="headerlink" title="动态时钟频率调度"></a>动态时钟频率调度</h3><p>配置时钟主频变频时，需要注意不要影响其它模块，比如SPI、UART、USB、ADC、PWM</p>
 <ul>
 <li>暂停关键操作，暂停DMA传输、外设通信等</li>
 <li>设置PLL、分频器等参数，生成目标频率</li>
 <li>切换系统时钟源，等待时钟稳定</li>
 <li>重新配置外设时钟，比如SPI</li>
 </ul>
+<p>示例，如下uart</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">static</span> <span class="type">void</span> <span class="title function_">clock_critical_enter</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">void</span> <span class="title function_">clock_critical_exit</span><span class="params">(<span class="type">void</span>)</span></span><br><span class="line">&#123;</span><br><span class="line">    uart_update_set_baud(update_baudrate);</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 将入口函数，和退出函数 指针注册到时钟critical处理的相关section中</span></span><br><span class="line">CLOCK_CRITICAL_HANDLE_REG(uart_update, clock_critical_enter, clock_critical_exit)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">// 当时钟变化时，会轮询执行所有注册在相应段的函数。确保外设的时钟不会受到系统时钟变化的影响</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
 <h3 id="时钟校准与补偿"><a href="#时钟校准与补偿" class="headerlink" title="时钟校准与补偿"></a>时钟校准与补偿</h3><h2 id="思考与拓展"><a href="#思考与拓展" class="headerlink" title="思考与拓展"></a>思考与拓展</h2><h4 id="有源晶振和无源晶振分别是？为什么外部不直接使用高频晶振？为什么通常都是先倍频再分频的配置方式？"><a href="#有源晶振和无源晶振分别是？为什么外部不直接使用高频晶振？为什么通常都是先倍频再分频的配置方式？" class="headerlink" title="有源晶振和无源晶振分别是？为什么外部不直接使用高频晶振？为什么通常都是先倍频再分频的配置方式？"></a>有源晶振和无源晶振分别是？为什么外部不直接使用高频晶振？为什么通常都是先倍频再分频的配置方式？</h4><h4 id="软件如何检测外部晶振是否配置成功？如何排查晶振问题？"><a href="#软件如何检测外部晶振是否配置成功？如何排查晶振问题？" class="headerlink" title="软件如何检测外部晶振是否配置成功？如何排查晶振问题？"></a>软件如何检测外部晶振是否配置成功？如何排查晶振问题？</h4><p>晶振就绪硬件位检测</p>
 <h4 id="为什么SoC一般都采用动态频率调整的调度方式？"><a href="#为什么SoC一般都采用动态频率调整的调度方式？" class="headerlink" title="为什么SoC一般都采用动态频率调整的调度方式？"></a>为什么SoC一般都采用动态频率调整的调度方式？</h4><p>功耗优化<br>性能优化<br>温度管理<br>支持多种工作模式</p>
 <h4 id="什么场景下可以省掉外部晶振器件？"><a href="#什么场景下可以省掉外部晶振器件？" class="headerlink" title="什么场景下可以省掉外部晶振器件？"></a>什么场景下可以省掉外部晶振器件？</h4><p>没有高精度、高频率的模块工作时，可以省掉外部晶振器件。比如不使用USB、蓝牙、WIFI等模块时。</p>
@@ -437,12 +448,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">109k</span>
+    <span title="Symbols count total">120k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">6:04</span>
+    <span title="Reading time total">3:20</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
   </div>
