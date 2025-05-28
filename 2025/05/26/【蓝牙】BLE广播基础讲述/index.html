@@ -28,7 +28,7 @@
 <meta property="og:description" content="主要讲述BLE空中包相关知识，包括但不限于广播包格式、信道、类型、以及实际设计案例等。">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2025-05-25T16:00:00.000Z">
-<meta property="article:modified_time" content="2025-05-27T12:30:43.824Z">
+<meta property="article:modified_time" content="2025-05-28T13:00:20.136Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -225,7 +225,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-05-27 20:30:43" itemprop="dateModified" datetime="2025-05-27T20:30:43+08:00">2025-05-27</time>
+                <time title="Modified: 2025-05-28 21:00:20" itemprop="dateModified" datetime="2025-05-28T21:00:20+08:00">2025-05-28</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -247,14 +247,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>1.1k</span>
+              <span>1.7k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>4 mins.</span>
+              <span>6 mins.</span>
             </span>
             <div class="post-description">主要讲述BLE空中包相关知识，包括但不限于广播包格式、信道、类型、以及实际设计案例等。</div>
 
@@ -267,8 +267,59 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><h2 id="BLE空中包基础"><a href="#BLE空中包基础" class="headerlink" title="BLE空中包基础"></a>BLE空中包基础</h2><p>BLE链路层（Link Layer）只定义了一种空中包格式：<code>Preamble（前导帧）| Access Address | PDU（protocol data unit，协议数据单元） | CRC（cyclic redundancy check，循环冗余校验）</code></p>
-<p>小端模式</p>
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><table>
+<thead>
+<tr>
+<th>层级</th>
+<th>功能</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>物理层（PHY）</strong></td>
+<td>负责无线信号的调制&#x2F;解调，工作在 2.4GHz ISM 频段（40个信道）</td>
+<td>GFSK 调制，1Mbps（BLE 5.0 支持2Mbps）</td>
+</tr>
+<tr>
+<td><strong>链路层（Link Layer）</strong></td>
+<td>管理广播、扫描、连接建立和数据传输</td>
+<td>处理 ADV_IND 或 CONNECT_REQ</td>
+</tr>
+<tr>
+<td><strong>主机控制接口层（HCI）</strong></td>
+<td>定义主机（Host）与控制器（Controller）间的通信协议（如指令、事件、数据流）</td>
+<td>通过 UART&#x2F;USB 传输 HCI 命令包</td>
+</tr>
+<tr>
+<td><strong>逻辑链路控制与适配协议（L2CAP）</strong></td>
+<td>提供数据分片、重组和多路复用，管理协议通道</td>
+<td>将 ATT 数据分片为适合链路层的包</td>
+</tr>
+<tr>
+<td><strong>属性协议层（ATT）</strong></td>
+<td>定义设备间数据访问的协议（读&#x2F;写&#x2F;通知），基于客户端-服务器模型</td>
+<td>读取设备的电量值（0x180F 服务）</td>
+</tr>
+<tr>
+<td><strong>通用属性配置文件（GATT）</strong></td>
+<td>在 ATT 基础上组织数据为服务（Service）、特征（Characteristic）等结构</td>
+<td>心率服务（0x180D）包含测量特征</td>
+</tr>
+<tr>
+<td><strong>通用访问配置文件（GAP）</strong></td>
+<td>管理设备可见性、连接模式和安全性（角色：广播者、观察者、外围&#x2F;中心设备）</td>
+<td>设置设备为可连接模式</td>
+</tr>
+<tr>
+<td><strong>安全管理层（SM）</strong></td>
+<td>处理配对、加密和密钥分发，保障通信安全</td>
+<td>使用 AES-CCM 加密链路数据</td>
+</tr>
+</tbody></table>
+<p>本文主要讲述BLE链路层交互的空中包相关概念</p>
+<p>蓝牙通信，归根到底都是基于空中数据包的交互</p>
+<h2 id="BLE空中包基础"><a href="#BLE空中包基础" class="headerlink" title="BLE空中包基础"></a>BLE空中包基础</h2><p>BLE链路层（Link Layer）只定义了一种空中包格式：<code>Preamble（前导帧）| Access Address | PDU（protocol data unit，协议数据单元） | CRC（cyclic redundancy check，循环冗余校验）</code></p>
+<p>ATT、GATT、GAP层 都是基于数据信道包的payload的概念</p>
 <h3 id="PDU"><a href="#PDU" class="headerlink" title="PDU"></a>PDU</h3><p>PDU（protocol data unit，协议数据单元）前两个字节固定为LL header（1个字节长）和payload length（1个字节长，又称data length）</p>
 <p><code>PDU</code>进一步为：<code>LL Header | Payload Length | Payload</code></p>
 <h3 id="Access-Address"><a href="#Access-Address" class="headerlink" title="Access Address"></a>Access Address</h3><p>Access Address用来标示接收者ID或者空中包身份，根据Access Address的不同，区分两种Packet类型：<code>广播包</code>和<code>数据包</code></p>
@@ -337,8 +388,10 @@
 <p><strong>Payload Length：</strong> 长度的值范围为6-37</p>
 <p><strong>Payload：</strong> </p>
 <ul>
-<li>Device Address：对于广播包来说，蓝牙MAC地址（6 Bytes）是强制的</li>
-<li>那么Advertising data的最大值为<code>37 - 6 = 31</code>字节，这就是广播包数据最长只能为31个字节的由来</li>
+<li>Device Address：蓝牙MAC地址（6 Bytes）是强制的</li>
+<li>对于ADV_IND、SCAN_RSP两种类型的广播包，Advertising data的最大值为<code>37 - 6 = 31</code>字节，这就是广播包数据最长只能为31个字节的由来</li>
+<li>ADV_DIRECT_IND 直连广播包净荷格式由6字节的广播设备地址和6字节的目标设备地址组成</li>
+<li>SCAN_REQ 扫描请求包净荷格式由6字节的扫描设备地址和6字节的广播设备地址组成。远程发起连接的设备，搜索到周围正在广播的设备后，一般会发送扫描请求。</li>
 </ul>
 <h3 id="广播包数据（Advertising-data）"><a href="#广播包数据（Advertising-data）" class="headerlink" title="广播包数据（Advertising data）"></a>广播包数据（Advertising data）</h3><p>广播包的数据由多个 AD Structure 组成，每个结构包含3个字段：</p>
 <ul>
@@ -348,20 +401,24 @@
 <li><code>Type（1字节）</code>：数据类型标识，表示<code>Data</code>的用途。<code>0x02</code>表示不完整的16位服务UUID（示例值：0x180A），<code>0x09</code>表示设备完整名称，<code>0x0A</code>表示发射功率等级，<code>0x19</code>表示设备外观，<code>0xFF</code>表示自定义数据（可以私有定义）等等</li>
 <li><code>Data（N字节）</code>：实际数据内容</li>
 </ul>
+<h3 id="广播信道空中包类型及应用"><a href="#广播信道空中包类型及应用" class="headerlink" title="广播信道空中包类型及应用"></a>广播信道空中包类型及应用</h3><p>广播类型<br>定向的、非定向的<br>可连接的、不可连接的</p>
+<p>定向，与非定向的区别？应用<br>可连接与非可连接的区别？应用</p>
 <h2 id="实际应用设计示例"><a href="#实际应用设计示例" class="headerlink" title="实际应用设计示例"></a>实际应用设计示例</h2><h3 id="主动广播包（Advertising-Packet）"><a href="#主动广播包（Advertising-Packet）" class="headerlink" title="主动广播包（Advertising Packet）"></a>主动广播包（Advertising Packet）</h3><p>两种广播包，主动广播包和响应包，各31个字节，共62字节<br>adv packet<br>adv resonse</p>
 <h3 id="扫描响应包（Scan-Response-Packet）"><a href="#扫描响应包（Scan-Response-Packet）" class="headerlink" title="扫描响应包（Scan Response Packet）"></a>扫描响应包（Scan Response Packet）</h3><p>可以用来放置名称</p>
-<hr>
-<p>广播类型<br>定向的、非定向的<br>可连接的、不可连接的<br>数据量<br>间隔<br>type 字段</p>
-<p>广播信道<br>与经典蓝牙的区别与联系</p>
-<h2 id="广播类型"><a href="#广播类型" class="headerlink" title="广播类型"></a>广播类型</h2><p>定向，与非定向的区别？应用<br>可连接与非可连接的区别？应用</p>
+<h2 id="物理信道"><a href="#物理信道" class="headerlink" title="物理信道"></a>物理信道</h2><p>广播信道</p>
 <p>信标是什么</p>
-<h2 id="广播信道"><a href="#广播信道" class="headerlink" title="广播信道"></a>广播信道</h2><h2 id="思考与拓展"><a href="#思考与拓展" class="headerlink" title="思考与拓展"></a>思考与拓展</h2><h3 id="不是说广播一包最大255个字节吗？为什么又说广播包数据最多只能放31个字节？"><a href="#不是说广播一包最大255个字节吗？为什么又说广播包数据最多只能放31个字节？" class="headerlink" title="不是说广播一包最大255个字节吗？为什么又说广播包数据最多只能放31个字节？"></a>不是说广播一包最大255个字节吗？为什么又说广播包数据最多只能放31个字节？</h3><p>空中包的数据包类型的有效载荷最大296字节</p>
+<h2 id="思考与拓展"><a href="#思考与拓展" class="headerlink" title="思考与拓展"></a>思考与拓展</h2><h3 id="不是说广播一包最大255个字节吗？为什么又说广播包数据最多只能放31个字节？"><a href="#不是说广播一包最大255个字节吗？为什么又说广播包数据最多只能放31个字节？" class="headerlink" title="不是说广播一包最大255个字节吗？为什么又说广播包数据最多只能放31个字节？"></a>不是说广播一包最大255个字节吗？为什么又说广播包数据最多只能放31个字节？</h3><p>空中包的数据包类型的有效载荷最大296字节</p>
 <h3 id="BLE名称通常放在哪个广播包？可以分散放在不同包中吗？为什么？"><a href="#BLE名称通常放在哪个广播包？可以分散放在不同包中吗？为什么？" class="headerlink" title="BLE名称通常放在哪个广播包？可以分散放在不同包中吗？为什么？"></a>BLE名称通常放在哪个广播包？可以分散放在不同包中吗？为什么？</h3><p>可以放在ADV_IND，也可以放在ADV_RSP，但只能放在一个广播包中<br>说明名称的长度最大29个字节</p>
 <h3 id="手机扫描周围的广播时，会向所有发现的广播发送扫描请求吗？这个发送过程是怎样的？"><a href="#手机扫描周围的广播时，会向所有发现的广播发送扫描请求吗？这个发送过程是怎样的？" class="headerlink" title="手机扫描周围的广播时，会向所有发现的广播发送扫描请求吗？这个发送过程是怎样的？"></a>手机扫描周围的广播时，会向所有发现的广播发送扫描请求吗？这个发送过程是怎样的？</h3><p>是向周围广播 扫描请求 包吗？</p>
 <h3 id="BLE-4-x-和-BLE-5-x-有什么区别？在空中包上的体现有哪些？"><a href="#BLE-4-x-和-BLE-5-x-有什么区别？在空中包上的体现有哪些？" class="headerlink" title="BLE 4.x 和 BLE 5.x 有什么区别？在空中包上的体现有哪些？"></a>BLE 4.x 和 BLE 5.x 有什么区别？在空中包上的体现有哪些？</h3><p>信道上的区别<br>4.x 默认信道 37 38 39</p>
+<p>从蓝牙5.0开始广播包可以在其它信道上传输</p>
 <p>格式的兼容性</p>
-<h3 id="BLE连接后，通信所在的信道会动态变化吗？"><a href="#BLE连接后，通信所在的信道会动态变化吗？" class="headerlink" title="BLE连接后，通信所在的信道会动态变化吗？"></a>BLE连接后，通信所在的信道会动态变化吗？</h3><h3 id="LE-Audio走的是广播信道包？还是数据信道包？"><a href="#LE-Audio走的是广播信道包？还是数据信道包？" class="headerlink" title="LE-Audio走的是广播信道包？还是数据信道包？"></a>LE-Audio走的是广播信道包？还是数据信道包？</h3><h3 id="特征服务可以放到广播包里面吗？跟一般的放在数据信道包有什么区别？"><a href="#特征服务可以放到广播包里面吗？跟一般的放在数据信道包有什么区别？" class="headerlink" title="特征服务可以放到广播包里面吗？跟一般的放在数据信道包有什么区别？"></a>特征服务可以放到广播包里面吗？跟一般的放在数据信道包有什么区别？</h3><h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2><ul>
+<h3 id="BLE连接后，通信所在的信道会动态变化吗？"><a href="#BLE连接后，通信所在的信道会动态变化吗？" class="headerlink" title="BLE连接后，通信所在的信道会动态变化吗？"></a>BLE连接后，通信所在的信道会动态变化吗？</h3><h3 id="LE-Audio走的是广播信道包？还是数据信道包？"><a href="#LE-Audio走的是广播信道包？还是数据信道包？" class="headerlink" title="LE-Audio走的是广播信道包？还是数据信道包？"></a>LE-Audio走的是广播信道包？还是数据信道包？</h3><p>BIS走广播信道？CIS走走数据信道？</p>
+<h3 id="特征服务可以放到广播包里面吗？跟一般的放在数据信道包有什么区别？"><a href="#特征服务可以放到广播包里面吗？跟一般的放在数据信道包有什么区别？" class="headerlink" title="特征服务可以放到广播包里面吗？跟一般的放在数据信道包有什么区别？"></a>特征服务可以放到广播包里面吗？跟一般的放在数据信道包有什么区别？</h3><h3 id="可连接、不可连接、定向、非定向的广播包有什么区别？优劣对比？应用场景分别是？"><a href="#可连接、不可连接、定向、非定向的广播包有什么区别？优劣对比？应用场景分别是？" class="headerlink" title="可连接、不可连接、定向、非定向的广播包有什么区别？优劣对比？应用场景分别是？"></a>可连接、不可连接、定向、非定向的广播包有什么区别？优劣对比？应用场景分别是？</h3><h3 id="如何区分BLE连接与非连接情况下的通信？"><a href="#如何区分BLE连接与非连接情况下的通信？" class="headerlink" title="如何区分BLE连接与非连接情况下的通信？"></a>如何区分BLE连接与非连接情况下的通信？</h3><p>在数据信道上通信，就是连接状态？<br>在广播信道上通信，就是非连接状态？</p>
+<h3 id="广播信道空中包的间隔有什么要求？一般是多少？设置不同的间隔有什么影响？与数据信道空中包的间隔设计有什么差异？"><a href="#广播信道空中包的间隔有什么要求？一般是多少？设置不同的间隔有什么影响？与数据信道空中包的间隔设计有什么差异？" class="headerlink" title="广播信道空中包的间隔有什么要求？一般是多少？设置不同的间隔有什么影响？与数据信道空中包的间隔设计有什么差异？"></a>广播信道空中包的间隔有什么要求？一般是多少？设置不同的间隔有什么影响？与数据信道空中包的间隔设计有什么差异？</h3><h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2><ul>
 <li><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/oLZt9aJifFHVunFMVHP4lw">从0开始学习BLE：广播包</a></li>
+<li><a target="_blank" rel="noopener" href="https://it.cha138.com/nginx/show-212233.html">LE Audio 蓝牙协议规范–物理信道及PDU</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/590b8a246542">低功耗蓝牙(BLE) - 广播（实例说明）</a></li>
 </ul>
 
     </div>
@@ -440,7 +497,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#BLE%E7%A9%BA%E4%B8%AD%E5%8C%85%E5%9F%BA%E7%A1%80"><span class="nav-number">2.</span> <span class="nav-text">BLE空中包基础</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#PDU"><span class="nav-number">2.1.</span> <span class="nav-text">PDU</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Access-Address"><span class="nav-number">2.2.</span> <span class="nav-text">Access Address</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#BLE%E5%B9%BF%E6%92%AD%E5%8C%85"><span class="nav-number">3.</span> <span class="nav-text">BLE广播包</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B9%BF%E6%92%AD%E5%8C%85%E6%95%B0%E6%8D%AE%EF%BC%88Advertising-data%EF%BC%89"><span class="nav-number">3.1.</span> <span class="nav-text">广播包数据（Advertising data）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E9%99%85%E5%BA%94%E7%94%A8%E8%AE%BE%E8%AE%A1%E7%A4%BA%E4%BE%8B"><span class="nav-number">4.</span> <span class="nav-text">实际应用设计示例</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BB%E5%8A%A8%E5%B9%BF%E6%92%AD%E5%8C%85%EF%BC%88Advertising-Packet%EF%BC%89"><span class="nav-number">4.1.</span> <span class="nav-text">主动广播包（Advertising Packet）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%89%AB%E6%8F%8F%E5%93%8D%E5%BA%94%E5%8C%85%EF%BC%88Scan-Response-Packet%EF%BC%89"><span class="nav-number">4.2.</span> <span class="nav-text">扫描响应包（Scan Response Packet）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B9%BF%E6%92%AD%E7%B1%BB%E5%9E%8B"><span class="nav-number">5.</span> <span class="nav-text">广播类型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B9%BF%E6%92%AD%E4%BF%A1%E9%81%93"><span class="nav-number">6.</span> <span class="nav-text">广播信道</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%9D%E8%80%83%E4%B8%8E%E6%8B%93%E5%B1%95"><span class="nav-number">7.</span> <span class="nav-text">思考与拓展</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%8D%E6%98%AF%E8%AF%B4%E5%B9%BF%E6%92%AD%E4%B8%80%E5%8C%85%E6%9C%80%E5%A4%A7255%E4%B8%AA%E5%AD%97%E8%8A%82%E5%90%97%EF%BC%9F%E4%B8%BA%E4%BB%80%E4%B9%88%E5%8F%88%E8%AF%B4%E5%B9%BF%E6%92%AD%E5%8C%85%E6%95%B0%E6%8D%AE%E6%9C%80%E5%A4%9A%E5%8F%AA%E8%83%BD%E6%94%BE31%E4%B8%AA%E5%AD%97%E8%8A%82%EF%BC%9F"><span class="nav-number">7.1.</span> <span class="nav-text">不是说广播一包最大255个字节吗？为什么又说广播包数据最多只能放31个字节？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#BLE%E5%90%8D%E7%A7%B0%E9%80%9A%E5%B8%B8%E6%94%BE%E5%9C%A8%E5%93%AA%E4%B8%AA%E5%B9%BF%E6%92%AD%E5%8C%85%EF%BC%9F%E5%8F%AF%E4%BB%A5%E5%88%86%E6%95%A3%E6%94%BE%E5%9C%A8%E4%B8%8D%E5%90%8C%E5%8C%85%E4%B8%AD%E5%90%97%EF%BC%9F%E4%B8%BA%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-number">7.2.</span> <span class="nav-text">BLE名称通常放在哪个广播包？可以分散放在不同包中吗？为什么？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%89%8B%E6%9C%BA%E6%89%AB%E6%8F%8F%E5%91%A8%E5%9B%B4%E7%9A%84%E5%B9%BF%E6%92%AD%E6%97%B6%EF%BC%8C%E4%BC%9A%E5%90%91%E6%89%80%E6%9C%89%E5%8F%91%E7%8E%B0%E7%9A%84%E5%B9%BF%E6%92%AD%E5%8F%91%E9%80%81%E6%89%AB%E6%8F%8F%E8%AF%B7%E6%B1%82%E5%90%97%EF%BC%9F%E8%BF%99%E4%B8%AA%E5%8F%91%E9%80%81%E8%BF%87%E7%A8%8B%E6%98%AF%E6%80%8E%E6%A0%B7%E7%9A%84%EF%BC%9F"><span class="nav-number">7.3.</span> <span class="nav-text">手机扫描周围的广播时，会向所有发现的广播发送扫描请求吗？这个发送过程是怎样的？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#BLE-4-x-%E5%92%8C-BLE-5-x-%E6%9C%89%E4%BB%80%E4%B9%88%E5%8C%BA%E5%88%AB%EF%BC%9F%E5%9C%A8%E7%A9%BA%E4%B8%AD%E5%8C%85%E4%B8%8A%E7%9A%84%E4%BD%93%E7%8E%B0%E6%9C%89%E5%93%AA%E4%BA%9B%EF%BC%9F"><span class="nav-number">7.4.</span> <span class="nav-text">BLE 4.x 和 BLE 5.x 有什么区别？在空中包上的体现有哪些？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#BLE%E8%BF%9E%E6%8E%A5%E5%90%8E%EF%BC%8C%E9%80%9A%E4%BF%A1%E6%89%80%E5%9C%A8%E7%9A%84%E4%BF%A1%E9%81%93%E4%BC%9A%E5%8A%A8%E6%80%81%E5%8F%98%E5%8C%96%E5%90%97%EF%BC%9F"><span class="nav-number">7.5.</span> <span class="nav-text">BLE连接后，通信所在的信道会动态变化吗？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#LE-Audio%E8%B5%B0%E7%9A%84%E6%98%AF%E5%B9%BF%E6%92%AD%E4%BF%A1%E9%81%93%E5%8C%85%EF%BC%9F%E8%BF%98%E6%98%AF%E6%95%B0%E6%8D%AE%E4%BF%A1%E9%81%93%E5%8C%85%EF%BC%9F"><span class="nav-number">7.6.</span> <span class="nav-text">LE-Audio走的是广播信道包？还是数据信道包？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%89%B9%E5%BE%81%E6%9C%8D%E5%8A%A1%E5%8F%AF%E4%BB%A5%E6%94%BE%E5%88%B0%E5%B9%BF%E6%92%AD%E5%8C%85%E9%87%8C%E9%9D%A2%E5%90%97%EF%BC%9F%E8%B7%9F%E4%B8%80%E8%88%AC%E7%9A%84%E6%94%BE%E5%9C%A8%E6%95%B0%E6%8D%AE%E4%BF%A1%E9%81%93%E5%8C%85%E6%9C%89%E4%BB%80%E4%B9%88%E5%8C%BA%E5%88%AB%EF%BC%9F"><span class="nav-number">7.7.</span> <span class="nav-text">特征服务可以放到广播包里面吗？跟一般的放在数据信道包有什么区别？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E7%AB%99%E7%82%B9"><span class="nav-number">8.</span> <span class="nav-text">参考站点</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#BLE%E7%A9%BA%E4%B8%AD%E5%8C%85%E5%9F%BA%E7%A1%80"><span class="nav-number">2.</span> <span class="nav-text">BLE空中包基础</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#PDU"><span class="nav-number">2.1.</span> <span class="nav-text">PDU</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Access-Address"><span class="nav-number">2.2.</span> <span class="nav-text">Access Address</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#BLE%E5%B9%BF%E6%92%AD%E5%8C%85"><span class="nav-number">3.</span> <span class="nav-text">BLE广播包</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B9%BF%E6%92%AD%E5%8C%85%E6%95%B0%E6%8D%AE%EF%BC%88Advertising-data%EF%BC%89"><span class="nav-number">3.1.</span> <span class="nav-text">广播包数据（Advertising data）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B9%BF%E6%92%AD%E4%BF%A1%E9%81%93%E7%A9%BA%E4%B8%AD%E5%8C%85%E7%B1%BB%E5%9E%8B%E5%8F%8A%E5%BA%94%E7%94%A8"><span class="nav-number">3.2.</span> <span class="nav-text">广播信道空中包类型及应用</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E9%99%85%E5%BA%94%E7%94%A8%E8%AE%BE%E8%AE%A1%E7%A4%BA%E4%BE%8B"><span class="nav-number">4.</span> <span class="nav-text">实际应用设计示例</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BB%E5%8A%A8%E5%B9%BF%E6%92%AD%E5%8C%85%EF%BC%88Advertising-Packet%EF%BC%89"><span class="nav-number">4.1.</span> <span class="nav-text">主动广播包（Advertising Packet）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%89%AB%E6%8F%8F%E5%93%8D%E5%BA%94%E5%8C%85%EF%BC%88Scan-Response-Packet%EF%BC%89"><span class="nav-number">4.2.</span> <span class="nav-text">扫描响应包（Scan Response Packet）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%89%A9%E7%90%86%E4%BF%A1%E9%81%93"><span class="nav-number">5.</span> <span class="nav-text">物理信道</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%9D%E8%80%83%E4%B8%8E%E6%8B%93%E5%B1%95"><span class="nav-number">6.</span> <span class="nav-text">思考与拓展</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%8D%E6%98%AF%E8%AF%B4%E5%B9%BF%E6%92%AD%E4%B8%80%E5%8C%85%E6%9C%80%E5%A4%A7255%E4%B8%AA%E5%AD%97%E8%8A%82%E5%90%97%EF%BC%9F%E4%B8%BA%E4%BB%80%E4%B9%88%E5%8F%88%E8%AF%B4%E5%B9%BF%E6%92%AD%E5%8C%85%E6%95%B0%E6%8D%AE%E6%9C%80%E5%A4%9A%E5%8F%AA%E8%83%BD%E6%94%BE31%E4%B8%AA%E5%AD%97%E8%8A%82%EF%BC%9F"><span class="nav-number">6.1.</span> <span class="nav-text">不是说广播一包最大255个字节吗？为什么又说广播包数据最多只能放31个字节？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#BLE%E5%90%8D%E7%A7%B0%E9%80%9A%E5%B8%B8%E6%94%BE%E5%9C%A8%E5%93%AA%E4%B8%AA%E5%B9%BF%E6%92%AD%E5%8C%85%EF%BC%9F%E5%8F%AF%E4%BB%A5%E5%88%86%E6%95%A3%E6%94%BE%E5%9C%A8%E4%B8%8D%E5%90%8C%E5%8C%85%E4%B8%AD%E5%90%97%EF%BC%9F%E4%B8%BA%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-number">6.2.</span> <span class="nav-text">BLE名称通常放在哪个广播包？可以分散放在不同包中吗？为什么？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%89%8B%E6%9C%BA%E6%89%AB%E6%8F%8F%E5%91%A8%E5%9B%B4%E7%9A%84%E5%B9%BF%E6%92%AD%E6%97%B6%EF%BC%8C%E4%BC%9A%E5%90%91%E6%89%80%E6%9C%89%E5%8F%91%E7%8E%B0%E7%9A%84%E5%B9%BF%E6%92%AD%E5%8F%91%E9%80%81%E6%89%AB%E6%8F%8F%E8%AF%B7%E6%B1%82%E5%90%97%EF%BC%9F%E8%BF%99%E4%B8%AA%E5%8F%91%E9%80%81%E8%BF%87%E7%A8%8B%E6%98%AF%E6%80%8E%E6%A0%B7%E7%9A%84%EF%BC%9F"><span class="nav-number">6.3.</span> <span class="nav-text">手机扫描周围的广播时，会向所有发现的广播发送扫描请求吗？这个发送过程是怎样的？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#BLE-4-x-%E5%92%8C-BLE-5-x-%E6%9C%89%E4%BB%80%E4%B9%88%E5%8C%BA%E5%88%AB%EF%BC%9F%E5%9C%A8%E7%A9%BA%E4%B8%AD%E5%8C%85%E4%B8%8A%E7%9A%84%E4%BD%93%E7%8E%B0%E6%9C%89%E5%93%AA%E4%BA%9B%EF%BC%9F"><span class="nav-number">6.4.</span> <span class="nav-text">BLE 4.x 和 BLE 5.x 有什么区别？在空中包上的体现有哪些？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#BLE%E8%BF%9E%E6%8E%A5%E5%90%8E%EF%BC%8C%E9%80%9A%E4%BF%A1%E6%89%80%E5%9C%A8%E7%9A%84%E4%BF%A1%E9%81%93%E4%BC%9A%E5%8A%A8%E6%80%81%E5%8F%98%E5%8C%96%E5%90%97%EF%BC%9F"><span class="nav-number">6.5.</span> <span class="nav-text">BLE连接后，通信所在的信道会动态变化吗？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#LE-Audio%E8%B5%B0%E7%9A%84%E6%98%AF%E5%B9%BF%E6%92%AD%E4%BF%A1%E9%81%93%E5%8C%85%EF%BC%9F%E8%BF%98%E6%98%AF%E6%95%B0%E6%8D%AE%E4%BF%A1%E9%81%93%E5%8C%85%EF%BC%9F"><span class="nav-number">6.6.</span> <span class="nav-text">LE-Audio走的是广播信道包？还是数据信道包？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%89%B9%E5%BE%81%E6%9C%8D%E5%8A%A1%E5%8F%AF%E4%BB%A5%E6%94%BE%E5%88%B0%E5%B9%BF%E6%92%AD%E5%8C%85%E9%87%8C%E9%9D%A2%E5%90%97%EF%BC%9F%E8%B7%9F%E4%B8%80%E8%88%AC%E7%9A%84%E6%94%BE%E5%9C%A8%E6%95%B0%E6%8D%AE%E4%BF%A1%E9%81%93%E5%8C%85%E6%9C%89%E4%BB%80%E4%B9%88%E5%8C%BA%E5%88%AB%EF%BC%9F"><span class="nav-number">6.7.</span> <span class="nav-text">特征服务可以放到广播包里面吗？跟一般的放在数据信道包有什么区别？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%AF%E8%BF%9E%E6%8E%A5%E3%80%81%E4%B8%8D%E5%8F%AF%E8%BF%9E%E6%8E%A5%E3%80%81%E5%AE%9A%E5%90%91%E3%80%81%E9%9D%9E%E5%AE%9A%E5%90%91%E7%9A%84%E5%B9%BF%E6%92%AD%E5%8C%85%E6%9C%89%E4%BB%80%E4%B9%88%E5%8C%BA%E5%88%AB%EF%BC%9F%E4%BC%98%E5%8A%A3%E5%AF%B9%E6%AF%94%EF%BC%9F%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF%E5%88%86%E5%88%AB%E6%98%AF%EF%BC%9F"><span class="nav-number">6.8.</span> <span class="nav-text">可连接、不可连接、定向、非定向的广播包有什么区别？优劣对比？应用场景分别是？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E5%8C%BA%E5%88%86BLE%E8%BF%9E%E6%8E%A5%E4%B8%8E%E9%9D%9E%E8%BF%9E%E6%8E%A5%E6%83%85%E5%86%B5%E4%B8%8B%E7%9A%84%E9%80%9A%E4%BF%A1%EF%BC%9F"><span class="nav-number">6.9.</span> <span class="nav-text">如何区分BLE连接与非连接情况下的通信？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B9%BF%E6%92%AD%E4%BF%A1%E9%81%93%E7%A9%BA%E4%B8%AD%E5%8C%85%E7%9A%84%E9%97%B4%E9%9A%94%E6%9C%89%E4%BB%80%E4%B9%88%E8%A6%81%E6%B1%82%EF%BC%9F%E4%B8%80%E8%88%AC%E6%98%AF%E5%A4%9A%E5%B0%91%EF%BC%9F%E8%AE%BE%E7%BD%AE%E4%B8%8D%E5%90%8C%E7%9A%84%E9%97%B4%E9%9A%94%E6%9C%89%E4%BB%80%E4%B9%88%E5%BD%B1%E5%93%8D%EF%BC%9F%E4%B8%8E%E6%95%B0%E6%8D%AE%E4%BF%A1%E9%81%93%E7%A9%BA%E4%B8%AD%E5%8C%85%E7%9A%84%E9%97%B4%E9%9A%94%E8%AE%BE%E8%AE%A1%E6%9C%89%E4%BB%80%E4%B9%88%E5%B7%AE%E5%BC%82%EF%BC%9F"><span class="nav-number">6.10.</span> <span class="nav-text">广播信道空中包的间隔有什么要求？一般是多少？设置不同的间隔有什么影响？与数据信道空中包的间隔设计有什么差异？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E7%AB%99%E7%82%B9"><span class="nav-number">7.</span> <span class="nav-text">参考站点</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -454,7 +511,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">48</span>
+          <span class="site-state-item-count">47</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -503,12 +560,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">121k</span>
+    <span title="Symbols count total">110k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">6:43</span>
+    <span title="Reading time total">6:08</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
   </div>
