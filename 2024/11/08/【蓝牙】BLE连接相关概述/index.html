@@ -20,26 +20,20 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":"enable","trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="简述在Windows中，使用VSCode登陆WSL，实现在WSL环境下通过GDB + J-Link的STM32调试方法">
+  <meta name="description" content="主要讲述BLE的连接过程、连接参数、连接&#x2F;断开的案例以及协议事件分析等方面知识">
 <meta property="og:type" content="article">
-<meta property="og:title" content="【MCU】通过VSCode + GDB 搭建WSL下的嵌入式MCU调试环境">
-<meta property="og:url" content="http://example.com/2023/12/04/%E3%80%90MCU%E3%80%91%E9%80%9A%E8%BF%87VSCode-GDB-%E6%90%AD%E5%BB%BAWSL%E4%B8%8B%E7%9A%84%E5%B5%8C%E5%85%A5%E5%BC%8Fmcu%E8%B0%83%E8%AF%95%E7%8E%AF%E5%A2%83/index.html">
+<meta property="og:title" content="【蓝牙】BLE 连接相关概述">
+<meta property="og:url" content="http://example.com/2024/11/08/%E3%80%90%E8%93%9D%E7%89%99%E3%80%91BLE%E8%BF%9E%E6%8E%A5%E7%9B%B8%E5%85%B3%E6%A6%82%E8%BF%B0/index.html">
 <meta property="og:site_name" content="Jindu-Chen">
-<meta property="og:description" content="简述在Windows中，使用VSCode登陆WSL，实现在WSL环境下通过GDB + J-Link的STM32调试方法">
+<meta property="og:description" content="主要讲述BLE的连接过程、连接参数、连接&#x2F;断开的案例以及协议事件分析等方面知识">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="http://example.com/pictures/2023-12-04%20J-Link.png">
-<meta property="og:image" content="http://example.com/pictures/2023-12-04%20j-link%20GDB.png">
-<meta property="article:published_time" content="2023-12-03T16:00:00.000Z">
-<meta property="article:modified_time" content="2024-09-30T09:15:21.907Z">
+<meta property="article:published_time" content="2024-11-07T16:00:00.000Z">
+<meta property="article:modified_time" content="2025-06-16T09:37:10.604Z">
 <meta property="article:author" content="cjd">
-<meta property="article:tag" content="WSL">
-<meta property="article:tag" content="VSCode">
-<meta property="article:tag" content="GDB">
-<meta property="article:tag" content="J-Link">
+<meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://example.com/pictures/2023-12-04%20J-Link.png">
 
-<link rel="canonical" href="http://example.com/2023/12/04/%E3%80%90MCU%E3%80%91%E9%80%9A%E8%BF%87VSCode-GDB-%E6%90%AD%E5%BB%BAWSL%E4%B8%8B%E7%9A%84%E5%B5%8C%E5%85%A5%E5%BC%8Fmcu%E8%B0%83%E8%AF%95%E7%8E%AF%E5%A2%83/">
+<link rel="canonical" href="http://example.com/2024/11/08/%E3%80%90%E8%93%9D%E7%89%99%E3%80%91BLE%E8%BF%9E%E6%8E%A5%E7%9B%B8%E5%85%B3%E6%A6%82%E8%BF%B0/">
 
 
 <script id="page-configurations">
@@ -52,7 +46,7 @@
   };
 </script>
 
-  <title>【MCU】通过VSCode + GDB 搭建WSL下的嵌入式MCU调试环境 | Jindu-Chen</title>
+  <title>【蓝牙】BLE 连接相关概述 | Jindu-Chen</title>
   
 
 
@@ -201,7 +195,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2023/12/04/%E3%80%90MCU%E3%80%91%E9%80%9A%E8%BF%87VSCode-GDB-%E6%90%AD%E5%BB%BAWSL%E4%B8%8B%E7%9A%84%E5%B5%8C%E5%85%A5%E5%BC%8Fmcu%E8%B0%83%E8%AF%95%E7%8E%AF%E5%A2%83/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2024/11/08/%E3%80%90%E8%93%9D%E7%89%99%E3%80%91BLE%E8%BF%9E%E6%8E%A5%E7%9B%B8%E5%85%B3%E6%A6%82%E8%BF%B0/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.gif">
@@ -214,7 +208,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          【MCU】通过VSCode + GDB 搭建WSL下的嵌入式MCU调试环境
+          【蓝牙】BLE 连接相关概述
         </h1>
 
         <div class="post-meta">
@@ -224,14 +218,14 @@
               </span>
               <span class="post-meta-item-text">Posted on</span>
 
-              <time title="Created: 2023-12-04 00:00:00" itemprop="dateCreated datePublished" datetime="2023-12-04T00:00:00+08:00">2023-12-04</time>
+              <time title="Created: 2024-11-08 00:00:00" itemprop="dateCreated datePublished" datetime="2024-11-08T00:00:00+08:00">2024-11-08</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-09-30 17:15:21" itemprop="dateModified" datetime="2024-09-30T17:15:21+08:00">2024-09-30</time>
+                <time title="Modified: 2025-06-16 17:37:10" itemprop="dateModified" datetime="2025-06-16T17:37:10+08:00">2025-06-16</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -239,15 +233,15 @@
               </span>
               <span class="post-meta-item-text">In</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/WSL/" itemprop="url" rel="index"><span itemprop="name">WSL</span></a>
+                  <a href="/categories/%E8%93%9D%E7%89%99/" itemprop="url" rel="index"><span itemprop="name">蓝牙</span></a>
                 </span>
                   , 
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" itemprop="url" rel="index"><span itemprop="name">环境搭建</span></a>
+                  <a href="/categories/BLE/" itemprop="url" rel="index"><span itemprop="name">BLE</span></a>
                 </span>
                   , 
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E5%B5%8C%E5%85%A5%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">嵌入式</span></a>
+                  <a href="/categories/%E6%9D%B0%E7%90%86/" itemprop="url" rel="index"><span itemprop="name">杰理</span></a>
                 </span>
             </span>
 
@@ -257,16 +251,16 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>636</span>
+              <span>1.1k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>2 mins.</span>
+              <span>4 mins.</span>
             </span>
-            <div class="post-description">简述在Windows中，使用VSCode登陆WSL，实现在WSL环境下通过GDB + J-Link的STM32调试方法</div>
+            <div class="post-description">主要讲述BLE的连接过程、连接参数、连接/断开的案例以及协议事件分析等方面知识</div>
 
         </div>
       </header>
@@ -277,40 +271,41 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>此前在Keil集成IDE环境下开发，编辑编译调试一体化，无须关心过多底层事项。但由于各种原因，需要经常在Linux环境开发，因此也就顺势把工作中MCU开发的相关项目搬到WSL下了，本人使用的是<code>arm-none-eabi-gcc</code>工具链，构建方式为<code>Make</code>，编辑开发方式为 VSCode + Remote Explorer，调试器硬件为 ARM V9 仿真器，调试接口为 SWD。</p>
-<p>其实本人一直很少使用在线调试，一般是通过 串口 信息打印作为维测方法，只要在模板工程成功运行之后，基本就不需要在线调试了。但初次移植、或者搭建工程，程序异常跑飞，甚至串口都无信息输出的情况下，或许就需要在线调试查找原因了。</p>
-<p>本文介绍一种简单的 通过 VSCode + J-Link 调试方法，此过程基本不涉及任何 GDB 命令，纯粹是 VSCode 集成的 GDB 界面操作。</p>
-<h2 id="软件环境准备"><a href="#软件环境准备" class="headerlink" title="软件环境准备"></a>软件环境准备</h2><ul>
-<li>Windows下J-Link软件安装</li>
-<li>WSL</li>
-<li>VSCode<ul>
-<li>插件安装：C&#x2F;C++, WSL,</li>
-</ul>
-</li>
-</ul>
-<p>以上，前提条件是需要先搭建好在 WSL 下的编译开发环境，主要为<code>arm-none-eabi-</code>工具链安装。</p>
-<p>配置调试的思路为：</p>
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>本文主要讲述广播、连接过程、连接参数、连接&#x2F;断开的原因、协议事件及案例分析等方面知识。</p>
+<p>主要分为以下几个部分：</p>
 <ul>
-<li>在Windows下打开<code>JLinkGDBServer.exe</code>，配置将调试器成功连接目标板，J-Link本地流量端口通常为 2331</li>
-<li>使用 VSCode 登陆 WSL，应用其<code>Run and Debug</code>功能，主要为配置<code>launch.json</code>文件，包括<code>*.elf</code>文件路径、<code>arm-none-eabi-gdb</code>命令路径等</li>
+<li>BLE广播基础，广播是BLE连接前的必要步骤</li>
+<li>连接的基本流程，主要讲述主从设备连接的流程交互是怎样的</li>
+<li>BLE连接参数以及作用概述</li>
+<li>BLE连接相关的一些重点专业词语解释，包括监听、窗口、Anchor Point、T_IFS</li>
+<li>连接与断开的事件、原因、协议解析</li>
+<li>讲述BLE连接与断开的相关问题案例</li>
+<li>思考与拓展、疑惑解答</li>
+<li>参考站点</li>
 </ul>
-<p>完成上述两点操作，即可在 VSCode 环境下开启 GDB 调试了</p>
-<h2 id="操作步骤"><a href="#操作步骤" class="headerlink" title="操作步骤"></a>操作步骤</h2><ol>
-<li>将ARM仿真器与目标嵌入式设备连线</li>
-<li>在Windows下J-Link的安装目录下，找到<code>JLinkGDBServer.exe</code>，点击打开，选择目标调试嵌入式设备</li>
-</ol>
-<p><img src="/../pictures/2023-12-04%20J-Link.png" alt="GDB Server config"></p>
-<br>
-
-<p><img src="/../pictures/2023-12-04%20j-link%20GDB.png" alt="J-Link GDB Server"></p>
-<ol start="3">
-<li>在Windows下使用VSCode登陆WSL，打开源码所在工程文件夹，作为VSCode工作区</li>
-<li>点击”Run and Debug”，选择GDB（C）调试，并提示需要配置launch.json文件，配置完成即可开始调试</li>
-</ol>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">#launch.json文件</span><br><span class="line">&#123;</span><br><span class="line">    // Use IntelliSense to learn about possible attributes.</span><br><span class="line">    // Hover to view descriptions of existing attributes.</span><br><span class="line">    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387</span><br><span class="line">    &quot;version&quot;: &quot;0.2.0&quot;,</span><br><span class="line">    &quot;configurations&quot;: [</span><br><span class="line">        &#123;</span><br><span class="line">            &quot;name&quot;: &quot;Debug with J-Link&quot;,</span><br><span class="line">            &quot;type&quot;: &quot;cppdbg&quot;,</span><br><span class="line">            &quot;request&quot;: &quot;launch&quot;,</span><br><span class="line">            &quot;program&quot;: &quot;$&#123;workspaceFolder&#125;/build/app.elf&quot;,  // .elf文件路径</span><br><span class="line">            &quot;miDebuggerPath&quot;: &quot;/home/chenjd/harmony/gcc-arm-none-eabi-9-2019-q4-major/bin/arm-none-eabi-gdb&quot;,   // WSL下的arm-none-eabi-gdb工具链路径</span><br><span class="line">            &quot;miDebuggerServerAddress&quot;: &quot;localhost:2331&quot;,        // J-Link端口，通常为2331</span><br><span class="line">            &quot;cwd&quot;: &quot;$&#123;workspaceFolder&#125;&quot;,</span><br><span class="line">            &quot;MIMode&quot;: &quot;gdb&quot;</span><br><span class="line">        &#125;,</span><br><span class="line">    ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
+<h2 id="BLE广播基础回顾"><a href="#BLE广播基础回顾" class="headerlink" title="BLE广播基础回顾"></a>BLE广播基础回顾</h2><h2 id="连接基本流程讲述"><a href="#连接基本流程讲述" class="headerlink" title="连接基本流程讲述"></a>连接基本流程讲述</h2><h2 id="BLL连接参数"><a href="#BLL连接参数" class="headerlink" title="BLL连接参数"></a>BLL连接参数</h2><p>参数	单位	典型范围	导致断连的临界条件	失效原理<br>min_conn_interval	1.25ms	7.5ms ~ 4s	≤12ms（芯片无法及时处理高频事件）	过小的间隔导致频繁中断，CPU负载过高，无法完成协议栈任务<br>max_conn_interval	1.25ms	7.5ms ~ 4s	≥2s（数据堆积导致缓冲区溢出）	过大的间隔导致数据积压，芯片内存或处理能力不足<br>conn_sup_timeout	10ms	100ms ~ 32s	≤6*T_conn（超时阈值不足）	监督超时过短，瞬时负载高峰导致响应超时<br>latency	次数	0 ~ 499	≥（CPU处理时间&#x2F;T_conn）	允许跳过的连接事件超过芯片实际处理能力，积累未处理数据</p>
+<p>BLE为什么叫低功耗 因为是窗口定期监听</p>
+<p>时间基点<br>从机窗口监听 窗口大小</p>
+<h3 id="不同项目应用的连接参数"><a href="#不同项目应用的连接参数" class="headerlink" title="不同项目应用的连接参数"></a>不同项目应用的连接参数</h3><p>鼠标</p>
+<h2 id="断开原因-标准协议"><a href="#断开原因-标准协议" class="headerlink" title="断开原因-标准协议"></a>断开原因-标准协议</h2><p>0x08<br>0x22</p>
+<p>可能的原因<br>时序不稳、硬中断影响、其它的原因、低功耗sniff、</p>
+<h2 id="案例分析"><a href="#案例分析" class="headerlink" title="案例分析"></a>案例分析</h2><p>超时断连<br>timeout<br>slave<br>BLE的连接参数是什么意思</p>
+<p>No Response From Peripheral</p>
+<p>Central 中心设备<br>Peripheral 外设</p>
+<p>在BLE中，通常有两种角色：Central（中心设备）和Peripheral（外设）。Central通常是主动发起连接的设备，比如手机、平板等，而Peripheral是被动广播并等待连接的设备，比如手环、传感器等。但有时候设备可以同时支持两种角色，不过一般情况下，连接时会有明确的角色分配。</p>
+<p>0x00	ADV_IND	可连接的非定向广播（最常见，音箱通常用此类型宣告存在）。<br>0x02	ADV_NONCONN_IND	不可连接的非定向广播（仅发送数据，不响应连接请求）。<br>0x03	SCAN_RSP	扫描响应（Peripheral对Central的SCAN_REQ的回复，含额外信息）。</p>
+<p> 广播包（Advertising Packet）​<br>​功能：<br>外设（如小米手环）通过广播包周期性发送自身存在信号，包含基础信息​（如设备名称、支持的蓝牙服务UUID、电量状态等）。<br>​触发方式：<br>​无需中心设备（Central）请求，外设主动广播（类似“喊话”）。</p>
+<p>当中心设备（如手机）扫描到广播包后，若需要更多信息，可发送扫描请求（SCAN_REQ）​，外设通过广播响应包回复补充数据​（如详细服务特征、版本号等）。<br>​触发方式：<br>​需中心设备主动请求​（发送SCAN_REQ），外设被动响应。<br>​数据限制：<br>​同样最大31字节，与广播包共同构成完整广播信息。</p>
+<h3 id="BLE广播"><a href="#BLE广播" class="headerlink" title="BLE广播"></a>BLE广播</h3><h3 id="BLE建立连接"><a href="#BLE建立连接" class="headerlink" title="BLE建立连接"></a>BLE建立连接</h3><p>建立连接时，所耗费的cpu资源 通常要高？因为还没开始定时监听，都是全时进行通信的。<br>在优先级高的情况下，会导致占用其它线程时间</p>
+<h3 id="BLE从机监听"><a href="#BLE从机监听" class="headerlink" title="BLE从机监听"></a>BLE从机监听</h3><h2 id="BLE连接问题案例分析"><a href="#BLE连接问题案例分析" class="headerlink" title="BLE连接问题案例分析"></a>BLE连接问题案例分析</h2><h3 id="音箱与小米手环连接-BLE概率断开"><a href="#音箱与小米手环连接-BLE概率断开" class="headerlink" title="音箱与小米手环连接-BLE概率断开"></a>音箱与小米手环连接-BLE概率断开</h3><p>08断连，一般超距断开会导致这个原因断开</p>
+<p>Anchor Point 的工作机制<br>初始同步<br>在连接建立时，主机通过 CONNECT_IND 或 AUX_CONNECT_REQ 报文将首个 Anchor Point 发送给从机。双方以此为基准开始周期性通信。</p>
+<p>通信窗口对齐<br>主从设备在每个连接事件的时间窗口内唤醒：</p>
+<p>主机：在 Anchor Point + N × connInterval 时刻发送数据包。</p>
+<p>从机：在相同计算的时间窗口内监听主机信号，接收成功后更新下一次窗口。</p>
+<p>动态维护<br>若通信成功，Anchor Point 会根据实际通信时间微调（如补偿时钟偏移），但周期仍由 connInterval 主导。若失败，可能导致时序逐步偏移</p>
+<h3 id="BLE主机超时断开-导致通话音频卡顿"><a href="#BLE主机超时断开-导致通话音频卡顿" class="headerlink" title="BLE主机超时断开-导致通话音频卡顿"></a>BLE主机超时断开-导致通话音频卡顿</h3><p>跟窗口监听调节有关<br>跟优先级有关</p>
 <h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2><ul>
-<li><a target="_blank" rel="noopener" href="https://hhuysqt.github.io/gdb%E8%B0%83%E8%AF%95%E6%8A%80%E5%B7%A7/">gdb调试stm32的技巧</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/iini/p/8972635.html">博客园：详解蓝牙LE(BLE)连接建立过程</a></li>
 </ul>
 
     </div>
@@ -320,12 +315,6 @@
     
 
       <footer class="post-footer">
-          <div class="post-tags">
-              <a href="/tags/WSL/" rel="tag"># WSL</a>
-              <a href="/tags/VSCode/" rel="tag"># VSCode</a>
-              <a href="/tags/GDB/" rel="tag"># GDB</a>
-              <a href="/tags/J-Link/" rel="tag"># J-Link</a>
-          </div>
 
         
 
@@ -333,12 +322,12 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2023/12/01/%E3%80%90%E6%9E%84%E5%BB%BA%E3%80%91%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E4%B9%8B%E6%88%91%E8%A7%81/" rel="prev" title="【构建】编译/链接原理及其在开发中之体现">
-      <i class="fa fa-chevron-left"></i> 【构建】编译/链接原理及其在开发中之体现
+    <a href="/2024/10/22/%E3%80%90%E8%93%9D%E7%89%99%E3%80%91%E8%93%9D%E7%89%99%E5%88%86%E6%9E%90%E4%BB%AA%E4%BD%BF%E7%94%A8%E5%8F%8A%E6%8A%93%E5%8C%85%E5%88%86%E6%9E%90/" rel="prev" title="【蓝牙】分析仪使用及基本蓝牙数据包解析">
+      <i class="fa fa-chevron-left"></i> 【蓝牙】分析仪使用及基本蓝牙数据包解析
     </a></div>
       <div class="post-nav-item">
-    <a href="/2023/12/04/%E3%80%90MCU%E3%80%91ARM%E6%9E%B6%E6%9E%84%E5%8F%8A%E7%9B%B8%E5%85%B3%E6%A6%82%E5%BF%B5/" rel="next" title="【MCU】ARM架构及相关概念">
-      【MCU】ARM架构及相关概念 <i class="fa fa-chevron-right"></i>
+    <a href="/2024/11/26/%E3%80%90RTOS%E3%80%91%E5%A4%9A%E6%A0%B8%E7%B3%BB%E7%BB%9F%E4%B8%8B%E7%9A%84%E4%B8%B4%E7%95%8C%E5%8C%BA%E4%BF%9D%E6%8A%A4%E8%AE%BE%E8%AE%A1/" rel="next" title="【RTOS】多核系统下的临界区保护设计以及案例分析">
+      【RTOS】多核系统下的临界区保护设计以及案例分析 <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -398,7 +387,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BD%AF%E4%BB%B6%E7%8E%AF%E5%A2%83%E5%87%86%E5%A4%87"><span class="nav-number">2.</span> <span class="nav-text">软件环境准备</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%93%8D%E4%BD%9C%E6%AD%A5%E9%AA%A4"><span class="nav-number">3.</span> <span class="nav-text">操作步骤</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E7%AB%99%E7%82%B9"><span class="nav-number">4.</span> <span class="nav-text">参考站点</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#BLE%E5%B9%BF%E6%92%AD%E5%9F%BA%E7%A1%80%E5%9B%9E%E9%A1%BE"><span class="nav-number">2.</span> <span class="nav-text">BLE广播基础回顾</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%9E%E6%8E%A5%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B%E8%AE%B2%E8%BF%B0"><span class="nav-number">3.</span> <span class="nav-text">连接基本流程讲述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#BLL%E8%BF%9E%E6%8E%A5%E5%8F%82%E6%95%B0"><span class="nav-number">4.</span> <span class="nav-text">BLL连接参数</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%8D%E5%90%8C%E9%A1%B9%E7%9B%AE%E5%BA%94%E7%94%A8%E7%9A%84%E8%BF%9E%E6%8E%A5%E5%8F%82%E6%95%B0"><span class="nav-number">4.1.</span> <span class="nav-text">不同项目应用的连接参数</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%96%AD%E5%BC%80%E5%8E%9F%E5%9B%A0-%E6%A0%87%E5%87%86%E5%8D%8F%E8%AE%AE"><span class="nav-number">5.</span> <span class="nav-text">断开原因-标准协议</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A1%88%E4%BE%8B%E5%88%86%E6%9E%90"><span class="nav-number">6.</span> <span class="nav-text">案例分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#BLE%E5%B9%BF%E6%92%AD"><span class="nav-number">6.1.</span> <span class="nav-text">BLE广播</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#BLE%E5%BB%BA%E7%AB%8B%E8%BF%9E%E6%8E%A5"><span class="nav-number">6.2.</span> <span class="nav-text">BLE建立连接</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#BLE%E4%BB%8E%E6%9C%BA%E7%9B%91%E5%90%AC"><span class="nav-number">6.3.</span> <span class="nav-text">BLE从机监听</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#BLE%E8%BF%9E%E6%8E%A5%E9%97%AE%E9%A2%98%E6%A1%88%E4%BE%8B%E5%88%86%E6%9E%90"><span class="nav-number">7.</span> <span class="nav-text">BLE连接问题案例分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%9F%B3%E7%AE%B1%E4%B8%8E%E5%B0%8F%E7%B1%B3%E6%89%8B%E7%8E%AF%E8%BF%9E%E6%8E%A5-BLE%E6%A6%82%E7%8E%87%E6%96%AD%E5%BC%80"><span class="nav-number">7.1.</span> <span class="nav-text">音箱与小米手环连接-BLE概率断开</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#BLE%E4%B8%BB%E6%9C%BA%E8%B6%85%E6%97%B6%E6%96%AD%E5%BC%80-%E5%AF%BC%E8%87%B4%E9%80%9A%E8%AF%9D%E9%9F%B3%E9%A2%91%E5%8D%A1%E9%A1%BF"><span class="nav-number">7.2.</span> <span class="nav-text">BLE主机超时断开-导致通话音频卡顿</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E7%AB%99%E7%82%B9"><span class="nav-number">8.</span> <span class="nav-text">参考站点</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
