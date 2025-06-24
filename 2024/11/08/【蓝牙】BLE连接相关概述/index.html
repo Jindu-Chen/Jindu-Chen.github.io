@@ -28,7 +28,7 @@
 <meta property="og:description" content="主要讲述BLE的连接过程、连接参数、连接&#x2F;断开的案例以及协议事件分析等方面知识">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2024-11-07T16:00:00.000Z">
-<meta property="article:modified_time" content="2025-06-16T09:37:10.604Z">
+<meta property="article:modified_time" content="2025-06-16T13:15:29.726Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -225,7 +225,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-06-16 17:37:10" itemprop="dateModified" datetime="2025-06-16T17:37:10+08:00">2025-06-16</time>
+                <time title="Modified: 2025-06-16 21:15:29" itemprop="dateModified" datetime="2025-06-16T21:15:29+08:00">2025-06-16</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -251,14 +251,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>1.1k</span>
+              <span>3.5k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>4 mins.</span>
+              <span>12 mins.</span>
             </span>
             <div class="post-description">主要讲述BLE的连接过程、连接参数、连接/断开的案例以及协议事件分析等方面知识</div>
 
@@ -284,9 +284,75 @@
 <li>参考站点</li>
 </ul>
 <h2 id="BLE广播基础回顾"><a href="#BLE广播基础回顾" class="headerlink" title="BLE广播基础回顾"></a>BLE广播基础回顾</h2><h2 id="连接基本流程讲述"><a href="#连接基本流程讲述" class="headerlink" title="连接基本流程讲述"></a>连接基本流程讲述</h2><h2 id="BLL连接参数"><a href="#BLL连接参数" class="headerlink" title="BLL连接参数"></a>BLL连接参数</h2><p>参数	单位	典型范围	导致断连的临界条件	失效原理<br>min_conn_interval	1.25ms	7.5ms ~ 4s	≤12ms（芯片无法及时处理高频事件）	过小的间隔导致频繁中断，CPU负载过高，无法完成协议栈任务<br>max_conn_interval	1.25ms	7.5ms ~ 4s	≥2s（数据堆积导致缓冲区溢出）	过大的间隔导致数据积压，芯片内存或处理能力不足<br>conn_sup_timeout	10ms	100ms ~ 32s	≤6*T_conn（超时阈值不足）	监督超时过短，瞬时负载高峰导致响应超时<br>latency	次数	0 ~ 499	≥（CPU处理时间&#x2F;T_conn）	允许跳过的连接事件超过芯片实际处理能力，积累未处理数据</p>
+<p>主从协商采用一个固定的interval，但必须在min和max的范围之内。另外可以在通信中，实时更新并协商新的参数，以便适应不同环境。</p>
 <p>BLE为什么叫低功耗 因为是窗口定期监听</p>
 <p>时间基点<br>从机窗口监听 窗口大小</p>
+<p>min_conn_interval (最小连接间隔)</p>
+<p>含义： 定义了两个连续的连接事件之间允许的最短时间。单位是 1.25ms。</p>
+<p>例如：min_conn_interval &#x3D; 8 表示最短间隔是 8 * 1.25ms &#x3D; 10ms。</p>
+<p>作用：</p>
+<p>决定了连接能达到的最高通信频率（间隔越小，通信越频繁）。</p>
+<p>影响功耗（间隔越小，设备唤醒越频繁，功耗越高）。</p>
+<p>影响数据传输延迟下限（数据最快能在多短时间内被发送或接收）。</p>
+<p>范围： 6 (7.5ms) 到 3200 (4000ms &#x2F; 4s)。必须是整数。</p>
+<p>max_conn_interval (最大连接间隔)</p>
+<p>含义： 定义了两个连续的连接事件之间允许的最长时间。单位是 1.25ms。</p>
+<p>例如：max_conn_interval &#x3D; 20 表示最长间隔是 20 * 1.25ms &#x3D; 25ms。</p>
+<p>作用：</p>
+<p>决定了连接能达到的最低通信频率（间隔越大，通信越不频繁）。</p>
+<p>显著影响功耗（间隔越大，设备睡眠时间越长，功耗越低）。</p>
+<p>影响数据传输延迟上限（数据最慢会在多长时间内被发送或接收）。</p>
+<p>范围： 6 (7.5ms) 到 3200 (4000ms &#x2F; 4s)。必须是整数，且 max_conn_interval &gt;&#x3D; min_conn_interval。</p>
+<p>conn_sup_timeout (连接监督超时 &#x2F; Connection Supervision Timeout)</p>
+<p>含义： 定义了一个设备在认为连接丢失之前，可以连续错过多少个连接事件。单位是 10ms。</p>
+<p>例如：conn_sup_timeout &#x3D; 10 表示超时时间是 10 * 10ms &#x3D; 100ms。</p>
+<p>作用：</p>
+<p>连接健壮性的关键参数。 它决定了连接对短暂干扰（如射频干扰、设备短暂移出范围）的容忍度。</p>
+<p>超时值必须足够大，以允许在最大连接间隔和预期环境干扰下，设备有机会重新建立通信。如果超时时间内没有任何成功的连接事件发生，连接将被断开。</p>
+<p>间接影响功耗（超时值大，设备在信号弱时会尝试更久才断开，可能消耗更多电量寻找信号）。</p>
+<p>范围： 10 (100ms) 到 3200 (32s)。必须是整数。</p>
+<p>计算公式 (关键联系)：</p>
+<p>conn_sup_timeout 必须大于 (1 + slave_latency) * max_conn_interval * 3</p>
+<p>其中 max_conn_interval 的单位是 ms (即 max_conn_interval * 1.25)，slave_latency 是下面要介绍的第4个参数。</p>
+<p>这个公式确保了即使发生最大允许的连续错过事件（1 + slave_latency个），并且考虑了时钟漂移等容差（乘以3），连接也不会被错误地断开。实际应用中，通常设置 conn_sup_timeout 为计算值的 1.5 到 2 倍以上以增加鲁棒性。</p>
+<p>slave_latency (从机延迟 &#x2F; Slave Latency)</p>
+<p>含义： 允许从设备跳过指定数量的连续连接事件，而无需唤醒监听主设备的数据包。单位是“跳过的连接事件个数”。</p>
+<p>例如：slave_latency &#x3D; 3 表示从设备最多可以连续跳过 3 个连接事件。</p>
+<p>作用：</p>
+<p>显著降低从设备功耗的关键参数。 如果从设备没有数据要发送，它可以跳过这些连接事件，进入深度睡眠状态，大大节省电量。</p>
+<p>增加数据传输延迟。 如果主设备在从设备跳过的那个连接事件中发送了数据，从设备需要等到它下一次参与的连接事件才能收到。反之亦然，如果从设备有数据要发，也只能在它参与的连接事件中发送。</p>
+<p>范围： 0 到 499。</p>
+<p>有效连接间隔： 当 slave_latency &gt; 0 时，从设备实际感知到的连接间隔变为 (1 + slave_latency) * conn_interval。主设备仍然按照 conn_interval 发送数据包，但从设备只会在 (1 + slave_latency) 个事件中醒来一次检查是否有数据。</p>
+<p>约束：</p>
+<p>(1 + slave_latency) * max_conn_interval 必须小于 conn_sup_timeout (参见上面的公式)，否则连接会被过早断开。</p>
+<p>联系与区别总结：</p>
+<p>参数	主要影响对象	核心作用	单位	关键关系&#x2F;约束<br>min_conn_interval	通信频率上限	最小延迟、最高吞吐量、高功耗	1.25ms	&lt;&#x3D; max_conn_interval<br>max_conn_interval	通信频率下限	最大延迟、最低吞吐量、低功耗	1.25ms	&gt;&#x3D; min_conn_interval; conn_sup_timeout &gt; (1+slave_latency)<em>max_conn_int</em>3<br>conn_sup_timeout	连接稳定性&#x2F;健壮性	容忍丢包&#x2F;干扰的能力	10ms	必须 &gt; (1 + slave_latency) * max_conn_interval * 3 (考虑单位换算)<br>slave_latency	从设备功耗&#x2F;延迟	允许从设备睡眠，大幅降低从机功耗	事件个数	(1 + slave_latency) * max_conn_interval * 3 &lt; conn_sup_timeout<br>它们如何协同工作：</p>
+<p>建立连接： 主从设备协商或由主机指定一组连接参数 (min_conn_int, max_conn_int, slave_latency, conn_sup_timeout)。实际使用的 conn_interval 会在 min_conn_int 和 max_conn_int 之间（通常由主机决定或协商）。</p>
+<p>连接事件： 主设备在每个 conn_interval 时间点发起连接事件，发送一个数据包（可能包含数据或空包）。</p>
+<p>从设备响应：</p>
+<p>如果 slave_latency &#x3D; 0，从设备必须在每个连接事件醒来监听并回复（即使发送空包）。</p>
+<p>如果 slave_latency &gt; 0 (例如 &#x3D; 3)，从设备可以跳过最多 3 个连续连接事件。它只在第4个事件醒来监听并回复。这期间它可以深度睡眠。</p>
+<p>连接监控：</p>
+<p>每次成功完成一个连接事件（主从成功交换数据包，即使数据为空），连接监督计时器会重置。</p>
+<p>如果连续 (1 + slave_latency) 个连接事件都失败（例如主设备发包了但从设备没醒&#x2F;没回复，或者主设备没发包），那么 conn_sup_timeout 计时器就开始倒计时。</p>
+<p>如果在 conn_sup_timeout 时间内，没有任何连接事件成功完成，连接就会被认为丢失并断开。</p>
+<p>这就是为什么 conn_sup_timeout 必须足够大以容纳 (1 + slave_latency) 个可能的失败事件（乘以 3 的容差因子）。</p>
+<p>如何选择这些参数？</p>
+<p>功耗敏感型从设备（如传感器）： 倾向于设置较大的 max_conn_interval 和 非零的 slave_latency（在满足应用延迟要求的前提下），并相应增大 conn_sup_timeout。min_conn_interval 可以设置得小一些，以便在有数据需要快速传输时能协商到较小的间隔。</p>
+<p>低延迟应用（如遥控器、音频）： 倾向于设置较小的 min_conn_interval 和 max_conn_interval（甚至相同），并将 slave_latency 设为 0。conn_sup_timeout 需要根据连接间隔设置足够大以保证稳定性。</p>
+<p>稳定性要求高（环境干扰大）： 需要设置足够大的 conn_sup_timeout，确保它能容忍预期的最大干扰时间。同时可能需要避免过大的 slave_latency 或过大的 max_conn_interval，因为它们会增加 conn_sup_timeout 的要求值。</p>
+<p>主设备（如手机、网关）： 通常对功耗不那么敏感，主要关注连接的稳定性和从设备的需求。它会根据从设备的请求（在连接请求或参数更新请求中）或自身的策略来设置这些参数。</p>
+<p>总之，这四个参数是一个紧密耦合的整体。调整任何一个都可能影响连接的功耗、延迟和稳定性。设计时需要根据应用的具体需求（功耗优先、延迟优先还是稳定性优先）进行仔细权衡和计算（特别是 conn_sup_timeout 的约束公式）。</p>
+<h3 id="BLE-连接参数协商更新"><a href="#BLE-连接参数协商更新" class="headerlink" title="BLE 连接参数协商更新"></a>BLE 连接参数协商更新</h3><p>更新的目的：</p>
+<p>优化功耗： 当没有数据传输时（例如，传感器处于待机状态），从设备可以请求更大的max_conn_interval和&#x2F;或非零的slave_latency来降低功耗。当需要传输数据时，再切换到更小的间隔和零延迟。</p>
+<p>提高吞吐量&#x2F;降低延迟： 当需要大量或快速传输数据（如固件升级、音频流、游戏手柄控制）时，主设备可以发起更新，使用更小的min_conn_interval&#x2F;max_conn_interval和slave_latency &#x3D; 0。</p>
+<p>适应环境变化： 如果检测到连接不稳定（频繁丢包），可以适当增大conn_sup_timeout以增强鲁棒性（但需注意约束公式 conn_sup_timeout &gt; (1 + slave_latency) * max_conn_interval * 3 必须始终满足）。</p>
+<p>平衡多连接： 主设备连接多个从设备时，可能需要动态调整各个连接的参数来平衡总带宽和各个从设备的性能需求。</p>
+<p>BLE的连接参数不是一成不变的，它们可以在连接保持的状态下实时、动态地更新。这种能力是BLE灵活适应不同应用需求（功耗 vs 性能 vs 稳定性）的关键机制。更新通常由主设备发起或由从设备请求（主设备批准），通过链路层(LL)或L2CAP层的特定命令完成，并在约定的未来Instant生效。</p>
 <h3 id="不同项目应用的连接参数"><a href="#不同项目应用的连接参数" class="headerlink" title="不同项目应用的连接参数"></a>不同项目应用的连接参数</h3><p>鼠标</p>
+<p>对于不同项目中的应用，要能够做到合适的设计 可以实时更新连接参数 兼顾功耗与实时性</p>
+<p>BLE 鼠标&#x2F;键盘：空闲时使用较大间隔和延迟省电。当用户开始移动鼠标或敲击键盘时，设备检测到动作，主动请求或触发主设备更新到更小的间隔和零延迟，实现低延迟操作。</p>
+<p>智能手表&#x2F;手环： 大部分时间使用较大的连接间隔（如100ms）和非零延迟（如slave_latency&#x3D;9）来省电。当用户抬起手腕查看屏幕时，应用通知主设备（手机）发起更新，切换到较小的间隔（如15ms）和零延迟，以便快速同步通知、天气等信息。用户放下手腕后，再切换回省电模式。</p>
 <h2 id="断开原因-标准协议"><a href="#断开原因-标准协议" class="headerlink" title="断开原因-标准协议"></a>断开原因-标准协议</h2><p>0x08<br>0x22</p>
 <p>可能的原因<br>时序不稳、硬中断影响、其它的原因、低功耗sniff、</p>
 <h2 id="案例分析"><a href="#案例分析" class="headerlink" title="案例分析"></a>案例分析</h2><p>超时断连<br>timeout<br>slave<br>BLE的连接参数是什么意思</p>
@@ -387,7 +453,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#BLE%E5%B9%BF%E6%92%AD%E5%9F%BA%E7%A1%80%E5%9B%9E%E9%A1%BE"><span class="nav-number">2.</span> <span class="nav-text">BLE广播基础回顾</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%9E%E6%8E%A5%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B%E8%AE%B2%E8%BF%B0"><span class="nav-number">3.</span> <span class="nav-text">连接基本流程讲述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#BLL%E8%BF%9E%E6%8E%A5%E5%8F%82%E6%95%B0"><span class="nav-number">4.</span> <span class="nav-text">BLL连接参数</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%8D%E5%90%8C%E9%A1%B9%E7%9B%AE%E5%BA%94%E7%94%A8%E7%9A%84%E8%BF%9E%E6%8E%A5%E5%8F%82%E6%95%B0"><span class="nav-number">4.1.</span> <span class="nav-text">不同项目应用的连接参数</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%96%AD%E5%BC%80%E5%8E%9F%E5%9B%A0-%E6%A0%87%E5%87%86%E5%8D%8F%E8%AE%AE"><span class="nav-number">5.</span> <span class="nav-text">断开原因-标准协议</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A1%88%E4%BE%8B%E5%88%86%E6%9E%90"><span class="nav-number">6.</span> <span class="nav-text">案例分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#BLE%E5%B9%BF%E6%92%AD"><span class="nav-number">6.1.</span> <span class="nav-text">BLE广播</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#BLE%E5%BB%BA%E7%AB%8B%E8%BF%9E%E6%8E%A5"><span class="nav-number">6.2.</span> <span class="nav-text">BLE建立连接</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#BLE%E4%BB%8E%E6%9C%BA%E7%9B%91%E5%90%AC"><span class="nav-number">6.3.</span> <span class="nav-text">BLE从机监听</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#BLE%E8%BF%9E%E6%8E%A5%E9%97%AE%E9%A2%98%E6%A1%88%E4%BE%8B%E5%88%86%E6%9E%90"><span class="nav-number">7.</span> <span class="nav-text">BLE连接问题案例分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%9F%B3%E7%AE%B1%E4%B8%8E%E5%B0%8F%E7%B1%B3%E6%89%8B%E7%8E%AF%E8%BF%9E%E6%8E%A5-BLE%E6%A6%82%E7%8E%87%E6%96%AD%E5%BC%80"><span class="nav-number">7.1.</span> <span class="nav-text">音箱与小米手环连接-BLE概率断开</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#BLE%E4%B8%BB%E6%9C%BA%E8%B6%85%E6%97%B6%E6%96%AD%E5%BC%80-%E5%AF%BC%E8%87%B4%E9%80%9A%E8%AF%9D%E9%9F%B3%E9%A2%91%E5%8D%A1%E9%A1%BF"><span class="nav-number">7.2.</span> <span class="nav-text">BLE主机超时断开-导致通话音频卡顿</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E7%AB%99%E7%82%B9"><span class="nav-number">8.</span> <span class="nav-text">参考站点</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#BLE%E5%B9%BF%E6%92%AD%E5%9F%BA%E7%A1%80%E5%9B%9E%E9%A1%BE"><span class="nav-number">2.</span> <span class="nav-text">BLE广播基础回顾</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%9E%E6%8E%A5%E5%9F%BA%E6%9C%AC%E6%B5%81%E7%A8%8B%E8%AE%B2%E8%BF%B0"><span class="nav-number">3.</span> <span class="nav-text">连接基本流程讲述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#BLL%E8%BF%9E%E6%8E%A5%E5%8F%82%E6%95%B0"><span class="nav-number">4.</span> <span class="nav-text">BLL连接参数</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#BLE-%E8%BF%9E%E6%8E%A5%E5%8F%82%E6%95%B0%E5%8D%8F%E5%95%86%E6%9B%B4%E6%96%B0"><span class="nav-number">4.1.</span> <span class="nav-text">BLE 连接参数协商更新</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%8D%E5%90%8C%E9%A1%B9%E7%9B%AE%E5%BA%94%E7%94%A8%E7%9A%84%E8%BF%9E%E6%8E%A5%E5%8F%82%E6%95%B0"><span class="nav-number">4.2.</span> <span class="nav-text">不同项目应用的连接参数</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%96%AD%E5%BC%80%E5%8E%9F%E5%9B%A0-%E6%A0%87%E5%87%86%E5%8D%8F%E8%AE%AE"><span class="nav-number">5.</span> <span class="nav-text">断开原因-标准协议</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A1%88%E4%BE%8B%E5%88%86%E6%9E%90"><span class="nav-number">6.</span> <span class="nav-text">案例分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#BLE%E5%B9%BF%E6%92%AD"><span class="nav-number">6.1.</span> <span class="nav-text">BLE广播</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#BLE%E5%BB%BA%E7%AB%8B%E8%BF%9E%E6%8E%A5"><span class="nav-number">6.2.</span> <span class="nav-text">BLE建立连接</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#BLE%E4%BB%8E%E6%9C%BA%E7%9B%91%E5%90%AC"><span class="nav-number">6.3.</span> <span class="nav-text">BLE从机监听</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#BLE%E8%BF%9E%E6%8E%A5%E9%97%AE%E9%A2%98%E6%A1%88%E4%BE%8B%E5%88%86%E6%9E%90"><span class="nav-number">7.</span> <span class="nav-text">BLE连接问题案例分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%9F%B3%E7%AE%B1%E4%B8%8E%E5%B0%8F%E7%B1%B3%E6%89%8B%E7%8E%AF%E8%BF%9E%E6%8E%A5-BLE%E6%A6%82%E7%8E%87%E6%96%AD%E5%BC%80"><span class="nav-number">7.1.</span> <span class="nav-text">音箱与小米手环连接-BLE概率断开</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#BLE%E4%B8%BB%E6%9C%BA%E8%B6%85%E6%97%B6%E6%96%AD%E5%BC%80-%E5%AF%BC%E8%87%B4%E9%80%9A%E8%AF%9D%E9%9F%B3%E9%A2%91%E5%8D%A1%E9%A1%BF"><span class="nav-number">7.2.</span> <span class="nav-text">BLE主机超时断开-导致通话音频卡顿</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E7%AB%99%E7%82%B9"><span class="nav-number">8.</span> <span class="nav-text">参考站点</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -450,12 +516,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">115k</span>
+    <span title="Symbols count total">117k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">6:23</span>
+    <span title="Reading time total">6:32</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
   </div>
