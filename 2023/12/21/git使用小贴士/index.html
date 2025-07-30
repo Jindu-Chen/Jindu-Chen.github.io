@@ -28,7 +28,7 @@
 <meta property="og:description" content="主要记录Git的常用命令、一些非典型操作及其意义解析，也包括在 Git 应用中所遇到的一些问题及解决方案，便于检索与回顾">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2023-12-20T16:00:00.000Z">
-<meta property="article:modified_time" content="2025-07-10T13:11:05.308Z">
+<meta property="article:modified_time" content="2025-07-30T11:44:52.002Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -225,7 +225,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-07-10 21:11:05" itemprop="dateModified" datetime="2025-07-10T21:11:05+08:00">2025-07-10</time>
+                <time title="Modified: 2025-07-30 19:44:52" itemprop="dateModified" datetime="2025-07-30T19:44:52+08:00">2025-07-30</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -243,14 +243,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>8.7k</span>
+              <span>5k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>15 mins.</span>
+              <span>17 mins.</span>
             </span>
             <div class="post-description">主要记录Git的常用命令、一些非典型操作及其意义解析，也包括在 Git 应用中所遇到的一些问题及解决方案，便于检索与回顾</div>
 
@@ -442,6 +442,11 @@
 <td>本地新建分支 dev ，跟踪远程的同名分支 dev</td>
 </tr>
 <tr>
+<td>本地新建分支 dev ，拉取远程的同名分支 dev，且切换，方法二</td>
+<td>git fetch;git checkout dev</td>
+<td>本地新建分支 dev ，跟踪远程的同名分支 dev</td>
+</tr>
+<tr>
 <td>获取远程地址及通信方式</td>
 <td>git remote -v</td>
 <td>以git开头为ssh协议</td>
@@ -449,7 +454,7 @@
 <tr>
 <td>本地仓库添加remote地址</td>
 <td>git remote add origin xxx</td>
-<td>xxx为远程地址, 接着git push -u origin main，首次推送并建立联系，-u为 –set-upstream, main为当前本地分支名</td>
+<td>origin为远端的别名，根据需要自定义, xxx为远程地址, 接着git push -u origin main，首次推送并建立联系，-u为 –set-upstream, main为当前本地分支名</td>
 </tr>
 <tr>
 <td>更新本地仓库的remote地址</td>
@@ -631,7 +636,26 @@
 <li>模板：<code>git clone -b v1.0.0 https://github.com/example/my_repo</code>–克隆仓库 <a target="_blank" rel="noopener" href="https://github.com/example/my_repo">https://github.com/example/my_repo</a> 中标签 v1.0.0 对应的源码到当前目录</li>
 <li>如：<code>git clone -b OpenHarmony-v4.0-Release https://gitee.com/openharmony/kernel_liteos_m.git</code></li>
 </ul>
-<h3 id="本地仓库同时推送远端的多个平台（推送gitee、github）"><a href="#本地仓库同时推送远端的多个平台（推送gitee、github）" class="headerlink" title="本地仓库同时推送远端的多个平台（推送gitee、github）"></a>本地仓库同时推送远端的多个平台（推送gitee、github）</h3><p><strong>方法一：为远程仓库指定多个地址</strong></p>
+<p><strong>创建标签并推送到远端</strong></p>
+<ul>
+<li><code>git tag V1.0.0</code></li>
+<li><code>git push origin V1.0.0</code></li>
+</ul>
+<h3 id="重命名本地分支和远程分支"><a href="#重命名本地分支和远程分支" class="headerlink" title="重命名本地分支和远程分支"></a>重命名本地分支和远程分支</h3><p>具体操作步骤是：</p>
+<ul>
+<li>重命名本地分支</li>
+<li>删除远程的旧命名分支</li>
+<li>推送新命名分支到远程</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 重命名本地分支：git branch -m &lt;oldName&gt; &lt;newName&gt;</span></span><br><span class="line">git branch -m bugfix_add_newadkey_LCP feature/add_new_adkey</span><br><span class="line"></span><br><span class="line"><span class="comment">// 删除远程的旧命名分支： git push --delete origin &lt;oldName&gt;</span></span><br><span class="line">git push --delete origin bugfix_add_newadkey_LCP</span><br><span class="line"></span><br><span class="line"><span class="comment">// 推送本地的新分支：git push origin &lt;newName&gt;</span></span><br><span class="line">git push origin feature/add_new_adkey</span><br></pre></td></tr></table></figure>
+
+<h3 id="本地仓库同时推送远端的多个平台（推送gitee、github）"><a href="#本地仓库同时推送远端的多个平台（推送gitee、github）" class="headerlink" title="本地仓库同时推送远端的多个平台（推送gitee、github）"></a>本地仓库同时推送远端的多个平台（推送gitee、github）</h3><p><strong>方法一 ：设置多个远端仓库</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 添加一个远端，命名为coding，远端的地址为git@github.com:Jindu-Chen/Jindu-Chen.github.io.git</span></span><br><span class="line">git remote add coding git@github.com:Jindu-Chen/Jindu-Chen.github.io.git</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看设置是否成功</span></span><br><span class="line">git remote -v</span><br></pre></td></tr></table></figure>
+<ul>
+<li>存在多个远端仓库下的获取与推送操作<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 将当前分支，只推送到coding远端</span></span><br><span class="line">git push coding</span><br><span class="line"></span><br><span class="line"><span class="comment"># 从 coding 获取更新</span></span><br><span class="line">git fetch coding</span><br><span class="line"></span><br><span class="line"><span class="comment"># 合并coding远端的main分支到当前分支</span></span><br><span class="line">git merge coding/main</span><br></pre></td></tr></table></figure></li>
+<li>修改远端名称<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 将 origin 重命名为 gitee</span></span><br><span class="line">git remote rename origin gitee</span><br></pre></td></tr></table></figure></li>
+</ul>
+<p><strong>方法二 ：为远程仓库指定多个地址</strong></p>
 <ul>
 <li>在本地仓库的根目录有<code>.git</code>隐藏目录，找到<code>.git/config</code>文件，打开编辑，如下所示</li>
 <li>其中代码行<code>url = git@gitee.com:Jindu-Chen/jindu-chen.git</code>为新增（首先需要在远程创建&#x2F;拥有此仓库，并且本地用户已经配置好与gitee、github的连接）</li>
@@ -791,7 +815,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4%E8%A1%A8"><span class="nav-number">1.</span> <span class="nav-text">常用命令表</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B3%A8%E6%84%8F%E9%A1%B9%E5%8F%8A%E6%89%A9%E5%B1%95%E9%97%AE%E9%A2%98%E8%A7%A3%E7%AD%94"><span class="nav-number">2.</span> <span class="nav-text">注意项及扩展问题解答</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%89%A7%E8%A1%8C-git-pull-%E4%BC%9A%E8%A6%86%E7%9B%96%E6%9C%AC%E5%9C%B0%E7%9A%84%E4%BF%AE%E6%94%B9%E5%90%97%EF%BC%9F"><span class="nav-number">2.1.</span> <span class="nav-text">执行 git pull 会覆盖本地的修改吗？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#git-fetch-%E5%92%8C-git-pull-%E7%9A%84%E5%8C%BA%E5%88%AB%E4%B8%8E%E8%81%94%E7%B3%BB"><span class="nav-number">2.2.</span> <span class="nav-text">git fetch 和 git pull 的区别与联系</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E5%8F%96%E6%B6%88%E6%8C%87%E5%AE%9A%E6%96%87%E4%BB%B6%E7%9A%84%E4%BF%AE%E6%94%B9-%E6%9A%82%E5%AD%98-%E6%8F%90%E4%BA%A4%EF%BC%9F"><span class="nav-number">2.3.</span> <span class="nav-text">如何取消指定文件的修改&#x2F;暂存&#x2F;提交？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#git-stash-%E5%92%8C-git-add-%E7%9A%84%E5%8C%BA%E5%88%AB%E4%B8%8E%E5%BA%94%E7%94%A8"><span class="nav-number">2.4.</span> <span class="nav-text">git stash 和 git add 的区别与应用</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9C%AC%E5%9C%B0%E4%BF%AE%E6%94%B9%E5%90%8E%EF%BC%8C%E8%BF%9C%E7%A8%8B%E5%88%86%E6%94%AF%E5%B7%B2%E6%9B%B4%E6%96%B0%EF%BC%8C%E5%AF%BC%E8%87%B4-git-pull-%E5%86%B2%E7%AA%81"><span class="nav-number">2.4.1.</span> <span class="nav-text">本地修改后，远程分支已更新，导致 git pull 冲突</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E8%A7%A3%E5%86%B3%E5%88%86%E6%94%AF%E5%90%88%E5%B9%B6%E5%86%B2%E7%AA%81"><span class="nav-number">2.5.</span> <span class="nav-text">如何解决分支合并冲突</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%AC%E5%9C%B0%E5%88%86%E6%94%AF%E4%B8%8E%E8%BF%9C%E7%AB%AF%E5%88%86%E6%94%AF%E5%90%84%E6%9C%89%E4%B8%80%E4%B8%AA%E6%96%B0%E7%9A%84%E6%8F%90%E4%BA%A4%E6%97%B6%E7%9A%84%E5%81%9A%E6%B3%95"><span class="nav-number">2.6.</span> <span class="nav-text">本地分支与远端分支各有一个新的提交时的做法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#git-commmit%E7%9B%B8%E5%85%B3%E6%89%A9%E5%B1%95"><span class="nav-number">2.7.</span> <span class="nav-text">git commmit相关扩展</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#git-commit%E6%8F%90%E4%BA%A4%E8%A7%84%E8%8C%83"><span class="nav-number">2.7.1.</span> <span class="nav-text">git commit提交规范</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E7%A1%80%E9%9D%9E%E5%85%B8%E5%9E%8B%E6%93%8D%E4%BD%9C"><span class="nav-number">3.</span> <span class="nav-text">基础非典型操作</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%AC%E5%9C%B0git%E9%85%8D%E7%BD%AE"><span class="nav-number">3.1.</span> <span class="nav-text">本地git配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%87%E7%AD%BE%E7%9B%B8%E5%85%B3%E6%93%8D%E4%BD%9C"><span class="nav-number">3.2.</span> <span class="nav-text">标签相关操作</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%AC%E5%9C%B0%E4%BB%93%E5%BA%93%E5%90%8C%E6%97%B6%E6%8E%A8%E9%80%81%E8%BF%9C%E7%AB%AF%E7%9A%84%E5%A4%9A%E4%B8%AA%E5%B9%B3%E5%8F%B0%EF%BC%88%E6%8E%A8%E9%80%81gitee%E3%80%81github%EF%BC%89"><span class="nav-number">3.3.</span> <span class="nav-text">本地仓库同时推送远端的多个平台（推送gitee、github）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B0%86%E6%8C%87%E5%AE%9Acommit%E4%BF%AE%E6%94%B9%E8%BF%87%E7%9A%84%E6%96%87%E4%BB%B6%E6%89%93%E5%8C%85%E5%AF%BC%E5%87%BA"><span class="nav-number">3.4.</span> <span class="nav-text">将指定commit修改过的文件打包导出</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#gitignore%E5%BF%BD%E7%95%A5%E8%A7%84%E5%88%99"><span class="nav-number">3.5.</span> <span class="nav-text">.gitignore忽略规则</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%89%88%E6%9C%AC%E5%8F%91%E5%B8%83"><span class="nav-number">3.6.</span> <span class="nav-text">版本发布</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%9B%E9%98%B6%E6%93%8D%E4%BD%9C"><span class="nav-number">4.</span> <span class="nav-text">进阶操作</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%92%A9%E5%AD%90%E9%85%8D%E7%BD%AE-Git-Hooks"><span class="nav-number">4.1.</span> <span class="nav-text">钩子配置(Git Hooks)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AD%90%E6%A8%A1%E5%9D%97"><span class="nav-number">4.2.</span> <span class="nav-text">子模块</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9D%9E%E5%85%B8%E5%9E%8B%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="nav-number">5.</span> <span class="nav-text">非典型问题解决方案</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%90%8C%E4%B8%80Linux%E4%B8%BB%E6%9C%BA-%E5%A4%9Agithub%E8%B4%A6%E6%88%B7%E7%9A%84%E6%9D%83%E9%99%90%E6%8A%A5%E9%94%99%E9%97%AE%E9%A2%98"><span class="nav-number">5.1.</span> <span class="nav-text">同一Linux主机-多github账户的权限报错问题</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E7%AB%99%E7%82%B9"><span class="nav-number">6.</span> <span class="nav-text">参考站点</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4%E8%A1%A8"><span class="nav-number">1.</span> <span class="nav-text">常用命令表</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B3%A8%E6%84%8F%E9%A1%B9%E5%8F%8A%E6%89%A9%E5%B1%95%E9%97%AE%E9%A2%98%E8%A7%A3%E7%AD%94"><span class="nav-number">2.</span> <span class="nav-text">注意项及扩展问题解答</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%89%A7%E8%A1%8C-git-pull-%E4%BC%9A%E8%A6%86%E7%9B%96%E6%9C%AC%E5%9C%B0%E7%9A%84%E4%BF%AE%E6%94%B9%E5%90%97%EF%BC%9F"><span class="nav-number">2.1.</span> <span class="nav-text">执行 git pull 会覆盖本地的修改吗？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#git-fetch-%E5%92%8C-git-pull-%E7%9A%84%E5%8C%BA%E5%88%AB%E4%B8%8E%E8%81%94%E7%B3%BB"><span class="nav-number">2.2.</span> <span class="nav-text">git fetch 和 git pull 的区别与联系</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E5%8F%96%E6%B6%88%E6%8C%87%E5%AE%9A%E6%96%87%E4%BB%B6%E7%9A%84%E4%BF%AE%E6%94%B9-%E6%9A%82%E5%AD%98-%E6%8F%90%E4%BA%A4%EF%BC%9F"><span class="nav-number">2.3.</span> <span class="nav-text">如何取消指定文件的修改&#x2F;暂存&#x2F;提交？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#git-stash-%E5%92%8C-git-add-%E7%9A%84%E5%8C%BA%E5%88%AB%E4%B8%8E%E5%BA%94%E7%94%A8"><span class="nav-number">2.4.</span> <span class="nav-text">git stash 和 git add 的区别与应用</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9C%AC%E5%9C%B0%E4%BF%AE%E6%94%B9%E5%90%8E%EF%BC%8C%E8%BF%9C%E7%A8%8B%E5%88%86%E6%94%AF%E5%B7%B2%E6%9B%B4%E6%96%B0%EF%BC%8C%E5%AF%BC%E8%87%B4-git-pull-%E5%86%B2%E7%AA%81"><span class="nav-number">2.4.1.</span> <span class="nav-text">本地修改后，远程分支已更新，导致 git pull 冲突</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E8%A7%A3%E5%86%B3%E5%88%86%E6%94%AF%E5%90%88%E5%B9%B6%E5%86%B2%E7%AA%81"><span class="nav-number">2.5.</span> <span class="nav-text">如何解决分支合并冲突</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%AC%E5%9C%B0%E5%88%86%E6%94%AF%E4%B8%8E%E8%BF%9C%E7%AB%AF%E5%88%86%E6%94%AF%E5%90%84%E6%9C%89%E4%B8%80%E4%B8%AA%E6%96%B0%E7%9A%84%E6%8F%90%E4%BA%A4%E6%97%B6%E7%9A%84%E5%81%9A%E6%B3%95"><span class="nav-number">2.6.</span> <span class="nav-text">本地分支与远端分支各有一个新的提交时的做法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#git-commmit%E7%9B%B8%E5%85%B3%E6%89%A9%E5%B1%95"><span class="nav-number">2.7.</span> <span class="nav-text">git commmit相关扩展</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#git-commit%E6%8F%90%E4%BA%A4%E8%A7%84%E8%8C%83"><span class="nav-number">2.7.1.</span> <span class="nav-text">git commit提交规范</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E7%A1%80%E9%9D%9E%E5%85%B8%E5%9E%8B%E6%93%8D%E4%BD%9C"><span class="nav-number">3.</span> <span class="nav-text">基础非典型操作</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%AC%E5%9C%B0git%E9%85%8D%E7%BD%AE"><span class="nav-number">3.1.</span> <span class="nav-text">本地git配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%87%E7%AD%BE%E7%9B%B8%E5%85%B3%E6%93%8D%E4%BD%9C"><span class="nav-number">3.2.</span> <span class="nav-text">标签相关操作</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%87%8D%E5%91%BD%E5%90%8D%E6%9C%AC%E5%9C%B0%E5%88%86%E6%94%AF%E5%92%8C%E8%BF%9C%E7%A8%8B%E5%88%86%E6%94%AF"><span class="nav-number">3.3.</span> <span class="nav-text">重命名本地分支和远程分支</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%AC%E5%9C%B0%E4%BB%93%E5%BA%93%E5%90%8C%E6%97%B6%E6%8E%A8%E9%80%81%E8%BF%9C%E7%AB%AF%E7%9A%84%E5%A4%9A%E4%B8%AA%E5%B9%B3%E5%8F%B0%EF%BC%88%E6%8E%A8%E9%80%81gitee%E3%80%81github%EF%BC%89"><span class="nav-number">3.4.</span> <span class="nav-text">本地仓库同时推送远端的多个平台（推送gitee、github）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B0%86%E6%8C%87%E5%AE%9Acommit%E4%BF%AE%E6%94%B9%E8%BF%87%E7%9A%84%E6%96%87%E4%BB%B6%E6%89%93%E5%8C%85%E5%AF%BC%E5%87%BA"><span class="nav-number">3.5.</span> <span class="nav-text">将指定commit修改过的文件打包导出</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#gitignore%E5%BF%BD%E7%95%A5%E8%A7%84%E5%88%99"><span class="nav-number">3.6.</span> <span class="nav-text">.gitignore忽略规则</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%89%88%E6%9C%AC%E5%8F%91%E5%B8%83"><span class="nav-number">3.7.</span> <span class="nav-text">版本发布</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%9B%E9%98%B6%E6%93%8D%E4%BD%9C"><span class="nav-number">4.</span> <span class="nav-text">进阶操作</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%92%A9%E5%AD%90%E9%85%8D%E7%BD%AE-Git-Hooks"><span class="nav-number">4.1.</span> <span class="nav-text">钩子配置(Git Hooks)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AD%90%E6%A8%A1%E5%9D%97"><span class="nav-number">4.2.</span> <span class="nav-text">子模块</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9D%9E%E5%85%B8%E5%9E%8B%E9%97%AE%E9%A2%98%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="nav-number">5.</span> <span class="nav-text">非典型问题解决方案</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%90%8C%E4%B8%80Linux%E4%B8%BB%E6%9C%BA-%E5%A4%9Agithub%E8%B4%A6%E6%88%B7%E7%9A%84%E6%9D%83%E9%99%90%E6%8A%A5%E9%94%99%E9%97%AE%E9%A2%98"><span class="nav-number">5.1.</span> <span class="nav-text">同一Linux主机-多github账户的权限报错问题</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E7%AB%99%E7%82%B9"><span class="nav-number">6.</span> <span class="nav-text">参考站点</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -854,12 +878,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">124k</span>
+    <span title="Symbols count total">118k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">3:27</span>
+    <span title="Reading time total">6:34</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
   </div>
