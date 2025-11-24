@@ -28,7 +28,7 @@
 <meta property="og:description" content="记录链接脚本的学习内容，主要为链接脚本的要素简述、常用语法说明、常见片段的意义解析、示例代码的讲述及应用">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2023-12-19T16:00:00.000Z">
-<meta property="article:modified_time" content="2024-09-30T09:14:26.046Z">
+<meta property="article:modified_time" content="2025-08-07T08:36:46.873Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -225,7 +225,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2024-09-30 17:14:26" itemprop="dateModified" datetime="2024-09-30T17:14:26+08:00">2024-09-30</time>
+                <time title="Modified: 2025-08-07 16:36:46" itemprop="dateModified" datetime="2025-08-07T16:36:46+08:00">2025-08-07</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -243,14 +243,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>1.8k</span>
+              <span>2k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>6 mins.</span>
+              <span>7 mins.</span>
             </span>
             <div class="post-description">记录链接脚本的学习内容，主要为链接脚本的要素简述、常用语法说明、常见片段的意义解析、示例代码的讲述及应用</div>
 
@@ -333,6 +333,19 @@
 <ul>
 <li>使用<code>__attribute__</code>关键字，如<code>int value __attribute__ ((section (&quot;.ARM.__at_0x20000000&quot;))) = 0x33;</code></li>
 <li>给变量声明一个段，而后在链接脚本中指定这个段的链接或加载地址</li>
+</ul>
+<h3 id="OVERLAY代码放RAM运行，以及动态加载配置"><a href="#OVERLAY代码放RAM运行，以及动态加载配置" class="headerlink" title="OVERLAY代码放RAM运行，以及动态加载配置"></a>OVERLAY代码放RAM运行，以及动态加载配置</h3><p>OVERLAY是一种链接脚本的机制，它可以将多个代码段或数据段合并到一个地址空间中，从而实现代码的动态加载和运行</p>
+<p>OVERLAY的使用场景：</p>
+<ul>
+<li>代码量很大，但是只需要运行其中的一部分</li>
+<li>代码量很大，但是需要运行的部分在运行时才会加载</li>
+</ul>
+<p>OVERLAY的使用步骤：</p>
+<ul>
+<li>在链接脚本中定义一个OVERLAY区域</li>
+<li>在代码中使用<code>__attribute__((section(&quot;.overlay&quot;)))</code>将需要动态加载的代码段或数据段标记为OVERLAY</li>
+<li>在运行时，使用动态加载函数将OVERLAY区域的代码段或数据段加载到RAM中</li>
+<li>调用动态加载函数返回的函数指针，即可执行OVERLAY区域的代码</li>
 </ul>
 <h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2><ul>
 <li><a target="_blank" rel="noopener" href="https://blog.51cto.com/u_15060508/3869831">简单的ld链接脚本学习</a></li>
@@ -417,7 +430,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E7%9F%A5%E8%AF%86%E7%82%B9%E8%A1%A5%E5%85%85"><span class="nav-number">2.</span> <span class="nav-text">基本知识点补充</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9D%97"><span class="nav-number">3.</span> <span class="nav-text">块</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#MEMORY"><span class="nav-number">3.1.</span> <span class="nav-text">MEMORY</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SECTIONS"><span class="nav-number">3.2.</span> <span class="nav-text">SECTIONS</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%91%BD%E4%BB%A4"><span class="nav-number">4.</span> <span class="nav-text">命令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%AD%E5%8F%A5%E3%80%81%E7%89%87%E6%AE%B5%E7%A4%BA%E4%BE%8B%E8%A7%A3%E9%87%8A"><span class="nav-number">5.</span> <span class="nav-text">语句、片段示例解释</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%93%BE%E6%8E%A5%E8%84%9A%E6%9C%AC%E5%AE%8C%E6%95%B4%E7%A4%BA%E4%BE%8B%E8%A7%A3%E9%87%8A"><span class="nav-number">6.</span> <span class="nav-text">链接脚本完整示例解释</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%96%91%E6%83%91%E8%A7%A3%E7%AD%94%E5%8F%8A%E6%B3%A8%E6%84%8F%E9%A1%B9"><span class="nav-number">7.</span> <span class="nav-text">疑惑解答及注意项</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E5%B0%86%E6%8C%87%E5%AE%9A%E7%9A%84%E5%87%BD%E6%95%B0-%E6%95%B0%E6%8D%AE-%E5%8F%98%E9%87%8F%E9%93%BE%E6%8E%A5%E5%88%B0%E6%8C%87%E5%AE%9A%E7%9A%84%E5%86%85%E5%AD%98%E5%9C%B0%E5%9D%80%E4%B8%8A%EF%BC%9F"><span class="nav-number">7.1.</span> <span class="nav-text">如何将指定的函数&#x2F;数据&#x2F;变量链接到指定的内存地址上？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E7%AB%99%E7%82%B9"><span class="nav-number">8.</span> <span class="nav-text">参考站点</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E7%9F%A5%E8%AF%86%E7%82%B9%E8%A1%A5%E5%85%85"><span class="nav-number">2.</span> <span class="nav-text">基本知识点补充</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9D%97"><span class="nav-number">3.</span> <span class="nav-text">块</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#MEMORY"><span class="nav-number">3.1.</span> <span class="nav-text">MEMORY</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SECTIONS"><span class="nav-number">3.2.</span> <span class="nav-text">SECTIONS</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%91%BD%E4%BB%A4"><span class="nav-number">4.</span> <span class="nav-text">命令</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%AD%E5%8F%A5%E3%80%81%E7%89%87%E6%AE%B5%E7%A4%BA%E4%BE%8B%E8%A7%A3%E9%87%8A"><span class="nav-number">5.</span> <span class="nav-text">语句、片段示例解释</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%93%BE%E6%8E%A5%E8%84%9A%E6%9C%AC%E5%AE%8C%E6%95%B4%E7%A4%BA%E4%BE%8B%E8%A7%A3%E9%87%8A"><span class="nav-number">6.</span> <span class="nav-text">链接脚本完整示例解释</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%96%91%E6%83%91%E8%A7%A3%E7%AD%94%E5%8F%8A%E6%B3%A8%E6%84%8F%E9%A1%B9"><span class="nav-number">7.</span> <span class="nav-text">疑惑解答及注意项</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E5%B0%86%E6%8C%87%E5%AE%9A%E7%9A%84%E5%87%BD%E6%95%B0-%E6%95%B0%E6%8D%AE-%E5%8F%98%E9%87%8F%E9%93%BE%E6%8E%A5%E5%88%B0%E6%8C%87%E5%AE%9A%E7%9A%84%E5%86%85%E5%AD%98%E5%9C%B0%E5%9D%80%E4%B8%8A%EF%BC%9F"><span class="nav-number">7.1.</span> <span class="nav-text">如何将指定的函数&#x2F;数据&#x2F;变量链接到指定的内存地址上？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#OVERLAY%E4%BB%A3%E7%A0%81%E6%94%BERAM%E8%BF%90%E8%A1%8C%EF%BC%8C%E4%BB%A5%E5%8F%8A%E5%8A%A8%E6%80%81%E5%8A%A0%E8%BD%BD%E9%85%8D%E7%BD%AE"><span class="nav-number">7.2.</span> <span class="nav-text">OVERLAY代码放RAM运行，以及动态加载配置</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E7%AB%99%E7%82%B9"><span class="nav-number">8.</span> <span class="nav-text">参考站点</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -431,7 +444,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">48</span>
+          <span class="site-state-item-count">49</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -480,12 +493,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="Symbols count total">118k</span>
+    <span title="Symbols count total">120k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">6:34</span>
+    <span title="Reading time total">6:41</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
   </div>
