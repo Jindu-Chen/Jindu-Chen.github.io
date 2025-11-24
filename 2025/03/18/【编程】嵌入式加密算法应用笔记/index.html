@@ -28,7 +28,7 @@
 <meta property="og:description" content="以小米手环与小米穿戴设备间通信为例，讲述密码学相关算法以及通讯、绑定加密开发流程">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2025-03-17T16:00:00.000Z">
-<meta property="article:modified_time" content="2025-11-24T11:07:57.068Z">
+<meta property="article:modified_time" content="2025-11-24T11:13:03.653Z">
 <meta property="article:author" content="cjd">
 <meta property="article:tag" content="C语言,嵌入式,Linux,mcu">
 <meta name="twitter:card" content="summary">
@@ -225,7 +225,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">Edited on</span>
-                <time title="Modified: 2025-11-24 19:07:57" itemprop="dateModified" datetime="2025-11-24T19:07:57+08:00">2025-11-24</time>
+                <time title="Modified: 2025-11-24 19:13:03" itemprop="dateModified" datetime="2025-11-24T19:13:03+08:00">2025-11-24</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -247,14 +247,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">Symbols count in article: </span>
-              <span>2.1k</span>
+              <span>2.3k</span>
             </span>
             <span class="post-meta-item" title="Reading time">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">Reading time &asymp;</span>
-              <span>7 mins.</span>
+              <span>8 mins.</span>
             </span>
             <div class="post-description">以小米手环与小米穿戴设备间通信为例，讲述密码学相关算法以及通讯、绑定加密开发流程</div>
 
@@ -364,6 +364,41 @@
 </tbody></table>
 <p>公钥给你一把‘只能锁门’的挂锁；只有我手里的私钥才能造出‘能开门’的钥匙</p>
 <p>先使用了私钥进行了运算，只有对的公钥才能验证算式成功</p>
+<h3 id="HMAC也是验证数据完整性的一种机制，所以HMAC是数字签名吗？"><a href="#HMAC也是验证数据完整性的一种机制，所以HMAC是数字签名吗？" class="headerlink" title="HMAC也是验证数据完整性的一种机制，所以HMAC是数字签名吗？"></a>HMAC也是验证数据完整性的一种机制，所以HMAC是数字签名吗？</h3><p>HMAC 只能做“消息认证码”（MAC），而数字签名必须基于非对称密钥（私钥签名+公钥验签）。二者最本质的差别：</p>
+<table>
+<thead>
+<tr>
+<th>能力</th>
+<th>HMAC</th>
+<th>数字签名</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>是否用到非对称密钥</td>
+<td>❌ 对称密钥（双方共享同一把）</td>
+<td>✅ 私钥签名，公钥验签</td>
+</tr>
+<tr>
+<td>能否让第三方仲裁</td>
+<td>❌ 任何能验的人也能伪造，无法证明“是谁签的”</td>
+<td>✅ 公钥公开，私钥唯一；第三方可独立验证</td>
+</tr>
+<tr>
+<td>主要作用</td>
+<td>防篡改、防伪造（<strong>参与双方诚实</strong>场景）</td>
+<td>additionally 提供<strong>不可否认性</strong>（可上法庭）</td>
+</tr>
+<tr>
+<td>性能</td>
+<td>哈希+一次对称运算，极快</td>
+<td>非对称运算，慢一个量级</td>
+</tr>
+<tr>
+<td>常见标准</td>
+<td>HMAC-SHA256、HMAC-SHA512</td>
+<td>RSA-PSS、ECDSA、Ed25519</td>
+</tr>
+</tbody></table>
 <h2 id="参考站点"><a href="#参考站点" class="headerlink" title="参考站点"></a>参考站点</h2><ul>
 <li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/662069195">浅析 TLS（ECDHE）协议的握手流程（图解）</a></li>
 </ul>
@@ -447,7 +482,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B5%8C%E5%85%A5%E5%BC%8F%E4%B9%8B%E5%8A%A0%E5%AF%86%E5%BA%94%E7%94%A8%E7%AE%80%E8%BF%B0"><span class="nav-number">2.</span> <span class="nav-text">嵌入式之加密应用简述</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%8E%B0%E4%BB%A3%E5%8A%A0%E5%AF%86%E5%8D%8F%E8%AE%AE-TLS-1-3"><span class="nav-number">2.1.</span> <span class="nav-text">现代加密协议 TLS 1.3</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8A%A0%E5%AF%86%E7%AE%97%E6%B3%95%E6%A6%82%E5%BF%B5%E7%AE%80%E8%BF%B0"><span class="nav-number">2.2.</span> <span class="nav-text">加密算法概念简述</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8A%A0%E5%AF%86%E7%AE%97%E6%B3%95%E8%AF%B4%E6%98%8E%E5%8F%8A%E7%94%A8%E4%BE%8B"><span class="nav-number">3.</span> <span class="nav-text">加密算法说明及用例</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#ECDH%EF%BC%88%E6%A4%AD%E5%9C%86%E6%9B%B2%E7%BA%BF%E8%BF%AA%E8%8F%B2-%E8%B5%AB%E5%B0%94%E6%9B%BC%E5%AF%86%E9%92%A5%E4%BA%A4%E6%8D%A2%EF%BC%89"><span class="nav-number">3.1.</span> <span class="nav-text">ECDH（椭圆曲线迪菲-赫尔曼密钥交换）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E4%BB%A5%E5%8F%8A%E7%94%A8%E4%BE%8B%E9%AA%8C%E8%AF%81"><span class="nav-number">3.1.1.</span> <span class="nav-text">代码以及用例验证</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SHA256"><span class="nav-number">3.2.</span> <span class="nav-text">SHA256</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#HMAC"><span class="nav-number">3.3.</span> <span class="nav-text">HMAC</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#HKDF"><span class="nav-number">3.4.</span> <span class="nav-text">HKDF</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AES"><span class="nav-number">3.5.</span> <span class="nav-text">AES</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MD5"><span class="nav-number">3.6.</span> <span class="nav-text">MD5</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8A%A0%E5%AF%86%E6%B5%81%E7%A8%8B%E8%AE%B2%E8%BF%B0"><span class="nav-number">4.</span> <span class="nav-text">加密流程讲述</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B8%E5%9E%8B%E5%8D%8F%E8%AE%AE%E6%B5%81%E7%A8%8B%E7%A4%BA%E4%BE%8B%EF%BC%88TLS-1-3%EF%BC%89%E2%80%8B"><span class="nav-number">4.1.</span> <span class="nav-text">典型协议流程示例（TLS 1.3）​</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#XiaoMi-%E7%A9%BF%E6%88%B4%E5%8A%A0%E5%AF%86%E6%B5%81%E7%A8%8B"><span class="nav-number">4.2.</span> <span class="nav-text">XiaoMi 穿戴加密流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%80%9A%E4%BF%A1"><span class="nav-number">4.3.</span> <span class="nav-text">通信</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B5%8C%E5%85%A5%E5%BC%8F%E5%8A%A0%E5%AF%86%E7%AE%97%E6%B3%95%E7%A7%BB%E6%A4%8D%E3%80%81%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%BA%94%E7%94%A8"><span class="nav-number">5.</span> <span class="nav-text">嵌入式加密算法移植、设计与应用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%9D%E8%80%83%E4%B8%8E%E6%8B%93%E5%B1%95"><span class="nav-number">6.</span> <span class="nav-text">思考与拓展</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E8%87%AA%E5%B7%B1%E6%90%AD%E5%BB%BA-%E5%BA%94%E7%94%A8%E7%8E%B0%E4%BB%A3%E5%8A%A0%E5%AF%86%E5%8D%8F%E8%AE%AE%E6%A0%88%EF%BC%9F"><span class="nav-number">6.1.</span> <span class="nav-text">如何自己搭建&#x2F;应用现代加密协议栈？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%AA%8C%E8%AF%81%E7%AE%97%E6%B3%95%E6%8E%A5%E5%8F%A3%E6%98%AF%E5%90%A6%E6%AD%A3%E7%A1%AE%EF%BC%8Cpython%E5%8F%AF%E6%89%A7%E8%A1%8C%E5%AF%B9%E6%AF%94"><span class="nav-number">6.2.</span> <span class="nav-text">验证算法接口是否正确，python可执行对比</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ECDH%E4%B8%8ESHA256%E7%9A%84%E8%81%94%E7%B3%BB%EF%BC%9F"><span class="nav-number">6.3.</span> <span class="nav-text">ECDH与SHA256的联系？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TLS%E3%80%81TLS-1-3-%E6%98%AF%E5%95%A5%E5%8A%A0%E5%AF%86%E5%8D%8F%E8%AE%AE%E6%B5%81%E7%A8%8B%EF%BC%9F"><span class="nav-number">6.4.</span> <span class="nav-text">TLS、TLS 1.3 是啥加密协议流程？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8A%A0%E5%AF%86%E7%AE%97%E6%B3%95%E4%BB%A3%E7%A0%81%E5%8D%A0%E7%94%A8%E7%A9%BA%E9%97%B4%EF%BC%9F"><span class="nav-number">6.5.</span> <span class="nav-text">加密算法代码占用空间？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%89%80%E6%9C%89%E7%9A%84%E6%95%B0%E6%8D%AE%E9%80%9A%E4%BF%A1%E9%83%BD%E6%98%AF%E5%AF%86%E6%96%87%E5%90%97%EF%BC%9F%E5%9F%BA%E4%BA%8EECDH%E5%BE%97%E5%88%B0%E7%9A%84%E5%85%B1%E4%BA%AB%E5%AF%86%E9%92%A5%EF%BC%8C%E5%A6%82%E4%BD%95%E5%AF%B9%E6%95%B0%E6%8D%AE%E8%BF%9B%E8%A1%8C%E5%8A%A0%E5%AF%86%EF%BC%9F"><span class="nav-number">6.6.</span> <span class="nav-text">所有的数据通信都是密文吗？基于ECDH得到的共享密钥，如何对数据进行加密？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%9D%9E%E5%AF%B9%E7%A7%B0%E5%8A%A0%E5%AF%86%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F%E5%AF%B9%E7%A7%B0%E5%8A%A0%E5%AF%86%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F%E5%8C%BA%E5%88%AB%E4%B8%8E%E8%81%94%E7%B3%BB%E3%80%81%E5%BA%94%E7%94%A8%EF%BC%9F"><span class="nav-number">6.7.</span> <span class="nav-text">非对称加密是什么？对称加密是什么？区别与联系、应用？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%89%E5%85%83%E7%BB%84%E6%98%AF%E5%95%A5%EF%BC%9F%E4%B8%8E%E5%8A%A0%E5%AF%86%E7%AE%97%E6%B3%95%E7%9A%84%E8%81%94%E7%B3%BB%EF%BC%9F%E5%9B%9B%E5%85%83%E7%BB%84%E5%91%A2%EF%BC%9F"><span class="nav-number">6.8.</span> <span class="nav-text">三元组是啥？与加密算法的联系？四元组呢？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%AF%E8%83%BD%E7%A0%B4%E8%A7%A3%E7%9A%84%E6%B5%81%E7%A8%8B%E6%98%AF%E6%80%8E%E6%A0%B7%E7%9A%84%EF%BC%9F%E7%9F%A5%E9%81%93%E4%BA%86%E7%A7%81%E9%92%A5%EF%BC%8C%E8%83%BD%E7%A0%B4%E8%A7%A3%E6%95%B0%E6%8D%AE%E5%90%97%EF%BC%9F"><span class="nav-number">6.9.</span> <span class="nav-text">可能破解的流程是怎样的？知道了私钥，能破解数据吗？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B0%E5%AD%97%E7%AD%BE%E5%90%8D%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-number">6.10.</span> <span class="nav-text">数字签名是什么？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E7%AB%99%E7%82%B9"><span class="nav-number">7.</span> <span class="nav-text">参考站点</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B5%8C%E5%85%A5%E5%BC%8F%E4%B9%8B%E5%8A%A0%E5%AF%86%E5%BA%94%E7%94%A8%E7%AE%80%E8%BF%B0"><span class="nav-number">2.</span> <span class="nav-text">嵌入式之加密应用简述</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%8E%B0%E4%BB%A3%E5%8A%A0%E5%AF%86%E5%8D%8F%E8%AE%AE-TLS-1-3"><span class="nav-number">2.1.</span> <span class="nav-text">现代加密协议 TLS 1.3</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8A%A0%E5%AF%86%E7%AE%97%E6%B3%95%E6%A6%82%E5%BF%B5%E7%AE%80%E8%BF%B0"><span class="nav-number">2.2.</span> <span class="nav-text">加密算法概念简述</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8A%A0%E5%AF%86%E7%AE%97%E6%B3%95%E8%AF%B4%E6%98%8E%E5%8F%8A%E7%94%A8%E4%BE%8B"><span class="nav-number">3.</span> <span class="nav-text">加密算法说明及用例</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#ECDH%EF%BC%88%E6%A4%AD%E5%9C%86%E6%9B%B2%E7%BA%BF%E8%BF%AA%E8%8F%B2-%E8%B5%AB%E5%B0%94%E6%9B%BC%E5%AF%86%E9%92%A5%E4%BA%A4%E6%8D%A2%EF%BC%89"><span class="nav-number">3.1.</span> <span class="nav-text">ECDH（椭圆曲线迪菲-赫尔曼密钥交换）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E4%BB%A5%E5%8F%8A%E7%94%A8%E4%BE%8B%E9%AA%8C%E8%AF%81"><span class="nav-number">3.1.1.</span> <span class="nav-text">代码以及用例验证</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SHA256"><span class="nav-number">3.2.</span> <span class="nav-text">SHA256</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#HMAC"><span class="nav-number">3.3.</span> <span class="nav-text">HMAC</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#HKDF"><span class="nav-number">3.4.</span> <span class="nav-text">HKDF</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AES"><span class="nav-number">3.5.</span> <span class="nav-text">AES</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MD5"><span class="nav-number">3.6.</span> <span class="nav-text">MD5</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8A%A0%E5%AF%86%E6%B5%81%E7%A8%8B%E8%AE%B2%E8%BF%B0"><span class="nav-number">4.</span> <span class="nav-text">加密流程讲述</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B8%E5%9E%8B%E5%8D%8F%E8%AE%AE%E6%B5%81%E7%A8%8B%E7%A4%BA%E4%BE%8B%EF%BC%88TLS-1-3%EF%BC%89%E2%80%8B"><span class="nav-number">4.1.</span> <span class="nav-text">典型协议流程示例（TLS 1.3）​</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#XiaoMi-%E7%A9%BF%E6%88%B4%E5%8A%A0%E5%AF%86%E6%B5%81%E7%A8%8B"><span class="nav-number">4.2.</span> <span class="nav-text">XiaoMi 穿戴加密流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%80%9A%E4%BF%A1"><span class="nav-number">4.3.</span> <span class="nav-text">通信</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B5%8C%E5%85%A5%E5%BC%8F%E5%8A%A0%E5%AF%86%E7%AE%97%E6%B3%95%E7%A7%BB%E6%A4%8D%E3%80%81%E8%AE%BE%E8%AE%A1%E4%B8%8E%E5%BA%94%E7%94%A8"><span class="nav-number">5.</span> <span class="nav-text">嵌入式加密算法移植、设计与应用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%9D%E8%80%83%E4%B8%8E%E6%8B%93%E5%B1%95"><span class="nav-number">6.</span> <span class="nav-text">思考与拓展</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E8%87%AA%E5%B7%B1%E6%90%AD%E5%BB%BA-%E5%BA%94%E7%94%A8%E7%8E%B0%E4%BB%A3%E5%8A%A0%E5%AF%86%E5%8D%8F%E8%AE%AE%E6%A0%88%EF%BC%9F"><span class="nav-number">6.1.</span> <span class="nav-text">如何自己搭建&#x2F;应用现代加密协议栈？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%AA%8C%E8%AF%81%E7%AE%97%E6%B3%95%E6%8E%A5%E5%8F%A3%E6%98%AF%E5%90%A6%E6%AD%A3%E7%A1%AE%EF%BC%8Cpython%E5%8F%AF%E6%89%A7%E8%A1%8C%E5%AF%B9%E6%AF%94"><span class="nav-number">6.2.</span> <span class="nav-text">验证算法接口是否正确，python可执行对比</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ECDH%E4%B8%8ESHA256%E7%9A%84%E8%81%94%E7%B3%BB%EF%BC%9F"><span class="nav-number">6.3.</span> <span class="nav-text">ECDH与SHA256的联系？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TLS%E3%80%81TLS-1-3-%E6%98%AF%E5%95%A5%E5%8A%A0%E5%AF%86%E5%8D%8F%E8%AE%AE%E6%B5%81%E7%A8%8B%EF%BC%9F"><span class="nav-number">6.4.</span> <span class="nav-text">TLS、TLS 1.3 是啥加密协议流程？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8A%A0%E5%AF%86%E7%AE%97%E6%B3%95%E4%BB%A3%E7%A0%81%E5%8D%A0%E7%94%A8%E7%A9%BA%E9%97%B4%EF%BC%9F"><span class="nav-number">6.5.</span> <span class="nav-text">加密算法代码占用空间？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%89%80%E6%9C%89%E7%9A%84%E6%95%B0%E6%8D%AE%E9%80%9A%E4%BF%A1%E9%83%BD%E6%98%AF%E5%AF%86%E6%96%87%E5%90%97%EF%BC%9F%E5%9F%BA%E4%BA%8EECDH%E5%BE%97%E5%88%B0%E7%9A%84%E5%85%B1%E4%BA%AB%E5%AF%86%E9%92%A5%EF%BC%8C%E5%A6%82%E4%BD%95%E5%AF%B9%E6%95%B0%E6%8D%AE%E8%BF%9B%E8%A1%8C%E5%8A%A0%E5%AF%86%EF%BC%9F"><span class="nav-number">6.6.</span> <span class="nav-text">所有的数据通信都是密文吗？基于ECDH得到的共享密钥，如何对数据进行加密？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%9D%9E%E5%AF%B9%E7%A7%B0%E5%8A%A0%E5%AF%86%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F%E5%AF%B9%E7%A7%B0%E5%8A%A0%E5%AF%86%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F%E5%8C%BA%E5%88%AB%E4%B8%8E%E8%81%94%E7%B3%BB%E3%80%81%E5%BA%94%E7%94%A8%EF%BC%9F"><span class="nav-number">6.7.</span> <span class="nav-text">非对称加密是什么？对称加密是什么？区别与联系、应用？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%89%E5%85%83%E7%BB%84%E6%98%AF%E5%95%A5%EF%BC%9F%E4%B8%8E%E5%8A%A0%E5%AF%86%E7%AE%97%E6%B3%95%E7%9A%84%E8%81%94%E7%B3%BB%EF%BC%9F%E5%9B%9B%E5%85%83%E7%BB%84%E5%91%A2%EF%BC%9F"><span class="nav-number">6.8.</span> <span class="nav-text">三元组是啥？与加密算法的联系？四元组呢？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%AF%E8%83%BD%E7%A0%B4%E8%A7%A3%E7%9A%84%E6%B5%81%E7%A8%8B%E6%98%AF%E6%80%8E%E6%A0%B7%E7%9A%84%EF%BC%9F%E7%9F%A5%E9%81%93%E4%BA%86%E7%A7%81%E9%92%A5%EF%BC%8C%E8%83%BD%E7%A0%B4%E8%A7%A3%E6%95%B0%E6%8D%AE%E5%90%97%EF%BC%9F"><span class="nav-number">6.9.</span> <span class="nav-text">可能破解的流程是怎样的？知道了私钥，能破解数据吗？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B0%E5%AD%97%E7%AD%BE%E5%90%8D%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-number">6.10.</span> <span class="nav-text">数字签名是什么？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#HMAC%E4%B9%9F%E6%98%AF%E9%AA%8C%E8%AF%81%E6%95%B0%E6%8D%AE%E5%AE%8C%E6%95%B4%E6%80%A7%E7%9A%84%E4%B8%80%E7%A7%8D%E6%9C%BA%E5%88%B6%EF%BC%8C%E6%89%80%E4%BB%A5HMAC%E6%98%AF%E6%95%B0%E5%AD%97%E7%AD%BE%E5%90%8D%E5%90%97%EF%BC%9F"><span class="nav-number">6.11.</span> <span class="nav-text">HMAC也是验证数据完整性的一种机制，所以HMAC是数字签名吗？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E7%AB%99%E7%82%B9"><span class="nav-number">7.</span> <span class="nav-text">参考站点</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -515,7 +550,7 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="Reading time total">6:43</span>
+    <span title="Reading time total">6:44</span>
 </div>
   <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
   </div>
